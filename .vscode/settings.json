@@ -1,0 +1,36 @@
+{
+  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSave": {
+    "source.format.oxc": "always"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.classFunctions": ["tw", "clsx", "tw\\.[a-z-]+"],
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "tv\\(([^)(]*(?:\\([^)(]*(?:\\([^)(]*(?:\\([^)(]*\\)[^)(]*)*\\)[^)(]*)*\\)[^)(]*)*)\\)",
+      "\"(.*?)\""
+    ],
+    "tw`(.*?)`",
+    "tw\\('(.*?)'\\)",
+    "tw\\(\\s*('(.*?)'|\"(.*?)\")\\s*\\)",
+    [
+      "\\btv\\(\\s*((?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|`(?:\\\\.|[^`\\\\])*`|[^)]*)*)\\)",
+      "[\"']([^\"']*)[\"']"
+    ],
+    [
+      "\\btv\\(\\s*((?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|`(?:\\\\.|[^`\\\\])*`|[^)]*)*)\\)",
+      "`([^`]*)`"
+    ]
+  ],
+  "oxc.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "vue.server.hybridMode": true
+}

@@ -245,7 +245,7 @@ export const ICONS = {
   help: "lucide:circle-help",
 
   faq: "tabler:message-question",
-  support: "lucide:life-buoy"
-} as const
+  support: "lucide:life-buoy",
+} as const;
 
-export type IconName = keyof typeof ICONS
+export type IconName = keyof typeof ICONS;
