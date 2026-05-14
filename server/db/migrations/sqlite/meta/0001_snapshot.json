@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2e6d2e7e-e3cc-412d-8a9f-9ba2ddd2245e",
-  "prevId": "757db17d-30df-417d-b857-2bb1d8e1c733",
+  "id": "ad8f7421-56b9-4d79-8fc3-caf52412849e",
+  "prevId": "de0072d3-0a1b-44d5-b04b-f1234f1d2531",
   "tables": {
     "academic_sessions": {
       "name": "academic_sessions",
@@ -223,6 +223,13 @@
             "name"
           ],
           "isUnique": true
+        },
+        "classes_teacher_id_unique": {
+          "name": "classes_teacher_id_unique",
+          "columns": [
+            "teacher_id"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -236,7 +243,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "classes_subject_list_subject_lists_id_fk": {
@@ -479,8 +486,9 @@
           "name": "role",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'user'"
         },
         "banned": {
           "name": "banned",

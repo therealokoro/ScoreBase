@@ -6,7 +6,7 @@ import { academicSessionRouter } from "./session.router";
 import { subjectRouter } from "./subject.router";
 import { subjectListRouter } from "./subjectList.router";
 import { classRouter } from "./class.router";
-// import { teacherRouter } from "./teacher.router"
+import { teacherRouter } from "./teacher.router"
 
 export const apiRouter = {
   health: baseORPC.handler(() => ({ status: "API Working", timestamp: Date.now() })),
@@ -15,7 +15,7 @@ export const apiRouter = {
   subject: subjectRouter,
   subjectList: subjectListRouter,
   class: classRouter,
-  // teacher: teacherRouter,
+  teacher: teacherRouter,
 };
 
 export type APIRouter = typeof apiRouter;

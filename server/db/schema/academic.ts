@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { user } from ".";
 import { typeid } from "typeid-js";
@@ -29,7 +29,9 @@ export const classes = sqliteTable("classes", {
     .primaryKey()
     .$default(() => typeid("class").toString()),
   name: text("name").notNull().unique(),
-  teacherId: text("teacher_id").references(() => user.id),
+  teacherId: text("teacher_id")
+    .unique() // enforces the one-to-one
+    .references(() => user.id, { onDelete: "set null" }),
   subjectList: text("subject_list").references(() => subjectLists.id),
   ...dateTimeSchema,
 });
@@ -55,3 +57,10 @@ export const subjectLists = sqliteTable("subject_lists", {
   subjectIds: text("subjectIds", { mode: "json" }).$type<string[]>(),
   ...dateTimeSchema,
 });
+
+export const classesRelations = relations(classes, ({ one }) => ({
+  formTeacher: one(user, {
+    fields: [classes.teacherId],
+    references: [user.id],
+  }),
+}));
