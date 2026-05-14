@@ -1,4 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const optimizeDepsArr = [
+  "@libsql/client",
+  "@nuxthub/db",
+  "@orpc/client",
+  "@orpc/client/fetch",
+  "@orpc/client/plugins",
+  "@orpc/tanstack-query",
+  "better-auth",
+  "better-auth/adapters/drizzle",
+  "better-auth/client/plugins",
+  "better-auth/plugins",
+  "better-auth/vue",
+  "drizzle-orm",
+  "drizzle-orm/sqlite-core",
+];
+
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
@@ -10,25 +26,14 @@ export default defineNuxtConfig({
   vite: {
     // plugins: [tailwindcss()],
     optimizeDeps: {
-      noDiscovery: true,
-      include: [
-        "@orpc/client",
-        "@orpc/client/fetch",
-        "@orpc/client/plugins",
-        "@orpc/tanstack-query",
-        "@tanstack/vue-query",
-        "class-variance-authority",
-        "reka-ui",
-        "tailwind-variants",
-        "clsx",
-        "tailwind-merge",
-      ],
+      // noDiscovery: true,
+      include: optimizeDepsArr,
     },
   },
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
+      betterAuthUrl: process.env.BETTER_AUTH_URL,
     },
   },
 });

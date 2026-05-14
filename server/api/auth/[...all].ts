@@ -1,4 +1,4 @@
-import { getServerAuth } from "~~/server/utils/auth";
+import { getServerAuth } from "~~/server/utils/server-auth";
 
 export default defineEventHandler((event) => {
   const auth = getServerAuth();

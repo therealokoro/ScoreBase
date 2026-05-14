@@ -1,15 +1,21 @@
 import { adminClient } from "better-auth/client/plugins";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/vue";
-import { getServerAuth } from "~~/server/utils/auth";
+import type { getServerAuth } from "~~/server/utils/server-auth";
 
 function getAuthClient() {
   const rc = useRuntimeConfig();
   return createAuthClient({
-    baseURL: rc.public.siteUrl,
+    baseURL: rc.public.betterAuthUrl,
     plugins: [adminClient(), inferAdditionalFields<typeof getServerAuth>()],
   });
 }
+
+type AuthClient = ReturnType<typeof getAuthClient>;
+type SessionUser = NonNullable<
+  NonNullable<Awaited<ReturnType<AuthClient["getSession"]>>["data"]>["user"]
+>;
+export type IUser = Omit<SessionUser, "image" | "emailVerified">;
 
 export function useAuth() {
   const authClient = getAuthClient();
@@ -23,7 +29,7 @@ export function useAuth() {
    * @example
    *   <p v-if="auth.currentUser">Hello, {{ auth.currentUser.name }}</p>
    */
-  const currentUser = computed(() => data.value?.user ?? null);
+  const currentUser = computed<IUser | null>(() => data.value?.user ?? null);
 
   /**
    * The authenticated user object, **non-null asserted**. Only access this after confirming
@@ -35,7 +41,7 @@ export function useAuth() {
    *   <p>{{ auth.user.name }}</p>
    *   </template>
    */
-  const user = computed(() => data.value!.user);
+  const user = computed<IUser>(() => data.value!.user);
 
   /** The raw better-auth session record (id, token, expiresAt, …), or `null`. */
   const session = computed(() => data.value?.session ?? null);
@@ -73,7 +79,7 @@ export function useAuth() {
 
     refresh,
 
-    // better-auth client methods — re-exported as-is so callers get full
+    // better-auth client methods — re-exported as-is so callers get full type support
     signIn: authClient.signIn,
     signUp: authClient.signUp,
     signOut: authClient.signOut,
