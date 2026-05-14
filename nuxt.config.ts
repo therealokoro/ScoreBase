@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from "@tailwindcss/vite";
+
 const optimizeDepsArr = [
   "@libsql/client",
   "@nuxthub/db",
@@ -13,21 +15,36 @@ const optimizeDepsArr = [
   "better-auth/vue",
   "drizzle-orm",
   "drizzle-orm/sqlite-core",
+  "@tanstack/vue-query",
+  "class-variance-authority",
+  "reka-ui",
+  "clsx",
+  "tailwind-merge",
 ];
 
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
-  modules: ["@nuxt/icon", "@nuxthub/core", "@peterbud/nuxt-query"],
+  modules: [
+    "shadcn-nuxt",
+    "@peterbud/nuxt-query",
+    "@nuxt/icon",
+    "@nuxt/fonts",
+    "@vueuse/nuxt",
+    "@nuxthub/core",
+  ],
   nuxtQuery: { autoImports: true },
   hub: {
     kv: true,
     db: { dialect: "sqlite", casing: "snake_case" },
   },
+  components: [{ path: "~/components", ignore: ["ui/**", "form/**"] }],
+  shadcn: { prefix: "Ui", componentDir: "@/components/ui" },
+  css: ["~/assets/css/main.css"],
   vite: {
-    // plugins: [tailwindcss()],
+    plugins: [tailwindcss()],
     optimizeDeps: {
-      // noDiscovery: true,
+      noDiscovery: true,
       include: optimizeDepsArr,
     },
   },
