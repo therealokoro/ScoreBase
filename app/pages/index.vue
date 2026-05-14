@@ -20,8 +20,15 @@ async function signIn() {
 }
 
 const { $orpc } = useNuxtApp();
+const makeMutation = useMutation($orpc.academicSession.create.mutationOptions({}));
+function mutate() {
+  makeMutation.mutate({
+    name: "2024/2025 Session",
+  });
+}
 const { data: fetchedData, refetch } = useQuery(
-  $orpc.health.queryOptions({
+  $orpc.academicSession.getOne.queryOptions({
+    input: { id: "aca_01krkzspaqfqd9jvzm4vyptzce" },
     enabled: false,
   }),
 );
@@ -34,6 +41,7 @@ const { data: fetchedData, refetch } = useQuery(
     <ui-button @click="signUp()">Sign Up</ui-button>
     <ui-button @click="signIn()">Login</ui-button>
     <ui-button @click="auth.signOut()">Log out</ui-button>
+    <ui-button @click="mutate()">Mutate</ui-button>
     <ui-button @click="refetch()">Fetch Data</ui-button>
     <pre>Fetched: {{ fetchedData }}</pre>
   </div>
