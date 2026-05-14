@@ -24,6 +24,7 @@
     "@orpc/server": "^1.14.3",
     "@orpc/tanstack-query": "^1.14.3",
     "@orpc/zod": "^1.14.3",
+    "@peterbud/nuxt-query": "^1.8.0",
     "better-auth": "^1.6.11",
     "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.8.3",

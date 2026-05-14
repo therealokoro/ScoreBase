@@ -18,6 +18,13 @@ async function signUp() {
 async function signIn() {
   await auth.signIn.email({ ...creds });
 }
+
+const { $orpc } = useNuxtApp();
+const { data: fetchedData, refetch } = useQuery(
+  $orpc.health.queryOptions({
+    enabled: false,
+  }),
+);
 </script>
 
 <template>
@@ -27,5 +34,7 @@ async function signIn() {
     <button @click="signUp()">Sign Up</button>
     <button @click="signIn()">Login</button>
     <button @click="auth.signOut()">Log out</button>
+    <button @click="refetch()">Fetch Data</button>
+    <pre>Fetched: {{ fetchedData }}</pre>
   </div>
 </template>

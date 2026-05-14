@@ -18,7 +18,8 @@ const optimizeDepsArr = [
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
-  modules: ["@nuxthub/core"],
+  modules: ["@nuxthub/core", "@peterbud/nuxt-query"],
+  nuxtQuery: { autoImports: true },
   hub: {
     kv: true,
     db: { dialect: "sqlite", casing: "snake_case" },
