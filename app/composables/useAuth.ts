@@ -7,15 +7,9 @@ function getAuthClient() {
   const rc = useRuntimeConfig();
   return createAuthClient({
     baseURL: rc.public.betterAuthUrl,
-    plugins: [adminClient(), inferAdditionalFields<typeof getServerAuth>()],
+    plugins: [adminClient(), inferAdditionalFields<ReturnType<typeof getServerAuth>>()],
   });
 }
-
-type AuthClient = ReturnType<typeof getAuthClient>;
-type SessionUser = NonNullable<
-  NonNullable<Awaited<ReturnType<AuthClient["getSession"]>>["data"]>["user"]
->;
-export type IUser = Omit<SessionUser, "image" | "emailVerified">;
 
 export function useAuth() {
   const authClient = getAuthClient();
@@ -29,7 +23,7 @@ export function useAuth() {
    * @example
    *   <p v-if="auth.currentUser">Hello, {{ auth.currentUser.name }}</p>
    */
-  const currentUser = computed<IUser | null>(() => data.value?.user ?? null);
+  const currentUser = computed(() => data.value?.user ?? null);
 
   /**
    * The authenticated user object, **non-null asserted**. Only access this after confirming
@@ -41,7 +35,7 @@ export function useAuth() {
    *   <p>{{ auth.user.name }}</p>
    *   </template>
    */
-  const user = computed<IUser>(() => data.value!.user);
+  const user = computed(() => data.value!.user);
 
   /** The raw better-auth session record (id, token, expiresAt, …), or `null`. */
   const session = computed(() => data.value?.session ?? null);

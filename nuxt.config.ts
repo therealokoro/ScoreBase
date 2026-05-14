@@ -18,7 +18,7 @@ const optimizeDepsArr = [
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
-  modules: ["@nuxthub/core", "@peterbud/nuxt-query"],
+  modules: ["@nuxt/icon", "@nuxthub/core", "@peterbud/nuxt-query"],
   nuxtQuery: { autoImports: true },
   hub: {
     kv: true,
