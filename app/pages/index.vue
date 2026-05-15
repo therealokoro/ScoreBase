@@ -27,8 +27,7 @@ function mutate() {
   });
 }
 const { data: fetchedData, refetch } = useQuery(
-  $orpc.academicSession.getOne.queryOptions({
-    input: { id: "aca_01krkzspaqfqd9jvzm4vyptzce" },
+  $orpc.academicSession.list.queryOptions({
     enabled: false,
   }),
 );

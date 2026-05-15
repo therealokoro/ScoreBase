@@ -12,7 +12,6 @@ export const getServerAuth = () => {
       additionalFields: {
         phoneNumber: {
           type: "string",
-          fieldName: "phone_number",
           required: true,
           unique: true,
           returned: true,

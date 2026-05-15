@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { IconLayoutSidebar } from "@tabler/icons-vue"
-import type { HTMLAttributes } from "vue"
+import type { HTMLAttributes } from 'vue'
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-
-import { useSidebar } from "./utils"
+import { IconLayoutSidebar } from '@tabler/icons-vue'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useSidebar } from './utils'
 
 const props = defineProps<{
-  class?: HTMLAttributes["class"]
+  class?: HTMLAttributes['class']
 }>()
 
 const { toggleSidebar } = useSidebar()
@@ -19,7 +18,7 @@ const { toggleSidebar } = useSidebar()
     data-sidebar="trigger"
     data-slot="sidebar-trigger"
     variant="ghost"
-    size="icon"
+    size="icon-sm"
     :class="cn('', props.class)"
     @click="toggleSidebar"
   >
