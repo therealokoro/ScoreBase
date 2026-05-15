@@ -4,7 +4,7 @@ import { ICONS } from "#shared/constants/icons"
 const { isPending, currentUser, signOut } = useAuth()
 
 const adminNavItems = [
-  { title: "Dashboard", href: "/#admin", icon: ICONS.dashboard },
+  { title: "Overview", href: "/#admin", icon: ICONS.dashboard },
   { title: "Sessions", href: "/#admin/sessions", icon: ICONS.session },
   { title: "Classes", href: "/#admin/classes", icon: ICONS.class },
   { title: "Subjects", href: "/#admin/subjects", icon: ICONS.subject },
@@ -14,17 +14,24 @@ const adminNavItems = [
 ]
 
 const teacherNavItems = [
-  { title: "Dashboard", href: "/#teacher", icon: ICONS.dashboard },
+  { title: "Overview", href: "/#teacher", icon: ICONS.dashboard },
   { title: "My Students", href: "/#teacher/students", icon: ICONS.students },
   { title: "My Results", href: "/#teacher/results", icon: ICONS.result },
 ]
-
-const currentPath = useRoute().path
 
 async function handleSignOut() {
   await signOut()
   navigateTo("/login")
 }
+
+const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")
+const sidebarContents = computed(() => {
+  return {
+    navItems: isAdmin.value ? adminNavItems : teacherNavItems,
+    userIcon: isAdmin.value ? ICONS.admin : ICONS.teacher,
+    userColor: isAdmin.value ? 'bg-primary' : 'bg-gray-800'
+  }
+})
 </script>
 
 <template>
@@ -47,10 +54,10 @@ async function handleSignOut() {
       <!-- Sidebar Content -->
       <UiSidebarContent class="p-2">
         <UiSidebarMenu>
-          <UiSidebarMenuItem v-for="item in adminNavItems" :key="item.href">
+          <UiSidebarMenuItem v-for="item in sidebarContents.navItems" :key="item.href">
             <UiSidebarMenuButton
               as-child
-              :is-active="currentPath === item.href || (item.href !== '/admin' && currentPath.startsWith(item.href))"
+              :is-active="$route.path === item.href || (item.href !== '/admin' && $route.path.startsWith(item.href))"
             >
               <NuxtLink :to="item.href" class="nav-item">
                 <Icon :name="item.icon" />
@@ -86,8 +93,8 @@ async function handleSignOut() {
 
           <!-- Users Info -->
           <div class="flex items-center gap-3 rounded-md bg-muted/50 p-2">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-              <Icon :name="ICONS.admin" class="size-4 text-muted-foreground" />
+            <div class="flex size-9 items-center justify-center rounded-full" :class="sidebarContents.userColor">
+              <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
             </div>
             <div class="grid flex-1">
               <span class="truncate text-sm font-medium">{{ currentUser.name }}</span>
