@@ -28,7 +28,97 @@ async function handleSignOut() {
 </script>
 
 <template>
-  <div>
-    <slot />
-  </div>
+  <UiSidebarProvider>
+    <UiSidebar side="left" class="border-r">
+      <!-- Sidebar Header -->
+      <UiSidebarHeader class="flex flex-col gap-2 p-3">
+        <div class="flex items-center gap-3 px-2 py-1.5">
+          <div class="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Icon :name="ICONS.school" />
+          </div>
+
+          <div class="grid flex-1">
+            <span class="font-semibold text-sm">ScoreBase</span>
+            <span class="text-xs text-muted-foreground">Result Management</span>
+          </div>
+        </div>
+      </UiSidebarHeader>
+
+      <!-- Sidebar Content -->
+      <UiSidebarContent class="p-2">
+        <UiSidebarMenu>
+          <UiSidebarMenuItem v-for="item in adminNavItems" :key="item.href">
+            <UiSidebarMenuButton
+              as-child
+              :is-active="currentPath === item.href || (item.href !== '/admin' && currentPath.startsWith(item.href))"
+            >
+              <NuxtLink :to="item.href" class="nav-item">
+                <Icon :name="item.icon" />
+                <span>{{ item.title }}</span>
+              </NuxtLink>
+            </UiSidebarMenuButton>
+          </UiSidebarMenuItem>
+        </UiSidebarMenu>
+      </UiSidebarContent>
+
+      <!-- Sidebar Footer -->
+      <UiSidebarFooter class="border-t p-2 mt-auto">
+        <div v-if="!isPending && currentUser" class="flex flex-col gap-2">
+          <UiSidebarMenu>
+            <!-- Settings Route -->
+            <UiSidebarMenuItem>
+              <UiSidebarMenuButton as-child>
+                <NuxtLink to="/#settings" class="nav-item">
+                  <Icon :name="ICONS.settings" />
+                  <span>Settings</span>
+                </NuxtLink>
+              </UiSidebarMenuButton>
+            </UiSidebarMenuItem>
+
+            <!-- Sign Out Button -->
+            <UiSidebarMenuItem>
+              <UiSidebarMenuButton @click="handleSignOut" class="nav-item">
+                <Icon :name="ICONS.logout" />
+                <span>Sign out</span>
+              </UiSidebarMenuButton>
+            </UiSidebarMenuItem>
+          </UiSidebarMenu>
+
+          <!-- Users Info -->
+          <div class="flex items-center gap-3 rounded-md bg-muted/50 p-2">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
+              <Icon :name="ICONS.admin" class="size-4 text-muted-foreground" />
+            </div>
+            <div class="grid flex-1">
+              <span class="truncate text-sm font-medium">{{ currentUser.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ currentUser.email }}</span>
+            </div>
+          </div>
+        </div>
+      </UiSidebarFooter>
+
+      <UiSidebarRail />
+    </UiSidebar>
+
+    <!-- Main Page content -->
+    <UiSidebarInset>
+      <header class="flex h-14 shrink-0 items-center border-b">
+        <UiContainer>
+          <UiSidebarTrigger />
+        </UiContainer>
+      </header>
+
+      <UiContainer>
+        <slot />
+      </UiContainer>
+    </UiSidebarInset>
+  </UiSidebarProvider>
 </template>
+
+<style lang="css">
+@reference "../assets/css/tailwind.css";
+
+.nav-item {
+  @apply flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all hover:bg-muted hover:text-foreground;
+}
+</style>

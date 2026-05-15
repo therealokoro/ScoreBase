@@ -1,14 +1,5 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import {
-  TagsInput,
-  TagsInputInput,
-  TagsInputItem,
-  TagsInputItemDelete,
-  TagsInputItemText,
-} from '@/components/ui/tags-input'
-import { InputGroup } from '@/components/ui/input-group'
-import { cn } from '@/lib/utils'
 import FormField from './FormField.vue'
 import FormAddon from './FormAddon.vue'
 
@@ -38,6 +29,10 @@ const model = defineModel<string[]>({ default: () => [] })
 const slots = useSlots()
 const hasAddonStart = computed(() => !!slots['addon']       || !!props.icon || !!props.addonText)
 const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight || !!props.addonTextRight)
+
+const styles = tv({
+  base: "flex-1 rounded-none border-0 shadow-none ring-0 focus-within:ring-0 aria-invalid:border-destructive! aria-invalid:focus-within:ring-destructive/30!"
+})
 </script>
 
 <template>
@@ -49,43 +44,40 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
     :class="props.class"
     v-slot="{ inputId, field, isInvalid }"
   >
-    <InputGroup>
+    <UiInputGroup>
       <FormAddon v-if="hasAddonStart" :icon :text="addonText">
         <template v-if="$slots['addon']" #default>
           <slot name="addon" />
         </template>
       </FormAddon>
 
-      <TagsInput
+      <UiTagsInput
         v-model="model"
         :add-on-keys="addOnKeys"
         :disabled
         :aria-invalid="isInvalid || undefined"
         :aria-describedby="description ? `${inputId}-desc` : undefined"
         data-slot="input-group-control"
-        :class="cn(
-          'flex-1 rounded-none border-0 shadow-none ring-0 focus-within:ring-0',
-          isInvalid && 'border-destructive! focus-within:ring-destructive/30!',
-        )"
+        :class="styles()"
       >
-        <TagsInputItem v-for="tag in model" :key="tag" :value="tag">
-          <TagsInputItemText />
-          <TagsInputItemDelete />
-        </TagsInputItem>
+        <UiTagsInputItem v-for="tag in model" :key="tag" :value="tag">
+          <UiTagsInputItemText />
+          <UiTagsInputItemDelete />
+        </UiTagsInputItem>
 
-        <TagsInputInput
+        <UiTagsInputInput
           :id="inputId"
           :placeholder
           :disabled
           @blur="field.handleBlur()"
         />
-      </TagsInput>
+      </UiTagsInput>
 
       <FormAddon v-if="hasAddonEnd" :icon="iconRight" :text="addonTextRight" align="inline-end">
         <template v-if="$slots['addon-right']" #default>
           <slot name="addon-right" />
         </template>
       </FormAddon>
-    </InputGroup>
+    </UiInputGroup>
   </FormField>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import { InputGroup, InputGroupInput } from '@/components/ui/input-group'
 import FormField from './FormField.vue'
 import FormAddon from './FormAddon.vue'
 
@@ -43,14 +42,14 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
     :class="props.class"
     v-slot="{ inputId, field, isInvalid }"
   >
-    <InputGroup>
+    <UiInputGroup>
       <FormAddon v-if="hasAddonStart" :icon :text="addonText">
         <template v-if="$slots['addon']" #default>
           <slot name="addon" />
         </template>
       </FormAddon>
 
-      <InputGroupInput
+      <UiInputGroupInput
         :id="inputId"
         :type
         :placeholder
@@ -59,7 +58,7 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
         v-model="model"
         :aria-describedby="description ? `${inputId}-desc` : undefined"
         :aria-invalid="isInvalid || undefined"
-        :class="isInvalid && 'border-destructive! ring-destructive/20! focus-visible:ring-destructive/30!'"
+        class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20! aria-invalid:focus-visible:ring-destructive/30!"
         @blur="field.handleBlur"
       />
 
@@ -68,6 +67,6 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
           <slot name="addon-right" />
         </template>
       </FormAddon>
-    </InputGroup>
+    </UiInputGroup>
   </FormField>
 </template>

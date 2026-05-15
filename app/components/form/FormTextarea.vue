@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import { InputGroup, InputGroupAddon, InputGroupTextarea } from '@/components/ui/input-group'
 import FormField from './FormField.vue'
 
 interface Props {
@@ -40,17 +39,17 @@ const length = computed(() => model.value?.length ?? 0)
     :class="props.class"
     v-slot="{ inputId, field, isInvalid }"
   >
-    <InputGroup>
-      <InputGroupAddon v-if="hasBlockStart" align="block-start">
+    <UiInputGroup>
+      <UiInputGroupAddon v-if="hasBlockStart" align="block-start">
         <slot
           name="block-start"
           :value="model"
           :length="length"
           :maxlength="maxlength"
         />
-      </InputGroupAddon>
+      </UiInputGroupAddon>
 
-      <InputGroupTextarea
+      <UiInputGroupTextarea
         :id="inputId"
         :rows
         :disabled
@@ -60,18 +59,18 @@ const length = computed(() => model.value?.length ?? 0)
         v-model="model"
         :aria-describedby="description ? `${inputId}-desc` : undefined"
         :aria-invalid="isInvalid || undefined"
-        :class="isInvalid && 'border-destructive! ring-destructive/20! focus-visible:ring-destructive/30!'"
+        class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20! aria-invalid:focus-visible:ring-destructive/30!"
         @blur="field.handleBlur()"
       />
 
-      <InputGroupAddon v-if="hasBlockEnd" align="block-end">
+      <UiInputGroupAddon v-if="hasBlockEnd" align="block-end">
         <slot
           name="block-end"
           :value="model"
           :length="length"
           :maxlength="maxlength"
         />
-      </InputGroupAddon>
-    </InputGroup>
+      </UiInputGroupAddon>
+    </UiInputGroup>
   </FormField>
 </template>

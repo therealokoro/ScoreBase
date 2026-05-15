@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import type { SelectOptionRaw } from '@/components/ui/select'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { InputGroup } from '@/components/ui/input-group'
-import { cn } from '@/lib/utils'
 import FormField from './FormField.vue'
 import FormAddon from './FormAddon.vue'
+import type { SelectOptionRaw } from '../Ui/Select/Select.vue'
 
 interface Props {
   name?: string
@@ -44,49 +41,46 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
     :class="props.class"
     v-slot="{ field, isInvalid }"
   >
-    <Select
+    <UiSelect
       v-model="model"
       :options
       :disabled
       v-slot="{ options: normalizedOptions }"
       @update:open="(open) => !open && field.handleBlur()"
     >
-      <InputGroup>
+      <UiInputGroup>
         <FormAddon v-if="hasAddonStart" :icon :text="addonText">
           <template v-if="$slots['addon']" #default>
             <slot name="addon" />
           </template>
         </FormAddon>
 
-        <SelectTrigger
+        <UiSelectTrigger
           data-slot="input-group-control"
           :aria-invalid="isInvalid || undefined"
-          :class="cn(
-            'flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 aria-invalid:ring-0',
-            isInvalid && 'border-destructive! focus-visible:ring-destructive/30!',
-          )"
+          class="flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 aria-invalid:border-destructive! aria-invalid:focus-visible:ring-destructive/30!"
         >
-          <SelectValue :placeholder />
-        </SelectTrigger>
+          <UiSelectValue :placeholder />
+        </UiSelectTrigger>
 
         <FormAddon v-if="hasAddonEnd" :icon="iconRight" :text="addonTextRight" align="inline-end">
           <template v-if="$slots['addon-right']" #default>
             <slot name="addon-right" />
           </template>
         </FormAddon>
-      </InputGroup>
+      </UiInputGroup>
 
-      <SelectContent>
+      <UiSelectContent>
         <slot :options="normalizedOptions">
-          <SelectItem
+          <UiSelectItem
             v-for="option in normalizedOptions"
             :key="option.value"
             v-bind="option"
           >
             {{ option.label }}
-          </SelectItem>
+          </UiSelectItem>
         </slot>
-      </SelectContent>
-    </Select>
+      </UiSelectContent>
+    </UiSelect>
   </FormField>
 </template>

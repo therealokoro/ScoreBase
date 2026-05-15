@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, useSlots } from 'vue'
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import FormField from './FormField.vue'
 import FormAddon from './FormAddon.vue'
 
@@ -43,14 +42,14 @@ const toggleLabel = computed(() => visible.value ? 'Hide password' : 'Show passw
     :class="props.class"
     v-slot="{ inputId, field, isInvalid }"
   >
-    <InputGroup>
+    <UiInputGroup>
       <FormAddon v-if="hasAddonStart" :icon :text="addonText">
         <template v-if="$slots['addon']" #default>
           <slot name="addon" />
         </template>
       </FormAddon>
 
-      <InputGroupInput
+      <UiInputGroupInput
         :id="inputId"
         :type="inputType"
         :placeholder
@@ -59,13 +58,13 @@ const toggleLabel = computed(() => visible.value ? 'Hide password' : 'Show passw
         v-model="model"
         :aria-describedby="description ? `${inputId}-desc` : undefined"
         :aria-invalid="isInvalid || undefined"
-        :class="isInvalid && 'border-destructive! ring-destructive/20! focus-visible:ring-destructive/30!'"
+        class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20! aria-invalid:focus-visible:ring-destructive/30!"
         @blur="field.handleBlur"
       />
 
-      <InputGroupAddon align="inline-end">
+      <UiInputGroupAddon align="inline-end">
         <slot name="addon-right">
-          <InputGroupButton
+          <UiInputGroupButton
             type="button"
             variant="ghost"
             size="icon-xs"
@@ -74,9 +73,9 @@ const toggleLabel = computed(() => visible.value ? 'Hide password' : 'Show passw
             @click="visible = !visible"
           >
             <Icon :name="toggleIcon" class="size-4 text-muted-foreground" />
-          </InputGroupButton>
+          </UiInputGroupButton>
         </slot>
-      </InputGroupAddon>
-    </InputGroup>
+      </UiInputGroupAddon>
+    </UiInputGroup>
   </FormField>
 </template>

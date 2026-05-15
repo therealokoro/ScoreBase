@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
 import { useField } from 'vee-validate'
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 
 interface Props {
   name?: string
@@ -29,23 +28,23 @@ defineExpose({ inputId, field, isInvalid })
 </script>
 
 <template>
-  <Field
+  <UiField
     :class="props.class"
     :data-invalid="isInvalid || undefined"
     class="flex flex-col gap-1.5 w-full"
   >
-    <FieldLabel v-if="label" :for="inputId">
+    <UiFieldLabel v-if="label" :for="inputId">
       {{ label }}
-    </FieldLabel>
+    </UiFieldLabel>
 
     <slot :input-id="inputId" :field="field" :is-invalid="isInvalid" />
 
-    <FieldDescription v-if="description && !isInvalid" :id="`${inputId}-desc`">
+    <UiFieldDescription v-if="description && !isInvalid" :id="`${inputId}-desc`">
       {{ description }}
-    </FieldDescription>
+    </UiFieldDescription>
 
-    <FieldError v-if="isInvalid">
+    <UiFieldError v-if="isInvalid">
       {{ field.errorMessage.value }}
-    </FieldError>
-  </Field>
+    </UiFieldError>
+  </UiField>
 </template>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Switch } from '@/components/ui/switch'
-import { FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 import FormField from './FormField.vue'
 
 interface Props {
@@ -34,7 +32,7 @@ const model = defineModel<boolean>()
         class="flex items-start gap-4"
         :class="position === 'right' ? 'flex-row-reverse justify-start' : 'flex-row justify-between'"
       >
-        <Switch
+        <UiSwitch
           :id="inputId"
           v-model:checked="model"
           :disabled

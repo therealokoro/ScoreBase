@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Checkbox } from '@/components/ui/checkbox'
-import { FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 import FormField from './FormField.vue'
 
 interface Props {
@@ -34,7 +32,7 @@ const model = defineModel<boolean>()
         class="flex items-start gap-3"
         :class="position === 'right' ? 'flex-row-reverse justify-end' : 'flex-row'"
       >
-        <Checkbox
+        <UiCheckbox
           :id="inputId"
           v-model:checked="model"
           :disabled
@@ -45,22 +43,22 @@ const model = defineModel<boolean>()
         />
 
         <div v-if="label || description || $slots['label']" class="flex flex-col gap-0.5">
-          <FieldLabel
+          <UiFieldLabel
             :for="inputId"
             :class="disabled && 'cursor-not-allowed opacity-50'"
           >
             <slot name="label">{{ label }}</slot>
-          </FieldLabel>
+          </UiFieldLabel>
 
-          <FieldDescription v-if="description && !isInvalid" :id="`${inputId}-desc`">
+          <UiFieldDescription v-if="description && !isInvalid" :id="`${inputId}-desc`">
             {{ description }}
-          </FieldDescription>
+          </UiFieldDescription>
         </div>
       </div>
 
-      <FieldError v-if="isInvalid" class="pl-7">
+      <UiFieldError v-if="isInvalid" class="pl-7">
         {{ field.errorMessage.value }}
-      </FieldError>
+      </UiFieldError>
     </div>
   </FormField>
 </template>

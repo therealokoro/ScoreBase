@@ -25,22 +25,27 @@ const optimizeDepsArr = [
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
+
   modules: [
-    "shadcn-nuxt",
     "@peterbud/nuxt-query",
     "@nuxt/icon",
     "@nuxt/fonts",
     "@vueuse/nuxt",
     "@nuxthub/core",
+    "@nuxtjs/color-mode",
+    "motion-v/nuxt",
+    "vue-sonner/nuxt"
   ],
+
   nuxtQuery: { autoImports: true },
+
   hub: {
     kv: true,
     db: { dialect: "sqlite", casing: "snake_case" },
   },
-  components: [{ path: "~/components", ignore: ["ui/**", "form/**"] }],
-  shadcn: { prefix: "Ui", componentDir: "@/components/ui" },
-  css: ["~/assets/css/main.css"],
+
+  css: ["~/assets/css/tailwind.css"],
+
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
@@ -48,10 +53,43 @@ export default defineNuxtConfig({
       include: optimizeDepsArr,
     },
   },
+
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,
     public: {
       betterAuthUrl: process.env.BETTER_AUTH_URL,
     },
+  },
+
+  imports: {
+    imports: [{
+      from: "tailwind-variants",
+      name: "tv",
+    }, {
+      from: "tailwind-variants",
+      name: "VariantProps",
+      type: true,
+    }, {
+      from: "vue-sonner",
+      name: "toast",
+      as: "useSonner",
+    }],
+  },
+
+  colorMode: {
+    storageKey: "ScoreBase-color-mode",
+    classSuffix: "",
+  },
+
+  icon: {
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 0,
+    },
+
+    mode: "svg",
+    class: "shrink-0",
+    fetchTimeout: 2000,
+    serverBundle: "local",
   },
 });

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { InputGroupAddon, InputGroupText } from '@/components/ui/input-group'
-
 interface Props {
   icon?: string
   text?: string
@@ -11,10 +9,10 @@ defineProps<Props>()
 </script>
 
 <template>
-  <InputGroupAddon :align>
+  <UiInputGroupAddon :align>
     <slot>
-      <InputGroupText v-if="text">{{ text }}</InputGroupText>
+      <UiInputGroupText v-if="text">{{ text }}</UiInputGroupText>
       <Icon v-else-if="icon" :name="icon" class="size-4 text-muted-foreground" />
     </slot>
-  </InputGroupAddon>
+  </UiInputGroupAddon>
 </template>

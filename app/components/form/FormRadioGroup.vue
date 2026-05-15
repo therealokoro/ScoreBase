@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useId } from 'vue'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
 import FormField from './FormField.vue'
 
 interface RadioOption {
@@ -52,7 +50,7 @@ function optionId(value: string) {
     :class="props.class"
     v-slot="{ field, isInvalid }"
   >
-    <RadioGroup
+    <UiRadioGroup
       v-model="model"
       :disabled
       :aria-invalid="isInvalid || undefined"
@@ -70,14 +68,14 @@ function optionId(value: string) {
             :value="opt.value"
             :disabled="opt.disabled ?? disabled"
           />
-          <Label
+          <UiLabel
             :for="optionId(opt.value)"
             :class="(opt.disabled ?? disabled) && 'cursor-not-allowed opacity-50'"
           >
             {{ opt.label }}
-          </Label>
+          </UiLabel>
         </div>
       </slot>
-    </RadioGroup>
+    </UiRadioGroup>
   </FormField>
 </template>

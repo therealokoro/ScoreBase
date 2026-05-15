@@ -1,12 +1,4 @@
 <script setup lang="ts">
-import {
-  NumberField,
-  NumberFieldContent,
-  NumberFieldDecrement,
-  NumberFieldIncrement,
-  NumberFieldInput,
-} from '@/components/ui/number-field'
-import { cn } from '@/lib/utils'
 import FormField from './FormField.vue'
 
 interface Props {
@@ -39,7 +31,7 @@ const model = defineModel<number>()
     :class="props.class"
     v-slot="{ inputId, field, isInvalid }"
   >
-    <NumberField
+    <UiNumberField
       v-model="model"
       :min
       :max
@@ -47,22 +39,19 @@ const model = defineModel<number>()
       :disabled
       :format-options="formatOptions"
     >
-      <NumberFieldContent
+      <UiNumberFieldContent
         data-slot="input-group-control"
-        :class="cn(
-          'flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus-within:ring-0',
-          isInvalid && 'border-destructive! focus-within:ring-destructive/30!',
-        )"
+        class="flex-1 rounded-none border-0 bg-transparent shadow-none aria-invalid:border-destructive! aria-invalid:focus-within:ring-destructive/30!"
       >
-        <NumberFieldDecrement />
-        <NumberFieldInput
+        <UiNumberFieldDecrement />
+        <UiNumberFieldInput
           :id="inputId"
           :aria-invalid="isInvalid || undefined"
           :aria-describedby="description ? `${inputId}-desc` : undefined"
           @blur="field.handleBlur()"
         />
-        <NumberFieldIncrement />
-      </NumberFieldContent>
-    </NumberField>
+        <UiNumberFieldIncrement />
+      </UiNumberFieldContent>
+    </UiNumberField>
   </FormField>
 </template>
