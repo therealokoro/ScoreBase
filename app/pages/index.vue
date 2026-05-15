@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-const auth = useAuth();
-const creds = { email: "okoro@gmail.com", password: "12345678", phoneNumber: "0123456789" };
-const signUpRes = ref(false);
+const auth = useAuth()
+const creds = { email: "okoro@gmail.com", password: "12345678", phoneNumber: "0123456789" }
+const signUpRes = ref(false)
 
 async function signUp() {
   await auth.signUp.email({
@@ -9,28 +9,28 @@ async function signUp() {
     ...creds,
     fetchOptions: {
       onSuccess() {
-        alert("signed up successfully");
-      },
-    },
-  });
+        alert("signed up successfully")
+      }
+    }
+  })
 }
 
 async function signIn() {
-  await auth.signIn.email({ ...creds });
+  await auth.signIn.email({ ...creds })
 }
 
-const { $orpc } = useNuxtApp();
-const makeMutation = useMutation($orpc.academicSession.create.mutationOptions({}));
+const { $orpc } = useNuxtApp()
+const makeMutation = useMutation($orpc.academicSession.create.mutationOptions({}))
 function mutate() {
   makeMutation.mutate({
-    name: "2024/2025 Session",
-  });
+    name: "2024/2025 Session"
+  })
 }
 const { data: fetchedData, refetch } = useQuery(
   $orpc.academicSession.list.queryOptions({
-    enabled: false,
-  }),
-);
+    enabled: false
+  })
+)
 </script>
 
 <template>
