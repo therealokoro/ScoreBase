@@ -1,143 +1,163 @@
-<template>
-  <component
-    :is="elementType"
-    :class="
-      buttonStyles({
-        hasIcon: !!icon,
-        disabled: disabled || loading,
-        variant: variant,
-        size: size,
-        class: normalizeClass(props.class) || undefined,
-      })
-    "
-    :disabled="disabled || loading"
-    v-bind="forwarded"
-  >
-    <slot name="iconLeft">
-      <div
-        v-if="icon && iconPlacement == 'left'"
-        class="flex w-0 translate-x-[0%] pr-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-[0%] group-hover:pr-2 group-hover:opacity-100"
-      >
-        <Icon :name="icon" class="size-4" />
-      </div>
-    </slot>
-    <slot name="loading">
-      <Icon v-if="loading" class="size-4 shrink-0" :name="loadingIcon" />
-    </slot>
-    <slot>
-      <span v-if="text">{{ text }}</span>
-    </slot>
-    <slot name="iconRight">
-      <div
-        v-if="icon && iconPlacement == 'right'"
-        class="flex w-0 translate-x-full pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-2 group-hover:opacity-100"
-      >
-        <Icon :name="icon" class="size-4" />
-      </div>
-    </slot>
-  </component>
-</template>
-
 <script lang="ts">
-  import { reactiveOmit } from "@vueuse/core";
-  import { useForwardProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HtmlHTMLAttributes } from "vue";
+import { tv, type VariantProps } from "tailwind-variants"
 
-  import type { NuxtLinkProps } from "#app/components";
+export const buttonStyles = tv({
+  base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 border border-transparent bg-clip-padding text-sm font-medium rounded-(--radius) focus-visible:ring-1 aria-invalid:ring-1 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*=size-])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  variants: {
+    variant: {
+      primary: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+      outline:
+        "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+      secondary:
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+      ghost:
+        "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+      destructive:
+        "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+      link: "text-primary underline-offset-4 hover:underline"
+    },
+    size: {
+      xs: "h-6 gap-1 px-1.5 text-[11px] has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*=size-])]:size-2.5",
+      sm: "h-7 gap-1 px-2 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*=size-])]:size-3",
+      md: "h-8 gap-1.5 px-3 text-sm has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 [&_svg:not([class*=size-])]:size-3.5",
+      lg: "h-10 gap-2 px-5 text-sm has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4 [&_svg:not([class*=size-])]:size-4",
+      icon: "size-8 [&_svg:not([class*=size-])]:size-3.5",
+      "icon-xs": "size-6 [&_svg:not([class*=size-])]:size-2.5",
+      "icon-sm": "size-7 [&_svg:not([class*=size-])]:size-3",
+      "icon-lg": "size-10 [&_svg:not([class*=size-])]:size-4"
+    },
+    disabled: {
+      true: "pointer-events-none opacity-50"
+    }
+  },
+  defaultVariants: {
+    variant: "primary",
+    size: "md"
+  }
+})
 
-  /** Exported button styles that can be used by other components. */
-  export const buttonStyles = tv({
-    base: "group focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
-        destructive:
-          "bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 text-white shadow-xs",
-        outline:
-          "bg-background hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 border shadow-xs",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
-        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        xs: "h-7 gap-1 px-2.5 text-xs has-[>svg]:px-2",
-        sm: "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        lg: "h-10 px-6 has-[>svg]:px-4",
-        "icon-xs": "size-7",
-        "icon-sm": "size-8",
-        icon: "size-9",
-        "icon-lg": "size-10",
-      },
-      disabled: {
-        true: "pointer-events-none opacity-50",
-      },
-      hasIcon: {
-        false: "gap-2",
-      }
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  });
-  export type ButtonVariants = VariantProps<typeof buttonStyles>;
-  export type ButtonProps = NuxtLinkProps & {
-    /** The type for the button. */
-    type?: "button" | "submit" | "reset";
-    /** Whether the button is disabled. */
-    disabled?: boolean;
-    /** Whether the button is loading. */
-    loading?: boolean;
-    /** The action to perform when the button is clicked. */
-    onClick?: any;
-    /** The element to render the button as. */
-    as?: string;
-    /** Custom class(es) to add to parent element. */
-    class?: HtmlHTMLAttributes["class"];
-    /** The variant of the button. */
-    variant?: ButtonVariants["variant"];
-    /** The size of the button. */
-    size?: ButtonVariants["size"];
-    /** The text to display in the button. */
-    text?: string;
-    /** Should the icon be displayed on the `left` or the `right`? */
-    iconPlacement?: "left" | "right";
-    /** The icon to display in the button. */
-    icon?: string;
-    /** The icon to display when the button is loading. */
-    loadingIcon?: string;
-  };
+export type ButtonVariants = VariantProps<typeof buttonStyles>
 </script>
 
 <script setup lang="ts">
-  const props = withDefaults(defineProps<ButtonProps>(), {
-    type: "button",
-    loadingIcon: "line-md:loading-loop",
-    iconPlacement: "left",
-    loading: false,
-  });
+import { reactiveOmit } from "@vueuse/core"
+import type { PrimitiveProps } from "reka-ui"
+import { useForwardProps } from "reka-ui"
+import type { Component } from "vue"
+import { normalizeClass, type HTMLAttributes } from "vue"
 
-  const elementType = computed(() => {
-    if (props.as) return props.as;
-    if (props.href || props.to || props.target) return resolveComponent("NuxtLink");
-    return "button";
-  });
+import type { NuxtLinkProps } from "#app"
 
-  const forwarded = useForwardProps(
-    reactiveOmit(
-      props,
-      "class",
-      "text",
-      "icon",
-      "iconPlacement",
-      "size",
-      "variant",
-      "as",
-      "loading",
-      "disabled",
-      "loadingIcon",
-    )
-  );
+interface ButtonProps extends PrimitiveProps, NuxtLinkProps {
+  variant?: ButtonVariants["variant"]
+  size?: ButtonVariants["size"]
+  class?: HTMLAttributes["class"]
+  as?: string | Component
+  text?: string
+  icon?: string
+  iconRight?: string
+  loading?: boolean
+  disabled?: boolean
+  label?: string
+  loadingIcon?: string
+  type?: "button" | "submit" | "reset"
+}
+
+const props = withDefaults(defineProps<ButtonProps>(), {
+  loadingIcon: "lucide:loader-circle"
+})
+
+const slots = useSlots()
+
+const isLinkElement = computed(() => !!(props.href || props.to || props.target))
+
+const elementType = computed(() => {
+  if (props.as) return props.as
+  if (isLinkElement.value) return resolveComponent("NuxtLink")
+  return "button"
+})
+
+const isIconOnly = computed(
+  () =>
+    !props.text &&
+    !slots.default &&
+    (!!props.icon || !!props.iconRight) &&
+    !(props.icon && props.iconRight)
+)
+
+// Spinner is shown inline when loading with no leading icon
+const showInlineSpinner = computed(() => props.loading && !props.icon)
+
+// iconRight shows the spinner only when icon is not already handling it
+const iconRightName = computed(() => {
+  if (props.loading && !props.icon) return props.loadingIcon
+  return props.iconRight
+})
+
+const forwarded = useForwardProps(
+  reactiveOmit(
+    props,
+    "class",
+    "text",
+    "icon",
+    "iconRight",
+    "size",
+    "variant",
+    "as",
+    "loading",
+    "loadingIcon",
+    "label",
+    // Don't forward disabled natively to link elements; use aria-disabled instead
+    ...(isLinkElement.value ? (["disabled"] as const) : [])
+  )
+)
 </script>
+
+<template>
+  <component
+    data-slot="button"
+    v-bind="forwarded"
+    :data-variant="variant"
+    :data-size="size"
+    :is="elementType"
+    :as-child="asChild"
+    :data-icon="icon ? 'inline-start' : iconRight ? 'inline-end' : ''"
+    :aria-label="isIconOnly ? label : undefined"
+    :aria-busy="loading ? 'true' : undefined"
+    :aria-disabled="isLinkElement && disabled ? 'true' : undefined"
+    :class="
+      buttonStyles({
+        class: normalizeClass(props.class) || undefined,
+        variant,
+        disabled,
+        size: isIconOnly ? (size ?? 'icon') : size
+      })
+    "
+  >
+    <!-- Leading icon or loading spinner (when no leading icon) -->
+    <template v-if="icon">
+      <Icon
+        :name="loading ? loadingIcon : icon"
+        :class="loading && 'animate-spin'"
+        aria-hidden="true"
+      />
+    </template>
+    <template v-else-if="showInlineSpinner">
+      <Icon :name="loadingIcon" class="animate-spin" aria-hidden="true" />
+    </template>
+
+    <slot>{{ text }}</slot>
+
+    <!-- Screen-reader loading announcement -->
+    <span v-if="loading" class="sr-only">Loading</span>
+
+    <!-- Trailing icon -->
+    <template v-if="iconRight && iconRightName">
+      <Icon
+        :name="iconRightName"
+        :class="loading && !icon ? 'animate-spin' : undefined"
+        aria-hidden="true"
+      />
+    </template>
+  </component>
+</template>
