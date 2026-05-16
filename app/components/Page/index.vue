@@ -26,10 +26,16 @@ const hasError = computed(() => props.error !== null)
 <template>
   <div class="flex flex-col gap-4">
     <!-- Page Header -->
-    <!-- <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">{{ title }}</h1>
-      <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
-    </div> -->
+    <div class="flex justify-between items-center">
+      <div class="space-y-1">
+        <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
+          {{ title }}
+        </ui-heading>
+        <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
+      </div>
+
+      <slot name="toolbar"> </slot>
+    </div>
 
     <!-- Loading State -->
     <div v-if="loading && !hasError" class="flex items-center justify-center py-12">
