@@ -1,9 +1,7 @@
-<script lang="ts" setup>
-
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <Page title="Overview">
-    Dashboard
+    <div class="text-sm text-muted-foreground">Welcome to ScoreBase admin dashboard</div>
   </Page>
 </template>

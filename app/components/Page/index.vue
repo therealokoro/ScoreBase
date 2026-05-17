@@ -14,7 +14,8 @@ const props = withDefaults(
   }
 )
 
-useState("pageTitle", () => props.title)
+// Set page title to be reused in dashboard layout
+useState<string>("pageTitle", () => props.title)
 
 useHead(() => ({
   title: props.title ? `${props.title} | ScoreBase` : "ScoreBase"
@@ -34,14 +35,13 @@ const hasError = computed(() => props.error !== null)
         <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
       </div>
 
-      <slot name="toolbar"> </slot>
+      <slot name="toolbar" />
     </div>
 
     <!-- Loading State -->
     <div v-if="loading && !hasError" class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center gap-3">
-        <UiLoader />
-        <span class="text-sm text-muted-foreground">Loading...</span>
+        <UiLoader class="size-10" text="Loading Content..." />
       </div>
     </div>
 

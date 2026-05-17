@@ -9,22 +9,22 @@
 </template>
 
 <script lang="ts">
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const emptyTitleStyles = tv({
-    base: "text-lg font-medium tracking-tight",
-  });
+export const emptyTitleStyles = tv({
+  base: "text-lg font-medium tracking-tight"
+})
 
-  export type EmptyTitleProps = PrimitiveProps & {
-    /** Additional classes to apply to the parent element. */
-    class?: HTMLAttributes["class"];
-  };
+export type EmptyTitleProps = PrimitiveProps & {
+  /** Additional classes to apply to the parent element. */
+  class?: HTMLAttributes["class"]
+}
 </script>
 
 <script lang="ts" setup>
-  const props = defineProps<EmptyTitleProps>();
-  const forwarded = reactiveOmit(props, ["class"]);
+const props = defineProps<EmptyTitleProps>()
+const forwarded = reactiveOmit(props, ["class"])
 </script>

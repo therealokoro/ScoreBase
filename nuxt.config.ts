@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from "@tailwindcss/vite"
 
 const optimizeDepsArr = [
   "@libsql/client",
@@ -19,12 +19,13 @@ const optimizeDepsArr = [
   "class-variance-authority",
   "reka-ui",
   "clsx",
-  "tailwind-merge",
-];
+  "tailwind-merge"
+]
 
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
+  // ssr: false,
 
   modules: [
     "@peterbud/nuxt-query",
@@ -32,16 +33,17 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@vueuse/nuxt",
     "@nuxthub/core",
-    "@nuxtjs/color-mode",
     "motion-v/nuxt",
-    "vue-sonner/nuxt"
+    "vue-sonner/nuxt",
+    "@vee-validate/nuxt",
+    "@nuxtjs/color-mode"
   ],
 
   nuxtQuery: { autoImports: true },
 
   hub: {
     kv: true,
-    db: { dialect: "sqlite", casing: "snake_case" },
+    db: { dialect: "sqlite", casing: "snake_case" }
   },
 
   css: ["~/assets/css/tailwind.css"],
@@ -50,46 +52,49 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
     optimizeDeps: {
       noDiscovery: true,
-      include: optimizeDepsArr,
-    },
+      include: optimizeDepsArr
+    }
   },
 
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,
     public: {
-      betterAuthUrl: process.env.BETTER_AUTH_URL,
-    },
+      betterAuthUrl: process.env.BETTER_AUTH_URL
+    }
   },
 
   imports: {
-    imports: [{
-      from: "tailwind-variants",
-      name: "tv",
-    }, {
-      from: "tailwind-variants",
-      name: "VariantProps",
-      type: true,
-    }, {
-      from: "vue-sonner",
-      name: "toast",
-      as: "useSonner",
-    }],
+    imports: [
+      {
+        from: "tailwind-variants",
+        name: "tv"
+      },
+      {
+        from: "tailwind-variants",
+        name: "VariantProps",
+        type: true
+      },
+      {
+        from: "vue-sonner",
+        name: "toast",
+        as: "useSonner"
+      }
+    ]
   },
 
   colorMode: {
     storageKey: "ScoreBase-color-mode",
-    classSuffix: "",
+    classSuffix: ""
   },
 
   icon: {
     clientBundle: {
       scan: true,
-      sizeLimitKb: 0,
+      sizeLimitKb: 0
     },
-
     mode: "svg",
     class: "shrink-0",
     fetchTimeout: 2000,
-    serverBundle: "local",
-  },
-});
+    serverBundle: "local"
+  }
+})

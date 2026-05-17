@@ -5,11 +5,15 @@ const props = withDefaults(defineProps<{ isAdmin?: boolean }>(), { isAdmin: fals
 
 const { isPending, currentUser, signOut } = useAuth()
 
-const pageTitle = useState<string>("pageTitle")
+// Set dashboard layout title
+const pageTitle = ref("")
+onMounted(() => {
+  pageTitle.value = useState<string>("pageTitle").value
+})
 
 const adminNavItems = [
-  { title: "Overview", href: "/#admin", icon: ICONS.dashboard },
-  { title: "Sessions", href: "/#admin/sessions", icon: ICONS.session },
+  { title: "Overview", href: "/admin", icon: ICONS.dashboard },
+  { title: "Sessions", href: "/admin/sessions", icon: ICONS.session },
   { title: "Classes", href: "/#admin/classes", icon: ICONS.class },
   { title: "Subjects", href: "/#admin/subjects", icon: ICONS.subject },
   { title: "Teachers", href: "/#admin/teachers", icon: ICONS.teacher },
@@ -124,7 +128,8 @@ const sidebarContents = computed(() => {
       <header class="h-14 border-b">
         <UiContainer class="flex h-full shrink-0 items-center gap-4">
           <UiSidebarTrigger />
-          <ui-heading :level="5" v-if="pageTitle">{{ pageTitle }}</ui-heading>
+
+          <ui-heading :level="5">{{ pageTitle }}</ui-heading>
         </UiContainer>
       </header>
 

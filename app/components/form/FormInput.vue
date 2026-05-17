@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
-import FormField from './FormField.vue'
-import FormAddon from './FormAddon.vue'
+import { useField } from "vee-validate"
 
-interface Props {
-  name?: string
-  validateOnMount?: boolean
+type Props = {
+  name: string
   label?: string
   description?: string
   placeholder?: string
   type?: string
   disabled?: boolean
   readonly?: boolean
+  validateOnMount?: boolean
   icon?: string
   iconRight?: string
   addonText?: string
@@ -19,54 +17,41 @@ interface Props {
   class?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  type: 'text',
-  disabled: false,
-  readonly: false,
-  validateOnMount: false,
-})
+const props = withDefaults(defineProps<Props>(), { type: "text" })
 
-const model = defineModel<string>()
-
-const slots = useSlots()
-const hasAddonStart = computed(() => !!slots['addon']       || !!props.icon || !!props.addonText)
-const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight || !!props.addonTextRight)
+const { value, errorMessage, handleBlur, handleChange } = useField<string>(
+  () => props.name,
+  undefined,
+  { label: props.label, validateOnMount: props.validateOnMount }
+)
 </script>
 
 <template>
   <FormField
-    :name
-    :validate-on-mount
+    :icon
     :label
+    :class
+    :icon-right
+    :addon-text
     :description
-    :class="props.class"
-    v-slot="{ inputId, field, isInvalid }"
+    :addon-text-right
+    :error="errorMessage"
   >
-    <UiInputGroup>
-      <FormAddon v-if="hasAddonStart" :icon :text="addonText">
-        <template v-if="$slots['addon']" #default>
-          <slot name="addon" />
-        </template>
-      </FormAddon>
-
+    <template #default="{ id, isInvalid }">
       <UiInputGroupInput
-        :id="inputId"
+        :id
+        :name
         :type
-        :placeholder
         :disabled
         :readonly
-        v-model="model"
-        :aria-describedby="description ? `${inputId}-desc` : undefined"
+        :placeholder
+        :value="value"
+        @input="handleChange"
+        @blur="handleBlur"
         :aria-invalid="isInvalid || undefined"
-        class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20! aria-invalid:focus-visible:ring-destructive/30!"
-        @blur="field.handleBlur"
+        :aria-describedby="description ? `${id}-desc` : undefined"
+        class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20!"
       />
-
-      <FormAddon v-if="hasAddonEnd" :icon="iconRight" :text="addonTextRight" align="inline-end">
-        <template v-if="$slots['addon-right']" #default>
-          <slot name="addon-right" />
-        </template>
-      </FormAddon>
-    </UiInputGroup>
+    </template>
   </FormField>
 </template>

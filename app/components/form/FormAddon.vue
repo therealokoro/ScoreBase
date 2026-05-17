@@ -2,7 +2,7 @@
 interface Props {
   icon?: string
   text?: string
-  align?: 'inline-start' | 'inline-end'
+  align?: "inline-start" | "inline-end"
 }
 
 defineProps<Props>()

@@ -111,7 +111,7 @@ export const loaderStyles = tv({
 <script lang="ts" setup>
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<LoaderProps>(), {
-  icon: "svg-spinners:bars-rotate-fade",
+  icon: "svg-spinners:bars-scale-fade",
   role: "progressbar",
   closeOnEscape: true
 })

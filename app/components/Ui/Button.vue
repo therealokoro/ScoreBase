@@ -26,6 +26,9 @@ export const buttonStyles = tv({
       "icon-sm": "size-7 [&_svg:not([class*=size-])]:size-3",
       "icon-lg": "size-10 [&_svg:not([class*=size-])]:size-4"
     },
+    block: {
+      true: "w-full"
+    },
     disabled: {
       true: "pointer-events-none opacity-50"
     }
@@ -41,9 +44,9 @@ export type ButtonVariants = VariantProps<typeof buttonStyles>
 
 <script setup lang="ts">
 import { reactiveOmit } from "@vueuse/core"
+import type { Component } from "vue"
 import type { PrimitiveProps } from "reka-ui"
 import { useForwardProps } from "reka-ui"
-import type { Component } from "vue"
 import { normalizeClass, type HTMLAttributes } from "vue"
 
 import type { NuxtLinkProps } from "#app"
@@ -57,6 +60,7 @@ interface ButtonProps extends PrimitiveProps, NuxtLinkProps {
   icon?: string
   iconRight?: string
   loading?: boolean
+  block?: boolean
   disabled?: boolean
   label?: string
   loadingIcon?: string
@@ -69,7 +73,9 @@ const props = withDefaults(defineProps<ButtonProps>(), {
 
 const slots = useSlots()
 
-const isLinkElement = computed(() => !!(props.href || props.to || props.target))
+const isLinkElement = computed(
+  () => !!(props.href || props.to || props.target)
+)
 
 const elementType = computed(() => {
   if (props.as) return props.as
@@ -78,15 +84,13 @@ const elementType = computed(() => {
 })
 
 const isIconOnly = computed(
-  () =>
-    !props.text &&
-    !slots.default &&
-    (!!props.icon || !!props.iconRight) &&
-    !(props.icon && props.iconRight)
+  () => !props.text && !slots.default && (!!props.icon || !!props.iconRight) && !(props.icon && props.iconRight)
 )
 
 // Spinner is shown inline when loading with no leading icon
-const showInlineSpinner = computed(() => props.loading && !props.icon)
+const showInlineSpinner = computed(
+  () => props.loading && !props.icon
+)
 
 // iconRight shows the spinner only when icon is not already handling it
 const iconRightName = computed(() => {
@@ -107,8 +111,9 @@ const forwarded = useForwardProps(
     "loading",
     "loadingIcon",
     "label",
+    "block",
     // Don't forward disabled natively to link elements; use aria-disabled instead
-    ...(isLinkElement.value ? (["disabled"] as const) : [])
+    ...(isLinkElement.value ? ["disabled"] as const : [])
   )
 )
 </script>
@@ -130,6 +135,7 @@ const forwarded = useForwardProps(
         class: normalizeClass(props.class) || undefined,
         variant,
         disabled,
+        block,
         size: isIconOnly ? (size ?? 'icon') : size
       })
     "
@@ -143,7 +149,11 @@ const forwarded = useForwardProps(
       />
     </template>
     <template v-else-if="showInlineSpinner">
-      <Icon :name="loadingIcon" class="animate-spin" aria-hidden="true" />
+      <Icon
+        :name="loadingIcon"
+        class="animate-spin"
+        aria-hidden="true"
+      />
     </template>
 
     <slot>{{ text }}</slot>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import FormField from './FormField.vue'
+import FormField from "./FormField.vue"
 
 interface Props {
-  name?: string
+  name: string
   validateOnMount?: boolean
   label?: string
   description?: string
@@ -12,46 +12,54 @@ interface Props {
   step?: number
   formatOptions?: Intl.NumberFormatOptions
   class?: string
+
+  // addon props
+  icon?: string
+  iconRight?: string
+  addonText?: string
+  addonTextRight?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
-  validateOnMount: false,
+  validateOnMount: false
 })
 
-const model = defineModel<number>()
+const { value, errorMessage, handleBlur, handleChange } = useField<string>(
+  () => props.name,
+  undefined,
+  { label: props.label, validateOnMount: props.validateOnMount }
+)
 </script>
 
 <template>
   <FormField
-    :name
-    :validate-on-mount
+    :icon
     :label
+    :class
+    :icon-right
+    :addon-text
     :description
-    :class="props.class"
-    v-slot="{ inputId, field, isInvalid }"
+    :addon-text-right
+    :error="errorMessage"
   >
-    <UiNumberField
-      v-model="model"
-      :min
-      :max
-      :step
-      :disabled
-      :format-options="formatOptions"
-    >
-      <UiNumberFieldContent
-        data-slot="input-group-control"
-        class="flex-1 rounded-none border-0 bg-transparent shadow-none aria-invalid:border-destructive! aria-invalid:focus-within:ring-destructive/30!"
-      >
-        <UiNumberFieldDecrement />
-        <UiNumberFieldInput
-          :id="inputId"
-          :aria-invalid="isInvalid || undefined"
-          :aria-describedby="description ? `${inputId}-desc` : undefined"
-          @blur="field.handleBlur()"
-        />
-        <UiNumberFieldIncrement />
-      </UiNumberFieldContent>
-    </UiNumberField>
+    <template #default="{ id, isInvalid }">
+      <UiNumberField :value="value" :min :max :step :disabled :format-options="formatOptions">
+        <UiNumberFieldContent
+          data-slot="input-group-control"
+          class="flex-1 rounded-none border-0 bg-transparent shadow-none aria-invalid:border-destructive! aria-invalid:focus-within:ring-destructive/30!"
+        >
+          <UiNumberFieldDecrement />
+          <UiNumberFieldInput
+            :id="id"
+            @input="handleChange"
+            :aria-invalid="isInvalid || undefined"
+            :aria-describedby="description ? `${id}-desc` : undefined"
+            @blur="handleBlur()"
+          />
+          <UiNumberFieldIncrement />
+        </UiNumberFieldContent>
+      </UiNumberField>
+    </template>
   </FormField>
 </template>

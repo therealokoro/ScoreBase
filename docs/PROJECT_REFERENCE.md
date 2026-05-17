@@ -177,92 +177,92 @@ export const entityContract = { list, getOne, create, update, 'delete': remove }
 **Router Pattern** (`server/routers/session.router.ts`):
 
 ```typescript
-import { implement } from "@orpc/server";
-import { entityContract } from "../contracts/entity.contract";
-import { fetchSingle, listAll } from "../queries/entity.query";
-import { entityTable } from "../db/schema";
-import { db } from "@nuxthub/db";
-import { eq } from "drizzle-orm";
+import { implement } from "@orpc/server"
+import { entityContract } from "../contracts/entity.contract"
+import { fetchSingle, listAll } from "../queries/entity.query"
+import { entityTable } from "../db/schema"
+import { db } from "@nuxthub/db"
+import { eq } from "drizzle-orm"
 
-const os = implement(entityContract);
+const os = implement(entityContract)
 
-const listEntities = os.list.handler(async () => await listAll());
+const listEntities = os.list.handler(async () => await listAll())
 
 const getSingle = os.getOne.handler(async ({ input, errors }) => {
-  const entity = await fetchSingle(input.id);
-  if (!entity) throw errors.NOT_FOUND();
-  return entity;
-});
+  const entity = await fetchSingle(input.id)
+  if (!entity) throw errors.NOT_FOUND()
+  return entity
+})
 
 const createEntity = os.create.handler(async ({ input, errors }) => {
   // Business logic (e.g., check duplicates)
-  const existing = await fetchSingle(input.name, "name");
-  if (existing) throw errors.CONFLICT();
+  const existing = await fetchSingle(input.name, "name")
+  if (existing) throw errors.CONFLICT()
 
   // DB mutation directly in handler
-  const [entity] = await db.insert(entityTable).values(input).returning();
-  return entity!;
-});
+  const [entity] = await db.insert(entityTable).values(input).returning()
+  return entity!
+})
 
 const updateEntity = os.update.handler(async ({ input, errors }) => {
-  const existing = await fetchSingle(input.id);
-  if (!existing) throw errors.NOT_FOUND();
+  const existing = await fetchSingle(input.id)
+  if (!existing) throw errors.NOT_FOUND()
 
   // Check conflicts if name changed
   if (input.name !== existing.name) {
-    const nameConflict = await fetchSingle(input.name, "name");
-    if (nameConflict) throw errors.CONFLICT();
+    const nameConflict = await fetchSingle(input.name, "name")
+    if (nameConflict) throw errors.CONFLICT()
   }
 
   const [updated] = await db
     .update(entityTable)
     .set({ name: input.name })
     .where(eq(entityTable.id, input.id))
-    .returning();
-  return updated!;
-});
+    .returning()
+  return updated!
+})
 
 const removeEntity = os.delete.handler(async ({ input, errors }) => {
-  const existing = await fetchSingle(input.id);
-  if (!existing) throw errors.NOT_FOUND();
+  const existing = await fetchSingle(input.id)
+  if (!existing) throw errors.NOT_FOUND()
 
   // Check dependencies (e.g., prevent delete if has children)
   const dependencies = await db.query.relatedTable.findMany({
-    where: eq(relatedTable.entityId, input.id),
-  });
-  if (dependencies.length > 0) throw errors.PRECONDITION_FAILED();
+    where: eq(relatedTable.entityId, input.id)
+  })
+  if (dependencies.length > 0) throw errors.PRECONDITION_FAILED()
 
-  await db.delete(entityTable).where(eq(entityTable.id, input.id));
-  return { success: true };
-});
+  await db.delete(entityTable).where(eq(entityTable.id, input.id))
+  return { success: true }
+})
 
 export const entityRouter = {
   list: listEntities,
   getOne: getSingle,
   create: createEntity,
   update: updateEntity,
-  delete: removeEntity,
-};
+  delete: removeEntity
+}
 ```
 
 **Query Pattern** (`server/queries/session.query.ts`):
 
 ```typescript
-import { db } from "@nuxthub/db";
-import { eq } from "drizzle-orm";
-import { entityTable } from "../db/schema";
+import { db } from "@nuxthub/db"
+import { eq } from "drizzle-orm"
+import { entityTable } from "../db/schema"
 
 /** Reusable: Find by id or any column */
 export const fetchSingle = async (payload: string, column: "id" | "name" = "id") => {
   return await db.query.entityTable.findFirst({
-    where: eq(entityTable[column], payload),
-  });
-};
+    where: eq(entityTable[column], payload)
+  })
+}
 
 /** Reusable: List all */
 export const listAll = async () => {
-  return await db.query.entityTable.findMany();
-};
+  return await db.query.entityTable.findMany()
+}
 // NO mutations here - only reusable reads
 ```
 
@@ -277,8 +277,8 @@ export const listAll = async () => {
 - **Timestamps**: Shared `dateTimeSchema` in `server/db/schema/common.ts` using `timestamp_ms` mode
 - **JSON Columns**: Use Drizzle's JSON mode with `$type<T>()` for TypeScript
   ```typescript
-  tags: text("tags", { mode: "json" }).$type<string[]>();
-  subjectIds: text("subjectIds", { mode: "json" }).$type<string[]>();
+  tags: text("tags", { mode: "json" }).$type<string[]>()
+  subjectIds: text("subjectIds", { mode: "json" }).$type<string[]>()
   ```
 - **Read Operations**: Use `db.query.table.findFirst()` or `db.query.table.findMany()`
 - **Insert**: `db.insert(table).values(input).returning()`
@@ -290,21 +290,21 @@ export const listAll = async () => {
 Using drizzle-zod's schema generators for clean, type-safe schemas:
 
 ```typescript
-import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
-import { z } from "zod";
-import { entityTable } from "~~/server/db/schema";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
+import { z } from "zod"
+import { entityTable } from "~~/server/db/schema"
 
-export const EntitySchema = createSelectSchema(entityTable);
-export const CreateEntitySchema = createInsertSchema(entityTable);
+export const EntitySchema = createSelectSchema(entityTable)
+export const CreateEntitySchema = createInsertSchema(entityTable)
 export const UpdateEntitySchema = createUpdateSchema(entityTable, {
   id: z.string(),
-  name: z.string("Validation message"),
-});
+  name: z.string("Validation message")
+})
 
 // For JSON fields with validation:
 export const CreateSubjectListSchema = createInsertSchema(subjectLists, {
-  subjectIds: z.array(z.string()).min(1, "Must have at least one subject"),
-});
+  subjectIds: z.array(z.string()).min(1, "Must have at least one subject")
+})
 ```
 
 ### Better Auth
