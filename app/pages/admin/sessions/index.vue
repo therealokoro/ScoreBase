@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { UpsertAcademicSessionInput } from "~~/shared/validators/academic"
 
-import { ICONS } from "#shared/constants/icons"
-
 const { data, isLoading } = useAcademicSessionList()
 const sessions = computed(() => data.value ?? [])
 const { mutateAsync: createSession } = useCreateAcademicSession()
@@ -24,23 +22,16 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
 <template>
   <Page title="Academic Sessions" description="Manage the schools academic sessions">
     <ClientOnly>
-      <!-- Loading -->
-      <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <UiSkeleton v-for="i in 4" :key="i" class="h-20" />
-      </div>
+      <AppEntitySkeleton v-if="isLoading" />
 
       <!-- Empty -->
       <UiEmpty
         v-else-if="!sessions.length"
         title="No academic sessions"
         description="Create your first academic session to get started"
-      >
-        <template #content>
-          <UiButton :icon="ICONS.add" variant="outline" @click="openCreateSheet = true">
-            Create Session
-          </UiButton>
-        </template>
-      </UiEmpty>
+        button-text="Create Session"
+        @button-action="openCreateSheet = true"
+      />
 
       <!-- Content -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -5,7 +5,7 @@ import { normalizeClass } from "vue"
 import type { HTMLAttributes } from "vue"
 
 export const emptyStyles = tv({
-  base: "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center text-balance md:p-12"
+  base: "flex min-w-0 flex-1 flex-col items-center justify-center gap-3 rounded-lg border-dashed p-6 text-center text-balance md:p-12"
 })
 
 export type EmptyProps = PrimitiveProps & {
@@ -15,11 +15,15 @@ export type EmptyProps = PrimitiveProps & {
   description?: string
   icon?: string
   noIcon?: boolean
+  buttonText?: string
 }
 </script>
 
 <script lang="ts" setup>
+import { ICONS } from "#shared/constants/icons"
 const props = defineProps<EmptyProps>()
+defineEmits<{ "button-action": [] }>()
+
 const forwarded = reactiveOmit(props, ["class", "title", "description", "icon", "noIcon"])
 </script>
 
@@ -48,7 +52,16 @@ const forwarded = reactiveOmit(props, ["class", "title", "description", "icon", 
         </template>
       </UiEmptyHeader>
 
-      <slot name="content" />
+      <slot name="content">
+        <UiButton
+          v-if="buttonText"
+          :icon="ICONS.add"
+          variant="outline"
+          @click="$emit('button-action')"
+        >
+          {{ buttonText }}
+        </UiButton>
+      </slot>
     </slot>
   </Primitive>
 </template>

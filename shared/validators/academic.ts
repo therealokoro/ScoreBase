@@ -25,15 +25,15 @@ export const UpdateTermSchema = createUpdateSchema(terms, {
 
 /* Class Schemas */
 export const ClassSchema = createSelectSchema(classes).extend({
-  teacher: z.object({ id: z.string(), name: z.string() }).optional()
+  teacher: z.object({ id: z.string(), name: z.string() }).nullable()
 })
-export const CreateClassSchema = createInsertSchema(classes, {
+export const UpsertClassSchema = createInsertSchema(classes, {
+  name: z.string("The class requires a name")
   // TODO: Add presets on creation
 })
-export const UpdateClassSchema = createUpdateSchema(classes, {
-  id: z.string(),
-  name: z.string("The class requires a name")
-})
+
+export const UpdateClassSchema = createInsertSchema(classes)
+export type UpsertClassInput = z.infer<typeof UpsertClassSchema>
 
 /* Subject Schemas */
 export const SubjectSchema = createSelectSchema(subjects)

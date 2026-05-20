@@ -71,7 +71,7 @@ export const termsRelations = relations(terms, ({ one }) => ({
 }))
 
 export const classesRelations = relations(classes, ({ one }) => ({
-  formTeacher: one(user, {
+  teacher: one(user, {
     fields: [classes.teacherId],
     references: [user.id]
   })

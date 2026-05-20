@@ -14,7 +14,7 @@ onMounted(() => {
 const adminNavItems = [
   { title: "Overview", href: "/admin", icon: ICONS.dashboard },
   { title: "Sessions", href: "/admin/sessions", icon: ICONS.session },
-  { title: "Classes", href: "/#admin/classes", icon: ICONS.class },
+  { title: "Classes", href: "/admin/classes", icon: ICONS.class },
   { title: "Subjects", href: "/#admin/subjects", icon: ICONS.subject },
   { title: "Teachers", href: "/#admin/teachers", icon: ICONS.teacher },
   { title: "Students", href: "/#admin/students", icon: ICONS.students },

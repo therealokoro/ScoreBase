@@ -1,4 +1,5 @@
-// composables/useAcademicSession.ts
+/* Composables for managing academic session */
+
 export const useAcademicSessionList = () => {
   const { $orpc } = useNuxtApp()
   return useQuery($orpc.academicSession.list.queryOptions({}))
@@ -49,6 +50,7 @@ export const useCreateSessionTerm = () => {
     })
   )
 }
+
 export const useDeleteSessionTerm = () => {
   const { $orpc } = useNuxtApp()
   const queryClient = useQueryClient()
