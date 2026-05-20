@@ -3,14 +3,15 @@ import { z } from "zod"
 import {
   AcademicSessionSchema,
   UpsertAcademicSessionSchema,
-  UpdateAcademicSessionSchema
+  UpdateAcademicSessionSchema,
+  TermSchema
 } from "~~/shared/validators/academic"
 
 export const list = oc.output(z.array(AcademicSessionSchema))
 
 export const getOne = oc
   .input(AcademicSessionSchema.pick({ id: true }))
-  .output(AcademicSessionSchema)
+  .output(AcademicSessionSchema.extend({ terms: z.array(TermSchema) }))
   .errors({ NOT_FOUND: { message: "The session was not found" } })
 
 export const create = oc

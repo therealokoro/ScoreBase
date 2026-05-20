@@ -2,7 +2,7 @@
 import { tv } from "tailwind-variants"
 
 export const cardStyles = tv({
-  base: "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-4",
+  base: "bg-card text-card-foreground flex flex-col gap-6 rounded-lg border py-4",
   variants: {
     clickable: {
       true: [

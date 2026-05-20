@@ -30,11 +30,12 @@ CREATE TABLE `classes` (
 	`subject_list` text,
 	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
 	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
-	FOREIGN KEY (`teacher_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`teacher_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null,
 	FOREIGN KEY (`subject_list`) REFERENCES `subject_lists`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `classes_name_unique` ON `classes` (`name`);--> statement-breakpoint
+CREATE UNIQUE INDEX `classes_teacher_id_unique` ON `classes` (`teacher_id`);--> statement-breakpoint
 CREATE TABLE `subject_lists` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -55,6 +56,7 @@ CREATE TABLE `subjects` (
 CREATE TABLE `terms` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`position` integer NOT NULL,
 	`session_id` text NOT NULL,
 	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
 	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,

@@ -19,28 +19,28 @@
 </template>
 
 <script lang="ts">
-  import { useForwardProps } from "reka-ui";
-  import type { Component } from "vue";
+import { useForwardProps } from "reka-ui"
+import type { Component } from "vue"
 
-  import type { SidebarMenuButtonProps } from "./MenuButtonChild.vue";
+import type { SidebarMenuButtonProps } from "./MenuButtonChild.vue"
 </script>
 <script setup lang="ts">
-  defineOptions({ inheritAttrs: false });
+defineOptions({ inheritAttrs: false })
 
-  const props = withDefaults(
-    defineProps<
-      SidebarMenuButtonProps & {
-        tooltip?: string | Component;
-      }
-    >(),
-    {
-      as: "button",
-      variant: "default",
-      size: "default",
+const props = withDefaults(
+  defineProps<
+    SidebarMenuButtonProps & {
+      tooltip?: string | Component
     }
-  );
+  >(),
+  {
+    as: "button",
+    variant: "default",
+    size: "default"
+  }
+)
 
-  const { isMobile, state } = useSidebar();
+const { isMobile, state } = useSidebar()
 
-  const forwarded = useForwardProps(reactiveOmit(props, ["tooltip"]));
+const forwarded = useForwardProps(reactiveOmit(props, ["tooltip"]))
 </script>

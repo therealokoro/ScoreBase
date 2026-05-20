@@ -2,7 +2,7 @@
 import { tv, type VariantProps } from "tailwind-variants"
 
 export const buttonStyles = tv({
-  base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 border border-transparent bg-clip-padding text-sm font-medium rounded-(--radius) focus-visible:ring-1 aria-invalid:ring-1 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*=size-])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 border border-transparent bg-clip-padding text-sm font-medium rounded-lg focus-visible:ring-1 aria-invalid:ring-1 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*=size-])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
       primary: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
@@ -44,9 +44,9 @@ export type ButtonVariants = VariantProps<typeof buttonStyles>
 
 <script setup lang="ts">
 import { reactiveOmit } from "@vueuse/core"
-import type { Component } from "vue"
 import type { PrimitiveProps } from "reka-ui"
 import { useForwardProps } from "reka-ui"
+import type { Component } from "vue"
 import { normalizeClass, type HTMLAttributes } from "vue"
 
 import type { NuxtLinkProps } from "#app"
@@ -73,9 +73,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
 
 const slots = useSlots()
 
-const isLinkElement = computed(
-  () => !!(props.href || props.to || props.target)
-)
+const isLinkElement = computed(() => !!(props.href || props.to || props.target))
 
 const elementType = computed(() => {
   if (props.as) return props.as
@@ -84,13 +82,15 @@ const elementType = computed(() => {
 })
 
 const isIconOnly = computed(
-  () => !props.text && !slots.default && (!!props.icon || !!props.iconRight) && !(props.icon && props.iconRight)
+  () =>
+    !props.text &&
+    !slots.default &&
+    (!!props.icon || !!props.iconRight) &&
+    !(props.icon && props.iconRight)
 )
 
 // Spinner is shown inline when loading with no leading icon
-const showInlineSpinner = computed(
-  () => props.loading && !props.icon
-)
+const showInlineSpinner = computed(() => props.loading && !props.icon)
 
 // iconRight shows the spinner only when icon is not already handling it
 const iconRightName = computed(() => {
@@ -113,7 +113,7 @@ const forwarded = useForwardProps(
     "label",
     "block",
     // Don't forward disabled natively to link elements; use aria-disabled instead
-    ...(isLinkElement.value ? ["disabled"] as const : [])
+    ...(isLinkElement.value ? (["disabled"] as const) : [])
   )
 )
 </script>
@@ -149,11 +149,7 @@ const forwarded = useForwardProps(
       />
     </template>
     <template v-else-if="showInlineSpinner">
-      <Icon
-        :name="loadingIcon"
-        class="animate-spin"
-        aria-hidden="true"
-      />
+      <Icon :name="loadingIcon" class="animate-spin" aria-hidden="true" />
     </template>
 
     <slot>{{ text }}</slot>

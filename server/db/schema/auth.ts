@@ -1,6 +1,7 @@
-import { relations, sql } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { classes } from ".";
+import { relations, sql } from "drizzle-orm"
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core"
+
+import { classes } from "."
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -19,8 +20,8 @@ export const user = sqliteTable("user", {
   banned: integer("banned", { mode: "boolean" }).default(false),
   banReason: text("ban_reason"),
   banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
-  phoneNumber: text("phone_number").notNull().unique(),
-});
+  phoneNumber: text("phone_number").notNull().unique()
+})
 
 export const user_session = sqliteTable(
   "user_session",
@@ -39,10 +40,10 @@ export const user_session = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    impersonatedBy: text("impersonated_by"),
+    impersonatedBy: text("impersonated_by")
   },
-  (table) => [index("user_session_userId_idx").on(table.userId)],
-);
+  (table) => [index("user_session_userId_idx").on(table.userId)]
+)
 
 export const account = sqliteTable(
   "account",
@@ -57,10 +58,10 @@ export const account = sqliteTable(
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
     accessTokenExpiresAt: integer("access_token_expires_at", {
-      mode: "timestamp_ms",
+      mode: "timestamp_ms"
     }),
     refreshTokenExpiresAt: integer("refresh_token_expires_at", {
-      mode: "timestamp_ms",
+      mode: "timestamp_ms"
     }),
     scope: text("scope"),
     password: text("password"),
@@ -69,10 +70,10 @@ export const account = sqliteTable(
       .notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
+      .notNull()
   },
-  (table) => [index("account_userId_idx").on(table.userId)],
-);
+  (table) => [index("account_userId_idx").on(table.userId)]
+)
 
 export const verification = sqliteTable(
   "verification",
@@ -87,30 +88,30 @@ export const verification = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
+      .notNull()
   },
-  (table) => [index("verification_identifier_idx").on(table.identifier)],
-);
+  (table) => [index("verification_identifier_idx").on(table.identifier)]
+)
 
 export const userRelations = relations(user, ({ one, many }) => ({
   user_sessions: many(user_session),
   accounts: many(account),
   class: one(classes, {
     fields: [user.id],
-    references: [classes.teacherId],
-  }),
-}));
+    references: [classes.teacherId]
+  })
+}))
 
 export const user_sessionRelations = relations(user_session, ({ one }) => ({
   user: one(user, {
     fields: [user_session.userId],
-    references: [user.id],
-  }),
-}));
+    references: [user.id]
+  })
+}))
 
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
-    references: [user.id],
-  }),
-}));
+    references: [user.id]
+  })
+}))

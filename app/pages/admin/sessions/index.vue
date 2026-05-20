@@ -44,25 +44,16 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
 
       <!-- Content -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <UiCard
-          v-for="item in sessions"
+        <AppEntityCard
           :key="item.id"
-          :to="`/#admin/${item.id}`"
-          class="relative justify-center gap-2 px-4"
-        >
-          <UiCardTitle>{{ item.name }}</UiCardTitle>
-          <UiCardDescription>{{ formatDate(item.createdAt, "Created on ") }}</UiCardDescription>
-          <div class="absolute flex items-center inset-y-0 right-4 z-2">
-            <Icon name="lucide:arrow-right" variant="ghost" />
-          </div>
-        </UiCard>
+          :title="item.name"
+          v-for="item in sessions"
+          icon="lucide:arrow-right"
+          :link="`/admin/sessions/${item.id}`"
+          :description="formatDate(item.createdAt, 'Created on ')"
+        />
 
-        <UiCard class="border-dashed bg-muted" clickable @click="openCreateSheet = true">
-          <div class="flex items-center justify-center h-full gap-2">
-            <Icon :name="ICONS.add" />
-            <p class="text-sm">Create a session</p>
-          </div>
-        </UiCard>
+        <AppEntityAddButton text="Create a session" @click="openCreateSheet = true" />
       </div>
 
       <!-- Fallback shown on server and before client hydrates -->

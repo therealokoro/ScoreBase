@@ -17,7 +17,7 @@ export const UpdateAcademicSessionSchema = createUpdateSchema(academicSessions, 
 
 /* Term Schemas */
 export const TermSchema = createSelectSchema(terms)
-export const CreateTermSchema = createInsertSchema(terms)
+export const CreateTermSchema = createInsertSchema(terms).pick({ sessionId: true })
 export const UpdateTermSchema = createUpdateSchema(terms, {
   id: z.string(),
   name: z.string("The term requires a name")

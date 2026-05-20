@@ -1,8 +1,22 @@
 <script lang="ts" setup>
-defineProps<{ title: string; description?: string }>()
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    description?: string
+    confirmInputText?: string
+  }>(),
+  {
+    title: "Confirm Delete"
+  }
+)
+
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
 
+const hasInputField = computed(() => !!props.confirmInputText)
+
 const isOpen = ref(false)
+
+const enteredText = ref("")
 </script>
 
 <template>
@@ -21,11 +35,22 @@ const isOpen = ref(false)
         </UiAlertDialogDescription>
       </UiAlertDialogHeader>
 
+      <div class="w-full space-y-2" v-if="hasInputField">
+        <UiInput v-model="enteredText" :placeholder="`Enter confirmation text to continue`" />
+        <p class="text-xs text-muted-foreground">
+          Please type <span class="font-semibold">{{ confirmInputText }}</span> to continue
+        </p>
+      </div>
+
       <!-- Dialog Footer -->
       <UiAlertDialogFooter>
         <slot name="actions">
           <UiAlertDialogCancel @click="emit('cancel')" />
-          <UiAlertDialogAction @click="emit('confirm')" />
+          <UiAlertDialogAction
+            :disabled="enteredText != confirmInputText"
+            @click="emit('confirm')"
+            variant="destructive"
+          />
         </slot>
       </UiAlertDialogFooter>
     </UiAlertDialogContent>

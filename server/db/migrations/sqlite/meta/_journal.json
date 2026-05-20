@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1778789383539,
-      "tag": "0000_short_mother_askani",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1778795404663,
-      "tag": "0001_greedy_vargas",
+      "when": 1779266769527,
+      "tag": "0000_lucky_red_ghost",
       "breakpoints": true
     }
   ]

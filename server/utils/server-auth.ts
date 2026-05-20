@@ -1,7 +1,7 @@
-import { db, schema } from "@nuxthub/db";
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin } from "better-auth/plugins";
+import { db, schema } from "@nuxthub/db"
+import { betterAuth } from "better-auth"
+import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { admin } from "better-auth/plugins"
 
 export const getServerAuth = () => {
   return betterAuth({
@@ -14,10 +14,10 @@ export const getServerAuth = () => {
           type: "string",
           required: true,
           unique: true,
-          returned: true,
-        },
-      },
+          returned: true
+        }
+      }
     },
-    session: { modelName: "user_session" },
-  });
-};
+    session: { modelName: "user_session" }
+  })
+}

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "de0072d3-0a1b-44d5-b04b-f1234f1d2531",
+  "id": "4c42a41c-5494-4fc0-8c3a-eb8c187ce224",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_sessions": {
@@ -223,6 +223,13 @@
             "name"
           ],
           "isUnique": true
+        },
+        "classes_teacher_id_unique": {
+          "name": "classes_teacher_id_unique",
+          "columns": [
+            "teacher_id"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -236,7 +243,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "classes_subject_list_subject_lists_id_fk": {
@@ -372,6 +379,13 @@
         "name": {
           "name": "name",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

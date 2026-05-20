@@ -5,7 +5,7 @@
     :icon="props.name"
     :style="{
       width: handleSize(props.size),
-      height: handleSize(props.size),
+      height: handleSize(props.size)
     }"
   />
   <!-- Emojis -->
@@ -25,7 +25,7 @@
     :src="name"
     :style="{
       width: handleSize(props.size),
-      height: handleSize(props.size),
+      height: handleSize(props.size)
     }"
     :class="['not-prose inline', $attrs.class]"
     alt="icon"
@@ -33,38 +33,38 @@
 </template>
 
 <script lang="ts" setup>
-  import { stringToIcon, validateIconName } from "@iconify/utils";
-  import { Icon } from "@iconify/vue";
-  import type { IconProps } from "@iconify/vue";
+import { stringToIcon, validateIconName } from "@iconify/utils"
+import { Icon } from "@iconify/vue"
+import type { IconProps } from "@iconify/vue"
 
-  const props = withDefaults(
-    defineProps<
-      Omit<IconProps, "icon"> & {
-        /** The name of the icon to display. */
-        name: string;
-        /** Size of the icon in pixels (default: 16) */
-        size?: number | string;
-      }
-    >(),
-    {
-      size: 16,
+const props = withDefaults(
+  defineProps<
+    Omit<IconProps, "icon"> & {
+      /** The name of the icon to display. */
+      name: string
+      /** Size of the icon in pixels (default: 16) */
+      size?: number | string
     }
-  );
-  /** Check if the provided name is a valid Iconify icon name. */
-  function checkIcon(name: string): boolean {
-    if (name.includes("http") || name.startsWith("data:image/")) return false;
-    return validateIconName(stringToIcon(name));
+  >(),
+  {
+    size: 16
   }
+)
+/** Check if the provided name is a valid Iconify icon name. */
+function checkIcon(name: string): boolean {
+  if (name.includes("http") || name.startsWith("data:image/")) return false
+  return validateIconName(stringToIcon(name))
+}
 
-  const handleNumberSize = (size: number) => {
-    return `${size}px`;
-  };
+const handleNumberSize = (size: number) => {
+  return `${size}px`
+}
 
-  const handleSize = (size: number | string | undefined) => {
-    if (!size) return "16px";
-    if (typeof size === "number") {
-      return handleNumberSize(size);
-    }
-    return size;
-  };
+const handleSize = (size: number | string | undefined) => {
+  if (!size) return "16px"
+  if (typeof size === "number") {
+    return handleNumberSize(size)
+  }
+  return size
+}
 </script>

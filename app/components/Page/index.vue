@@ -3,7 +3,7 @@ import { ICONS } from "#shared/constants/icons"
 
 const props = withDefaults(
   defineProps<{
-    title: string
+    title?: string
     description?: string
     loading?: boolean
     error?: Error | null
@@ -14,8 +14,14 @@ const props = withDefaults(
   }
 )
 
-// Set page title to be reused in dashboard layout
-useState<string>("pageTitle", () => props.title)
+// set page title for use in dashboard
+const pageTitle = useState("pageTitle", () => props.title)
+watch(
+  () => props.title,
+  (val) => {
+    pageTitle.value = val
+  }
+)
 
 useHead(() => ({
   title: props.title ? `${props.title} | ScoreBase` : "ScoreBase"
@@ -25,36 +31,42 @@ const hasError = computed(() => props.error !== null)
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- Page Header -->
-    <div class="flex justify-between items-center">
-      <div class="space-y-1">
-        <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
-          {{ title }}
-        </ui-heading>
-        <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
-      </div>
-
-      <slot name="toolbar" />
-    </div>
-
+  <div class="w-full">
     <!-- Loading State -->
-    <div v-if="loading && !hasError" class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center gap-3">
-        <UiLoader class="size-10" text="Loading Content..." />
-      </div>
+    <div v-if="loading" class="flex items-center justify-center py-12">
+      <UiLoader class="size-10" text="Loading Content..." />
     </div>
 
     <!-- Error State -->
-    <UiAlert v-else-if="hasError" variant="destructive" class="max-w-md">
-      <Icon :name="ICONS.error" class="size-4" />
-      <template #title>Error</template>
-      <template #description>
-        {{ error?.message || "An unexpected error occurred. Please try again." }}
-      </template>
-    </UiAlert>
+    <div
+      v-else-if="hasError"
+      class="flex flex-col items-center justify-center py-16 gap-4 text-center"
+    >
+      <div class="flex items-center justify-center size-12 rounded-full bg-destructive/10">
+        <Icon :name="ICONS.error" class="size-5 text-destructive" />
+      </div>
+      <div class="space-y-1 max-w-sm">
+        <ui-heading :level="2" class="text-base font-semibold">Something went wrong</ui-heading>
+        <p class="text-sm text-foreground/80">
+          {{ error?.message || "An unexpected error occurred. Please try again." }}
+        </p>
+      </div>
+      <UiButton variant="outline" to="/admin" :icon="ICONS.home">Go Back</UiButton>
+    </div>
 
     <!-- Page Content -->
-    <slot v-else />
+    <div v-else class="grid w-full gap-6">
+      <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
+            {{ title }}
+          </ui-heading>
+          <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
+        </div>
+        <slot name="actions" />
+      </div>
+
+      <slot />
+    </div>
   </div>
 </template>
