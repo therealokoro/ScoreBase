@@ -15,7 +15,9 @@ const styles = tv({ base: "group relative justify-center gap-2 px-4" })
 <template>
   <UiCard clickable :to="link" :class="styles({ class: normalizeClass(props.class) || undefined })">
     <UiCardTitle>{{ title }}</UiCardTitle>
-    <UiCardDescription v-if="description">{{ description }}</UiCardDescription>
+    <slot name="description">
+      <UiCardDescription v-if="description">{{ description }}</UiCardDescription>
+    </slot>
     <div
       v-if="icon"
       class="absolute flex items-center inset-y-0 right-4 z-2 group-hover:translate-x-2 transition"

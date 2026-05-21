@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
-import FormField from './FormField.vue'
-import FormAddon from './FormAddon.vue'
-import type { SelectOptionRaw } from '../Ui/Select/Select.vue'
+import type { SelectOptionRaw } from "../Ui/Select/Select.vue"
+import FormField from "./FormField.vue"
 
 interface Props {
-  name?: string
+  name: string
   validateOnMount?: boolean
   label?: string
   description?: string
   placeholder?: string
   disabled?: boolean
+  multiple?: boolean
   options?: SelectOptionRaw[]
   icon?: string
   iconRight?: string
@@ -22,39 +21,37 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   validateOnMount: false,
-  options: () => [],
+  options: () => []
 })
 
-const model = defineModel<string>()
-
-const slots = useSlots()
-const hasAddonStart = computed(() => !!slots['addon']       || !!props.icon || !!props.addonText)
-const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight || !!props.addonTextRight)
+const { value, errorMessage, handleBlur, handleChange } = useField<string>(
+  () => props.name,
+  undefined,
+  { label: props.label, validateOnMount: props.validateOnMount }
+)
 </script>
 
 <template>
   <FormField
-    :name
-    :validate-on-mount
+    :icon
     :label
+    :class
+    :icon-right
+    :addon-text
     :description
-    :class="props.class"
-    v-slot="{ field, isInvalid }"
+    :addon-text-right
+    :error="errorMessage"
   >
-    <UiSelect
-      v-model="model"
-      :options
-      :disabled
-      v-slot="{ options: normalizedOptions }"
-      @update:open="(open) => !open && field.handleBlur()"
-    >
-      <UiInputGroup>
-        <FormAddon v-if="hasAddonStart" :icon :text="addonText">
-          <template v-if="$slots['addon']" #default>
-            <slot name="addon" />
-          </template>
-        </FormAddon>
-
+    <template #default="{ isInvalid }">
+      <UiSelect
+        :value="value"
+        :options
+        :disabled
+        :multiple
+        v-slot="{ options: normalizedOptions }"
+        @update:model-value="handleChange"
+        @update:open="(open) => !open && handleBlur()"
+      >
         <UiSelectTrigger
           data-slot="input-group-control"
           :aria-invalid="isInvalid || undefined"
@@ -63,24 +60,14 @@ const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight
           <UiSelectValue :placeholder />
         </UiSelectTrigger>
 
-        <FormAddon v-if="hasAddonEnd" :icon="iconRight" :text="addonTextRight" align="inline-end">
-          <template v-if="$slots['addon-right']" #default>
-            <slot name="addon-right" />
-          </template>
-        </FormAddon>
-      </UiInputGroup>
-
-      <UiSelectContent>
-        <slot :options="normalizedOptions">
-          <UiSelectItem
-            v-for="option in normalizedOptions"
-            :key="option.value"
-            v-bind="option"
-          >
-            {{ option.label }}
-          </UiSelectItem>
-        </slot>
-      </UiSelectContent>
-    </UiSelect>
+        <UiSelectContent>
+          <slot :options="normalizedOptions">
+            <UiSelectItem v-for="option in normalizedOptions" :key="option.value" v-bind="option">
+              {{ option.label }}
+            </UiSelectItem>
+          </slot>
+        </UiSelectContent>
+      </UiSelect>
+    </template>
   </FormField>
 </template>

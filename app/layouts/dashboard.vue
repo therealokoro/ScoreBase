@@ -15,7 +15,7 @@ const adminNavItems = [
   { title: "Overview", href: "/admin", icon: ICONS.dashboard },
   { title: "Sessions", href: "/admin/sessions", icon: ICONS.session },
   { title: "Classes", href: "/admin/classes", icon: ICONS.class },
-  { title: "Subjects", href: "/#admin/subjects", icon: ICONS.subject },
+  { title: "Subjects", href: "/admin/subjects", icon: ICONS.subject },
   { title: "Teachers", href: "/#admin/teachers", icon: ICONS.teacher },
   { title: "Students", href: "/#admin/students", icon: ICONS.students },
   { title: "Results", href: "/#admin/results", icon: ICONS.result }
@@ -83,7 +83,9 @@ const sidebarContents = computed(() => {
 
       <!-- Sidebar Footer -->
       <UiSidebarFooter class="border-t p-2 mt-auto">
-        <div v-if="!isPending && currentUser" class="flex flex-col gap-2">
+        <UiSkeleton class="w-full h-30" v-if="isPending && !currentUser" />
+
+        <div v-else-if="currentUser" class="flex flex-col gap-2">
           <UiSidebarMenu>
             <!-- Settings Route -->
             <UiSidebarMenuItem>

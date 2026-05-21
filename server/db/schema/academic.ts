@@ -42,7 +42,6 @@ export const subjects = sqliteTable("subjects", {
     .primaryKey()
     .$default(() => typeid("subject").toString()),
   name: text("name").notNull(),
-  code: text("code"),
   tags: text("tags", { mode: "json" })
     .$type<string[]>()
     .notNull()

@@ -1,20 +1,20 @@
-import { adminClient } from "better-auth/client/plugins";
-import { inferAdditionalFields } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/vue";
-import type { getServerAuth } from "~~/server/utils/server-auth";
+import { adminClient } from "better-auth/client/plugins"
+import { inferAdditionalFields } from "better-auth/client/plugins"
+import { createAuthClient } from "better-auth/vue"
+import type { getServerAuth } from "~~/server/utils/server-auth"
 
 function getAuthClient() {
-  const rc = useRuntimeConfig();
+  const rc = useRuntimeConfig()
   return createAuthClient({
     baseURL: rc.public.betterAuthUrl,
-    plugins: [adminClient(), inferAdditionalFields<ReturnType<typeof getServerAuth>>()],
-  });
+    plugins: [adminClient(), inferAdditionalFields<ReturnType<typeof getServerAuth>>()]
+  })
 }
 
 export function useAuth() {
-  const authClient = getAuthClient();
-  const sessionAtom = authClient.useSession();
-  const data = computed(() => sessionAtom.value.data ?? null);
+  const authClient = getAuthClient()
+  const sessionAtom = authClient.useSession()
+  const data = computed(() => sessionAtom.value.data ?? null)
 
   /**
    * The authenticated user object, or `null` when not signed in. Use this when you need to safely
@@ -23,7 +23,7 @@ export function useAuth() {
    * @example
    *   <p v-if="auth.currentUser">Hello, {{ auth.currentUser.name }}</p>
    */
-  const currentUser = computed(() => data.value?.user ?? null);
+  const currentUser = computed(() => data.value?.user ?? null)
 
   /**
    * The authenticated user object, **non-null asserted**. Only access this after confirming
@@ -35,19 +35,19 @@ export function useAuth() {
    *   <p>{{ auth.user.name }}</p>
    *   </template>
    */
-  const user = computed(() => data.value!.user);
+  const user = computed(() => data.value!.user)
 
   /** The raw better-auth session record (id, token, expiresAt, …), or `null`. */
-  const session = computed(() => data.value?.session ?? null);
+  const session = computed(() => data.value?.session ?? null)
 
   /** `true` when a valid session exists. */
-  const isLoggedIn = computed(() => data.value !== null);
+  const isLoggedIn = computed(() => data.value !== null)
 
   /** `true` while the initial session fetch is in-flight. */
-  const isPending = computed(() => sessionAtom.value.isPending);
+  const isPending = computed(() => sessionAtom.value.isPending)
 
   /** The fetch error from the session request, or `null`. */
-  const error = computed(() => sessionAtom.value.error ?? null);
+  const error = computed(() => sessionAtom.value.error ?? null)
 
   /**
    * Force-refresh the session from the server, bypassing the cookie cache
@@ -56,7 +56,7 @@ export function useAuth() {
    *   await auth.refresh()
    */
   async function refresh() {
-    await authClient.getSession({ query: { disableCookieCache: true } });
+    await authClient.getSession({ query: { disableCookieCache: true } })
   }
 
   // ── Return ─────────────────────────────────────────────────────────────────
@@ -80,6 +80,6 @@ export function useAuth() {
     getSession: authClient.getSession,
     changePassword: authClient.changePassword,
     deleteUser: authClient.deleteUser,
-    client: authClient,
-  };
+    client: authClient
+  }
 }

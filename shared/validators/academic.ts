@@ -31,17 +31,21 @@ export const UpsertClassSchema = createInsertSchema(classes, {
   name: z.string("The class requires a name")
   // TODO: Add presets on creation
 })
-
-export const UpdateClassSchema = createInsertSchema(classes)
 export type UpsertClassInput = z.infer<typeof UpsertClassSchema>
 
 /* Subject Schemas */
 export const SubjectSchema = createSelectSchema(subjects)
-export const CreateSubjectSchema = createInsertSchema(subjects)
-export const UpdateSubjectSchema = createUpdateSchema(subjects, {
-  id: z.string(),
-  name: z.string("The subject requires a name")
+export const UpsertSubjectSchema = createInsertSchema(subjects, {
+  name: z.string("The subject requires a name"),
+  tags: z
+    .array(z.string(), "Please select at least one tag")
+    .min(1, "All subjects must have atleast one tag")
 })
+
+export const UpdateSubjectSchema = createUpdateSchema(subjects, {
+  id: z.string("Please provide the subject id")
+})
+export type UpsertSubjectInput = z.infer<typeof UpsertSubjectSchema>
 
 /* Subject list Schema */
 

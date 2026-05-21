@@ -14,22 +14,20 @@ interface Props extends SelectRootProps {
 </script>
 
 <script lang="ts" setup>
-  import { SelectRoot, useForwardPropsEmits } from "reka-ui";
-  import type { SelectRootEmits, SelectRootProps } from "reka-ui";
-  
-  const props = withDefaults(defineProps<SelectRootProps & Props>(), {
-    options: () => []
-  });
+import { SelectRoot, useForwardPropsEmits } from "reka-ui"
+import type { SelectRootEmits, SelectRootProps } from "reka-ui"
 
-  const emits = defineEmits<SelectRootEmits>();
+const props = withDefaults(defineProps<SelectRootProps & Props>(), {
+  options: () => []
+})
 
-  const forwarded = useForwardPropsEmits(props, emits);
+const emits = defineEmits<SelectRootEmits>()
 
-  const normalizedOptions = computed<SelectOption[]>(() =>
-    props.options.map(opt =>
-      typeof opt === 'string' ? { label: opt, value: opt } : opt,
-    ),
-  )
+const forwarded = useForwardPropsEmits(props, emits)
+
+const normalizedOptions = computed<SelectOption[]>(() =>
+  props.options.map((opt) => (typeof opt === "string" ? { label: opt, value: opt } : opt))
+)
 </script>
 
 <template>
@@ -38,13 +36,8 @@ interface Props extends SelectRootProps {
       <UiSelectTrigger class="w-full">
         <UiSelectValue :placeholder />
       </UiSelectTrigger>
-
       <UiSelectContent>
-        <UiSelectItem
-          v-for="option in normalizedOptions"
-          :key="option.value"
-          v-bind="option"
-        >
+        <UiSelectItem v-for="option in normalizedOptions" :key="option.value" v-bind="option">
           {{ option.label }}
         </UiSelectItem>
       </UiSelectContent>

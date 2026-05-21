@@ -10,7 +10,7 @@ export const useCreateClass = () => {
   const queryClient = useQueryClient()
   return useMutation(
     $orpc.class.create.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.class.list.key() })
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.class.key() })
     })
   )
 }

@@ -29,22 +29,22 @@
   </Primitive>
 </template>
 <script lang="ts">
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const fieldErrorStyles = tv({
-    base: ["text-destructive text-sm font-normal"],
-  });
+export const fieldErrorStyles = tv({
+  base: ["text-destructive text-xs font-normal"]
+})
 </script>
 <script lang="ts" setup>
-  const props = defineProps<
-    PrimitiveProps & {
-      /** Additional classes to apply to the element. */
-      class?: HTMLAttributes["class"];
-      /** Error message(s) to display. */
-      errors?: string | string[] | Array<{ message: string }>;
-    }
-  >();
+const props = defineProps<
+  PrimitiveProps & {
+    /** Additional classes to apply to the element. */
+    class?: HTMLAttributes["class"]
+    /** Error message(s) to display. */
+    errors?: string | string[] | Array<{ message: string }>
+  }
+>()
 </script>
