@@ -5,9 +5,9 @@ const openCreateSheet = ref(false)
 const { $orpc } = useNuxtApp()
 const { data, pending, refresh } = await useAsyncData("subjects", () => $orpc.subject.list.call())
 const subjects = computed(() => data.value ?? [])
-
 const createSubject = useCreateSubject()
-function handleCreateSubject(payload: UpsertSubjectInput) {
+
+function handleUpsertSubject(payload: UpsertSubjectInput) {
   useSonner.promise(createSubject.mutateAsync(payload), {
     loading: "Creating a new subject...",
     success: () => {
@@ -36,23 +36,18 @@ function handleCreateSubject(payload: UpsertSubjectInput) {
 
     <!-- Content -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      <AppEntityCard
+      <SubjectCard
+        @on-mutation="refresh"
         :key="item.id"
-        :title="item.name"
+        :name="item.name"
         v-for="item in subjects"
-        icon="lucide:arrow-right"
-        :description="formatDate(item.createdAt, 'Created on ')"
-      >
-        <template #description>
-          <div class="w-full flex gap-2">
-            <UiBadge v-for="tag in item.tags" variant="secondary">{{ tag }}</UiBadge>
-          </div>
-        </template>
-      </AppEntityCard>
+        :subject="item"
+      />
 
       <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
     </div>
 
-    <SubjectUpsertForm mode="Create" v-model:open="openCreateSheet" @submit="handleCreateSubject" />
+    <!-- Create Logic -->
+    <SubjectUpsertForm mode="Create" v-model:open="openCreateSheet" @submit="handleUpsertSubject" />
   </Page>
 </template>

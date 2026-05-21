@@ -10,7 +10,7 @@ export const useCreateSubject = () => {
   const queryClient = useQueryClient()
   return useMutation(
     $orpc.subject.create.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.key() })
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
     })
   )
 }
@@ -20,7 +20,7 @@ export const useUpdateSubject = () => {
   const queryClient = useQueryClient()
   return useMutation(
     $orpc.subject.update.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.key() })
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
     })
   )
 }
@@ -30,7 +30,7 @@ export const useDeleteSubject = () => {
   const queryClient = useQueryClient()
   return useMutation(
     $orpc.subject.delete.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.key() })
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
     })
   )
 }

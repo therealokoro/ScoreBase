@@ -44,7 +44,7 @@ const badgeVariants = tv({
       true: "cursor-not-allowed opacity-50"
     },
     size: {
-      sm: "px-2 py-0.5 text-xs font-medium",
+      sm: "text-[10px] md:text-xs px-1 md:px-2 py-0.5 font-medium",
       md: "px-2.5 py-0.75 text-sm font-medium",
       lg: "px-2.5 py-1 text-sm font-semibold"
     }

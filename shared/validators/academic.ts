@@ -45,6 +45,7 @@ export const UpsertSubjectSchema = createInsertSchema(subjects, {
 export const UpdateSubjectSchema = createUpdateSchema(subjects, {
   id: z.string("Please provide the subject id")
 })
+export type UpdateSubjectInput = z.infer<typeof UpdateSubjectSchema>
 export type UpsertSubjectInput = z.infer<typeof UpsertSubjectSchema>
 
 /* Subject list Schema */

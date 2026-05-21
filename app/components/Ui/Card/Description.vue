@@ -31,6 +31,6 @@ const props = withDefaults(
   }
 )
 const styles = tv({
-  base: "text-muted-foreground text-sm"
+  base: "text-muted-foreground text-xs md:text-sm"
 })
 </script>

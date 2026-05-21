@@ -11,11 +11,8 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
-
 const hasInputField = computed(() => !!props.confirmInputText)
-
 const isOpen = ref(false)
-
 const enteredText = ref("")
 </script>
 
@@ -27,19 +24,30 @@ const enteredText = ref("")
     </UiAlertDialogTrigger>
 
     <UiAlertDialogContent @escape-key-down="emit('cancel')">
-      <!-- Dialog Header -->
-      <UiAlertDialogHeader>
-        <UiAlertDialogTitle>{{ title }}</UiAlertDialogTitle>
-        <UiAlertDialogDescription v-if="description">
-          {{ description }}
-        </UiAlertDialogDescription>
-      </UiAlertDialogHeader>
+      <div class="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
+        <div
+          class="border-border flex size-9 shrink-0 items-center justify-center rounded-full border"
+          aria-hidden="true"
+        >
+          <Icon name="lucide:circle-alert" class="size-4 opacity-80" />
+        </div>
 
-      <div class="w-full space-y-2" v-if="hasInputField">
-        <UiInput v-model="enteredText" :placeholder="`Enter confirmation text to continue`" />
-        <p class="text-xs text-muted-foreground">
-          Please type <span class="font-semibold">{{ confirmInputText }}</span> to continue
-        </p>
+        <div class="w-full space-y-4">
+          <!-- Dialog Header -->
+          <UiAlertDialogHeader>
+            <UiAlertDialogTitle>{{ title }}</UiAlertDialogTitle>
+            <UiAlertDialogDescription v-if="description">
+              {{ description }}
+            </UiAlertDialogDescription>
+          </UiAlertDialogHeader>
+
+          <div class="w-full space-y-2" v-if="hasInputField">
+            <UiInput v-model="enteredText" :placeholder="`Enter confirmation text to continue`" />
+            <p class="text-xs text-muted-foreground">
+              Please type <span class="font-semibold">{{ confirmInputText }}</span> to continue
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Dialog Footer -->
@@ -47,7 +55,7 @@ const enteredText = ref("")
         <slot name="actions">
           <UiAlertDialogCancel @click="emit('cancel')" />
           <UiAlertDialogAction
-            :disabled="enteredText != confirmInputText"
+            :disabled="hasInputField ? enteredText != confirmInputText : false"
             @click="emit('confirm')"
             variant="destructive"
           />

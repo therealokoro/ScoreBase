@@ -1,0 +1,60 @@
+<script lang="ts" setup>
+import { ICONS } from "~~/shared/constants/icons"
+
+const props = defineProps<{ subject: ISubject }>()
+const openEditSheet = ref(false)
+const emits = defineEmits(["on-mutation"])
+
+const updateSubject = useUpdateSubject()
+function handleUpdateSubject(payload: any) {
+  useSonner.promise(updateSubject.mutateAsync(payload), {
+    loading: "Updating subject info...",
+    success: () => {
+      openEditSheet.value = false
+      emits("on-mutation")
+      return "Subject info was updated successfully"
+    },
+    error: (err: any) => err.message
+  })
+}
+
+const deleteSubject = useDeleteSubject()
+function handleDeleteSubject() {
+  useSonner.promise(deleteSubject.mutateAsync(props.subject), {
+    loading: "Deleting subject info...",
+    success: () => {
+      emits("on-mutation")
+      return "Subject was deleted successfully"
+    },
+    error: (err: any) => err.message
+  })
+}
+</script>
+
+<template>
+  <UiCard class="group relative justify-center gap-2 px-4">
+    <UiCardTitle>{{ subject.name }}</UiCardTitle>
+    <div class="w-full flex flex-wrap gap-2">
+      <UiBadge v-for="tag in subject.tags" variant="secondary">{{ tag }}</UiBadge>
+    </div>
+    <div
+      class="absolute transition opacity-0 group-hover:opacity-100 flex items-center gap-1 top-2 md:inset-y-0 right-4 z-2"
+    >
+      <ui-button size="icon-sm" :icon="ICONS.edit" variant="ghost" @click="openEditSheet = true" />
+      <AppConfirmDeleteAction
+        :description="`Are you sure you want to delete ${subject.name} subject? This cannot be undone.`"
+        @confirm="handleDeleteSubject"
+      >
+        <ui-button size="icon-sm" :icon="ICONS.delete" variant="ghost" />
+      </AppConfirmDeleteAction>
+    </div>
+
+    <LazySubjectUpsertForm
+      v-if="openEditSheet"
+      mode="Edit"
+      :initial-data="subject"
+      v-model:open="openEditSheet"
+      @submit="handleUpdateSubject"
+    />
+  </UiCard>
+</template>
