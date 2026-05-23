@@ -21,39 +21,35 @@ function handleDeleteTerm() {
 }
 
 const createMutation = useCreateSessionTerm()
-const handleCreateTerm = useDebounceFn(() => {
+const handleCreateTerm = () => {
   useSonner.promise(createMutation.mutateAsync({ sessionId: props.sessionId }), {
     loading: "Please wait, Creating session term....",
     success: "Session term was created successfully",
     error: (e: any) => e.message
   })
-}, 1000)
+}
 </script>
 
 <template>
   <!-- Session Terms -->
   <div class="w-full space-y-2">
     <h3 class="text-sm font-semibold">Session Terms</h3>
-    <div class="flex gap-4">
+    <div class="flex flex-wrap gap-4">
       <UiButtonGroup v-for="item in terms">
-        <ui-button size="lg" variant="outline" @click="emit('selectTerm', item)">
+        <ui-button variant="outline" @click="emit('selectTerm', item)">
           {{ item.name }}
         </ui-button>
 
-        <ui-button
-          size="icon-lg"
-          variant="outline"
-          :icon="ICONS.delete"
-          @click="initDeleteTerm(item)"
-        />
+        <ui-button variant="outline" :icon="ICONS.delete" @click="initDeleteTerm(item)" />
       </UiButtonGroup>
 
       <UiButton
         @click="handleCreateTerm"
+        :loading="createMutation.isPending.value"
+        :disabled="createMutation.isPending.value"
         :icon="ICONS.add"
         text="Add Term"
         variant="outline"
-        size="lg"
       />
 
       <!-- Confirm Term Deletion -->
