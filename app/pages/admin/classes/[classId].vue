@@ -14,6 +14,9 @@ const { data, pending, error } = useAsyncData(`${classId}-class-fetch`, () => {
 const currclass = computed(() => data.value)
 const classTeacher = computed(() => data.value?.teacher || null)
 
+// Dynamically set the breadcrumb label once data is loaded
+setPageBreadcrumbLabel(computed(() => currclass.value?.name))
+
 const classStats = computed<StatsCardProps[]>(() => {
   return [
     { label: "Total Students", value: "35", icon: ICONS.students as string },
@@ -22,6 +25,7 @@ const classStats = computed<StatsCardProps[]>(() => {
 })
 
 const isSheetOpen = ref(false)
+const openDeleteDialog = ref(false)
 const updateClass = useUpdateClass()
 
 function handleUpdateClass(payload: any) {
@@ -53,36 +57,20 @@ function handleDeleteAction() {
     :title="currclass?.name"
     :description="classTeacher ? `Class Teacher: ${classTeacher.name}` : 'No teacher'"
     :error="classIdError ?? error ?? undefined"
-    :loading="pending"
   >
     <template #actions>
-      <UiButtonGroup>
-        <ui-button
-          size="sm"
-          text="Edit"
-          :icon="ICONS.edit"
-          variant="outline"
-          @click="isSheetOpen = true"
-        />
-
-        <!-- Confirm Delete CurrClass -->
-        <AppConfirmDeleteAction
-          description="Are you sure you want to delete this class? You will loose all results for this class"
-          :confirm-input-text="currclass?.name"
-          @confirm="handleDeleteAction"
-        >
-          <ui-button size="sm" :icon="ICONS.delete" variant="destructive" text="Delete" />
-        </AppConfirmDeleteAction>
-      </UiButtonGroup>
+      <AppEntityActionDropdown @edit="isSheetOpen = true" @delete="openDeleteDialog = true" />
     </template>
-
-    <!-- When loading -->
-    <!-- <AppEntitySkeleton v-if="pending" :count="4" /> -->
 
     <!-- Class Stats -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- When loading -->
+      <AppEntitySkeleton v-if="pending" :count="4" />
+
       <!-- Class Stats -->
-      <ClassStatsCard v-for="item in classStats" v-bind="item" />
+      <template v-else>
+        <ClassStatsCard v-for="item in classStats" v-bind="item" />
+      </template>
     </div>
 
     <!-- Class students Table -->
@@ -93,6 +81,14 @@ function handleDeleteAction() {
       :initial-data="currclass"
       v-model:open="isSheetOpen"
       mode="Edit"
+    />
+
+    <!-- Confirm Delete CurrClass -->
+    <AppConfirmDeleteAction
+      v-model:open="openDeleteDialog"
+      description="Are you sure you want to delete this class? You will loose all results for this class"
+      :confirm-input-text="currclass?.name"
+      @confirm="handleDeleteAction"
     />
   </Page>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ICONS } from "#shared/constants/icons"
+const { crumbs } = useBreadcrumbs({ root: "/admin" })
 
 const props = withDefaults(
   defineProps<{
@@ -56,7 +57,11 @@ const hasError = computed(() => props.error !== null)
 
     <!-- Page Content -->
     <div v-else class="grid w-full gap-6">
-      <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <!-- Breadcrumb -->
+      <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" />
+
+      <!-- Actual Page -->
+      <div class="flex items-start gap-3">
         <div class="space-y-1">
           <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
             {{ title }}

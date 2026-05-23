@@ -16,7 +16,7 @@ const adminNavItems = [
   { title: "Sessions", href: "/admin/sessions", icon: ICONS.session },
   { title: "Classes", href: "/admin/classes", icon: ICONS.class },
   { title: "Subjects", href: "/admin/subjects", icon: ICONS.subject },
-  { title: "Teachers", href: "/#admin/teachers", icon: ICONS.teacher },
+  { title: "Teachers", href: "/admin/teachers", icon: ICONS.teacher },
   { title: "Students", href: "/#admin/students", icon: ICONS.students },
   { title: "Results", href: "/#admin/results", icon: ICONS.result }
 ]
@@ -130,8 +130,6 @@ const sidebarContents = computed(() => {
       <header class="h-14 border-b">
         <UiContainer class="flex h-full shrink-0 items-center gap-4">
           <UiSidebarTrigger />
-
-          <ui-heading :level="5">{{ pageTitle }}</ui-heading>
         </UiContainer>
       </header>
 

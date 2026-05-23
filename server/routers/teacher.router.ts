@@ -37,7 +37,7 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
     role: user.role!,
     email: user.email,
     createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    // updatedAt: user.updatedAt,
     phoneNumber: input.phoneNumber
   }
 })
