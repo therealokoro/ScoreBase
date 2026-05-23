@@ -15,6 +15,27 @@
       "when": 1779355508764,
       "tag": "0001_odd_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1779397805184,
+      "tag": "0002_slippery_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1779398279047,
+      "tag": "0003_parallel_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1779398410611,
+      "tag": "0004_oval_leech",
+      "breakpoints": true
     }
   ]
 }

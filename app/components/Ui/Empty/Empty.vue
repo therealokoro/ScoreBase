@@ -37,7 +37,7 @@ const forwarded = reactiveOmit(props, ["class", "title", "description", "icon", 
       <UiEmptyHeader>
         <!-- <slot name="media"> -->
         <UiEmptyMedia v-if="!noIcon" variant="icon">
-          <Icon :name="icon ? icon : 'lucide:folder'" />
+          <Icon :name="icon ? icon : 'tabler:inbox'" />
         </UiEmptyMedia>
         <!-- </slot> -->
 

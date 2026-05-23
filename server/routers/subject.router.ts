@@ -21,13 +21,13 @@ const createSubject = os.create.handler(async ({ input, errors }) => {
   const existingSubject = await fetchSingleSubject(input.name, "name")
   if (existingSubject) throw errors.CONFLICT()
 
-  const insertData = {
-    name: input.name,
-    code: input.code ?? null,
-    tags: input.tags ? input.tags : []
-  }
-
-  const [newSubject] = await db.insert(subjects).values(insertData).returning()
+  const [newSubject] = await db
+    .insert(subjects)
+    .values({
+      name: input.name,
+      tags: input.tags ? input.tags : []
+    })
+    .returning()
   return newSubject!
 })
 
@@ -41,18 +41,12 @@ const updateSubject = os.update.handler(async ({ input, errors }) => {
     if (nameConflict) throw errors.CONFLICT()
   }
 
-  const updateData: Record<string, unknown> = {
-    name: input.name,
-    code: input.code ?? null
-  }
-
-  if (input.tags !== undefined) {
-    updateData.tags = input.tags ? input.tags : []
-  }
-
   const [updatedSubject] = await db
     .update(subjects)
-    .set(updateData)
+    .set({
+      name: input.name,
+      tags: input.tags !== undefined ? input.tags : []
+    })
     .where(eq(subjects.id, input.id))
     .returning()
 

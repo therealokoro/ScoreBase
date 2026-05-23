@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { normalizeClass } from "vue"
+import { ICONS } from "~~/shared/constants/icons"
 
 const props = defineProps<{
   title: string
   link?: string
-  icon?: string
+  noIcon?: boolean
   description?: string
   class?: string
 }>()
@@ -18,11 +19,12 @@ const styles = tv({ base: "group relative justify-center gap-2 px-4" })
     <slot name="description">
       <UiCardDescription v-if="description">{{ description }}</UiCardDescription>
     </slot>
-    <div
-      v-if="icon"
-      class="absolute flex items-center inset-y-0 right-4 z-2 group-hover:translate-x-2 transition"
-    >
-      <Icon name="lucide:arrow-right" variant="ghost" />
+    <div class="absolute flex items-center inset-y-0 right-4 z-2">
+      <slot name="action">
+        <div v-if="!noIcon" class="group-hover:translate-x-2 transition">
+          <Icon :name="ICONS.forward" variant="ghost" />
+        </div>
+      </slot>
     </div>
   </UiCard>
 </template>

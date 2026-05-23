@@ -6,7 +6,7 @@
     :class="
       styles({
         hover: Boolean(onClick) || Boolean(to) || Boolean(href),
-        class: normalizeClass(props.class) || undefined,
+        class: normalizeClass(props.class) || undefined
       })
     "
     @click="onClick"
@@ -16,32 +16,32 @@
 </template>
 
 <script lang="ts" setup>
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<{
-    /** Custom class(es) to add to the element. */
-    class?: HTMLAttributes["class"];
-    /** Function called when the item is clicked. */
-    onClick?: () => void;
-    /** The location that the item should navigate to when clicked. */
-    to?: string;
-    /** The href for the `a` tag. */
-    href?: string;
-  }>();
+const props = defineProps<{
+  /** Custom class(es) to add to the element. */
+  class?: HTMLAttributes["class"]
+  /** Function called when the item is clicked. */
+  onClick?: () => void
+  /** The location that the item should navigate to when clicked. */
+  to?: string
+  /** The href for the `a` tag. */
+  href?: string
+}>()
 
-  const styles = tv({
-    base: "flex w-full items-center gap-5 px-4 py-2",
-    variants: {
-      hover: {
-        true: "hover:bg-muted focus-visible:ring-primary/10 cursor-pointer outline-none focus-visible:ring-4",
-      },
-    },
-  });
+const styles = tv({
+  base: "flex w-full items-center gap-3 px-4 py-2",
+  variants: {
+    hover: {
+      true: "hover:bg-muted focus-visible:ring-primary/10 cursor-pointer outline-none focus-visible:ring-4"
+    }
+  }
+})
 
-  const eltype = computed(() => {
-    if (props.to || props.href) return resolveComponent("NuxtLink");
-    if (props.onClick) return "button";
-    return "li";
-  });
+const eltype = computed(() => {
+  if (props.to || props.href) return resolveComponent("NuxtLink")
+  if (props.onClick) return "button"
+  return "li"
+})
 </script>

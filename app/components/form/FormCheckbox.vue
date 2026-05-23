@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FormField from './FormField.vue'
+import FormField from "./FormField.vue"
 
 interface Props {
   name?: string
@@ -7,26 +7,21 @@ interface Props {
   label?: string
   description?: string
   disabled?: boolean
-  position?: 'left' | 'right'
+  position?: "left" | "right"
   class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   validateOnMount: false,
-  position: 'left',
+  position: "left"
 })
 
 const model = defineModel<boolean>()
 </script>
 
 <template>
-  <FormField
-    :name
-    :validate-on-mount
-    :class="props.class"
-    v-slot="{ inputId, field, isInvalid }"
-  >
+  <FormField :name :validate-on-mount :class="props.class" v-slot="{ inputId, field, isInvalid }">
     <div class="flex flex-col gap-1.5">
       <div
         class="flex items-start gap-3"
@@ -43,10 +38,7 @@ const model = defineModel<boolean>()
         />
 
         <div v-if="label || description || $slots['label']" class="flex flex-col gap-0.5">
-          <UiFieldLabel
-            :for="inputId"
-            :class="disabled && 'cursor-not-allowed opacity-50'"
-          >
+          <UiFieldLabel :for="inputId" :class="disabled && 'cursor-not-allowed opacity-50'">
             <slot name="label">{{ label }}</slot>
           </UiFieldLabel>
 

@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { ICONS } from "~~/shared/constants/icons"
-
 const props = defineProps<{ subject: ISubject }>()
 const openEditSheet = ref(false)
+const openDeleteSheet = ref(false)
 const emits = defineEmits(["on-mutation"])
 
 const updateSubject = useUpdateSubject()
@@ -37,16 +36,9 @@ function handleDeleteSubject() {
     <div class="w-full flex flex-wrap gap-2">
       <UiBadge v-for="tag in subject.tags" variant="secondary">{{ tag }}</UiBadge>
     </div>
-    <div
-      class="absolute transition opacity-0 group-hover:opacity-100 flex items-center gap-1 top-2 md:inset-y-0 right-4 z-2"
-    >
-      <ui-button size="icon-sm" :icon="ICONS.edit" variant="ghost" @click="openEditSheet = true" />
-      <AppConfirmDeleteAction
-        :description="`Are you sure you want to delete ${subject.name} subject? This cannot be undone.`"
-        @confirm="handleDeleteSubject"
-      >
-        <ui-button size="icon-sm" :icon="ICONS.delete" variant="ghost" />
-      </AppConfirmDeleteAction>
+
+    <div class="absolute flex items-center inset-y-0 right-4 z-2">
+      <AppEntityActionDropdown @edit="openEditSheet = true" @delete="openDeleteSheet = true" />
     </div>
 
     <LazySubjectUpsertForm
@@ -55,6 +47,12 @@ function handleDeleteSubject() {
       :initial-data="subject"
       v-model:open="openEditSheet"
       @submit="handleUpdateSubject"
+    />
+
+    <AppConfirmDeleteAction
+      v-model:open="openDeleteSheet"
+      :description="`Are you sure you want to delete ${subject.name} subject? This cannot be undone.`"
+      @confirm="handleDeleteSubject"
     />
   </UiCard>
 </template>

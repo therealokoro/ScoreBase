@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 const { value, errorMessage, handleBlur, handleChange } = useField<string>(
   () => props.name,
   undefined,
-  { label: props.label, validateOnMount: props.validateOnMount }
+  { label: props.label, validateOnMount: props.validateOnMount, syncVModel: true }
 )
 </script>
 
@@ -44,7 +44,7 @@ const { value, errorMessage, handleBlur, handleChange } = useField<string>(
   >
     <template #default="{ isInvalid }">
       <UiSelect
-        :value="value"
+        v-model="value"
         :options
         :disabled
         :multiple

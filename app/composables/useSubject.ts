@@ -7,35 +7,36 @@ export const useListSubjects = () => {
 
 export const useCreateSubject = () => {
   const { $orpc } = useNuxtApp()
-  const queryClient = useQueryClient()
-  return useMutation(
-    $orpc.subject.create.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
-    })
-  )
+  return useMutation($orpc.subject.create.mutationOptions())
 }
 
 export const useUpdateSubject = () => {
   const { $orpc } = useNuxtApp()
-  const queryClient = useQueryClient()
-  return useMutation(
-    $orpc.subject.update.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
-    })
-  )
+  return useMutation($orpc.subject.update.mutationOptions())
 }
 
 export const useDeleteSubject = () => {
   const { $orpc } = useNuxtApp()
-  const queryClient = useQueryClient()
-  return useMutation(
-    $orpc.subject.delete.mutationOptions({
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.subject.list.key() })
-    })
-  )
+  return useMutation($orpc.subject.delete.mutationOptions())
 }
 
 export const useGetSingleSubject = (id: MaybeRef<string>) => {
   const { $orpc } = useNuxtApp()
   return useQuery($orpc.subject.getOne.queryOptions({ input: { id: toValue(id) } }))
+}
+
+/* Subject List Composables */
+export const useCreateSubjectList = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.subjectList.create.mutationOptions())
+}
+
+export const useUpdateSubjectList = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.subjectList.update.mutationOptions())
+}
+
+export const useDeleteSubjectList = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.subjectList.delete.mutationOptions())
 }

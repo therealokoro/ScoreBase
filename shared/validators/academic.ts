@@ -52,8 +52,17 @@ export type UpsertSubjectInput = z.infer<typeof UpsertSubjectSchema>
 
 export const SubjectListSchema = createSelectSchema(subjectLists)
 
-export const CreateSubjectListSchema = createInsertSchema(subjectLists, {
-  subjectIds: z.array(z.string()).min(1, "A subject list must have atleast one subject")
+export const UpsertSubjectListSchema = createInsertSchema(subjectLists, {
+  name: z.string("Please provide a name for the preset"),
+  subjects: z
+    .array(z.object({ id: z.string(), name: z.string() }), "Please select a minimum of one subject")
+    .min(1, "Please select a minimum of one subject")
 })
 
-export const UpdateSubjectListSchema = CreateSubjectListSchema.required()
+export const UpdateSubjectListSchema = createUpdateSchema(subjectLists, {
+  id: z.string("Please provide the subject presets ID"),
+  name: z.string("Please provide a name for the preset"),
+})
+
+export type UpdateSubjectListInput = z.infer<typeof UpdateSubjectListSchema>
+export type UpsertSubjectListInput = z.infer<typeof UpsertSubjectListSchema>

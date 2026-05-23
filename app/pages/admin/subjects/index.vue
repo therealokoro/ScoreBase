@@ -22,30 +22,55 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
 
 <template>
   <Page title="Subjects" description="Create, edit, delete school subjects">
-    <!-- Loading -->
-    <AppEntitySkeleton v-if="pending" :count="4" />
+    <UiTabs class="w-full gap-6" default-value="subjects">
+      <!-- Tab Triggers -->
+      <UiTabsList class="grid sm:w-1/3 grid-cols-2">
+        <UiTabsTrigger class="text-xs sm:text-sm" value="subjects">All Subjects</UiTabsTrigger>
+        <UiTabsTrigger class="text-xs sm:text-sm" value="subject-presets">
+          Subject Presets
+        </UiTabsTrigger>
+      </UiTabsList>
 
-    <!-- Empty -->
-    <UiEmpty
-      v-else-if="!subjects.length"
-      title="No subjects to display"
-      description="Create a new subject to get started"
-      button-text="Create a subject"
-      @button-action="openCreateSheet = true"
-    />
+      <!-- All Subjects List -->
+      <UiTabsContent value="subjects">
+        <h5 class="text-sm text-muted-foreground/80 mb-4">
+          Manage all subjects offerable by students
+        </h5>
 
-    <!-- Content -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      <SubjectCard
-        @on-mutation="refresh"
-        :key="item.id"
-        :name="item.name"
-        v-for="item in subjects"
-        :subject="item"
-      />
+        <!-- Loading -->
+        <AppEntitySkeleton v-if="pending" :count="4" />
 
-      <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
-    </div>
+        <!-- Empty -->
+        <UiEmpty
+          v-else-if="!subjects.length"
+          title="No subjects to display"
+          description="Create a new subject to get started"
+          button-text="Create a subject"
+          @button-action="openCreateSheet = true"
+        />
+
+        <!-- Content -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <SubjectCard
+            @on-mutation="refresh"
+            :key="item.id"
+            :name="item.name"
+            v-for="item in subjects"
+            :subject="item"
+          />
+          <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
+        </div>
+      </UiTabsContent>
+
+      <!-- Subject Presets -->
+      <UiTabsContent value="subject-presets">
+        <h5 class="text-sm text-muted-foreground/80 mb-4">
+          Manage all subject presets used by classes and students
+        </h5>
+
+        <SubjectPresetList />
+      </UiTabsContent>
+    </UiTabs>
 
     <!-- Create Logic -->
     <SubjectUpsertForm mode="Create" v-model:open="openCreateSheet" @submit="handleUpsertSubject" />

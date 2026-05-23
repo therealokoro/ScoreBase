@@ -198,12 +198,6 @@ export const ICONS = {
   assignment: "tabler:notebook",
 
   lessonNote: "tabler:notebook",
-  library: "tabler:books",
-  laboratory: "tabler:flask",
-
-  sport: "tabler:barbell",
-  hostel: "tabler:bed",
-  transport: "tabler:bus",
 
   health: "tabler:heartbeat",
 

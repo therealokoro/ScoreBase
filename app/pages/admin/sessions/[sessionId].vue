@@ -60,13 +60,7 @@ const activeTerm = ref<ITerm | null>(null)
     />
 
     <!-- Session/Term Result Table -->
-    <div class="w-full">
-      <div class="w-full min-h-75 rounded-lg border-dashed border-2 flex-center flex-col gap-4">
-        <Icon :name="ICONS.result" class="size-10 text-muted-foreground" />
-        <p class="text-sm text-muted-foreground">Select a term to view its results</p>
-        <pre>{{ activeTerm }}</pre>
-      </div>
-    </div>
+    <AppContentPlaceholder text="Select a term to view its results" />
 
     <!-- Session Edit Form -->
     <LazySessionCreateEditForm

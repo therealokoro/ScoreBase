@@ -54,7 +54,7 @@ export const subjectLists = sqliteTable("subject_lists", {
     .primaryKey()
     .$default(() => typeid("subprst").toString()),
   name: text("name").notNull(),
-  subjectIds: text("subjectIds", { mode: "json" }).$type<string[]>(),
+  subjects: text("subjects", { mode: "json" }).$type<{ name: string; id: string }[]>().notNull(),
   ...dateTimeSchema
 })
 

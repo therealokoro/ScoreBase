@@ -6,7 +6,11 @@ import type { StatsCardProps } from "~/components/Class/StatsCard.vue"
 const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
 
-const { data, isPending, error } = useGetSingleClass(classId as string)
+const { $orpc } = useNuxtApp()
+const { data, pending, error } = useAsyncData(`${classId}-class-fetch`, () => {
+  return $orpc.class.getOne.call({ id: classId! })
+})
+
 const currclass = computed(() => data.value)
 const classTeacher = computed(() => data.value?.teacher || null)
 
@@ -48,8 +52,8 @@ function handleDeleteAction() {
   <Page
     :title="currclass?.name"
     :description="classTeacher ? `Class Teacher: ${classTeacher.name}` : 'No teacher'"
-    :loading="isPending"
     :error="classIdError ?? error ?? undefined"
+    :loading="pending"
   >
     <template #actions>
       <UiButtonGroup>
@@ -71,6 +75,9 @@ function handleDeleteAction() {
         </AppConfirmDeleteAction>
       </UiButtonGroup>
     </template>
+
+    <!-- When loading -->
+    <!-- <AppEntitySkeleton v-if="pending" :count="4" /> -->
 
     <!-- Class Stats -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
