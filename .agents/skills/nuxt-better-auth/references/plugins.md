@@ -6,16 +6,11 @@ The module supports all Better Auth plugins. Configure in both server and client
 
 ```ts
 // server/auth.config.ts
-import { defineServerAuth } from '#auth/server'
+import { defineServerAuth } from "#auth/server"
 
 export default defineServerAuth(({ runtimeConfig }) => ({
   emailAndPassword: { enabled: true },
-  plugins: [
-    admin(),
-    twoFactor({ issuer: 'MyApp' }),
-    passkey(),
-    multiSession()
-  ]
+  plugins: [admin(), twoFactor({ issuer: "MyApp" }), passkey(), multiSession()]
 }))
 ```
 
@@ -23,16 +18,16 @@ export default defineServerAuth(({ runtimeConfig }) => ({
 
 ```ts
 // app/auth.config.ts
-import { createAppAuthClient } from '#auth/client'
-import { adminClient, twoFactorClient, passkeyClient, multiSessionClient } from 'better-auth/client/plugins'
+import { createAppAuthClient } from "#auth/client"
+import {
+  adminClient,
+  twoFactorClient,
+  passkeyClient,
+  multiSessionClient
+} from "better-auth/client/plugins"
 
 export default createAppAuthClient({
-  plugins: [
-    adminClient(),
-    twoFactorClient(),
-    passkeyClient(),
-    multiSessionClient()
-  ]
+  plugins: [adminClient(), twoFactorClient(), passkeyClient(), multiSessionClient()]
 })
 ```
 
@@ -44,11 +39,11 @@ Role-based access control:
 
 ```ts
 // Server
-import { admin } from 'better-auth/plugins'
+import { admin } from "better-auth/plugins"
 plugins: [admin()]
 
 // Client
-import { adminClient } from 'better-auth/client/plugins'
+import { adminClient } from "better-auth/client/plugins"
 plugins: [adminClient()]
 ```
 
@@ -56,21 +51,21 @@ Usage:
 
 ```ts
 // Protect route
-await requireUserSession(event, { user: { role: 'admin' } })
+await requireUserSession(event, { user: { role: "admin" } })
 
 // Client: set user role
-await client.admin.setRole({ userId: 'xxx', role: 'admin' })
+await client.admin.setRole({ userId: "xxx", role: "admin" })
 ```
 
 ### Two-Factor (2FA)
 
 ```ts
 // Server
-import { twoFactor } from 'better-auth/plugins'
-plugins: [twoFactor({ issuer: 'MyApp' })]
+import { twoFactor } from "better-auth/plugins"
+plugins: [twoFactor({ issuer: "MyApp" })]
 
 // Client
-import { twoFactorClient } from 'better-auth/client/plugins'
+import { twoFactorClient } from "better-auth/client/plugins"
 plugins: [twoFactorClient()]
 ```
 
@@ -78,11 +73,11 @@ Usage:
 
 ```ts
 // Enable 2FA
-const { totpURI } = await client.twoFactor.enable({ password: 'xxx' })
+const { totpURI } = await client.twoFactor.enable({ password: "xxx" })
 // Show QR code with totpURI
 
 // Verify OTP on login
-await client.twoFactor.verifyTotp({ code: '123456' })
+await client.twoFactor.verifyTotp({ code: "123456" })
 ```
 
 ### Passkey
@@ -91,11 +86,11 @@ WebAuthn/FIDO2 authentication:
 
 ```ts
 // Server
-import { passkey } from 'better-auth/plugins'
+import { passkey } from "better-auth/plugins"
 plugins: [passkey()]
 
 // Client
-import { passkeyClient } from 'better-auth/client/plugins'
+import { passkeyClient } from "better-auth/client/plugins"
 plugins: [passkeyClient()]
 ```
 
@@ -115,11 +110,11 @@ Allow multiple concurrent sessions:
 
 ```ts
 // Server
-import { multiSession } from 'better-auth/plugins'
+import { multiSession } from "better-auth/plugins"
 plugins: [multiSession()]
 
 // Client
-import { multiSessionClient } from 'better-auth/client/plugins'
+import { multiSessionClient } from "better-auth/client/plugins"
 plugins: [multiSessionClient()]
 ```
 
@@ -130,7 +125,7 @@ Usage:
 const sessions = await client.multiSession.listDeviceSessions()
 
 // Revoke specific session
-await client.multiSession.revokeSession({ sessionId: 'xxx' })
+await client.multiSession.revokeSession({ sessionId: "xxx" })
 ```
 
 ## Plugin Type Inference

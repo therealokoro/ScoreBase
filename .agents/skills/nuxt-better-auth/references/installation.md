@@ -19,14 +19,14 @@ The module auto-scaffolds `server/auth.config.ts` and `app/auth.config.ts` files
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@onmax/nuxt-better-auth'],
+  modules: ["@onmax/nuxt-better-auth"],
   auth: {
-    serverConfig: 'server/auth.config',  // default
-    clientConfig: 'app/auth.config',     // default
-    clientOnly: false,                   // true for external auth backend
+    serverConfig: "server/auth.config", // default
+    clientConfig: "app/auth.config", // default
+    clientOnly: false, // true for external auth backend
     redirects: {
-      login: '/login',  // redirect when auth required
-      guest: '/'        // redirect when already logged in
+      login: "/login", // redirect when auth required
+      guest: "/" // redirect when already logged in
     }
   }
 })
@@ -47,7 +47,7 @@ NUXT_PUBLIC_SITE_URL=https://your-domain.com
 
 ```ts
 // server/auth.config.ts
-import { defineServerAuth } from '#auth/server'
+import { defineServerAuth } from "#auth/server"
 
 export default defineServerAuth(({ runtimeConfig, db }) => ({
   emailAndPassword: { enabled: true },
@@ -60,12 +60,12 @@ export default defineServerAuth(({ runtimeConfig, db }) => ({
   },
   // Session configuration (optional)
   session: {
-    expiresIn: 60 * 60 * 24 * 7,      // 7 days (default)
-    updateAge: 60 * 60 * 24,           // Update every 24h (default)
-    freshAge: 60 * 60 * 24,            // Consider fresh for 24h (default, 0 to disable)
+    expiresIn: 60 * 60 * 24 * 7, // 7 days (default)
+    updateAge: 60 * 60 * 24, // Update every 24h (default)
+    freshAge: 60 * 60 * 24, // Consider fresh for 24h (default, 0 to disable)
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 5                   // 5 minutes cookie cache
+      maxAge: 60 * 5 // 5 minutes cookie cache
     }
   }
 }))
@@ -91,7 +91,7 @@ Context available in `defineServerAuth`:
 
 ```ts
 // app/auth.config.ts
-import { createAppAuthClient } from '#auth/client'
+import { createAppAuthClient } from "#auth/client"
 
 export default createAppAuthClient({
   // Client-side plugin options (e.g., passkey, twoFactor)
@@ -103,10 +103,10 @@ export default createAppAuthClient({
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxthub/core', '@onmax/nuxt-better-auth'],
+  modules: ["@nuxthub/core", "@onmax/nuxt-better-auth"],
   hub: { database: true },
   auth: {
-    secondaryStorage: true  // Enable KV for session caching
+    secondaryStorage: true // Enable KV for session caching
   }
 })
 ```
@@ -121,7 +121,7 @@ For external auth backends (microservices, separate servers):
 // nuxt.config.ts
 export default defineNuxtConfig({
   auth: {
-    clientOnly: true,  // No local auth server
+    clientOnly: true // No local auth server
   }
 })
 ```
@@ -135,7 +135,7 @@ For internationalization support with `@nuxtjs/i18n` (since v0.0.2-alpha.15):
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/i18n', '@onmax/nuxt-better-auth'],
+  modules: ["@nuxtjs/i18n", "@onmax/nuxt-better-auth"],
   i18n: {
     // Your i18n config
   }

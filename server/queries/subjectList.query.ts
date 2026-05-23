@@ -1,17 +1,17 @@
 /* This file contains reusable queries for subject-list operations */
-import { db } from "@nuxthub/db";
-import { eq } from "drizzle-orm";
+import { db } from "@nuxthub/db"
+import { eq } from "drizzle-orm"
 
-import { subjectLists } from "../db/schema";
+import { subjectLists } from "../db/schema"
 
 /** Find a subject-list by id or name */
 export const fetchSingleSubjectList = async (payload: string, column: "id" | "name" = "id") => {
   return await db.query.subjectLists.findFirst({
-    where: eq(subjectLists[column], payload),
-  });
-};
+    where: eq(subjectLists[column], payload)
+  })
+}
 
 /** List all subject-list */
 export const listAllSubjectLists = async () => {
-  return await db.query.subjectLists.findMany();
-};
+  return await db.query.subjectLists.findMany()
+}

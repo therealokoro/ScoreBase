@@ -1,1 +1,1 @@
-export type APiContext = {};
+export type APiContext = {}

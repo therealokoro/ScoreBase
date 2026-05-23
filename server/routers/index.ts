@@ -1,12 +1,12 @@
-import type { RouterClient } from "@orpc/server";
+import type { RouterClient } from "@orpc/server"
 
-import { baseORPC } from "../utils/orpc";
-import { termRouter } from "./term.router";
-import { academicSessionRouter } from "./session.router";
-import { subjectRouter } from "./subject.router";
-import { subjectListRouter } from "./subjectList.router";
-import { classRouter } from "./class.router";
+import { baseORPC } from "../utils/orpc"
+import { classRouter } from "./class.router"
+import { academicSessionRouter } from "./session.router"
+import { subjectRouter } from "./subject.router"
+import { subjectListRouter } from "./subjectList.router"
 import { teacherRouter } from "./teacher.router"
+import { termRouter } from "./term.router"
 
 export const apiRouter = {
   health: baseORPC.handler(() => ({ status: "API Working", timestamp: Date.now() })),
@@ -15,8 +15,8 @@ export const apiRouter = {
   subject: subjectRouter,
   subjectList: subjectListRouter,
   class: classRouter,
-  teacher: teacherRouter,
-};
+  teacher: teacherRouter
+}
 
-export type APIRouter = typeof apiRouter;
-export type APIRouterClient = RouterClient<APIRouter>;
+export type APIRouter = typeof apiRouter
+export type APIRouterClient = RouterClient<APIRouter>

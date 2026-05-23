@@ -15,21 +15,21 @@ NuxtHub generates wrangler.json from hub config:
 export default defineNuxtConfig({
   hub: {
     db: {
-      dialect: 'sqlite',
-      driver: 'd1',
-      connection: { databaseId: '<database-id>' }
+      dialect: "sqlite",
+      driver: "d1",
+      connection: { databaseId: "<database-id>" }
     },
     kv: {
-      driver: 'cloudflare-kv-binding',
-      namespaceId: '<kv-namespace-id>'
+      driver: "cloudflare-kv-binding",
+      namespaceId: "<kv-namespace-id>"
     },
     cache: {
-      driver: 'cloudflare-kv-binding',
-      namespaceId: '<cache-namespace-id>'
+      driver: "cloudflare-kv-binding",
+      namespaceId: "<cache-namespace-id>"
     },
     blob: {
-      driver: 'cloudflare-r2',
-      bucketName: '<bucket-name>'
+      driver: "cloudflare-r2",
+      bucketName: "<bucket-name>"
     }
   }
 })
@@ -103,8 +103,8 @@ Deploy NuxtHub apps on Vercel with marketplace integrations.
 export default defineNuxtConfig({
   hub: {
     db: {
-      dialect: 'postgresql',
-      driver: 'postgres-js'
+      dialect: "postgresql",
+      driver: "postgres-js"
       // DATABASE_URL env var auto-detected
     }
   }
@@ -199,8 +199,8 @@ Use external providers via env vars:
 export default defineNuxtConfig({
   hub: {
     db: {
-      dialect: 'sqlite',
-      driver: 'libsql' // or postgres-js, mysql2
+      dialect: "sqlite",
+      driver: "libsql" // or postgres-js, mysql2
     }
   }
 })
@@ -289,7 +289,7 @@ NuxtHub auto-detects hosting environment via:
 
 ```ts
 nitro: {
-  preset: 'cloudflare-pages' // or 'vercel', 'netlify', etc.
+  preset: "cloudflare-pages" // or 'vercel', 'netlify', etc.
 }
 ```
 

@@ -25,13 +25,13 @@ Learn more at [Vue: When a computed property can be the wrong tool](https://dev.
 ## Usage
 
 ```ts
-import { computedEager } from '@vueuse/core'
+import { computedEager } from "@vueuse/core"
 
 const todos = ref([])
 const hasOpenTodos = computedEager(() => !!todos.length)
 
 console.log(hasOpenTodos.value) // false
-toTodos.value.push({ title: 'Learn Vue' })
+toTodos.value.push({ title: "Learn Vue" })
 console.log(hasOpenTodos.value) // true
 ```
 
@@ -55,7 +55,7 @@ export type ComputedEagerReturn<T = any> = Readonly<ShallowRef<T>>
  */
 export declare function computedEager<T>(
   fn: () => T,
-  options?: ComputedEagerOptions,
+  options?: ComputedEagerOptions
 ): ComputedEagerReturn<T>
 /** @deprecated use `computedEager` instead */
 export declare const eagerComputed: typeof computedEager

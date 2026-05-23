@@ -25,12 +25,12 @@ const auth = serverAuth()
 
 // Session management
 await auth.api.listSessions({ headers: event.headers })
-await auth.api.revokeSession({ sessionId: 'xxx' }, { headers: event.headers })
+await auth.api.revokeSession({ sessionId: "xxx" }, { headers: event.headers })
 await auth.api.revokeOtherSessions({ headers: event.headers })
 await auth.api.revokeSessions({ headers: event.headers })
 
 // User management (with admin plugin)
-await auth.api.setRole({ userId: 'xxx', role: 'admin' }, { headers: event.headers })
+await auth.api.setRole({ userId: "xxx", role: "admin" }, { headers: event.headers })
 ```
 
 ## getUserSession()
@@ -71,17 +71,17 @@ Restrict access based on user properties:
 ```ts
 // Single value - exact match
 await requireUserSession(event, {
-  user: { role: 'admin' }
+  user: { role: "admin" }
 })
 
 // Array - OR logic (any value matches)
 await requireUserSession(event, {
-  user: { role: ['admin', 'moderator'] }
+  user: { role: ["admin", "moderator"] }
 })
 
 // Multiple fields - AND logic (all must match)
 await requireUserSession(event, {
-  user: { role: 'admin', verified: true }
+  user: { role: "admin", verified: true }
 })
 ```
 
@@ -99,7 +99,7 @@ await requireUserSession(event, {
 // Combined with user matching
 await requireUserSession(event, {
   user: { verified: true },
-  rule: ({ user }) => user.subscription?.plan === 'pro'
+  rule: ({ user }) => user.subscription?.plan === "pro"
 })
 ```
 
@@ -109,7 +109,7 @@ await requireUserSession(event, {
 // Admin-only endpoint
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event, {
-    user: { role: 'admin' }
+    user: { role: "admin" }
   })
   return getAdminData()
 })
@@ -117,14 +117,14 @@ export default defineEventHandler(async (event) => {
 // Premium feature
 export default defineEventHandler(async (event) => {
   await requireUserSession(event, {
-    rule: ({ user }) => ['pro', 'enterprise'].includes(user.plan)
+    rule: ({ user }) => ["pro", "enterprise"].includes(user.plan)
   })
   return getPremiumContent()
 })
 
 // Owner-only resource
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
+  const id = getRouterParam(event, "id")
   const { user } = await requireUserSession(event)
   const resource = await getResource(id)
   if (resource.ownerId !== user.id) {

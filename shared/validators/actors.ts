@@ -1,5 +1,5 @@
 // import { createSelectSchema } from "drizzle-zod";
-import z from "zod";
+import z from "zod"
 // import { user } from "~~/server/db/schema";
 
 /* Teacher Schemas */
@@ -12,18 +12,18 @@ export const TeacherSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   role: z.string(),
-  phoneNumber: z.string(),
+  phoneNumber: z.string()
   // class: z.object({ id: z.string(), name: z.string() }).optional(),
-});
+})
 
 export const CreateTeacherSchema = TeacherSchema.pick({
   name: true,
   email: true,
-  phoneNumber: true,
-});
+  phoneNumber: true
+})
 
 export const UpdateTeacherSchema = TeacherSchema.omit({
   role: true,
   createdAt: true,
-  updatedAt: true,
-});
+  updatedAt: true
+})

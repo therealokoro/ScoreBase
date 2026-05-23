@@ -1,6 +1,7 @@
-import { os } from "@orpc/server";
-import { APiContext } from "../context";
+import { os } from "@orpc/server"
 
-export const baseORPC = os.$context<APiContext>();
+import { APiContext } from "../context"
 
-export const publicProcedure = baseORPC;
+export const baseORPC = os.$context<APiContext>()
+
+export const publicProcedure = baseORPC

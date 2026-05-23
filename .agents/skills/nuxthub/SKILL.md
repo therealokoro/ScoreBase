@@ -31,13 +31,13 @@ npx nuxi module add hub
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxthub/core'],
+  modules: ["@nuxthub/core"],
   hub: {
-    db: 'sqlite', // 'sqlite' | 'postgresql' | 'mysql'
+    db: "sqlite", // 'sqlite' | 'postgresql' | 'mysql'
     kv: true,
     blob: true,
     cache: true,
-    dir: '.data', // local storage directory
+    dir: ".data", // local storage directory
     remote: false // use production bindings in dev (v0.10+)
   }
 })
@@ -75,22 +75,22 @@ Place in `server/db/schema.ts` or `server/db/schema/*.ts`:
 
 ```ts
 // server/db/schema.ts (SQLite)
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
-export const users = sqliteTable('users', {
+export const users = sqliteTable("users", {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
   email: text().notNull().unique(),
-  createdAt: integer({ mode: 'timestamp' }).notNull()
+  createdAt: integer({ mode: "timestamp" }).notNull()
 })
 ```
 
 PostgreSQL variant:
 
 ```ts
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
 
-export const users = pgTable('users', {
+export const users = pgTable("users", {
   id: serial().primaryKey(),
   name: text().notNull(),
   email: text().notNull().unique(),
@@ -102,17 +102,20 @@ export const users = pgTable('users', {
 
 ```ts
 // db and schema are auto-imported on server-side
-import { db, schema } from 'hub:db'
+import { db, schema } from "hub:db"
 
 // Select
 const users = await db.select().from(schema.users)
 const user = await db.query.users.findFirst({ where: eq(schema.users.id, 1) })
 
 // Insert
-const [newUser] = await db.insert(schema.users).values({ name: 'John', email: 'john@example.com' }).returning()
+const [newUser] = await db
+  .insert(schema.users)
+  .values({ name: "John", email: "john@example.com" })
+  .returning()
 
 // Update
-await db.update(schema.users).set({ name: 'Jane' }).where(eq(schema.users.id, 1))
+await db.update(schema.users).set({ name: "Jane" }).where(eq(schema.users.id, 1))
 
 // Delete
 await db.delete(schema.users).where(eq(schema.users.id, 1))
@@ -145,15 +148,15 @@ Migrations auto-apply during `npx nuxi dev` and `npx nuxi build`. Tracked in `_h
 Key-value storage. `kv` is auto-imported on server-side.
 
 ```ts
-import { kv } from 'hub:kv'
+import { kv } from "hub:kv"
 
-await kv.set('key', { data: 'value' })
-await kv.set('key', value, { ttl: 60 }) // TTL in seconds
-const value = await kv.get('key')
-const exists = await kv.has('key')
-await kv.del('key')
-const keys = await kv.keys('prefix:')
-await kv.clear('prefix:')
+await kv.set("key", { data: "value" })
+await kv.set("key", value, { ttl: 60 }) // TTL in seconds
+const value = await kv.get("key")
+const exists = await kv.has("key")
+await kv.del("key")
+const keys = await kv.keys("prefix:")
+await kv.clear("prefix:")
 ```
 
 Constraints: max value 25 MiB, max key 512 bytes.
@@ -175,32 +178,36 @@ File storage. `blob` is auto-imported on server-side.
 ### Blob API
 
 ```ts
-import { blob } from 'hub:blob'
+import { blob } from "hub:blob"
 
 // Upload
-const result = await blob.put('path/file.txt', body, {
-  contentType: 'text/plain',
-  access: 'public', // 'public' | 'private' (v0.10.2+)
+const result = await blob.put("path/file.txt", body, {
+  contentType: "text/plain",
+  access: "public", // 'public' | 'private' (v0.10.2+)
   addRandomSuffix: true,
-  prefix: 'uploads'
+  prefix: "uploads"
 })
 // Returns: { pathname, contentType, size, httpEtag, uploadedAt }
 
 // Download
-const file = await blob.get('path/file.txt') // Returns Blob or null
+const file = await blob.get("path/file.txt") // Returns Blob or null
 
 // List
-const { blobs, cursor, hasMore, folders } = await blob.list({ prefix: 'uploads/', limit: 10, folded: true })
+const { blobs, cursor, hasMore, folders } = await blob.list({
+  prefix: "uploads/",
+  limit: 10,
+  folded: true
+})
 
 // Serve (with proper headers)
-return blob.serve(event, 'path/file.txt')
+return blob.serve(event, "path/file.txt")
 
 // Delete
-await blob.del('path/file.txt')
-await blob.del(['file1.txt', 'file2.txt']) // Multiple
+await blob.del("path/file.txt")
+await blob.del(["file1.txt", "file2.txt"]) // Multiple
 
 // Metadata only
-const meta = await blob.head('path/file.txt')
+const meta = await blob.head("path/file.txt")
 ```
 
 ### Upload Helpers
@@ -209,15 +216,15 @@ const meta = await blob.head('path/file.txt')
 // Server: Validate + upload handler
 export default eventHandler(async (event) => {
   return blob.handleUpload(event, {
-    formKey: 'files',
+    formKey: "files",
     multiple: true,
-    ensure: { maxSize: '10MB', types: ['image/png', 'image/jpeg'] },
-    put: { addRandomSuffix: true, prefix: 'images' }
+    ensure: { maxSize: "10MB", types: ["image/png", "image/jpeg"] },
+    put: { addRandomSuffix: true, prefix: "images" }
   })
 })
 
 // Validate before manual upload
-ensureBlob(file, { maxSize: '10MB', types: ['image'] })
+ensureBlob(file, { maxSize: "10MB", types: ["image"] })
 
 // Multipart upload for large files (>10MB)
 export default eventHandler(async (event) => {
@@ -229,11 +236,11 @@ export default eventHandler(async (event) => {
 
 ```ts
 // Simple upload
-const upload = useUpload('/api/upload')
+const upload = useUpload("/api/upload")
 const result = await upload(inputElement)
 
 // Multipart with progress
-const mpu = useMultipartUpload('/api/files/multipart')
+const mpu = useMultipartUpload("/api/files/multipart")
 const { completed, progress, abort } = mpu(file)
 ```
 
@@ -252,12 +259,15 @@ Response and function caching.
 ### Route Handler Caching
 
 ```ts
-export default cachedEventHandler((event) => {
-  return { data: 'cached', date: new Date().toISOString() }
-}, {
-  maxAge: 60 * 60, // 1 hour
-  getKey: event => event.path
-})
+export default cachedEventHandler(
+  (event) => {
+    return { data: "cached", date: new Date().toISOString() }
+  },
+  {
+    maxAge: 60 * 60, // 1 hour
+    getKey: (event) => event.path
+  }
+)
 ```
 
 ### Function Caching
@@ -268,7 +278,7 @@ export const getStars = defineCachedFunction(
     const data = await $fetch(`https://api.github.com/repos/${repo}`)
     return data.stargazers_count
   },
-  { maxAge: 3600, name: 'ghStars', getKey: (event, repo) => repo }
+  { maxAge: 3600, name: "ghStars", getKey: (event, repo) => repo }
 )
 ```
 
@@ -276,10 +286,10 @@ export const getStars = defineCachedFunction(
 
 ```ts
 // Remove specific
-await useStorage('cache').removeItem('nitro:functions:getStars:repo-name.json')
+await useStorage("cache").removeItem("nitro:functions:getStars:repo-name.json")
 
 // Clear by prefix
-await useStorage('cache').clear('nitro:handlers')
+await useStorage("cache").clear("nitro:handlers")
 ```
 
 Cache key pattern: `${group}:${name}:${getKey(...args)}.json` (defaults: group='nitro', name='handlers'|'functions'|'routes')
@@ -295,21 +305,21 @@ NuxtHub auto-generates `wrangler.json` from your hub config - no manual wrangler
 export default defineNuxtConfig({
   hub: {
     db: {
-      dialect: 'sqlite',
-      driver: 'd1',
-      connection: { databaseId: '<database-id>' }
+      dialect: "sqlite",
+      driver: "d1",
+      connection: { databaseId: "<database-id>" }
     },
     kv: {
-      driver: 'cloudflare-kv-binding',
-      namespaceId: '<kv-namespace-id>'
+      driver: "cloudflare-kv-binding",
+      namespaceId: "<kv-namespace-id>"
     },
     cache: {
-      driver: 'cloudflare-kv-binding',
-      namespaceId: '<cache-namespace-id>'
+      driver: "cloudflare-kv-binding",
+      namespaceId: "<cache-namespace-id>"
     },
     blob: {
-      driver: 'cloudflare-r2',
-      bucketName: '<bucket-name>'
+      driver: "cloudflare-r2",
+      bucketName: "<bucket-name>"
     }
   }
 })
@@ -371,17 +381,17 @@ Requires: `NUXT_HUB_CLOUDFLARE_ACCOUNT_ID`, `NUXT_HUB_CLOUDFLARE_API_TOKEN`, `NU
 
 ```ts
 // Extend schema
-nuxt.hook('hub:db:schema:extend', async ({ dialect, paths }) => {
+nuxt.hook("hub:db:schema:extend", async ({ dialect, paths }) => {
   paths.push(await resolvePath(`./schema/custom.${dialect}`))
 })
 
 // Add migration directories
-nuxt.hook('hub:db:migrations:dirs', (dirs) => {
-  dirs.push(resolve('./db-migrations'))
+nuxt.hook("hub:db:migrations:dirs", (dirs) => {
+  dirs.push(resolve("./db-migrations"))
 })
 
 // Post-migration queries (idempotent)
-nuxt.hook('hub:db:queries:paths', (paths, dialect) => {
+nuxt.hook("hub:db:queries:paths", (paths, dialect) => {
   paths.push(resolve(`./seed.${dialect}.sql`))
 })
 ```
@@ -390,7 +400,7 @@ nuxt.hook('hub:db:queries:paths', (paths, dialect) => {
 
 ```ts
 // shared/types/db.ts
-import type { users } from '~/server/db/schema'
+import type { users } from "~/server/db/schema"
 
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
@@ -402,21 +412,25 @@ Enable experimental WebSocket:
 
 ```ts
 // nuxt.config.ts
-nitro: { experimental: { websocket: true } }
+nitro: {
+  experimental: {
+    websocket: true
+  }
+}
 ```
 
 ```ts
 // server/routes/ws/chat.ts
 export default defineWebSocketHandler({
   open(peer) {
-    peer.subscribe('chat')
-    peer.publish('chat', 'User joined')
+    peer.subscribe("chat")
+    peer.publish("chat", "User joined")
   },
   message(peer, message) {
-    peer.publish('chat', message.text())
+    peer.publish("chat", message.text())
   },
   close(peer) {
-    peer.unsubscribe('chat')
+    peer.unsubscribe("chat")
   }
 })
 ```

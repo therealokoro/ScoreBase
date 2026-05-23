@@ -27,7 +27,7 @@ pnpm add @vueuse/nuxt @vueuse/core
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@vueuse/nuxt'],
+  modules: ["@vueuse/nuxt"]
 })
 ```
 
@@ -72,7 +72,7 @@ Load composable files based on what you need:
 **State persistence:**
 
 ```ts
-const state = useLocalStorage('my-key', { count: 0 })
+const state = useLocalStorage("my-key", { count: 0 })
 ```
 
 **Mouse tracking:**
@@ -84,7 +84,7 @@ const { x, y } = useMouse()
 **Debounced ref:**
 
 ```ts
-const search = ref('')
+const search = ref("")
 const debouncedSearch = refDebounced(search, 300)
 ```
 
@@ -101,7 +101,7 @@ Many VueUse composables use browser APIs unavailable during SSR.
 **Check with `isClient`:**
 
 ```ts
-import { isClient } from '@vueuse/core'
+import { isClient } from "@vueuse/core"
 
 if (isClient) {
   // Browser-only code
@@ -126,7 +126,7 @@ onMounted(() => {
 ```ts
 // These check isClient internally
 const mouse = useMouse() // Returns {x: 0, y: 0} on server
-const storage = useLocalStorage('key', 'default') // Uses default on server
+const storage = useLocalStorage("key", "default") // Uses default on server
 ```
 
 **`@vueuse/nuxt` auto-handles SSR** - composables return safe defaults on server.
@@ -136,14 +136,14 @@ const storage = useLocalStorage('key', 'default') // Uses default on server
 When targeting component refs instead of DOM elements:
 
 ```ts
-import type { MaybeElementRef } from '@vueuse/core'
+import type { MaybeElementRef } from "@vueuse/core"
 
 // Component ref needs .$el to get DOM element
 const compRef = ref<ComponentInstance>()
 const { width } = useElementSize(compRef) // ❌ Won't work
 
 // Use MaybeElementRef pattern
-import { unrefElement } from '@vueuse/core'
+import { unrefElement } from "@vueuse/core"
 
 const el = computed(() => unrefElement(compRef)) // Gets .$el
 const { width } = useElementSize(el) // ✅ Works

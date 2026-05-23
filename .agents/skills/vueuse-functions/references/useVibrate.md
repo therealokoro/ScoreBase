@@ -22,7 +22,7 @@ number of milliseconds to vibrate, or an array of integers describing
 a pattern of vibrations and pauses.
 
 ```ts
-import { useVibrate } from '@vueuse/core'
+import { useVibrate } from "@vueuse/core"
 
 // This vibrates the device for 300 ms
 // then pauses for 100 ms before vibrating the device again for another 300 ms:
@@ -38,8 +38,7 @@ stop()
 ## Type Declarations
 
 ```ts
-export interface UseVibrateOptions
-  extends ConfigurableNavigator, ConfigurableScheduler {
+export interface UseVibrateOptions extends ConfigurableNavigator, ConfigurableScheduler {
   /**
    *
    * Vibration Pattern
@@ -80,7 +79,5 @@ export interface UseVibrateReturn extends Supportable {
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useVibrate(
-  options?: UseVibrateOptions,
-): UseVibrateReturn
+export declare function useVibrate(options?: UseVibrateOptions): UseVibrateReturn
 ```

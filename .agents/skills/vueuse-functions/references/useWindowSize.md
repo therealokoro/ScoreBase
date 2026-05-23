@@ -10,16 +10,13 @@ Reactive window size
 
 ```vue
 <script setup lang="ts">
-import { useWindowSize } from '@vueuse/core'
+import { useWindowSize } from "@vueuse/core"
 
 const { width, height } = useWindowSize()
 </script>
 
 <template>
-  <div>
-    Width: {{ width }}
-    Height: {{ height }}
-  </div>
+  <div>Width: {{ width }} Height: {{ height }}</div>
 </template>
 ```
 
@@ -28,8 +25,7 @@ const { width, height } = useWindowSize()
 ```vue
 <template>
   <UseWindowSize v-slot="{ width, height }">
-    Width: {{ width }}
-    Height: {{ height }}
+    Width: {{ width }} Height: {{ height }}
   </UseWindowSize>
 </template>
 ```
@@ -72,7 +68,5 @@ export interface UseWindowSizeReturn {
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useWindowSize(
-  options?: UseWindowSizeOptions,
-): UseWindowSizeReturn
+export declare function useWindowSize(options?: UseWindowSizeOptions): UseWindowSizeReturn
 ```

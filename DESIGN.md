@@ -389,34 +389,34 @@ Use `vee-validate` with `zod` schemas for all forms. Always check `shared/valida
 
 ```vue
 <script setup lang="ts">
-import * as z from "zod";
-import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod"
+import { toTypedSchema } from "@vee-validate/zod"
 
 const schema = toTypedSchema(
   z.object({
     fullName: z.string().min(2, "Student name is required"),
     studentId: z.string().min(1, "Student ID is required"),
-    class: z.string().min(1, "Class is required"),
-  }),
-);
+    class: z.string().min(1, "Class is required")
+  })
+)
 
 const { handleSubmit } = useForm({
   validationSchema: schema,
   initialValues: {
     fullName: "",
     studentId: "",
-    class: "",
-  },
-});
+    class: ""
+  }
+})
 
 const onSubmit = handleSubmit((values) => {
-  console.log(values);
-});
+  console.log(values)
+})
 
 const classOptions = [
   { label: "JSS1A", value: "jss1a" },
-  { label: "JSS1B", value: "jss1b" },
-];
+  { label: "JSS1B", value: "jss1b" }
+]
 </script>
 
 <template>
@@ -703,7 +703,7 @@ Use **Lucide** and **Tabler** icons through `nuxt-icon`.
 - Always reference icons through:
 
   ```ts
-  ICONS.someKey;
+  ICONS.someKey
   ```
 
 Icons are defined in:

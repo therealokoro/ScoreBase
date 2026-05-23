@@ -1,6 +1,10 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
-import { SubjectSchema, UpsertSubjectSchema, UpdateSubjectSchema } from "~~/shared/validators/academic"
+import {
+  SubjectSchema,
+  UpsertSubjectSchema,
+  UpdateSubjectSchema
+} from "~~/shared/validators/academic"
 
 export const list = oc.output(z.array(SubjectSchema))
 

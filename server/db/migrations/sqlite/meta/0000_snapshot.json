@@ -143,9 +143,7 @@
       "indexes": {
         "account_userId_idx": {
           "name": "account_userId_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -154,12 +152,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -219,16 +213,12 @@
       "indexes": {
         "classes_name_unique": {
           "name": "classes_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         },
         "classes_teacher_id_unique": {
           "name": "classes_teacher_id_unique",
-          "columns": [
-            "teacher_id"
-          ],
+          "columns": ["teacher_id"],
           "isUnique": true
         }
       },
@@ -237,12 +227,8 @@
           "name": "classes_teacher_id_user_id_fk",
           "tableFrom": "classes",
           "tableTo": "user",
-          "columnsFrom": [
-            "teacher_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["teacher_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -250,12 +236,8 @@
           "name": "classes_subject_list_subject_lists_id_fk",
           "tableFrom": "classes",
           "tableTo": "subject_lists",
-          "columnsFrom": [
-            "subject_list"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subject_list"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -420,12 +402,8 @@
           "name": "terms_session_id_academic_sessions_id_fk",
           "tableFrom": "terms",
           "tableTo": "academic_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -530,16 +508,12 @@
       "indexes": {
         "user_email_unique": {
           "name": "user_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "user_phone_number_unique": {
           "name": "user_phone_number_unique",
-          "columns": [
-            "phone_number"
-          ],
+          "columns": ["phone_number"],
           "isUnique": true
         }
       },
@@ -619,16 +593,12 @@
       "indexes": {
         "user_session_token_unique": {
           "name": "user_session_token_unique",
-          "columns": [
-            "token"
-          ],
+          "columns": ["token"],
           "isUnique": true
         },
         "user_session_userId_idx": {
           "name": "user_session_userId_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -637,12 +607,8 @@
           "name": "user_session_user_id_user_id_fk",
           "tableFrom": "user_session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -702,9 +668,7 @@
       "indexes": {
         "verification_identifier_idx": {
           "name": "verification_identifier_idx",
-          "columns": [
-            "identifier"
-          ],
+          "columns": ["identifier"],
           "isUnique": false
         }
       },

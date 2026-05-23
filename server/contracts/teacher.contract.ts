@@ -1,42 +1,42 @@
-import { oc } from "@orpc/contract";
-import { z } from "zod";
+import { oc } from "@orpc/contract"
+import { z } from "zod"
 import {
   TeacherSchema,
   CreateTeacherSchema,
-  UpdateTeacherSchema,
-} from "~~/shared/validators/actors";
+  UpdateTeacherSchema
+} from "~~/shared/validators/actors"
 
-const list = oc.output(z.array(TeacherSchema));
+const list = oc.output(z.array(TeacherSchema))
 
 const getOne = oc
   .input(TeacherSchema.pick({ id: true }))
   .output(TeacherSchema)
-  .errors({ NOT_FOUND: { message: "The teacher was not found" } });
+  .errors({ NOT_FOUND: { message: "The teacher was not found" } })
 
 const create = oc
   .input(CreateTeacherSchema)
   .output(TeacherSchema)
-  .errors({ CONFLICT: { message: "Teachers must have unique emails and phone numbers" } });
+  .errors({ CONFLICT: { message: "Teachers must have unique emails and phone numbers" } })
 
 const update = oc
   .input(UpdateTeacherSchema)
   .output(TeacherSchema)
   .errors({
     NOT_FOUND: { message: "The teacher was not found" },
-    CONFLICT: { message: "Teachers must have a unique email and phone number" },
-  });
+    CONFLICT: { message: "Teachers must have a unique email and phone number" }
+  })
 
 const remove = oc
   .input(z.object({ id: z.string() }))
   .output(z.object({ success: z.boolean() }))
   .errors({
-    NOT_FOUND: { message: "The teacher was not found" },
-  });
+    NOT_FOUND: { message: "The teacher was not found" }
+  })
 
 export const teacherContract = {
   list,
   getOne,
   create,
   update,
-  delete: remove,
-};
+  delete: remove
+}

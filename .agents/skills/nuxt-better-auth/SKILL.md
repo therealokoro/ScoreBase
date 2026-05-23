@@ -66,12 +66,12 @@ Authentication module for Nuxt 4+ built on [Better Auth](https://www.better-auth
 ```ts
 // Client: useUserSession()
 const { user, loggedIn, signIn, signOut } = useUserSession()
-await signIn.email({ email, password }, { onSuccess: () => navigateTo('/') })
+await signIn.email({ email, password }, { onSuccess: () => navigateTo("/") })
 ```
 
 ```ts
 // Server: requireUserSession()
-const { user } = await requireUserSession(event, { user: { role: 'admin' } })
+const { user } = await requireUserSession(event, { user: { role: "admin" } })
 ```
 
 ```ts

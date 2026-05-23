@@ -1,5 +1,5 @@
 ---
-category: '@Math'
+category: "@Math"
 related: useProjection, createGenericProjection
 ---
 
@@ -10,7 +10,7 @@ Reactive numeric projection from one domain to another.
 ## Usage
 
 ```ts
-import { createProjection } from '@vueuse/math'
+import { createProjection } from "@vueuse/math"
 
 const useProjector = createProjection([0, 10], [0, 100])
 const input = ref(0)
@@ -26,6 +26,6 @@ input.value = 10 // projected.value === 100
 export declare function createProjection(
   fromDomain: MaybeRefOrGetter<readonly [number, number]>,
   toDomain: MaybeRefOrGetter<readonly [number, number]>,
-  projector?: ProjectorFunction<number, number>,
+  projector?: ProjectorFunction<number, number>
 ): UseProjection<number, number>
 ```

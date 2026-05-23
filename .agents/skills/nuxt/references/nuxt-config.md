@@ -11,10 +11,7 @@ Configuring `nuxt.config.ts`, modules, auto-imports, runtime config, layers.
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt'
-  ],
+  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt"],
 
   runtimeConfig: {
     // Private (server-only)
@@ -22,16 +19,16 @@ export default defineNuxtConfig({
 
     public: {
       // Public (client + server)
-      apiBase: process.env.API_BASE || 'http://localhost:3000'
+      apiBase: process.env.API_BASE || "http://localhost:3000"
     }
   },
 
   app: {
     head: {
-      title: 'My App',
+      title: "My App",
       meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" }
       ]
     }
   }
@@ -71,33 +68,33 @@ npx nuxi module add nuxt-safe-runtime-config
 **Example with Valibot:**
 
 ```ts
-import { number, object, optional, string } from 'valibot'
+import { number, object, optional, string } from "valibot"
 
 export default defineNuxtConfig({
-  modules: ['nuxt-safe-runtime-config'],
+  modules: ["nuxt-safe-runtime-config"],
 
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL,
     secretKey: process.env.SECRET_KEY,
-    port: Number.parseInt(process.env.PORT || '3000'),
+    port: Number.parseInt(process.env.PORT || "3000"),
     public: {
       apiBase: process.env.PUBLIC_API_BASE,
-      appName: 'My App',
-    },
+      appName: "My App"
+    }
   },
 
   safeRuntimeConfig: {
     $schema: object({
       public: object({
         apiBase: string(),
-        appName: optional(string()),
+        appName: optional(string())
       }),
       databaseUrl: string(),
       secretKey: string(),
-      port: optional(number()),
+      port: optional(number())
     }),
-    validateAtRuntime: true, // Optional: validate when server starts
-  },
+    validateAtRuntime: true // Optional: validate when server starts
+  }
 })
 ```
 
@@ -114,7 +111,7 @@ const config = useSafeRuntimeConfig()
 
 ```ts
 // ❌ Don't do this with nuxt-safe-runtime-config
-if (!config.databaseUrl) throw new Error('Missing DATABASE_URL')
+if (!config.databaseUrl) throw new Error("Missing DATABASE_URL")
 
 // ✅ Schema validation handles it automatically
 // If env var is missing, build fails with detailed error
@@ -136,10 +133,7 @@ Nuxt auto-imports from these directories:
 ```ts
 export default defineNuxtConfig({
   imports: {
-    dirs: [
-      'stores',
-      'types'
-    ]
+    dirs: ["stores", "types"]
   }
 })
 ```
@@ -159,14 +153,17 @@ export default defineNuxtConfig({
 ```ts
 export default defineNuxtConfig({
   modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    ['@nuxtjs/google-fonts', {
-      families: {
-        Inter: [400, 700]
+    "@nuxtjs/tailwindcss",
+    "@pinia/nuxt",
+    "@vueuse/nuxt",
+    [
+      "@nuxtjs/google-fonts",
+      {
+        families: {
+          Inter: [400, 700]
+        }
       }
-    }]
+    ]
   ]
 })
 ```
@@ -179,8 +176,8 @@ For non-sensitive config exposed to client:
 // app.config.ts
 export default defineAppConfig({
   theme: {
-    primaryColor: '#3b82f6',
-    borderRadius: '0.5rem'
+    primaryColor: "#3b82f6",
+    borderRadius: "0.5rem"
   }
 })
 ```
@@ -209,7 +206,7 @@ export default defineNuxtConfig({
 ```ts
 export default defineNuxtConfig({
   build: {
-    transpile: ['some-package']
+    transpile: ["some-package"]
   },
 
   vite: {
@@ -231,10 +228,10 @@ Pre-render, cache, or customize routes:
 ```ts
 export default defineNuxtConfig({
   routeRules: {
-    '/': { prerender: true },
-    '/api/**': { cors: true },
-    '/admin/**': { ssr: false },
-    '/blog/**': { swr: 3600 } // Cache for 1 hour
+    "/": { prerender: true },
+    "/api/**": { cors: true },
+    "/admin/**": { ssr: false },
+    "/blog/**": { swr: 3600 } // Cache for 1 hour
   }
 })
 ```
@@ -246,10 +243,10 @@ Use `isr` for incremental static regeneration:
 ```ts
 export default defineNuxtConfig({
   routeRules: {
-    '/': { prerender: true },        // Static at build time
-    '/**': { isr: 60 },              // Regenerate every 60s
-    '/package/**': { isr: 60 },      // ISR for dynamic routes
-    '/search': { isr: false, cache: false },  // No cache
+    "/": { prerender: true }, // Static at build time
+    "/**": { isr: 60 }, // Regenerate every 60s
+    "/package/**": { isr: 60 }, // ISR for dynamic routes
+    "/search": { isr: false, cache: false } // No cache
   }
 })
 ```
@@ -261,9 +258,9 @@ Apply layouts via route rules for centralized layout management:
 ```ts
 export default defineNuxtConfig({
   routeRules: {
-    '/admin/**': { appLayout: 'admin' },
-    '/docs/**': { appLayout: 'docs' },
-    '/': { appLayout: 'default' }
+    "/admin/**": { appLayout: "admin" },
+    "/docs/**": { appLayout: "docs" },
+    "/": { appLayout: "default" }
   }
 })
 ```
@@ -285,7 +282,7 @@ export default defineNuxtConfig({
         nuxt.options.pwa.pwaAssets ||= { disabled: true }
       }
     },
-    '@nuxtjs/tailwindcss',
+    "@nuxtjs/tailwindcss"
   ]
 })
 ```
@@ -296,19 +293,19 @@ Use `std-env` to detect platform and configure accordingly:
 
 ```ts
 // modules/vercel-cache.ts
-import { defineNuxtModule } from 'nuxt/kit'
-import { provider } from 'std-env'
+import { defineNuxtModule } from "nuxt/kit"
+import { provider } from "std-env"
 
 export default defineNuxtModule({
-  meta: { name: 'vercel-cache' },
+  meta: { name: "vercel-cache" },
   setup(_, nuxt) {
-    if (provider !== 'vercel') return
+    if (provider !== "vercel") return
 
-    nuxt.hook('nitro:config', (nitroConfig) => {
+    nuxt.hook("nitro:config", (nitroConfig) => {
       nitroConfig.storage ||= {}
       nitroConfig.storage.cache = {
-        driver: 'vercel-runtime-cache',
-        ...nitroConfig.storage.cache,
+        driver: "vercel-runtime-cache",
+        ...nitroConfig.storage.cache
       }
     })
   }
@@ -319,7 +316,7 @@ Then register in nuxt.config.ts:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['~/modules/vercel-cache']
+  modules: ["~/modules/vercel-cache"]
 })
 ```
 
@@ -348,10 +345,10 @@ Server engine configuration:
 ```ts
 export default defineNuxtConfig({
   nitro: {
-    preset: 'vercel',
+    preset: "vercel",
     compressPublicAssets: true,
     routeRules: {
-      '/api/**': { cors: true }
+      "/api/**": { cors: true }
     }
   }
 })
@@ -363,9 +360,7 @@ Extend or share configuration:
 
 ```ts
 export default defineNuxtConfig({
-  extends: [
-    './base-layer'
-  ]
+  extends: ["./base-layer"]
 })
 ```
 

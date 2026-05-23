@@ -9,7 +9,7 @@ Reactive [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API
 ## Usage
 
 ```ts
-import { useWakeLock } from '@vueuse/core'
+import { useWakeLock } from "@vueuse/core"
 
 const { isSupported, isActive, forceRequest, request, release } = useWakeLock()
 ```
@@ -45,7 +45,5 @@ export interface UseWakeLockReturn extends Supportable {
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useWakeLock(
-  options?: UseWakeLockOptions,
-): UseWakeLockReturn
+export declare function useWakeLock(options?: UseWakeLockOptions): UseWakeLockReturn
 ```

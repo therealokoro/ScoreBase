@@ -9,9 +9,9 @@ Reactive [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/
 ## Usage
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 
-const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl')
+const { status, data, send, open, close, ws } = useWebSocket("ws://websocketurl")
 ```
 
 ### Return Values
@@ -28,19 +28,19 @@ const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl'
 ### Callbacks
 
 ```ts
-const { data } = useWebSocket('ws://websocketurl', {
+const { data } = useWebSocket("ws://websocketurl", {
   onConnected(ws) {
-    console.log('Connected!')
+    console.log("Connected!")
   },
   onDisconnected(ws, event) {
-    console.log('Disconnected!', event.code)
+    console.log("Disconnected!", event.code)
   },
   onError(ws, event) {
-    console.error('Error:', event)
+    console.error("Error:", event)
   },
   onMessage(ws, event) {
-    console.log('Message:', event.data)
-  },
+    console.log("Message:", event.data)
+  }
 })
 ```
 
@@ -69,52 +69,52 @@ This will call `close()` automatically when the `beforeunload` event is triggere
 Reconnect on errors automatically (disabled by default).
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
-  autoReconnect: true,
+const { status, data, close } = useWebSocket("ws://websocketurl", {
+  autoReconnect: true
 })
 ```
 
 Or with more controls over its behavior:
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
+const { status, data, close } = useWebSocket("ws://websocketurl", {
   autoReconnect: {
     retries: 3,
     delay: 1000,
     onFailed() {
-      alert('Failed to connect WebSocket after 3 retries')
-    },
-  },
+      alert("Failed to connect WebSocket after 3 retries")
+    }
+  }
 })
 ```
 
 You can also pass a function to `delay` to calculate the delay based on the number of retries. This is useful for implementing exponential backoff:
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
+const { status, data, close } = useWebSocket("ws://websocketurl", {
   autoReconnect: {
     retries: 5,
     // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-    delay: retries => Math.min(1000 * 2 ** (retries - 1), 30000),
-  },
+    delay: (retries) => Math.min(1000 * 2 ** (retries - 1), 30000)
+  }
 })
 ```
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
+const { status, data, close } = useWebSocket("ws://websocketurl", {
   autoReconnect: {
     retries: 5,
     // Linear backoff: 1s, 2s, 3s, 4s, 5s
-    delay: retries => retries * 1000,
-  },
+    delay: (retries) => retries * 1000
+  }
 })
 ```
 
@@ -125,24 +125,24 @@ Explicitly calling `close()` won't trigger the auto reconnection.
 It's common practice to send a small message (heartbeat) for every given time passed to keep the connection active. In this function we provide a convenient helper to do it:
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
-  heartbeat: true,
+const { status, data, close } = useWebSocket("ws://websocketurl", {
+  heartbeat: true
 })
 ```
 
 Or with more controls:
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, close } = useWebSocket('ws://websocketurl', {
+const { status, data, close } = useWebSocket("ws://websocketurl", {
   heartbeat: {
-    message: 'ping',
-    scheduler: cb => useIntervalFn(cb, 2000),
-    pongTimeout: 1000,
-  },
+    message: "ping",
+    scheduler: (cb) => useIntervalFn(cb, 2000),
+    pongTimeout: 1000
+  }
 })
 ```
 
@@ -151,10 +151,10 @@ const { status, data, close } = useWebSocket('ws://websocketurl', {
 List of one or more subprotocols to use, in this case SOAP and WAMP.
 
 ```ts
-import { useWebSocket } from '@vueuse/core'
+import { useWebSocket } from "@vueuse/core"
 // ---cut---
-const { status, data, send, open, close } = useWebSocket('ws://websocketurl', {
-  protocols: ['soap'], // ['soap', 'wamp']
+const { status, data, send, open, close } = useWebSocket("ws://websocketurl", {
+  protocols: ["soap"] // ['soap', 'wamp']
 })
 ```
 
@@ -294,6 +294,6 @@ export interface UseWebSocketReturn<T> {
  */
 export declare function useWebSocket<Data = any>(
   url: MaybeRefOrGetter<string | URL | undefined>,
-  options?: UseWebSocketOptions,
+  options?: UseWebSocketOptions
 ): UseWebSocketReturn<Data>
 ```

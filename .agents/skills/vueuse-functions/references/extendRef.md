@@ -11,32 +11,32 @@ Add extra attributes to Ref.
 > Please note the extra attribute will not be accessible in Vue's template.
 
 ```ts
-import { extendRef } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { extendRef } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const myRef = shallowRef('content')
+const myRef = shallowRef("content")
 
-const extended = extendRef(myRef, { foo: 'extra data' })
+const extended = extendRef(myRef, { foo: "extra data" })
 
-extended.value === 'content'
-extended.foo === 'extra data'
+extended.value === "content"
+extended.foo === "extra data"
 ```
 
 Refs will be unwrapped and be reactive
 
 ```ts
-import { extendRef } from '@vueuse/core'
+import { extendRef } from "@vueuse/core"
 // ---cut---
-const myRef = shallowRef('content')
-const extraRef = shallowRef('extra')
+const myRef = shallowRef("content")
+const extraRef = shallowRef("extra")
 
 const extended = extendRef(myRef, { extra: extraRef })
 
-extended.value === 'content'
-extended.extra === 'extra'
+extended.value === "content"
+extended.extra === "extra"
 
-extended.extra = 'new data' // will trigger update
-extraRef.value === 'new data'
+extended.extra = "new data" // will trigger update
+extraRef.value === "new data"
 ```
 
 ## Type Declarations
@@ -63,7 +63,7 @@ export interface ExtendRefOptions<Unwrap extends boolean = boolean> {
 export declare function extendRef<
   R extends Ref<any>,
   Extend extends object,
-  Options extends ExtendRefOptions<false>,
+  Options extends ExtendRefOptions<false>
 >(ref: R, extend: Extend, options?: Options): ShallowUnwrapRef<Extend> & R
 /**
  * Overload 2: Unwrap unset or set to true
@@ -71,6 +71,6 @@ export declare function extendRef<
 export declare function extendRef<
   R extends Ref<any>,
   Extend extends object,
-  Options extends ExtendRefOptions,
+  Options extends ExtendRefOptions
 >(ref: R, extend: Extend, options?: Options): Extend & R
 ```

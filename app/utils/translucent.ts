@@ -1,5 +1,5 @@
-export type FloatingSurfaceTone = "background" | "popover";
-export type FloatingArrowShape = "square" | "svg";
+export type FloatingSurfaceTone = "background" | "popover"
+export type FloatingArrowShape = "square" | "svg"
 
 export function getTranslucentFloatingPanelClasses(tone: FloatingSurfaceTone) {
   if (tone === "background") {
@@ -10,8 +10,8 @@ export function getTranslucentFloatingPanelClasses(tone: FloatingSurfaceTone) {
       "supports-backdrop-filter:backdrop-saturate-150",
       "supports-backdrop-filter:backdrop-brightness-110",
       "border-border/50",
-      "shadow-2xl shadow-black/14 dark:shadow-black/42",
-    ].join(" ");
+      "shadow-2xl shadow-black/14 dark:shadow-black/42"
+    ].join(" ")
   }
 
   return [
@@ -21,15 +21,15 @@ export function getTranslucentFloatingPanelClasses(tone: FloatingSurfaceTone) {
     "supports-backdrop-filter:backdrop-saturate-150",
     "supports-backdrop-filter:backdrop-brightness-110",
     "border-border/50",
-    "shadow-xl shadow-black/12 dark:shadow-black/36",
-  ].join(" ");
+    "shadow-xl shadow-black/12 dark:shadow-black/36"
+  ].join(" ")
 }
 
 export function getTranslucentFloatingArrowClasses(
   tone: FloatingSurfaceTone,
   shape: FloatingArrowShape = "svg"
 ) {
-  const fillClass = tone === "background" ? "fill-background" : "fill-popover";
+  const fillClass = tone === "background" ? "fill-background" : "fill-popover"
 
   if (shape === "square") {
     return [
@@ -41,8 +41,8 @@ export function getTranslucentFloatingArrowClasses(
       "supports-backdrop-filter:backdrop-saturate-150",
       "supports-backdrop-filter:backdrop-brightness-110",
       "border-border/50",
-      "shadow-lg shadow-black/12 dark:shadow-black/36",
-    ].join(" ");
+      "shadow-lg shadow-black/12 dark:shadow-black/36"
+    ].join(" ")
   }
 
   return [
@@ -51,6 +51,6 @@ export function getTranslucentFloatingArrowClasses(
       ? "supports-backdrop-filter:fill-background/42"
       : "supports-backdrop-filter:fill-popover/40",
     "stroke-border/50 [stroke-width:1px]",
-    "drop-shadow-[0_10px_22px_rgb(0_0_0/0.16)] dark:drop-shadow-[0_12px_24px_rgb(0_0_0/0.4)]",
-  ].join(" ");
+    "drop-shadow-[0_10px_22px_rgb(0_0_0/0.16)] dark:drop-shadow-[0_12px_24px_rgb(0_0_0/0.4)]"
+  ].join(" ")
 }

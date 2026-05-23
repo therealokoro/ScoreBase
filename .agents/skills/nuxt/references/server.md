@@ -60,12 +60,12 @@ export default defineEventHandler(async (event) => {
 ```ts
 // server/api/users/[userId].get.ts
 export default defineEventHandler(async (event) => {
-  const userId = getRouterParam(event, 'userId')
+  const userId = getRouterParam(event, "userId")
 
   if (!userId) {
     throw createError({
       statusCode: 400,
-      message: 'User ID is required'
+      message: "User ID is required"
     })
   }
 
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     throw createError({
       statusCode: 404,
-      message: 'User not found'
+      message: "User not found"
     })
   }
 
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
   if (!body.name || !body.email) {
     throw createError({
       statusCode: 400,
-      message: 'Missing required fields: name, email'
+      message: "Missing required fields: name, email"
     })
   }
 
@@ -123,7 +123,7 @@ Use `readValidatedBody` and `getValidatedQuery` for schema validation:
 
 ```ts
 // server/api/users.post.ts
-import * as v from 'valibot'
+import * as v from "valibot"
 
 const UserSchema = v.object({
   name: v.pipe(v.string(), v.minLength(1)),
@@ -141,11 +141,11 @@ export default defineEventHandler(async (event) => {
 
 ```ts
 // server/api/users.get.ts
-import * as v from 'valibot'
+import * as v from "valibot"
 
 const QuerySchema = v.object({
-  page: v.optional(v.pipe(v.string(), v.transform(Number)), '1'),
-  limit: v.optional(v.pipe(v.string(), v.transform(Number)), '10')
+  page: v.optional(v.pipe(v.string(), v.transform(Number)), "1"),
+  limit: v.optional(v.pipe(v.string(), v.transform(Number)), "10")
 })
 
 export default defineEventHandler(async (event) => {
@@ -161,9 +161,9 @@ Use `createError` for HTTP errors:
 ```ts
 throw createError({
   statusCode: 400,
-  statusMessage: 'Bad Request',
-  message: 'Invalid input',
-  data: { field: 'email' } // Optional additional data
+  statusMessage: "Bad Request",
+  message: "Invalid input",
+  data: { field: "email" } // Optional additional data
 })
 ```
 
@@ -183,12 +183,12 @@ Named middleware for specific patterns:
 ```ts
 // server/middleware/auth.ts
 export default defineEventHandler((event) => {
-  const token = getRequestHeader(event, 'authorization')
+  const token = getRequestHeader(event, "authorization")
 
   if (!token) {
     throw createError({
       statusCode: 401,
-      message: 'Unauthorized'
+      message: "Unauthorized"
     })
   }
 
@@ -203,14 +203,18 @@ Reusable server functions (auto-imported):
 
 ```ts
 // server/utils/db.ts
-import { db } from './database'
+import { db } from "./database"
 
-export async function fetchUsers(options: { page: number, limit: number }) {
-  return await db.select().from('users').limit(options.limit).offset((options.page - 1) * options.limit)
+export async function fetchUsers(options: { page: number; limit: number }) {
+  return await db
+    .select()
+    .from("users")
+    .limit(options.limit)
+    .offset((options.page - 1) * options.limit)
 }
 
 export async function fetchUserById(id: string) {
-  return await db.select().from('users').where({ id }).first()
+  return await db.select().from("users").where({ id }).first()
 }
 ```
 
@@ -220,7 +224,7 @@ Auto-imported in all server routes and middleware.
 
 ```ts
 // Use #server alias for type-safe server-only imports
-import type { User } from '#server/utils/db'
+import type { User } from "#server/utils/db"
 ```
 
 **Note:** Only types are imported; actual server code never bundles into client.
@@ -236,10 +240,10 @@ export const fetchRepo = defineCachedFunction(
     return await $fetch(`https://api.github.com/repos/${owner}/${repo}`)
   },
   {
-    maxAge: 60 * 5,  // Cache for 5 minutes
-    swr: true,       // Stale-while-revalidate
-    name: 'github-repo',
-    getKey: (owner, repo) => `${owner}/${repo}`,
+    maxAge: 60 * 5, // Cache for 5 minutes
+    swr: true, // Stale-while-revalidate
+    name: "github-repo",
+    getKey: (owner, repo) => `${owner}/${repo}`
   }
 )
 ```
@@ -252,13 +256,13 @@ Use `defineCachedEventHandler` for ISR-style caching on API routes:
 // server/api/products/[productId].get.ts
 export default defineCachedEventHandler(
   async (event) => {
-    const productId = getRouterParam(event, 'productId')
+    const productId = getRouterParam(event, "productId")
     return await fetchProductById(productId)
   },
   {
-    maxAge: 3600,  // Cache for 1 hour
-    swr: true,     // Serve stale while revalidating
-    getKey: event => getRouterParam(event, 'productId') ?? '',
+    maxAge: 3600, // Cache for 1 hour
+    swr: true, // Serve stale while revalidating
+    getKey: (event) => getRouterParam(event, "productId") ?? ""
   }
 )
 ```
@@ -269,10 +273,13 @@ Centralize error handling for H3 errors, validation errors, and fallbacks:
 
 ```ts
 // server/utils/error-handler.ts
-import { isError, createError } from 'h3'
-import * as v from 'valibot'
+import { isError, createError } from "h3"
+import * as v from "valibot"
 
-export function handleApiError(error: unknown, fallback: { statusCode?: number, message: string }): never {
+export function handleApiError(
+  error: unknown,
+  fallback: { statusCode?: number; message: string }
+): never {
   // Re-throw existing H3 errors
   if (isError(error)) throw error
 
@@ -294,7 +301,7 @@ export default defineEventHandler(async (event) => {
     const data = await fetchExternalApi()
     return data
   } catch (error) {
-    handleApiError(error, { statusCode: 502, message: 'Failed to fetch data' })
+    handleApiError(error, { statusCode: 502, message: "Failed to fetch data" })
   }
 })
 ```
@@ -303,7 +310,7 @@ export default defineEventHandler(async (event) => {
 
 ```ts
 // Get params
-const userId = getRouterParam(event, 'userId')
+const userId = getRouterParam(event, "userId")
 
 // Get query
 const query = getQuery(event)
@@ -312,10 +319,10 @@ const query = getQuery(event)
 const body = await readBody(event)
 
 // Get headers
-const auth = getRequestHeader(event, 'authorization')
+const auth = getRequestHeader(event, "authorization")
 
 // Get cookies
-const token = getCookie(event, 'token')
+const token = getCookie(event, "token")
 
 // Get method
 const method = getMethod(event)
@@ -331,19 +338,19 @@ const ip = getRequestIP(event)
 setResponseStatus(event, 201)
 
 // Set headers
-setResponseHeader(event, 'X-Custom', 'value')
-setResponseHeaders(event, { 'X-Custom': 'value', 'X-Another': 'value' })
+setResponseHeader(event, "X-Custom", "value")
+setResponseHeaders(event, { "X-Custom": "value", "X-Another": "value" })
 
 // Set cookies
-setCookie(event, 'token', 'value', {
+setCookie(event, "token", "value", {
   httpOnly: true,
   secure: true,
-  sameSite: 'lax',
+  sameSite: "lax",
   maxAge: 60 * 60 * 24 * 7 // 1 week
 })
 
 // Redirect
-return sendRedirect(event, '/login', 302)
+return sendRedirect(event, "/login", 302)
 
 // Stream
 return sendStream(event, stream)
@@ -362,9 +369,7 @@ export default defineEventHandler(async (event) => {
   const data = await readBody(event)
 
   // Don't block response with analytics logging
-  event.waitUntil(
-    logAnalytics(data)
-  )
+  event.waitUntil(logAnalytics(data))
 
   return { success: true }
 })
@@ -400,14 +405,14 @@ export default defineEventHandler(async (event) => {
 // server/routes/_ws.ts
 export default defineWebSocketHandler({
   open(peer) {
-    console.log('Client connected:', peer.id)
+    console.log("Client connected:", peer.id)
   },
   message(peer, message) {
     peer.send(`Echo: ${message.text()}`)
     // Broadcast to all: peer.publish('channel', message)
   },
   close(peer) {
-    console.log('Client disconnected:', peer.id)
+    console.log("Client disconnected:", peer.id)
   }
 })
 ```

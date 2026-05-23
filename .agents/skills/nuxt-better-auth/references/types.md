@@ -5,7 +5,7 @@
 Import types from the module alias:
 
 ```ts
-import type { AuthUser, AuthSession, ServerAuthContext, AppAuthClient } from '#nuxt-better-auth'
+import type { AuthUser, AuthSession, ServerAuthContext, AppAuthClient } from "#nuxt-better-auth"
 ```
 
 ## Core Types
@@ -58,7 +58,7 @@ When using plugins, types extend automatically:
 // With admin plugin
 interface AuthUser {
   // ... base fields
-  role: 'user' | 'admin'
+  role: "user" | "admin"
 }
 
 // With 2FA plugin
@@ -75,7 +75,7 @@ Available in `defineServerAuth()` callback:
 ```ts
 interface ServerAuthContext {
   runtimeConfig: RuntimeConfig
-  db?: DrizzleDatabase  // When NuxtHub enabled
+  db?: DrizzleDatabase // When NuxtHub enabled
 }
 ```
 
@@ -83,7 +83,7 @@ interface ServerAuthContext {
 
 ```vue
 <script setup lang="ts">
-import type { AuthUser } from '#nuxt-better-auth'
+import type { AuthUser } from "#nuxt-better-auth"
 
 const { user } = useUserSession()
 // user is Ref<AuthUser | null>
@@ -98,10 +98,10 @@ function greet(u: AuthUser) {
 
 ```ts
 // server/utils/helpers.ts
-import type { AuthUser, AuthSession } from '#nuxt-better-auth'
+import type { AuthUser, AuthSession } from "#nuxt-better-auth"
 
 export function isAdmin(user: AuthUser): boolean {
-  return user.role === 'admin'
+  return user.role === "admin"
 }
 ```
 
@@ -114,8 +114,8 @@ Extend user type via Better Auth config:
 export default defineServerAuth(() => ({
   user: {
     additionalFields: {
-      plan: { type: 'string' },
-      credits: { type: 'number' }
+      plan: { type: "string" },
+      credits: { type: "number" }
     }
   }
 }))
@@ -137,6 +137,6 @@ interface AuthUser {
 ```ts
 // Fully typed
 await requireUserSession(event, {
-  user: { role: 'admin' }  // TypeScript knows valid fields
+  user: { role: "admin" } // TypeScript knows valid fields
 })
 ```
