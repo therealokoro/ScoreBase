@@ -7,7 +7,7 @@ export const getServerAuth = () => {
   return betterAuth({
     database: drizzleAdapter(db, { provider: "sqlite", schema }),
     emailAndPassword: { enabled: true },
-    plugins: [admin()],
+    plugins: [admin({ defaultRole: "teacher" })],
     user: {
       additionalFields: {
         phoneNumber: {

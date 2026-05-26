@@ -1,16 +1,14 @@
 <script setup lang="ts">
 const auth = useAuth()
-const creds = {
-  email: "okoro@gmail.com",
-  name: "Okoro Redemption",
-  password: "admin-123",
-  phoneNumber: "0987654321"
-}
-async function signUp() {
-  await auth.signUp.email({ ...creds })
-}
+
 async function signIn() {
-  await auth.signIn.email({ email: creds.email, password: creds.password })
+  await auth.signIn.email({ email: "user@admin.com", password: "admin-123" })
+}
+
+const signUpRes = ref<unknown>()
+async function signUp() {
+  const res = await $fetch("/api/seed/admin", { method: "POST" })
+  signUpRes.value = res
 }
 </script>
 
@@ -19,6 +17,8 @@ async function signIn() {
     <ui-button @click="signUp">Sign Up</ui-button>
     <ui-button @click="signIn">Sign In</ui-button>
     <ui-button @click="navigateTo('/admin')">Go to dashboard</ui-button>
+
+    <p v-if="signUpRes">{{ signUpRes }}</p>
 
     <pre>{{ auth.currentUser }}</pre>
   </UiContainer>

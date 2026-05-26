@@ -28,6 +28,9 @@ export const listAllTeachers = async () => {
   return await db.query.user.findMany({
     where: not(eq(user.role, "admin")),
     columns: { ...columnPicks },
-    with: { ...classInclude }
+    with: { ...classInclude },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { normalizeClass } from "vue"
+
 import { ICONS } from "#shared/constants/icons"
 const { crumbs } = useBreadcrumbs({ root: "/admin" })
 
@@ -8,6 +10,7 @@ const props = withDefaults(
     description?: string
     loading?: boolean
     error?: Error | null
+    class?: string
   }>(),
   {
     loading: false,
@@ -29,6 +32,8 @@ useHead(() => ({
 }))
 
 const hasError = computed(() => props.error !== null)
+
+const styles = tv({ base: "flex items-start gap-3" })
 </script>
 
 <template>
@@ -61,7 +66,7 @@ const hasError = computed(() => props.error !== null)
       <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" />
 
       <!-- Actual Page -->
-      <div class="flex items-start gap-3">
+      <div :class="styles({ class: normalizeClass(props.class) || undefined })">
         <div class="space-y-1">
           <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
             {{ title }}

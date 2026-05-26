@@ -58,6 +58,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,
+    nuxtDefaultAdminEmail: process.env.NUXT_DEFAULT_ADMIN_EMAIL,
+    nuxtDefaultAdminPass: process.env.NUXT_DEFAULT_ADMIN_PASS,
     public: {
       betterAuthUrl: process.env.BETTER_AUTH_URL
     }

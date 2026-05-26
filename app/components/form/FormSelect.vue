@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AcceptableValue } from "reka-ui"
+
 import type { SelectOptionRaw } from "../Ui/Select/Select.vue"
 import FormField from "./FormField.vue"
 
@@ -21,14 +23,16 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   validateOnMount: false,
+  multiple: false,
   options: () => []
 })
 
-const { value, errorMessage, handleBlur, handleChange } = useField<string>(
-  () => props.name,
-  undefined,
-  { label: props.label, validateOnMount: props.validateOnMount, syncVModel: true }
-)
+type FinalValueType = AcceptableValue | AcceptableValue[]
+const { value, errorMessage } = useField<FinalValueType>(() => props.name, undefined, {
+  label: props.label,
+  validateOnMount: props.validateOnMount,
+  syncVModel: true
+})
 </script>
 
 <template>
@@ -49,8 +53,6 @@ const { value, errorMessage, handleBlur, handleChange } = useField<string>(
         :disabled
         :multiple
         v-slot="{ options: normalizedOptions }"
-        @update:model-value="handleChange"
-        @update:open="(open) => !open && handleBlur()"
       >
         <UiSelectTrigger
           data-slot="input-group-control"

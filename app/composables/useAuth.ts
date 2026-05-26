@@ -1,5 +1,4 @@
-import { adminClient } from "better-auth/client/plugins"
-import { inferAdditionalFields } from "better-auth/client/plugins"
+import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 import type { getServerAuth } from "~~/server/utils/server-auth"
 

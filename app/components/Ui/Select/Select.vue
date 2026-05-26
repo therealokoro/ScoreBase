@@ -17,7 +17,7 @@ interface Props extends SelectRootProps {
 import { SelectRoot, useForwardPropsEmits } from "reka-ui"
 import type { SelectRootEmits, SelectRootProps } from "reka-ui"
 
-const props = withDefaults(defineProps<SelectRootProps & Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   options: () => []
 })
 

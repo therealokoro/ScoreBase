@@ -14,6 +14,10 @@ const emit = defineEmits<{ confirm: []; cancel: [] }>()
 const hasInputField = computed(() => !!props.confirmInputText)
 const isOpen = defineModel("open", { default: false })
 const enteredText = ref("")
+
+onUnmounted(() => {
+  enteredText.value = ""
+})
 </script>
 
 <template>

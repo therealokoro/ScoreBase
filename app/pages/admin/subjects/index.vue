@@ -24,9 +24,11 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
   <Page title="Subjects" description="Create, edit, delete school subjects">
     <UiTabs class="w-full gap-6" default-value="subjects">
       <!-- Tab Triggers -->
-      <UiTabsList class="grid sm:w-1/3 grid-cols-2">
-        <UiTabsTrigger class="text-xs sm:text-sm" value="subjects">All Subjects</UiTabsTrigger>
-        <UiTabsTrigger class="text-xs sm:text-sm" value="subject-presets">
+      <UiTabsList class="grid w-full sm:w-2/4 grid-cols-2">
+        <UiTabsTrigger class="min-w-max text-xs sm:text-sm" value="subjects"
+          >All Subjects</UiTabsTrigger
+        >
+        <UiTabsTrigger class="min-w-max text-xs sm:text-sm" value="subject-presets">
           Subject Presets
         </UiTabsTrigger>
       </UiTabsList>

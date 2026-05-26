@@ -3,8 +3,24 @@ import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import { teacherContract } from "../contracts/teacher.contract"
-import { user } from "../db/schema"
+import { classes, user } from "../db/schema"
 import { fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
+
+async function assignClassToTeacher(classId: string | undefined, userId: string) {
+  // Assign class to teacher if class is provided
+  let selectedClass: { id: string; name: string } | null = null
+  if (classId) {
+    const [assignedClass] = await db
+      .update(classes)
+      .set({ teacherId: userId })
+      .where(eq(classes.id, classId))
+      .returning()
+
+    selectedClass = { name: assignedClass!.name, id: assignedClass!.id }
+  }
+
+  return selectedClass
+}
 
 const os = implement(teacherContract)
 
@@ -17,11 +33,17 @@ const getSingleTeacher = os.getOne.handler(async ({ input, errors }) => {
 })
 
 const createTeacher = os.create.handler(async ({ input, errors }) => {
-  // Check for name conflict
-  const existingTeacher = await fetchSingleTeacher(input.name)
+  const auth = getServerAuth()
+
+  // check if a user exist with either of the provided email or phone number
+  const existingTeacher = await db.query.user.findFirst({
+    where: (user, { eq, or }) =>
+      or(eq(user.email, input.email), eq(user.phoneNumber, input.phoneNumber))
+  })
+
   if (existingTeacher) throw errors.CONFLICT()
 
-  const auth = getServerAuth()
+  // create the teacher using better-auth create user api since teachers are users
   const { user } = await auth.api.createUser({
     body: {
       name: input.name,
@@ -31,14 +53,16 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
     }
   })
 
+  const selectedClass = await assignClassToTeacher(input.classId, user.id)
+
   return {
     id: user.id,
     name: user.name,
     role: user.role!,
     email: user.email,
     createdAt: user.createdAt,
-    // updatedAt: user.updatedAt,
-    phoneNumber: input.phoneNumber
+    phoneNumber: input.phoneNumber,
+    class: selectedClass
   }
 })
 
@@ -60,22 +84,20 @@ const updateTeacher = os.update.handler(async ({ input, errors }) => {
     if (phoneNoExist) throw errors.CONFLICT({ message: "This phone number is already taken" })
   }
 
-  const [updatedTeacher] = await db
+  await db
     .update(user)
     .set({ ...input })
     .where(eq(user.id, input.id))
     .returning()
 
-  return updatedTeacher!
+  await assignClassToTeacher(input.classId, input.id)
 })
 
 const removeTeacher = os.delete.handler(async ({ input, errors }) => {
   const existingTeacher = await fetchSingleTeacher(input.id)
   if (!existingTeacher) throw errors.NOT_FOUND()
 
-  const auth = getServerAuth()
-  await auth.api.removeUser({ body: { userId: input.id } })
-
+  await db.delete(user).where(eq(user.id, input.id))
   return { success: true }
 })
 
