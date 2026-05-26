@@ -12,7 +12,7 @@ defineEmits(["edit", "delete"])
           <UiTableHead>Name</UiTableHead>
           <UiTableHead class="hidden sm:table-cell">Email Address</UiTableHead>
           <UiTableHead>Class</UiTableHead>
-          <UiTableHead>Phone Number</UiTableHead>
+          <UiTableHead class="hidden sm:table-cell">Phone Number</UiTableHead>
           <UiTableHead class="hidden sm:table-cell">Registered</UiTableHead>
           <UiTableHead>
             <span class="sr-only">Actions</span>
@@ -27,28 +27,35 @@ defineEmits(["edit", "delete"])
               <div class="flex flex-col gap-1">
                 <button
                   @click="$emit('edit', teacher)"
-                  class="w-max font-medium underline underline-offset-4"
+                  class="line-clamp w-max font-medium underline underline-offset-4"
                 >
                   {{ teacher.name }}
                 </button>
-                <p class="text-xs text-muted-foreground sm:hidden">{{ teacher.email }}</p>
+                <p class="line-clamp-1 text-xs text-muted-foreground sm:hidden">
+                  {{ teacher.email }}
+                </p>
               </div>
             </UiTableCell>
+
             <UiTableCell class="hidden sm:table-cell">{{ teacher.email }}</UiTableCell>
+
             <UiTableCell>
-              <nuxt-link
+              <ui-badge
                 v-if="teacher.class"
+                variant="outline"
                 :to="`/admin/classes/${teacher.class.id}`"
-                class="font-medium underline underline-offset-4"
               >
                 {{ teacher.class.name }}
-              </nuxt-link>
-              <p v-else>Un assigned</p>
+              </ui-badge>
+              <ui-badge v-else variant="secondary">Un assigned</ui-badge>
             </UiTableCell>
-            <UiTableCell>{{ teacher.phoneNumber }}</UiTableCell>
+
+            <UiTableCell class="hidden sm:table-cell">{{ teacher.phoneNumber }}</UiTableCell>
+
             <UiTableCell class="hidden sm:table-cell">
               {{ formatDate(teacher.createdAt) }}
             </UiTableCell>
+
             <UiTableCell class="text-right">
               <AppEntityActionDropdown
                 @edit="$emit('edit', teacher)"

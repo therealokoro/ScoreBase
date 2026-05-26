@@ -13,13 +13,7 @@ const isSheetOpen = defineModel<boolean>("open", { required: true })
 
 const { data } = useListClasses()
 const classes = computed(() => {
-  return (
-    data.value?.map((curr) => ({
-      value: curr.id,
-      label: curr.name,
-      id: curr.id
-    })) || []
-  )
+  return data.value?.map((curr) => ({ value: curr.id, label: curr.name })) || []
 })
 
 const { handleSubmit, isSubmitting } = useForm<UpsertTeacherInput>({
@@ -49,6 +43,7 @@ const onSubmit = handleSubmit((payload) => {
               placeholder="Enter the teacher's full name here"
               description="e.g John Emeka Olabisi"
             />
+
             <FormInput
               type="email"
               name="email"
@@ -56,6 +51,7 @@ const onSubmit = handleSubmit((payload) => {
               placeholder="Enter the teacher's email address here"
               description="e.g john@gmail.com"
             />
+
             <FormInput
               type="tel"
               name="phoneNumber"
@@ -63,6 +59,7 @@ const onSubmit = handleSubmit((payload) => {
               placeholder="Enter the teacher's phone number here"
               description="e.g 09012345678"
             />
+
             <FormSelect
               name="classId"
               label="Class"

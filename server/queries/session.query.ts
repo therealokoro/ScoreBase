@@ -8,7 +8,13 @@ import { academicSessions } from "../db/schema"
 export const fetchSingleAcademicSession = async (payload: string, column: "id" | "name" = "id") => {
   return await db.query.academicSessions.findFirst({
     where: eq(academicSessions[column], payload),
-    with: { terms: true }
+    with: {
+      terms: {
+        orderBy(fields, operators) {
+          return operators.asc(fields.position)
+        }
+      }
+    }
   })
 }
 

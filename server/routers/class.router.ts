@@ -40,7 +40,7 @@ const updateClass = os.update.handler(async ({ input, errors }) => {
 
   const [updatedClass] = await db
     .update(classes)
-    .set({ name: input.name })
+    .set({ name: input.name, teacherId: input.teacherId })
     .where(eq(classes.id, input.id!))
     .returning()
 

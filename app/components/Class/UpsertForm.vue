@@ -11,6 +11,17 @@ const props = defineProps<{
 const emit = defineEmits<{ submit: [payload: UpsertClassInput] }>()
 const isSheetOpen = defineModel<boolean>("open", { required: true })
 
+const { data } = useListTeachers()
+const teachers = computed(() => {
+  return (
+    data.value?.map((curr) => ({
+      value: curr.id,
+      label: curr.name,
+      disabled: Boolean(curr.class?.id)
+    })) || []
+  )
+})
+
 const { handleSubmit, isSubmitting } = useForm<UpsertClassInput>({
   validationSchema: toTypedSchema(UpsertClassSchema),
   initialValues: props.initialData ?? {}
@@ -24,9 +35,9 @@ const onSubmit = handleSubmit((payload) => {
 <template>
   <UiSheet v-model:open="isSheetOpen">
     <UiSheetContent
-      class="w-full sm:max-w-none md:w-100"
       side="right"
       :title="`${mode} Class`"
+      class="w-full sm:max-w-none md:w-100"
       :description="`${mode === 'Create' ? 'Create a new' : 'Update a'} class`"
     >
       <template #content>
@@ -37,6 +48,14 @@ const onSubmit = handleSubmit((payload) => {
               label="Class Name"
               placeholder="Enter the class name here"
               description="e.g JSS1 or JSS1A"
+            />
+
+            <FormSelect
+              name="teacherId"
+              label="Class"
+              :options="teachers"
+              placeholder="Select a teacher for the class"
+              description="This is optional and can be done later"
             />
           </fieldset>
         </form>

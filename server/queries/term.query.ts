@@ -20,13 +20,6 @@ export const fetchSingleTerm = async (
   })
 }
 
-/** List all terms, filtered by sessionId */
-export const listAllSessionTerms = async (sessionId: string) => {
-  return await db.query.terms.findMany({
-    where: eq(terms.sessionId, sessionId)
-  })
-}
-
 /** Fetch all terms in a session, ordered by position */
 export const fetchTermsBySession = async (sessionId: string) => {
   return await db.query.terms.findMany({

@@ -2,6 +2,7 @@
 export interface SelectOption {
   label: string
   value: string
+  disabled?: boolean
   [key: string]: unknown
 }
 

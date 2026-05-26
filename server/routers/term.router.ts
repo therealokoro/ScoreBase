@@ -4,12 +4,12 @@ import { eq } from "drizzle-orm"
 
 import { termContract } from "../contracts/term.contract"
 import { terms, academicSessions } from "../db/schema"
-import { fetchSingleTerm, listAllSessionTerms, resolveNextTerm } from "../queries/term.query"
+import { fetchSingleTerm, fetchTermsBySession, resolveNextTerm } from "../queries/term.query"
 
 const os = implement(termContract)
 
 const listTerms = os.list.handler(({ input }) => {
-  return listAllSessionTerms(input.sessionId)
+  return fetchTermsBySession(input.sessionId)
 })
 
 const getSingleTerm = os.getOne.handler(async ({ input, errors }) => {

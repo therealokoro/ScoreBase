@@ -7,7 +7,7 @@ const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
 
 const { $orpc } = useNuxtApp()
-const { data, pending, error } = useAsyncData(`${classId}-class-fetch`, () => {
+const { data, pending, error, refresh } = useAsyncData(`${classId}-class-fetch`, () => {
   return $orpc.class.getOne.call({ id: classId! })
 })
 
@@ -17,6 +17,7 @@ const classTeacher = computed(() => data.value?.teacher || null)
 // Dynamically set the breadcrumb label once data is loaded
 setPageBreadcrumbLabel(computed(() => currclass.value?.name))
 
+// Placeholder class stats info
 const classStats = computed<StatsCardProps[]>(() => {
   return [
     { label: "Total Students", value: "35", icon: ICONS.students as string },
@@ -32,6 +33,7 @@ function handleUpdateClass(payload: any) {
   useSonner.promise(updateClass.mutateAsync(payload), {
     loading: "Updating class info...",
     success: () => {
+      refresh()
       isSheetOpen.value = false
       return "Class was updated successfully"
     },
@@ -55,7 +57,7 @@ function handleDeleteAction() {
 <template>
   <Page
     :title="currclass?.name"
-    :description="classTeacher ? `Class Teacher: ${classTeacher.name}` : 'No teacher'"
+    :badge="classTeacher ? `Teacher: ${classTeacher.name}` : undefined"
     :error="classIdError ?? error ?? undefined"
   >
     <template #actions>
@@ -73,14 +75,14 @@ function handleDeleteAction() {
       </template>
     </div>
 
-    <!-- Class students Table -->
-
     <!-- CurrClass Edit Form -->
     <LazyClassUpsertForm
+      v-if="currclass && isSheetOpen"
+      :key="isSheetOpen.toString()"
+      mode="Edit"
       @submit="handleUpdateClass"
       :initial-data="currclass"
       v-model:open="isSheetOpen"
-      mode="Edit"
     />
 
     <!-- Confirm Delete CurrClass -->

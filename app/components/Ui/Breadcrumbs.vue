@@ -17,7 +17,7 @@
                 :class="[
                   isNotLastItem(i)
                     ? 'text-muted-foreground group-hover:text-foreground'
-                    : 'text-primary',
+                    : 'text-primary'
                 ]"
               />
             </slot>
@@ -30,9 +30,9 @@
                   item.link && !item.disabled && 'underline-offset-2 group-hover:underline',
                   isNotLastItem(i)
                     ? 'text-muted-foreground group-hover:text-foreground'
-                    : 'text-primary font-medium',
+                    : 'text-primary font-medium'
                 ]"
-                class="text-foreground text-sm transition-colors"
+                class="text-foreground transition-colors"
                 @click="item?.click?.()"
                 >{{ item.label }}</NuxtLink
               >
@@ -53,47 +53,47 @@
 </template>
 
 <script lang="ts">
-  import { normalizeClass } from "vue";
+import { normalizeClass } from "vue"
 </script>
 
 <script setup lang="ts">
-  import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes } from "vue"
 
-  export interface BreadcrumbItem {
-    label?: string;
-    icon?: string;
-    link?: string;
-    disabled?: boolean;
-    slot?: string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    click?: Function;
+export interface BreadcrumbItem {
+  label?: string
+  icon?: string
+  link?: string
+  disabled?: boolean
+  slot?: string
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  click?: Function
+}
+
+const props = withDefaults(
+  defineProps<{
+    /** The items to display in the breadcrumbs. */
+    items?: BreadcrumbItem[]
+    /** The separator to use between each breadcrumb. */
+    separator?: string
+    /** Custom class(es) to add to the parent element. */
+    class?: HTMLAttributes["class"]
+  }>(),
+  {
+    separator: "lucide:chevron-right",
+    items: () => []
   }
+)
 
-  const props = withDefaults(
-    defineProps<{
-      /** The items to display in the breadcrumbs. */
-      items?: BreadcrumbItem[];
-      /** The separator to use between each breadcrumb. */
-      separator?: string;
-      /** Custom class(es) to add to the parent element. */
-      class?: HTMLAttributes["class"];
-    }>(),
-    {
-      separator: "lucide:chevron-right",
-      items: () => [],
-    }
-  );
+/**
+ * Detects if the current item is not the last item in the breadcrumbs.
+ *
+ * @param index - The index of the current item.
+ */
+const isNotLastItem = (index: number) => {
+  return index !== props?.items?.length - 1
+}
 
-  /**
-   * Detects if the current item is not the last item in the breadcrumbs.
-   *
-   * @param index - The index of the current item.
-   */
-  const isNotLastItem = (index: number) => {
-    return index !== props?.items?.length - 1;
-  };
-
-  const styles = tv({
-    base: "flex w-full flex-wrap items-center gap-1.5 text-sm wrap-break-word sm:gap-2.5",
-  });
+const styles = tv({
+  base: "flex w-full flex-wrap items-center gap-1.5 text-sm wrap-break-word sm:gap-2.5"
+})
 </script>

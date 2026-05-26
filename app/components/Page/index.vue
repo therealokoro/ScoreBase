@@ -11,6 +11,7 @@ const props = withDefaults(
     loading?: boolean
     error?: Error | null
     class?: string
+    badge?: string
   }>(),
   {
     loading: false,
@@ -63,14 +64,19 @@ const styles = tv({ base: "flex items-start gap-3" })
     <!-- Page Content -->
     <div v-else class="grid w-full gap-6">
       <!-- Breadcrumb -->
-      <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" />
+      <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" class="text-xs md:text-sm" />
 
       <!-- Actual Page -->
       <div :class="styles({ class: normalizeClass(props.class) || undefined })">
         <div class="space-y-1">
-          <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
-            {{ title }}
-          </ui-heading>
+          <div class="flex flex-wrap items-center gap-2">
+            <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
+              {{ title }}
+            </ui-heading>
+            <UiBadge v-if="badge" class="font-medium bg-primary/5 text-primary">
+              {{ badge }}
+            </UiBadge>
+          </div>
           <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
         </div>
         <slot name="actions" />
