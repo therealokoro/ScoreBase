@@ -394,8 +394,8 @@ import { toTypedSchema } from "@vee-validate/zod"
 
 const schema = toTypedSchema(
   z.object({
-    fullName: z.string().min(2, "Student name is required"),
-    studentId: z.string().min(1, "Student ID is required"),
+    name: z.string().min(2, "Student name is required"),
+    studentId: z.string(),
     class: z.string().min(1, "Class is required")
   })
 )
@@ -403,7 +403,7 @@ const schema = toTypedSchema(
 const { handleSubmit } = useForm({
   validationSchema: schema,
   initialValues: {
-    fullName: "",
+    name: "",
     studentId: "",
     class: ""
   }
@@ -422,7 +422,7 @@ const classOptions = [
 <template>
   <form class="space-y-6" @submit.prevent="onSubmit">
     <UiFormInput
-      name="fullName"
+      name="name"
       label="Student Name *"
       placeholder="Ahmed Musa"
       :icon="ICONS.student"

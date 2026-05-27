@@ -58,6 +58,19 @@ export const subjectLists = sqliteTable("subject_lists", {
   ...dateTimeSchema
 })
 
+export const students = sqliteTable("students", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => typeid("stu").toString()),
+  name: text("name").notNull(),
+  studentId: text("student_id").unique(),
+  classId: text("class_id")
+    .notNull()
+    .references(() => classes.id),
+  phoneNumber: text("phone_number"),
+  ...dateTimeSchema
+})
+
 export const academicSessionsRelations = relations(academicSessions, ({ many }) => ({
   terms: many(terms)
 }))
@@ -69,9 +82,17 @@ export const termsRelations = relations(terms, ({ one }) => ({
   })
 }))
 
-export const classesRelations = relations(classes, ({ one }) => ({
+export const classesRelations = relations(classes, ({ one, many }) => ({
   teacher: one(user, {
     fields: [classes.teacherId],
     references: [user.id]
+  }),
+  students: many(students)
+}))
+
+export const studentsRelations = relations(students, ({ one }) => ({
+  class: one(classes, {
+    fields: [students.classId],
+    references: [classes.id]
   })
 }))

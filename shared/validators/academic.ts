@@ -1,6 +1,7 @@
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
 import { z } from "zod"
 import { academicSessions, terms, classes, subjects, subjectLists } from "~~/server/db/schema"
+import { students } from "~~/server/db/schema"
 
 /* Academic Session Schemas */
 export const AcademicSessionSchema = createSelectSchema(academicSessions)
@@ -41,7 +42,6 @@ export const UpsertSubjectSchema = createInsertSchema(subjects, {
     .array(z.string(), "Please select at least one tag")
     .min(1, "All subjects must have atleast one tag")
 })
-
 export const UpdateSubjectSchema = createUpdateSchema(subjects, {
   id: z.string("Please provide the subject id")
 })
@@ -49,20 +49,37 @@ export type UpdateSubjectInput = z.infer<typeof UpdateSubjectSchema>
 export type UpsertSubjectInput = z.infer<typeof UpsertSubjectSchema>
 
 /* Subject list Schema */
-
 export const SubjectListSchema = createSelectSchema(subjectLists)
-
 export const UpsertSubjectListSchema = createInsertSchema(subjectLists, {
   name: z.string("Please provide a name for the preset"),
   subjects: z
     .array(z.object({ id: z.string(), name: z.string() }), "Please select a minimum of one subject")
     .min(1, "Please select a minimum of one subject")
 })
-
 export const UpdateSubjectListSchema = createUpdateSchema(subjectLists, {
   id: z.string("Please provide the subject presets ID"),
   name: z.string("Please provide a name for the preset")
 })
-
 export type UpdateSubjectListInput = z.infer<typeof UpdateSubjectListSchema>
 export type UpsertSubjectListInput = z.infer<typeof UpsertSubjectListSchema>
+
+/* Student Schemas */
+export const StudentSchema = createSelectSchema(students).extend({
+  class: ClassSchema.pick({ id: true, name: true })
+})
+
+export const UpsertStudentSchema = createInsertSchema(students, {
+  name: z.string("Please provide the student's name"),
+  studentId: z.string("Please provide a student ID (optional)").optional(),
+  classId: z.string("Please assign the student to a class"),
+  phoneNumber: z.string().optional()
+})
+export type UpsertStudentInput = z.infer<typeof UpsertStudentSchema>
+export const UpdateStudentSchema = createUpdateSchema(students, {
+  id: z.string(),
+  name: z.string("Please provide the student's name"),
+  studentId: z.string("Please provide a student ID (optional)").optional(),
+  classId: z.string("Please assign the student to a class"),
+  phoneNumber: z.string().optional()
+})
+export type UpdateStudentInput = z.infer<typeof UpdateStudentSchema>
