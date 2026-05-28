@@ -2,19 +2,27 @@
 import { normalizeClass } from "vue"
 import { ICONS } from "~~/shared/constants/icons"
 
-const props = defineProps<{
-  title: string
-  link?: string
-  noIcon?: boolean
-  description?: string
-  class?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    title: string
+    link?: string
+    noIcon?: boolean
+    description?: string
+    class?: string
+    clickable?: boolean
+  }>(),
+  { clickable: true }
+)
 
 const styles = tv({ base: "group relative justify-center gap-2 px-4" })
 </script>
 
 <template>
-  <UiCard clickable :to="link" :class="styles({ class: normalizeClass(props.class) || undefined })">
+  <UiCard
+    :clickable
+    :to="link"
+    :class="styles({ class: normalizeClass(props.class) || undefined })"
+  >
     <UiCardTitle>{{ title }}</UiCardTitle>
     <slot name="description">
       <UiCardDescription v-if="description">{{ description }}</UiCardDescription>

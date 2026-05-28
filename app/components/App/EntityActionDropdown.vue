@@ -6,7 +6,7 @@ defineEmits(["edit", "delete"])
 <template>
   <UiDropdownMenu>
     <UiDropdownMenuTrigger as-child>
-      <UiButton size="icon" variant="ghost" aria-label="Open action menu">
+      <UiButton size="icon" variant="ghost" aria-label="Open action menu" title="Open action menu">
         <Icon name="lucide:ellipsis" class="size-4" aria-hidden="true" />
       </UiButton>
     </UiDropdownMenuTrigger>

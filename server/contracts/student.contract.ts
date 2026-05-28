@@ -25,7 +25,7 @@ const update = oc
   // .output(StudentSchema)
   .errors({
     NOT_FOUND: { message: "The student was not found" },
-    CONFLICT: { message: "A student with that ID already exists" }
+    CONFLICT: { message: "A student currently exists with this same info" }
   })
 
 const remove = oc

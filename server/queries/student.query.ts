@@ -1,9 +1,8 @@
 /* This file contains reusable queries for student operations */
 import { db } from "@nuxthub/db"
-import { eq, and, or } from "drizzle-orm"
+import { eq, or } from "drizzle-orm"
 
 import { students } from "../db/schema"
-import { classes } from "../db/schema"
 
 const includeClass = { class: { columns: { id: true, name: true } } } as const
 
@@ -15,18 +14,10 @@ export const fetchStudentById = async (id: string) => {
   })
 }
 
-/** Find a student by name, studentId, or phoneNumber (for conflict checking) */
-export const fetchUniqueStudent = async (
-  name: string,
-  studentId?: string,
-  phoneNumber?: string
-) => {
+/** Find a student by name or studentId (for conflict checking) */
+export const fetchUniqueStudent = async (name: string, studentId?: string | null) => {
   return await db.query.students.findFirst({
-    where: or(
-      eq(students.name, name),
-      studentId ? eq(students.studentId, studentId) : undefined,
-      phoneNumber ? eq(students.phoneNumber, phoneNumber) : undefined
-    ),
+    where: or(eq(students.name, name), studentId ? eq(students.studentId, studentId) : undefined),
     with: { ...includeClass }
   })
 }

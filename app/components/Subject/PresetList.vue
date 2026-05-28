@@ -82,6 +82,7 @@ async function handleDeleteSubjectList() {
           no-icon
           :key="n.id"
           :title="n.name"
+          :clickable="false"
           :description="`Contains ${n.subjects.length} subjects`"
         >
           <template #action>

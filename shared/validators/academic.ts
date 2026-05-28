@@ -70,16 +70,18 @@ export const StudentSchema = createSelectSchema(students).extend({
 
 export const UpsertStudentSchema = createInsertSchema(students, {
   name: z.string("Please provide the student's name"),
-  studentId: z.string("Please provide a student ID (optional)").optional(),
+  studentId: z.string("Please provide a student ID (optional)").optional().nullable(),
   classId: z.string("Please assign the student to a class"),
-  phoneNumber: z.string().optional()
+  phoneNumber: z
+    .string()
+    .regex(/^\d{11}$/, "Phone number must be exactly 11 digits")
+    .optional()
+    .nullable()
 })
+
 export type UpsertStudentInput = z.infer<typeof UpsertStudentSchema>
-export const UpdateStudentSchema = createUpdateSchema(students, {
-  id: z.string(),
-  name: z.string("Please provide the student's name"),
-  studentId: z.string("Please provide a student ID (optional)").optional(),
-  classId: z.string("Please assign the student to a class"),
-  phoneNumber: z.string().optional()
+export const UpdateStudentSchema = UpsertStudentSchema.extend({
+  id: z.string("The primary ID is required")
 })
+
 export type UpdateStudentInput = z.infer<typeof UpdateStudentSchema>

@@ -1,11 +1,11 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { eq } from "drizzle-orm"
+import { eq, ne, and } from "drizzle-orm"
 
 import { studentContract } from "../contracts/student.contract"
 import { students } from "../db/schema"
 import { fetchSingleClass } from "../queries/class.query"
-import { fetchStudentById, fetchUniqueStudent, listAllStudents } from "../queries/student.query"
+import { fetchStudentById, listAllStudents } from "../queries/student.query"
 
 const os = implement(studentContract)
 
@@ -18,9 +18,18 @@ const getSingleStudent = os.getOne.handler(async ({ input, errors }) => {
 })
 
 const createStudent = os.create.handler(async ({ input, errors }) => {
-  // Check if a student exist with any of the inputs
-  const existingStudent = await fetchUniqueStudent(input.name, input.studentId, input.phoneNumber)
-  if (existingStudent) throw errors.CONFLICT()
+  // Check name conflict
+  const nameConflict = await db.query.students.findFirst({ where: eq(students.name, input.name) })
+  if (nameConflict) throw errors.CONFLICT({ message: "A student exists with this name" })
+
+  // Check studentId conflict
+  if (input.studentId) {
+    const studentIdConflict = await db.query.students.findFirst({
+      where: eq(students.studentId, input.studentId)
+    })
+    if (studentIdConflict)
+      throw errors.CONFLICT({ message: "A student exists with this student ID" })
+  }
 
   const [newStudent] = await db.insert(students).values(input).returning()
   // fetch the student's class and return it along with student's info
@@ -36,9 +45,22 @@ const updateStudent = os.update.handler(async ({ input, errors }) => {
   const existingStudent = await fetchStudentById(input.id)
   if (!existingStudent) throw errors.NOT_FOUND()
 
-  // Check for student uniqueness
-  const studentIdConflict = await fetchUniqueStudent(input.name, input.studentId, input.phoneNumber)
-  if (studentIdConflict) throw errors.CONFLICT()
+  // Check name conflict — exclude current student
+  if (input.name !== existingStudent.name) {
+    const nameConflict = await db.query.students.findFirst({
+      where: and(eq(students.name, input.name), ne(students.id, input.id))
+    })
+    if (nameConflict) throw errors.CONFLICT({ message: "A student exists with this name" })
+  }
+
+  // Check studentId conflict — exclude current student
+  if (input.studentId && input.studentId !== existingStudent.studentId) {
+    const studentIdConflict = await db.query.students.findFirst({
+      where: and(eq(students.studentId, input.studentId), ne(students.id, input.id))
+    })
+    if (studentIdConflict)
+      throw errors.CONFLICT({ message: "A student exists with this student ID" })
+  }
 
   await db
     .update(students)
