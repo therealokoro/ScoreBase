@@ -6,7 +6,7 @@ export const list = oc.output(z.array(ClassSchema))
 
 export const getOne = oc
   .input(ClassSchema.pick({ id: true }))
-  .output(ClassSchema)
+  .output(ClassSchema.extend({ count: z.object({ students: z.string() }) }))
   .errors({ NOT_FOUND: { message: "The class was not found" } })
 
 export const create = oc

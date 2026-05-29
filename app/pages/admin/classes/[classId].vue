@@ -11,16 +11,20 @@ const { data, pending, error, refresh } = useAsyncData(`${classId}-class-fetch`,
   return $orpc.class.getOne.call({ id: classId! })
 })
 
-const currclass = computed(() => data.value)
+const currClass = computed(() => data.value)
 const classTeacher = computed(() => data.value?.teacher || null)
 
 // Dynamically set the breadcrumb label once data is loaded
-setPageBreadcrumbLabel(computed(() => currclass.value?.name))
+setPageBreadcrumbLabel(computed(() => currClass.value?.name))
 
 // Placeholder class stats info
 const classStats = computed<StatsCardProps[]>(() => {
   return [
-    { label: "Total Students", value: "35", icon: ICONS.students as string },
+    {
+      label: "Total Students",
+      value: currClass.value?.count.students || "0",
+      icon: ICONS.students as string
+    },
     { label: "Total Results", value: "15", icon: ICONS.result as string }
   ]
 })
@@ -56,7 +60,7 @@ function handleDeleteAction() {
 
 <template>
   <Page
-    :title="currclass?.name"
+    :title="currClass?.name"
     :badge="classTeacher ? `Teacher: ${classTeacher.name}` : undefined"
     :error="classIdError ?? error ?? undefined"
   >
@@ -75,21 +79,21 @@ function handleDeleteAction() {
       </template>
     </div>
 
-    <!-- CurrClass Edit Form -->
+    <!-- currClass Edit Form -->
     <LazyClassUpsertForm
-      v-if="currclass && isSheetOpen"
+      v-if="currClass && isSheetOpen"
       :key="isSheetOpen.toString()"
       mode="Edit"
       @submit="handleUpdateClass"
-      :initial-data="currclass"
+      :initial-data="currClass"
       v-model:open="isSheetOpen"
     />
 
-    <!-- Confirm Delete CurrClass -->
+    <!-- Confirm Delete currClass -->
     <AppConfirmDeleteAction
       v-model:open="openDeleteDialog"
       description="Are you sure you want to delete this class? You will loose all results for this class"
-      :confirm-input-text="currclass?.name"
+      :confirm-input-text="currClass?.name"
       @confirm="handleDeleteAction"
     />
   </Page>

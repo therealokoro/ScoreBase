@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm"
 import { classContract } from "../contracts/class.contract"
 import { classes } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
+import { listStudentsByClass } from "../queries/student.query"
 
 const os = implement(classContract)
 
@@ -13,7 +14,11 @@ const listClasses = os.list.handler(async () => await listAllClasses())
 const getSingleClass = os.getOne.handler(async ({ input, errors }) => {
   const classRecord = await fetchSingleClass(input.id)
   if (!classRecord) throw errors.NOT_FOUND()
-  return classRecord
+
+  const studentCount = (await listStudentsByClass(classRecord.id)).length
+  const count = { students: studentCount.toString() }
+
+  return { ...classRecord, count }
 })
 
 const createClass = os.create.handler(async ({ input, errors }) => {
@@ -52,8 +57,14 @@ const removeClass = os.delete.handler(async ({ input, errors }) => {
   const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
+  const classStudents = await listStudentsByClass(existingClass.id)
+
   // TODO: Check for associated students/results
-  // if (hasStudentsOrResults) throw errors.PRECONDITION_FAILED()
+  if (classStudents.length > 0)
+    throw errors.PRECONDITION_FAILED({
+      message:
+        "Cannot delete class because it contains student(s). Please re-assign students to a new class"
+    })
 
   await db.delete(classes).where(eq(classes.id, input.id))
   return { success: true }

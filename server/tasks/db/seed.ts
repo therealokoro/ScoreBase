@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker"
-import { user, classes, students } from "hub:db:schema"
+import { classes, students } from "hub:db:schema"
 import { typeid } from "typeid-js"
 import {
   nigerianFirstNames,
@@ -7,6 +7,7 @@ import {
   numberPrefixes,
   classNames
 } from "~~/server/lib/seed-data"
+import { getServerAuth } from "~~/server/utils/server-auth"
 
 // Nigerian first names and last names pools
 
@@ -50,33 +51,48 @@ export default defineTask({
 
     function uniqueEmail(name: string) {
       const base = name.toLowerCase().replace(/\s+/g, ".")
-      let email = `${base}@email.com`
+      let email = `${base}@gmail.com`
       let i = 1
       while (usedEmails.has(email)) {
-        email = `${base}${i}@email.com`
+        email = `${base}${i}@gmail.com`
         i++
       }
       usedEmails.add(email)
       return email
     }
 
-    const teacherRecords = classNames.map(() => {
+    const auth = getServerAuth()
+
+    const teacherDrafts = classNames.map(() => {
       const name = nigerianName()
+      const surname = name.split(" ")[1]!
       return {
-        id: typeid("user").toString(),
         name,
         email: uniqueEmail(name),
-        emailVerified: true as boolean,
-        image: null,
-        role: "teacher" as string,
-        banned: false as boolean,
-        banReason: null,
-        banExpires: null,
+        password: `pass-${surname.toLowerCase()}-123`,
         phoneNumber: uniquePhone()
       }
     })
 
-    await db.insert(user).values(teacherRecords)
+    const teacherRecords = await Promise.all(
+      teacherDrafts.map((draft) =>
+        auth.api
+          .createUser({
+            body: {
+              name: draft.name,
+              email: draft.email,
+              password: draft.password,
+              role: "user",
+              data: {
+                phoneNumber: draft.phoneNumber,
+                emailVerified: true
+              }
+            }
+          })
+          .then((res) => ({ ...res.user, phoneNumber: draft.phoneNumber }))
+      )
+    )
+
     console.log(`   ✓ ${teacherRecords.length} teachers created`)
 
     // ── 2. Seed Classes ──────────────────────────────────────────────────────
