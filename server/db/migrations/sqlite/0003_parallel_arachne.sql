@@ -1,1 +1,0 @@
-ALTER TABLE `subject_lists` RENAME COLUMN "subjectIds" TO "subjects";
