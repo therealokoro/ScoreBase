@@ -17,6 +17,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@iconify-json/lucide": "^1.2.107",
     "@iconify-json/tabler": "^1.2.35",
     "@internationalized/date": "^3.12.1",

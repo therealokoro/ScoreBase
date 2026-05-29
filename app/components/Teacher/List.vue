@@ -1,5 +1,11 @@
 <script lang="ts" setup>
 const props = defineProps<{ teachers: ITeacher[] }>()
+const renderList = computed(() =>
+  props.teachers.map((curr, index) => ({
+    ...curr,
+    sn: index + 1
+  }))
+)
 
 defineEmits(["edit", "delete"])
 </script>
@@ -9,6 +15,7 @@ defineEmits(["edit", "delete"])
     <UiTable>
       <UiTableHeader>
         <UiTableRow class="font-semibold">
+          <UiTableHead>#</UiTableHead>
           <UiTableHead>Name</UiTableHead>
           <UiTableHead class="hidden sm:table-cell">Email Address</UiTableHead>
           <UiTableHead>Class</UiTableHead>
@@ -21,16 +28,15 @@ defineEmits(["edit", "delete"])
       </UiTableHeader>
 
       <UiTableBody>
-        <template v-for="teacher in teachers" :key="teacher.id">
+        <template v-for="teacher in renderList" :key="teacher.id">
           <UiTableRow>
+            <UiTableCell>{{ teacher.sn }}</UiTableCell>
+
             <UiTableCell>
               <div class="flex flex-col gap-1">
-                <button
-                  @click="$emit('edit', teacher)"
-                  class="line-clamp w-max font-medium underline underline-offset-4"
-                >
+                <ui-button variant="link" @click="$emit('edit', teacher)" class="line-clamp w-max">
                   {{ teacher.name }}
-                </button>
+                </ui-button>
                 <p class="line-clamp-1 text-xs text-muted-foreground sm:hidden">
                   {{ teacher.email }}
                 </p>

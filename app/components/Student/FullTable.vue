@@ -54,9 +54,9 @@ const columns = [
     header: "Class",
     cell: ({ row }) => {
       return h(
-        UiButton,
+        UiBadge,
         {
-          variant: "link",
+          variant: "outline",
           title: "Click to view",
           to: `/admin/classes/${row.original.class.id}`
         },

@@ -25,7 +25,6 @@ const optimizeDepsArr = [
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
-  // ssr: false,
 
   modules: [
     "@peterbud/nuxt-query",
@@ -55,6 +54,8 @@ export default defineNuxtConfig({
       include: optimizeDepsArr
     }
   },
+
+  nitro: { experimental: { tasks: true } },
 
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,
