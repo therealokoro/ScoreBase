@@ -64,7 +64,26 @@ const styles = tv({ base: "flex items-start gap-3" })
     <!-- Page Content -->
     <div v-else class="grid w-full gap-6">
       <!-- Breadcrumb -->
-      <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" class="text-xs md:text-sm" />
+      <div class="flex items-center gap-2">
+        <ui-button-group>
+          <ui-button
+            @click="$router.go(-1)"
+            class="text-muted-foreground"
+            :icon="ICONS.previous"
+            variant="ghost"
+            size="icon-sm"
+          />
+          <ui-button
+            @click="$router.go(1)"
+            class="text-muted-foreground"
+            :icon="ICONS.next"
+            variant="ghost"
+            size="icon-sm"
+          />
+        </ui-button-group>
+
+        <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" class="text-xs md:text-sm" />
+      </div>
 
       <!-- Actual Page -->
       <div :class="styles({ class: normalizeClass(props.class) || undefined })">
