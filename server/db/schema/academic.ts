@@ -21,7 +21,7 @@ export const terms = sqliteTable("terms", {
   position: integer("position").notNull(), // 1-based index into preset
   sessionId: text("session_id")
     .notNull()
-    .references(() => academicSessions.id),
+    .references(() => academicSessions.id, { onDelete: "cascade" }),
   ...dateTimeSchema
 })
 
@@ -33,7 +33,7 @@ export const classes = sqliteTable("classes", {
   teacherId: text("teacher_id")
     .unique() // enforces the one-to-one
     .references(() => user.id, { onDelete: "set null" }),
-  subjectList: text("subject_list").references(() => subjectLists.id),
+  subjectList: text("subject_list").references(() => subjectLists.id, { onDelete: "set null" }),
   ...dateTimeSchema
 })
 
@@ -66,7 +66,7 @@ export const students = sqliteTable("students", {
   studentId: text("student_id").unique(),
   classId: text("class_id")
     .notNull()
-    .references(() => classes.id),
+    .references(() => classes.id, { onDelete: "restrict" }),
   phoneNumber: text("phone_number"),
   ...dateTimeSchema
 })
