@@ -651,7 +651,9 @@ const table = useVueTable({
   manualPagination: props.manualPagination,
   manualSorting: props.manualSorting,
   manualFiltering: props.manualFiltering,
-  pageCount: props.manualPagination ? props.pageCount : undefined,
+  get pageCount() {
+    return props.manualPagination ? props.pageCount : undefined
+  },
   ...props.tableOptions
 })
 

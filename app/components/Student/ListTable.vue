@@ -95,7 +95,6 @@ const columnVisibility = computed(() => ({
   // Secondary columns — only visible on large screens
   phoneNumber: isDesktop.value,
   studentId: isDesktop.value,
-  // createdAt: isDesktop.value,
   // Class column is redundant when already filtered by a specific class
   class: !props.classId
 }))
@@ -165,13 +164,13 @@ const columns = [
     <ClientOnly>
       <div class="w-full rounded-lg border">
         <UiTanStackTable
-          :data="students"
           :columns
+          :data="students"
           :loading="pending"
           :page-count="pageCount"
-          :column-visibility="columnVisibility"
           :manual-filtering="true"
           :manual-pagination="true"
+          :column-visibility="columnVisibility"
           @update:pagination="(p) => (pagination = p)"
         />
       </div>
