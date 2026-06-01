@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { createColumnHelper } from "@tanstack/vue-table"
-import { refDebounced, breakpointsTailwind } from "@vueuse/core"
+import { refDebounced, breakpointsTailwind, useDebounceFn } from "@vueuse/core"
 import { ICONS } from "~~/shared/constants/icons"
 import { type UpsertStudentInput } from "~~/shared/validators/academic"
 
@@ -16,14 +16,9 @@ type Student = {
   createdAt: string
 }
 
-const props = withDefaults(
-  defineProps<{
-    classId?: string
-    /** Whether to show the "Add Student" button. Default: true */
-    showCreateButton?: boolean
-  }>(),
-  { showCreateButton: true }
-)
+const props = withDefaults(defineProps<{ classId?: string; showCreateButton?: boolean }>(), {
+  showCreateButton: true
+})
 
 const route = useRoute()
 const router = useRouter()
@@ -55,8 +50,16 @@ const { data, pending, refresh } = useAsyncData(
 // Safely derived page count — never undefined or negative
 const pageCount = computed(() => data.value?.pageCount ?? 1)
 
-// Sync table state → create a new record in the URL with the current state of the table
-watch([pagination, debouncedSearch], ([p, s]) => {
+// Clamp pageIndex if the current page exceeds the total after a fetch
+// (e.g. user was on page 5, then searched and got only 1 page of results)
+watch(pageCount, (count) => {
+  if (pagination.value.pageIndex >= count) {
+    pagination.value = { ...pagination.value, pageIndex: 0 }
+  }
+})
+
+// Debounced push — collapses rapid pagination clicks into a single history entry
+const pushQuery = useDebounceFn((p: typeof pagination.value, s: string) => {
   router.push({
     query: {
       ...route.query,
@@ -65,7 +68,10 @@ watch([pagination, debouncedSearch], ([p, s]) => {
       search: s || undefined
     }
   })
-})
+}, 300)
+
+// Sync table state → URL
+watch([pagination, debouncedSearch], ([p, s]) => pushQuery(p, s))
 
 // Sync URL → table state (handles browser back/forward)
 watch(
@@ -79,7 +85,7 @@ watch(
   }
 )
 
-// reset page on new search
+// Reset to first page when search term changes so results start from the top
 watch(debouncedSearch, () => {
   pagination.value = { ...pagination.value, pageIndex: 0 }
 })
@@ -125,6 +131,7 @@ const columnVisibility = computed(() => ({
   class: !props.classId
 }))
 
+// Table columns
 const columns = [
   // Serial number — stays correct across pages
   columnHelper.display({
@@ -179,9 +186,18 @@ const columns = [
     <!-- Toolbar: search + optional create button -->
     <div class="flex w-full items-center justify-between">
       <div class="w-1/2">
-        <UiInput v-model="globalSearch" placeholder="Search for a student" />
+        <UiInput
+          v-model="globalSearch"
+          class="h-7 md:h-9 text-xs md:text-sm"
+          placeholder="Search for a student"
+        />
       </div>
-      <UiButton v-if="showCreateButton" :icon="ICONS.add" @click="openCreateSheet = true">
+      <UiButton
+        v-if="showCreateButton"
+        :size="isDesktop ? 'md' : 'sm'"
+        :icon="ICONS.add"
+        @click="openCreateSheet = true"
+      >
         Add Student
       </UiButton>
     </div>
@@ -197,8 +213,18 @@ const columns = [
           :manual-filtering="true"
           :manual-pagination="true"
           :column-visibility="columnVisibility"
+          :initial-page-size="pagination.pageSize"
           @update:pagination="(p) => (pagination = p)"
-        />
+        >
+          <!-- Contextual empty state depending on whether a search is active -->
+          <template #empty>
+            <span v-if="globalSearch">
+              No students found for "<strong>{{ globalSearch }}</strong
+              >"
+            </span>
+            <span v-else>No students yet to display.</span>
+          </template>
+        </UiTanStackTable>
       </div>
 
       <template #fallback>

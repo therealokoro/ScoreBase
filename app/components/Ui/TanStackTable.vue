@@ -35,23 +35,25 @@
                     ]"
                     @click="header.column.getToggleSortingHandler()?.($event)"
                   >
-                    <FlexRender
-                      :render="header.column.columnDef.header"
-                      :props="header.getContext()"
-                    />
+                    <span class="text-xs md:text-sm">
+                      <FlexRender
+                        :render="header.column.columnDef.header"
+                        :props="header.getContext()"
+                      />
+                    </span>
                     <UiTooltip>
                       <UiTooltipTrigger>
                         <Icon
                           v-if="header.column.getIsSorted() === 'asc'"
                           name="lucide:arrow-up"
-                          class="size-4"
+                          class="size-3"
                         />
                         <Icon
                           v-else-if="header.column.getIsSorted() === 'desc'"
                           name="lucide:arrow-down"
-                          class="size-4"
+                          class="size-3"
                         />
-                        <Icon v-else name="lucide:arrow-up-down" class="size-4 opacity-50" />
+                        <Icon v-else name="lucide:arrow-up-down" class="size-3 opacity-50" />
                       </UiTooltipTrigger>
                       <UiTooltipContent>
                         <span>
@@ -82,7 +84,7 @@
                             class="hover:bg-muted"
                             @click.stop
                           >
-                            <Icon :name="getColumnPinIcon(header.column)" class="size-4" />
+                            <Icon :name="getColumnPinIcon(header.column)" class="size-3" />
                           </UiButton>
                         </UiTooltipTrigger>
                       </UiDropdownMenuTrigger>
@@ -156,7 +158,7 @@
                               <Icon
                                 :name="row.getIsPinned() ? rowPinIconOn : rowPinIconOff"
                                 :class="[
-                                  'size-4',
+                                  'size-3',
                                   row.getIsPinned() ? 'text-primary' : 'opacity-60'
                                 ]"
                               />
@@ -200,7 +202,7 @@
                         >
                           <Icon
                             :name="row.getIsExpanded() ? expandCellIconOn : expandCellIconOff"
-                            class="size-4"
+                            class="size-3"
                           />
                         </UiButton>
                       </UiTooltipTrigger>
@@ -270,11 +272,11 @@
       <div class="flex items-center gap-4">
         <slot name="footer-left" :table="table">
           <div v-if="showRowsPerPage" class="flex items-center gap-2">
-            <span class="text-muted-foreground text-sm whitespace-nowrap">
+            <span class="text-muted-foreground text-xs md:text-sm whitespace-nowrap">
               {{ rowsPerPageText }}
             </span>
             <UiSelect v-model="pageSize" class="w-17.5">
-              <UiSelectTrigger>
+              <UiSelectTrigger class="text-xs md:text-sm h-7! md:h-9!">
                 <UiSelectValue />
               </UiSelectTrigger>
               <UiSelectContent>
@@ -294,7 +296,10 @@
 
       <div class="flex items-center gap-4">
         <slot name="footer-right" :table="table">
-          <div v-if="showPageInfo" class="text-muted-foreground text-sm whitespace-nowrap">
+          <div
+            v-if="showPageInfo"
+            class="text-muted-foreground text-xs md:text-sm whitespace-nowrap"
+          >
             Page {{ table.getState().pagination.pageIndex + 1 }} of
             {{ table.getPageCount() }}
           </div>
@@ -306,7 +311,7 @@
               :disabled="!table.getCanPreviousPage()"
               @click="table.setPageIndex(0)"
             >
-              <Icon name="lucide:chevrons-left" class="size-4" />
+              <Icon name="lucide:chevrons-left" class="size-3" />
             </UiButton>
             <UiButton
               variant="outline"
@@ -314,7 +319,7 @@
               :disabled="!table.getCanPreviousPage()"
               @click="table.previousPage()"
             >
-              <Icon name="lucide:chevron-left" class="size-4" />
+              <Icon name="lucide:chevron-left" class="size-3" />
             </UiButton>
             <UiButton
               variant="outline"
@@ -322,7 +327,7 @@
               :disabled="!table.getCanNextPage()"
               @click="table.nextPage()"
             >
-              <Icon name="lucide:chevron-right" class="size-4" />
+              <Icon name="lucide:chevron-right" class="size-3" />
             </UiButton>
             <UiButton
               variant="outline"
@@ -330,7 +335,7 @@
               :disabled="!table.getCanNextPage()"
               @click="table.setPageIndex(table.getPageCount() - 1)"
             >
-              <Icon name="lucide:chevrons-right" class="size-4" />
+              <Icon name="lucide:chevrons-right" class="size-3" />
             </UiButton>
           </div>
         </slot>
