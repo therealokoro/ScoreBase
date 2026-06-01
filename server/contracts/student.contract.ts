@@ -36,10 +36,28 @@ const remove = oc
     PRECONDITION_FAILED: { message: "Cannot delete student with associated results" }
   })
 
+const query = oc
+  .input(
+    z.object({
+      page: z.number().default(0),
+      pageSize: z.number().default(10),
+      search: z.string().optional(),
+      classId: z.string().optional()
+    })
+  )
+  .output(
+    z.object({
+      data: StudentSchema.array(),
+      total: z.number(),
+      pageCount: z.number()
+    })
+  )
+
 export const studentContract = {
   list,
   getOne,
   create,
   update,
+  query,
   delete: remove
 }

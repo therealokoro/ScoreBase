@@ -5,7 +5,7 @@ import { eq, ne, and } from "drizzle-orm"
 import { studentContract } from "../contracts/student.contract"
 import { students } from "../db/schema"
 import { fetchSingleClass } from "../queries/class.query"
-import { fetchStudentById, listAllStudents } from "../queries/student.query"
+import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
 
 const os = implement(studentContract)
 
@@ -85,10 +85,16 @@ const removeStudent = os.delete.handler(async ({ input, errors }) => {
   return { success: true }
 })
 
+const queryStudent = os.query.handler(async ({ input }) => {
+  const result = await listStudentsPaginated({ ...input })
+  return result
+})
+
 export const studentRouter = {
   list: listStudents,
   getOne: getSingleStudent,
   create: createStudent,
   update: updateStudent,
+  query: queryStudent,
   delete: removeStudent
 }

@@ -79,6 +79,8 @@ function handleDeleteAction() {
       </template>
     </div>
 
+    <StudentListTable :class-id="classId" :show-create-button="true" />
+
     <!-- currClass Edit Form -->
     <LazyClassUpsertForm
       v-if="currClass && isSheetOpen"

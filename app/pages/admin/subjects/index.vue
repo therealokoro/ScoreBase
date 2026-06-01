@@ -25,9 +25,9 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
     <UiTabs class="w-full gap-6" default-value="subjects">
       <!-- Tab Triggers -->
       <UiTabsList class="grid w-full sm:w-2/4 grid-cols-2">
-        <UiTabsTrigger class="min-w-max text-xs sm:text-sm" value="subjects"
-          >All Subjects</UiTabsTrigger
-        >
+        <UiTabsTrigger class="min-w-max text-xs sm:text-sm" value="subjects">
+          All Subjects
+        </UiTabsTrigger>
         <UiTabsTrigger class="min-w-max text-xs sm:text-sm" value="subject-presets">
           Subject Presets
         </UiTabsTrigger>

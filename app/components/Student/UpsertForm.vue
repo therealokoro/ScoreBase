@@ -4,7 +4,7 @@ import { useForm } from "vee-validate"
 import { UpsertStudentSchema, type UpsertStudentInput } from "~~/shared/validators/academic"
 
 const props = defineProps<{
-  initialData?: UpsertStudentInput
+  initialData?: Partial<UpsertStudentInput>
   mode: "Edit" | "Create"
 }>()
 
@@ -12,23 +12,27 @@ const emit = defineEmits<{ submit: [payload: UpsertStudentInput]; close: [] }>()
 const isSheetOpen = defineModel<boolean>("open", { required: true })
 
 const { data } = useListClasses()
-const classes = computed(() => {
-  return (
-    data.value?.map((curr) => ({
-      value: curr.id,
-      label: curr.name
-    })) || []
-  )
-})
+const classes = computed(
+  () =>
+    data.value?.map((c) => {
+      return { value: c.id, label: c.name }
+    }) ?? []
+)
+
+// ─── Form ─────────────────────────────────────────────────────────────────────
 
 const { handleSubmit, isSubmitting } = useForm<UpsertStudentInput>({
   validationSchema: toTypedSchema(UpsertStudentSchema),
   initialValues: props.initialData ?? {}
 })
 
-const onSubmit = handleSubmit((payload) => {
-  emit("submit", payload)
-})
+const onSubmit = handleSubmit((payload) => emit("submit", payload))
+
+// True when creating a student from within a class page —
+// classId is pre-filled and the select should be locked
+const isCreateStudentForClass = computed(
+  () => props.mode === "Create" && Boolean(props.initialData?.classId)
+)
 </script>
 
 <template>
@@ -40,7 +44,17 @@ const onSubmit = handleSubmit((payload) => {
       :description="`${mode === 'Create' ? 'Create a new' : 'Update a'} student`"
     >
       <template #content>
-        <form id="student-form" @submit.prevent="onSubmit">
+        <!--
+          Delay mounting the form until classes have loaded.
+          This ensures Reka UI's select can match the initial classId
+          value to a label immediately on mount — avoiding the blank
+          select issue when initialData.classId is pre-filled.
+        -->
+        <div v-if="!classes.length" class="flex flex-col gap-4 p-4">
+          <UiSkeleton v-for="n in 4" :key="n" class="h-9 w-full" />
+        </div>
+
+        <form v-else id="student-form" @submit.prevent="onSubmit">
           <fieldset :disabled="isSubmitting" class="flex flex-col gap-4 p-4">
             <FormInput
               name="name"
@@ -56,10 +70,15 @@ const onSubmit = handleSubmit((payload) => {
               description="Optional student identifier (e.g., STU-2026-001)"
             />
 
+            <!--
+              Disabled when creating from a class page (classId is pre-filled).
+              The field still shows the class name but can't be changed.
+            -->
             <FormSelect
               name="classId"
               label="Class"
               :options="classes"
+              :disabled="isCreateStudentForClass"
               placeholder="Select a class for the student"
               description="Required - student must be assigned to a class"
             />
@@ -77,14 +96,14 @@ const onSubmit = handleSubmit((payload) => {
 
       <template #footer>
         <UiSheetFooter>
-          <div class="w-full flex gap-1">
+          <div class="flex w-full gap-1">
             <UiSheetClose as-child>
               <UiButton
-                @click="$emit('close')"
                 class="flex-1"
                 variant="outline"
                 type="button"
                 :disabled="isSubmitting"
+                @click="$emit('close')"
               >
                 Cancel
               </UiButton>
@@ -93,8 +112,8 @@ const onSubmit = handleSubmit((payload) => {
               class="flex-1"
               type="submit"
               form="student-form"
-              :disabled="isSubmitting"
               :loading="isSubmitting"
+              :disabled="isSubmitting"
             >
               {{ isSubmitting ? "Submitting..." : "Submit" }}
             </UiButton>
