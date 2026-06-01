@@ -25,13 +25,19 @@ const props = withDefaults(
   { showCreateButton: true }
 )
 
-const { $orpc } = useNuxtApp()
-const pagination = ref({ pageIndex: 0, pageSize: 10 })
-const globalSearch = ref("")
+const route = useRoute()
+const router = useRouter()
+
+const globalSearch = ref((route.query.search as string) ?? "")
+const pagination = ref({
+  pageIndex: Number(route.query.page ?? 0),
+  pageSize: Number(route.query.pageSize ?? 10)
+})
 
 // Debounced copy of search — avoids firing a request on every keystroke
 const debouncedSearch = refDebounced(globalSearch, 1000)
 
+const { $orpc } = useNuxtApp()
 const { data, pending, refresh } = useAsyncData(
   // Static but unique key per usage — scoped by classId when on a class page
   `student-list${props.classId ? `-${props.classId}` : ""}`,
@@ -49,14 +55,34 @@ const { data, pending, refresh } = useAsyncData(
 // Safely derived page count — never undefined or negative
 const pageCount = computed(() => data.value?.pageCount ?? 1)
 
-// Reset to first page when search term changes so results start from the top
+// Sync table state → create a new record in the URL with the current state of the table
+watch([pagination, debouncedSearch], ([p, s]) => {
+  router.push({
+    query: {
+      ...route.query,
+      page: p.pageIndex > 0 ? String(p.pageIndex) : undefined,
+      pageSize: p.pageSize !== 10 ? String(p.pageSize) : undefined,
+      search: s || undefined
+    }
+  })
+})
+
+// Sync URL → table state (handles browser back/forward)
 watch(
-  debouncedSearch,
-  () => {
-    pagination.value = { ...pagination.value, pageIndex: 0 }
-  },
-  { immediate: false }
+  () => route.query,
+  (query) => {
+    pagination.value = {
+      pageIndex: Number(query.page ?? 0),
+      pageSize: Number(query.pageSize ?? 10)
+    }
+    globalSearch.value = (query.search as string) ?? ""
+  }
 )
+
+// reset page on new search
+watch(debouncedSearch, () => {
+  pagination.value = { ...pagination.value, pageIndex: 0 }
+})
 
 // Format dates before passing to the table
 const students = computed(
