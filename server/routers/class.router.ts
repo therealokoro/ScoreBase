@@ -3,7 +3,7 @@ import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import { classContract } from "../contracts/class.contract"
-import { classes, subjectLists } from "../db/schema"
+import { classes } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
 

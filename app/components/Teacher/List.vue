@@ -36,7 +36,10 @@ const columns = [
     cell: ({ row }) =>
       h(
         UiBadge,
-        { variant: "outline", to: `/admin/classes/${row.original.class?.id}` },
+        {
+          variant: "outline",
+          to: row.original.class ? `/admin/classes/${row.original.class.id}` : "#"
+        },
         () => row.original.class?.name ?? "Unassigned"
       )
   }),

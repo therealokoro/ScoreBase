@@ -4,7 +4,8 @@ import { eq } from "drizzle-orm"
 
 import { teacherContract } from "../contracts/teacher.contract"
 import { classes, user } from "../db/schema"
-import { fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
+import { listStudentsByClass } from "../queries/student.query"
+import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
 
 async function assignClassToTeacher(classId: string | undefined, userId: string) {
   // Assign class to teacher if class is provided
@@ -101,10 +102,21 @@ const removeTeacher = os.delete.handler(async ({ input, errors }) => {
   return { success: true }
 })
 
+const getTeachersClass = os.getClass.handler(async ({ input, errors }) => {
+  const teachersClass = await fetchTeachersClass(input.teacherId)
+  if (!teachersClass) throw errors.NOT_FOUND()
+
+  const studentCount = (await listStudentsByClass(teachersClass.id)).length
+  const count = { students: studentCount.toString() }
+
+  return { ...teachersClass, count }
+})
+
 export const teacherRouter = {
   list: listTeachers,
   getOne: getSingleTeacher,
   create: createTeacher,
   update: updateTeacher,
-  delete: removeTeacher
+  delete: removeTeacher,
+  getClass: getTeachersClass
 }

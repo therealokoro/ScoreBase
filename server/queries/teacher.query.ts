@@ -34,3 +34,16 @@ export const listAllTeachers = async () => {
     }
   })
 }
+
+/** Fetch a teachers class */
+export const fetchTeachersClass = async (teacherId: string) => {
+  return await db.query.classes.findFirst({
+    where(fields, operators) {
+      return operators.eq(fields.teacherId, teacherId)
+    },
+    with: {
+      teacher: { columns: { id: true, name: true } },
+      subjectList: { columns: { id: true, name: true } }
+    }
+  })
+}

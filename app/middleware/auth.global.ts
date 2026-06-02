@@ -1,16 +1,6 @@
 import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 
-/**
- * Global route middleware that handles: - / → redirects to role dashboard or /login - /login →
- * redirects already-authenticated users to their dashboard - /admin → requires "admin" role -
- * /teacher → requires "teacher" or "admin" role
- *
- * NOTE: We intentionally do NOT use useAuth() / useSession() here. Those composables rely on Vue
- * component context and reactive state that is not reliably available inside a Nuxt route
- * middleware. Instead we call getSession() directly — a plain async HTTP fetch — so we always get
- * the true current session for this request/navigation.
- */
 export default defineNuxtRouteMiddleware(async (to) => {
   // Build a plain auth client. baseURL must be absolute for SSR.
   const rc = useRuntimeConfig()

@@ -2,7 +2,10 @@
 import { normalizeClass } from "vue"
 
 import { ICONS } from "#shared/constants/icons"
-const { crumbs } = useBreadcrumbs({ root: "/admin" })
+
+const { currentUser } = useAuth()
+const path = computed(() => (currentUser.value?.role == "admin" ? "/admin" : "/teacher"))
+const { crumbs } = useBreadcrumbs({ root: path.value })
 
 const props = withDefaults(
   defineProps<{
@@ -16,15 +19,6 @@ const props = withDefaults(
   {
     loading: false,
     error: null
-  }
-)
-
-// set page title for use in dashboard
-const pageTitle = useState("pageTitle", () => props.title)
-watch(
-  () => props.title,
-  (val) => {
-    pageTitle.value = val
   }
 )
 

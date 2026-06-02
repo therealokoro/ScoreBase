@@ -16,9 +16,13 @@ type Student = {
   createdAt: string
 }
 
-const props = withDefaults(defineProps<{ classId?: string; showCreateButton?: boolean }>(), {
-  showCreateButton: true
-})
+const props = withDefaults(
+  defineProps<{ isAdmin?: boolean; classId?: string; showCreateButton?: boolean }>(),
+  {
+    isAdmin: false,
+    showCreateButton: true
+  }
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -146,8 +150,12 @@ const columns = [
   // Clicking a student's name navigates to their detail page
   columnHelper.accessor("name", {
     header: "Full Name",
-    cell: ({ getValue, row }) =>
-      h(UiButton, { variant: "link", to: `/admin/students/${row.original.id}` }, () => getValue())
+    cell: ({ getValue, row }) => {
+      const prefix = props.isAdmin ? "/admin" : "/teacher"
+      return h(UiButton, { variant: "link", to: `${prefix}/students/${row.original.id}` }, () =>
+        getValue()
+      )
+    }
   }),
 
   // Class badge — links to the class page; hidden when classId prop is set
