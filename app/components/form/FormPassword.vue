@@ -1,81 +1,73 @@
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
-import FormField from './FormField.vue'
-import FormAddon from './FormAddon.vue'
+import { computed, ref, useSlots } from "vue"
 
 interface Props {
-  name?: string
-  validateOnMount?: boolean
+  name: string
   label?: string
   description?: string
   placeholder?: string
   disabled?: boolean
   readonly?: boolean
+  validateOnMount?: boolean
   icon?: string
+  iconRight?: string
   addonText?: string
+  addonTextRight?: string
   class?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  readonly: false,
-  validateOnMount: false,
-})
+const props = defineProps<Props>()
 
-const model = defineModel<string>()
+const { value, errorMessage, handleBlur, handleChange } = useField<string>(
+  () => props.name,
+  undefined,
+  { label: props.label, validateOnMount: props.validateOnMount }
+)
 
-const slots = useSlots()
-const hasAddonStart = computed(() => !!slots['addon'] || !!props.icon || !!props.addonText)
-
-const visible     = ref(false)
-const inputType   = computed(() => visible.value ? 'text' : 'password')
-const toggleIcon  = computed(() => visible.value ? 'lucide:eye-off' : 'lucide:eye')
-const toggleLabel = computed(() => visible.value ? 'Hide password' : 'Show password')
+const visible = ref(false)
+const inputType = computed(() => (visible.value ? "text" : "password"))
+const toggleIcon = computed(() => (visible.value ? "lucide:eye-off" : "lucide:eye"))
+const toggleLabel = computed(() => (visible.value ? "Hide password" : "Show password"))
 </script>
 
 <template>
   <FormField
-    :name
-    :validate-on-mount
+    :icon
     :label
+    :class
+    :icon-right
+    :addon-text
     :description
-    :class="props.class"
-    v-slot="{ inputId, field, isInvalid }"
+    :addon-text-right
+    :error="errorMessage"
   >
-    <UiInputGroup>
-      <FormAddon v-if="hasAddonStart" :icon :text="addonText">
-        <template v-if="$slots['addon']" #default>
-          <slot name="addon" />
-        </template>
-      </FormAddon>
-
+    <template #default="{ id, isInvalid }">
       <UiInputGroupInput
-        :id="inputId"
+        :id="id"
         :type="inputType"
         :placeholder
         :disabled
         :readonly
-        v-model="model"
-        :aria-describedby="description ? `${inputId}-desc` : undefined"
+        :value="value"
+        @input="handleChange"
+        @blur="handleBlur"
+        :aria-describedby="description ? `${id}-desc` : undefined"
         :aria-invalid="isInvalid || undefined"
         class="aria-invalid:border-destructive! aria-invalid:ring-destructive/20! aria-invalid:focus-visible:ring-destructive/30!"
-        @blur="field.handleBlur"
       />
+    </template>
 
-      <UiInputGroupAddon align="inline-end">
-        <slot name="addon-right">
-          <UiInputGroupButton
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            :aria-label="toggleLabel"
-            :aria-pressed="visible"
-            @click="visible = !visible"
-          >
-            <Icon :name="toggleIcon" class="size-4 text-muted-foreground" />
-          </UiInputGroupButton>
-        </slot>
-      </UiInputGroupAddon>
-    </UiInputGroup>
+    <template #addon-right>
+      <UiInputGroupButton
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        :aria-label="toggleLabel"
+        :aria-pressed="visible"
+        @click="visible = !visible"
+      >
+        <Icon :name="toggleIcon" class="size-4 text-muted-foreground" />
+      </UiInputGroupButton>
+    </template>
   </FormField>
 </template>

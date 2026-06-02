@@ -45,14 +45,14 @@ function initUnsetPreset() {
         <button
           :class="[
             'flex items-center gap-2 px-4 py-2 rounded-lg border overflow-hidden',
-            'text-xs text-primary hover:underline underline-offset-4',
+            'text-xs hover:underline underline-offset-4',
             '[&>span]:flex-1 [&>span]:min-w-0 [&>span]:text-center [&>span]:truncate'
           ]"
           @click="openDialog = true"
         >
           <Icon :name="ICONS.subject" class="size-3 shrink-0" />
           <span v-if="!activeClass.subjectList">Set a subject list preset</span>
-          <span v-else>{{ activeClass.subjectList?.name }}</span>
+          <span class="text-primary" v-else>{{ activeClass.subjectList?.name }}</span>
         </button>
       </UiTooltipTrigger>
     </template>

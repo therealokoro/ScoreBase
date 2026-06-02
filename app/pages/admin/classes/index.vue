@@ -36,6 +36,8 @@ function handleCreateClass(payload: UpsertClassInput) {
 
     <!-- Content -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <AppEntityAddButton text="Create a class" @click="openCreateSheet = true" />
+
       <AppEntityCard
         :key="item.id"
         :title="item.name"
@@ -44,8 +46,6 @@ function handleCreateClass(payload: UpsertClassInput) {
         :link="`/admin/classes/${item.id}`"
         :description="formatDate(item.createdAt, 'Created on ')"
       />
-
-      <AppEntityAddButton text="Create a class" @click="openCreateSheet = true" />
     </div>
 
     <LazyClassUpsertForm v-model:open="openCreateSheet" mode="Create" @submit="handleCreateClass" />

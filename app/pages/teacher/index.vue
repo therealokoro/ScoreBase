@@ -2,6 +2,6 @@
 
 <template>
   <Page title="Overview">
-    <div class="text-sm text-muted-foreground">Welcome to ScoreBase's Admin Dashboard</div>
+    <div class="text-sm text-muted-foreground">Welcome to ScoreBase Teacher's Dashboard</div>
   </Page>
 </template>

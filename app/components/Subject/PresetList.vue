@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ICONS } from "~~/shared/constants/icons"
 import type { UpsertSubjectListInput } from "~~/shared/validators/academic"
 
 const openCreateSheet = ref(false)
@@ -77,6 +76,9 @@ async function handleDeleteSubjectList() {
       </template>
 
       <template v-else>
+        <!-- Add Preset Button -->
+        <AppEntityAddButton @click="openCreateSheet = true" text="Create a subject preset" />
+
         <AppEntityCard
           v-for="n in presets"
           no-icon
@@ -89,9 +91,6 @@ async function handleDeleteSubjectList() {
             <AppEntityActionDropdown @edit="initViewPreset(n)" @delete="initDeletePreset(n)" />
           </template>
         </AppEntityCard>
-
-        <!-- Add Preset Button -->
-        <AppEntityAddButton @click="openCreateSheet = true" text="Create a subject preset" />
       </template>
     </div>
 

@@ -28,7 +28,7 @@ const STUDENTS_PER_CLASS = 30
 
 export default defineTask({
   meta: {
-    name: "seed:students-and-classes",
+    name: "seed:students-teachers-and-classes",
     description: "Run database seed"
   },
   async run() {

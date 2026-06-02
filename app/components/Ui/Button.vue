@@ -51,7 +51,7 @@ import { normalizeClass, type HTMLAttributes } from "vue"
 
 import type { NuxtLinkProps } from "#app"
 
-interface ButtonProps extends PrimitiveProps, NuxtLinkProps {
+export interface ButtonProps extends PrimitiveProps, NuxtLinkProps {
   variant?: ButtonVariants["variant"]
   size?: ButtonVariants["size"]
   class?: HTMLAttributes["class"]
