@@ -266,7 +266,7 @@
 
   <div
     v-if="showFooter"
-    class="flex flex-col gap-4 px-2 py-4 md:flex-row md:items-center md:justify-between"
+    class="flex flex-wrap gap-4 px-2 py-4 items-center justify-center sm:justify-end"
   >
     <slot name="footer" :table="table">
       <div class="flex items-center gap-4">

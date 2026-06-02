@@ -1,76 +1,81 @@
 <script lang="ts" setup>
-const props = defineProps<{ teachers: ITeacher[] }>()
-const renderList = computed(() =>
-  props.teachers.map((curr, index) => ({
-    ...curr,
-    sn: index + 1
-  }))
-)
+import { createColumnHelper } from "@tanstack/vue-table"
+import { breakpointsTailwind } from "@vueuse/core"
 
-defineEmits(["edit", "delete"])
+import AppEntityActionDropdown from "~/components/App/EntityActionDropdown.vue"
+import UiBadge from "~/components/Ui/Badge.vue"
+import UiButton from "~/components/Ui/Button.vue"
+
+const props = defineProps<{ teachers: ITeacher[] }>()
+const emit = defineEmits(["edit", "delete"])
+
+const columnHelper = createColumnHelper<ITeacher>()
+const columns = [
+  // Serial number — stays correct across pages
+  columnHelper.display({
+    id: "serial",
+    header: "#",
+    cell: ({ row, table }) => {
+      const { pageIndex, pageSize } = table.getState().pagination
+      return pageIndex * pageSize + row.index + 1
+    }
+  }),
+
+  // Clicking a teacher's name navigates to their detail page
+  columnHelper.accessor("name", {
+    header: "Full Name",
+    cell: ({ getValue, row }) =>
+      h(UiButton, { variant: "link", onClick: () => emit("edit", row) }, () => getValue())
+  }),
+
+  columnHelper.accessor("email", { header: "Email Address" }),
+
+  // Class badge — links to the class page
+  columnHelper.accessor("class", {
+    header: "Class",
+    cell: ({ row }) =>
+      h(
+        UiBadge,
+        { variant: "outline", to: `/admin/classes/${row.original.class?.id}` },
+        () => row.original.class?.name ?? "Unassigned"
+      )
+  }),
+
+  columnHelper.accessor("phoneNumber", { header: "Phone Number" }),
+
+  columnHelper.accessor("createdAt", {
+    header: "Registered",
+    cell: ({ getValue }) => formatDate(getValue())
+  }),
+
+  columnHelper.display({
+    id: "actions",
+    header: "",
+    cell: ({ row }) => {
+      return h(AppEntityActionDropdown, {
+        onDelete: () => emit("delete", row.original),
+        onEdit: () => emit("edit", row.original)
+      })
+    }
+  })
+]
+
+const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("lg")
+const columnVisibility = computed(() => ({
+  phoneNumber: isDesktop.value,
+  email: isDesktop.value,
+  createdAt: isDesktop.value
+}))
 </script>
 
 <template>
-  <div class="grid overflow-x-auto border rounded-lg">
-    <UiTable>
-      <UiTableHeader>
-        <UiTableRow class="font-semibold">
-          <UiTableHead>#</UiTableHead>
-          <UiTableHead>Name</UiTableHead>
-          <UiTableHead class="hidden sm:table-cell">Email Address</UiTableHead>
-          <UiTableHead>Class</UiTableHead>
-          <UiTableHead class="hidden sm:table-cell">Phone Number</UiTableHead>
-          <UiTableHead class="hidden sm:table-cell">Registered</UiTableHead>
-          <UiTableHead>
-            <span class="sr-only">Actions</span>
-          </UiTableHead>
-        </UiTableRow>
-      </UiTableHeader>
-
-      <UiTableBody>
-        <template v-for="teacher in renderList" :key="teacher.id">
-          <UiTableRow>
-            <UiTableCell>{{ teacher.sn }}</UiTableCell>
-
-            <UiTableCell>
-              <div class="flex flex-col gap-1">
-                <ui-button variant="link" @click="$emit('edit', teacher)" class="line-clamp w-max">
-                  {{ teacher.name }}
-                </ui-button>
-                <p class="line-clamp-1 text-xs text-muted-foreground sm:hidden">
-                  {{ teacher.email }}
-                </p>
-              </div>
-            </UiTableCell>
-
-            <UiTableCell class="hidden sm:table-cell">{{ teacher.email }}</UiTableCell>
-
-            <UiTableCell>
-              <ui-badge
-                v-if="teacher.class"
-                variant="outline"
-                :to="`/admin/classes/${teacher.class.id}`"
-              >
-                {{ teacher.class.name }}
-              </ui-badge>
-              <ui-badge v-else variant="secondary">Un assigned</ui-badge>
-            </UiTableCell>
-
-            <UiTableCell class="hidden sm:table-cell">{{ teacher.phoneNumber }}</UiTableCell>
-
-            <UiTableCell class="hidden sm:table-cell">
-              {{ formatDate(teacher.createdAt) }}
-            </UiTableCell>
-
-            <UiTableCell class="text-right">
-              <AppEntityActionDropdown
-                @edit="$emit('edit', teacher)"
-                @delete="$emit('delete', teacher)"
-              />
-            </UiTableCell>
-          </UiTableRow>
+  <ClientOnly>
+    <div class="w-full rounded-lg border">
+      <UiTanStackTable :columns :data="teachers" :column-visibility="columnVisibility">
+        <template #empty>
+          <span>No teachers yet to display.</span>
         </template>
-      </UiTableBody>
-    </UiTable>
-  </div>
+      </UiTanStackTable>
+    </div>
+  </ClientOnly>
 </template>
