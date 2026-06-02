@@ -1,12 +1,22 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
-import { ClassSchema, UpsertClassSchema } from "~~/shared/validators/academic"
+import {
+  ClassSchema,
+  ClassWithSubjectListSchema,
+  UpsertClassSchema
+} from "~~/shared/validators/academic"
 
 export const list = oc.output(z.array(ClassSchema))
 
 export const getOne = oc
   .input(ClassSchema.pick({ id: true }))
-  .output(ClassSchema.extend({ count: z.object({ students: z.string() }) }))
+  .output(
+    ClassWithSubjectListSchema.extend({
+      count: z.object({
+        students: z.string()
+      })
+    })
+  )
   .errors({ NOT_FOUND: { message: "The class was not found" } })
 
 export const create = oc
@@ -30,10 +40,17 @@ export const remove = oc
     PRECONDITION_FAILED: { message: "Cannot delete class with associated students or results" }
   })
 
+export const subjectList = oc
+  .input(z.object({ id: z.string(), subjectListId: z.string().nullable() }))
+  .errors({
+    NOT_FOUND: { message: "The class was not found" }
+  })
+
 export const classContract = {
   list,
   getOne,
   create,
   update,
-  delete: remove
+  delete: remove,
+  setSubjectList: subjectList
 }

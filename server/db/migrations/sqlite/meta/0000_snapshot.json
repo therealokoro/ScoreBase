@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b4178405-9bd4-4a01-8298-0d26b77c6d16",
+  "id": "67ea1ebb-a0dd-41e6-a324-1a4631f71218",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_sessions": {
@@ -192,8 +192,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "subject_list": {
-          "name": "subject_list",
+        "subject_list_id": {
+          "name": "subject_list_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -246,12 +246,12 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "classes_subject_list_subject_lists_id_fk": {
-          "name": "classes_subject_list_subject_lists_id_fk",
+        "classes_subject_list_id_subject_lists_id_fk": {
+          "name": "classes_subject_list_id_subject_lists_id_fk",
           "tableFrom": "classes",
           "tableTo": "subject_lists",
           "columnsFrom": [
-            "subject_list"
+            "subject_list_id"
           ],
           "columnsTo": [
             "id"

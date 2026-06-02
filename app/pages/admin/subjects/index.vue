@@ -53,6 +53,8 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
 
         <!-- Content -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
+
           <SubjectCard
             @on-mutation="refresh"
             :key="item.id"
@@ -60,7 +62,6 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
             v-for="item in subjects"
             :subject="item"
           />
-          <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
         </div>
       </UiTabsContent>
 
@@ -75,6 +76,10 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
     </UiTabs>
 
     <!-- Create Logic -->
-    <SubjectUpsertForm mode="Create" v-model:open="openCreateSheet" @submit="handleUpsertSubject" />
+    <LazySubjectUpsertForm
+      mode="Create"
+      v-model:open="openCreateSheet"
+      @submit="handleUpsertSubject"
+    />
   </Page>
 </template>

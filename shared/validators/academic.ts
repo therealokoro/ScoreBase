@@ -28,6 +28,11 @@ export const UpdateTermSchema = createUpdateSchema(terms, {
 export const ClassSchema = createSelectSchema(classes).extend({
   teacher: z.object({ id: z.string(), name: z.string() }).nullable()
 })
+
+export const ClassWithSubjectListSchema = ClassSchema.extend({
+  subjectList: createSelectSchema(subjectLists).pick({ id: true, name: true }).nullable()
+})
+
 export const UpsertClassSchema = createInsertSchema(classes, {
   name: z.string("The class requires a name")
   // TODO: Add presets on creation

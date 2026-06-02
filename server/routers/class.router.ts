@@ -3,7 +3,7 @@ import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import { classContract } from "../contracts/class.contract"
-import { classes } from "../db/schema"
+import { classes, subjectLists } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
 
@@ -70,10 +70,25 @@ const removeClass = os.delete.handler(async ({ input, errors }) => {
   return { success: true }
 })
 
+const setSubjectList = os.setSubjectList.handler(async ({ input, errors }) => {
+  const existingClass = await fetchSingleClass(input.id!)
+  if (!existingClass) throw errors.NOT_FOUND()
+
+  const [updatedClass] = await db
+    .update(classes)
+    .set({ subjectListId: input.subjectListId })
+    .where(eq(classes.id, input.id!))
+    .returning()
+
+  const returnClass = await fetchSingleClass(updatedClass!.id)
+  return returnClass!
+})
+
 export const classRouter = {
   list: listClasses,
   getOne: getSingleClass,
   create: createClass,
   update: updateClass,
-  delete: removeClass
+  delete: removeClass,
+  setSubjectList: setSubjectList
 }

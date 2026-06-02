@@ -26,6 +26,7 @@ const classStats = computed<StatsCardProps[]>(() => {
       icon: ICONS.students as string
     },
     { label: "Total Results", value: "15", icon: ICONS.result as string }
+    // { label: "Subject List", value: "Junior Courses", icon: ICONS.subject as string }
   ]
 })
 
@@ -68,15 +69,20 @@ function handleDeleteAction() {
       <AppEntityActionDropdown @edit="isSheetOpen = true" @delete="openDeleteDialog = true" />
     </template>
 
-    <!-- Class Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <!-- When loading -->
-      <AppEntitySkeleton v-if="pending" :count="4" />
+    <!-- When loading -->
+    <AppEntitySkeleton v-if="pending" :count="4" />
 
-      <!-- Class Stats -->
-      <template v-else>
-        <ClassStatsCard v-for="item in classStats" v-bind="item" />
-      </template>
+    <!-- Class Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" v-else>
+      <!-- Show class subject list preset -->
+      <ClassSubjectPresetControl
+        v-if="currClass"
+        :active-class="currClass"
+        @onMutation="() => refresh()"
+      />
+
+      <!-- Show class stats -->
+      <ClassStatsCard v-for="item in classStats" v-bind="item" />
     </div>
 
     <StudentListTable :class-id="classId" :show-create-button="true" />

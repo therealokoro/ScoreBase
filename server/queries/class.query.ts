@@ -10,7 +10,10 @@ const includeTeacher = { teacher: { columns: { id: true, name: true } } } as con
 export const fetchSingleClass = async (payload: string, column: "id" | "name" = "id") => {
   return await db.query.classes.findFirst({
     where: eq(classes[column], payload),
-    with: { ...includeTeacher }
+    with: {
+      ...includeTeacher,
+      subjectList: { columns: { id: true, name: true } }
+    }
   })
 }
 

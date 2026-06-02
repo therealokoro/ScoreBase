@@ -42,11 +42,12 @@ function handleDeleteSubject() {
     </div>
 
     <LazySubjectUpsertForm
-      v-if="openEditSheet"
       mode="Edit"
+      :key="subject.id"
       :initial-data="subject"
       v-model:open="openEditSheet"
       @submit="handleUpdateSubject"
+      v-if="openEditSheet && subject"
     />
 
     <AppConfirmDeleteAction

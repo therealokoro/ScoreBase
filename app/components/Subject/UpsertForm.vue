@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { toTypedSchema } from "@vee-validate/zod"
 import { useForm } from "vee-validate"
+import { SUBJECT_TAGS } from "~~/shared/constants/data"
 import { UpsertSubjectSchema, type UpsertSubjectInput } from "~~/shared/validators/academic"
 
 const props = defineProps<{
@@ -43,7 +44,7 @@ const onSubmit = handleSubmit((payload) => {
               multiple
               name="tags"
               label="Tags"
-              :options="['Junior', 'Senior', 'Art', 'Science', 'General', 'Business']"
+              :options="SUBJECT_TAGS"
               placeholder="Select one or multiple tags for the subject"
               description="This is used to categorize and filter the subjects"
             />

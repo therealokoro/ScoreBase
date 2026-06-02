@@ -176,47 +176,47 @@ export const numberPrefixes = [
 
 export const SUBJECTS = [
   // Core / Compulsory
-  { name: "English Language",       tags: ["core", "language"] },
-  { name: "Mathematics",            tags: ["core", "science"] },
-  { name: "Civic Education",        tags: ["core", "social"] },
-  { name: "Computer Studies",       tags: ["core", "technology"] },
+  { name: "English Language", tags: ["core", "language"] },
+  { name: "Mathematics", tags: ["core", "science"] },
+  { name: "Civic Education", tags: ["core", "social"] },
+  { name: "Computer Studies", tags: ["core", "technology"] },
 
   // Sciences
-  { name: "Biology",                tags: ["science"] },
-  { name: "Chemistry",              tags: ["science"] },
-  { name: "Physics",                tags: ["science"] },
-  { name: "Further Mathematics",    tags: ["science", "mathematics"] },
-  { name: "Agricultural Science",   tags: ["science", "vocational"] },
-  { name: "Health Science",         tags: ["science"] },
+  { name: "Biology", tags: ["science"] },
+  { name: "Chemistry", tags: ["science"] },
+  { name: "Physics", tags: ["science"] },
+  { name: "Further Mathematics", tags: ["science", "mathematics"] },
+  { name: "Agricultural Science", tags: ["science", "vocational"] },
+  { name: "Health Science", tags: ["science"] },
 
   // Arts & Humanities
-  { name: "Literature in English",  tags: ["arts", "language"] },
-  { name: "Yoruba",                 tags: ["arts", "language"] },
-  { name: "Igbo",                   tags: ["arts", "language"] },
-  { name: "Hausa",                  tags: ["arts", "language"] },
+  { name: "Literature in English", tags: ["arts", "language"] },
+  { name: "Yoruba", tags: ["arts", "language"] },
+  { name: "Igbo", tags: ["arts", "language"] },
+  { name: "Hausa", tags: ["arts", "language"] },
   { name: "Christian Religious Studies", tags: ["arts", "religion"] },
-  { name: "Islamic Religious Studies",   tags: ["arts", "religion"] },
-  { name: "History",                tags: ["arts", "social"] },
+  { name: "Islamic Religious Studies", tags: ["arts", "religion"] },
+  { name: "History", tags: ["arts", "social"] },
 
   // Social Sciences
-  { name: "Economics",              tags: ["social", "commerce"] },
-  { name: "Geography",              tags: ["social", "science"] },
-  { name: "Government",             tags: ["social"] },
-  { name: "Social Studies",         tags: ["social"] },
+  { name: "Economics", tags: ["social", "commerce"] },
+  { name: "Geography", tags: ["social", "science"] },
+  { name: "Government", tags: ["social"] },
+  { name: "Social Studies", tags: ["social"] },
 
   // Commercial
-  { name: "Financial Accounting",   tags: ["commerce"] },
-  { name: "Commerce",               tags: ["commerce"] },
-  { name: "Book Keeping",           tags: ["commerce"] },
-  { name: "Office Practice",        tags: ["commerce", "vocational"] },
-  { name: "Store Management",       tags: ["commerce", "vocational"] },
+  { name: "Financial Accounting", tags: ["commerce"] },
+  { name: "Commerce", tags: ["commerce"] },
+  { name: "Book Keeping", tags: ["commerce"] },
+  { name: "Office Practice", tags: ["commerce", "vocational"] },
+  { name: "Store Management", tags: ["commerce", "vocational"] },
 
   // Vocational / Technical
-  { name: "Technical Drawing",      tags: ["technical", "vocational"] },
-  { name: "Basic Technology",       tags: ["technical", "vocational"] },
-  { name: "Food and Nutrition",     tags: ["vocational"] },
-  { name: "Home Economics",         tags: ["vocational"] },
+  { name: "Technical Drawing", tags: ["technical", "vocational"] },
+  { name: "Basic Technology", tags: ["technical", "vocational"] },
+  { name: "Food and Nutrition", tags: ["vocational"] },
+  { name: "Home Economics", tags: ["vocational"] },
   { name: "Physical and Health Education", tags: ["vocational"] },
-  { name: "Fine Art",               tags: ["arts", "vocational"] },
-  { name: "Music",                  tags: ["arts", "vocational"] },
+  { name: "Fine Art", tags: ["arts", "vocational"] },
+  { name: "Music", tags: ["arts", "vocational"] }
 ]

@@ -33,7 +33,9 @@ export const classes = sqliteTable("classes", {
   teacherId: text("teacher_id")
     .unique() // enforces the one-to-one
     .references(() => user.id, { onDelete: "set null" }),
-  subjectList: text("subject_list").references(() => subjectLists.id, { onDelete: "set null" }),
+  subjectListId: text("subject_list_id").references(() => subjectLists.id, {
+    onDelete: "set null"
+  }),
   ...dateTimeSchema
 })
 
@@ -86,6 +88,10 @@ export const classesRelations = relations(classes, ({ one, many }) => ({
   teacher: one(user, {
     fields: [classes.teacherId],
     references: [user.id]
+  }),
+  subjectList: one(subjectLists, {
+    fields: [classes.subjectListId],
+    references: [subjectLists.id]
   }),
   students: many(students)
 }))
