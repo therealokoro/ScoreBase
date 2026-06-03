@@ -51,7 +51,7 @@ function handleDeleteAction() {
   useSonner.promise(deleteClass.mutateAsync({ id: classId! }), {
     loading: "Deleting class info...",
     success: () => {
-      navigateTo("/admin/classes")
+      navigateTo("/dashboard/classes")
       return "Class was deleted successfully"
     },
     error: (err: any) => err.message

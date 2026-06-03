@@ -11,17 +11,13 @@ const { handleSubmit, isSubmitting } = useForm<LoginInputType>({
 })
 
 const auth = useAuth()
-const route = useRoute()
 
 const submit = handleSubmit(async (payload) => {
   await auth.signIn.email(payload, {
-    async onSuccess(d) {
+    async onSuccess() {
       useSonner.success("Login successful, redirecting you....")
-      // Refresh the singleton session so the middleware reads the new auth state
       await auth.refresh()
-      // Honour ?redirect= if present, otherwise go to role dashboard
-      const redirect = route.query.redirect as string | undefined
-      await navigateTo(redirect || `/${d.data.user.role}`)
+      await navigateTo("/dashboard")
     },
     onError(e: any) {
       useSonner.error(e.error.message)

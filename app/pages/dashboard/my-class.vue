@@ -3,6 +3,8 @@ import { ICONS } from "~~/shared/constants/icons"
 
 import type { StatsCardProps } from "~/components/Class/StatsCard.vue"
 
+definePageMeta({ middleware: ["teacher-only"] })
+
 const { currentUser, isPending } = useAuth()
 
 const { $orpc } = useNuxtApp()
@@ -29,7 +31,6 @@ const classStats = computed<StatsCardProps[]>(() => {
 })
 
 const isSheetOpen = ref(false)
-const openDeleteDialog = ref(false)
 const updateClass = useUpdateClass()
 
 function handleUpdateClass(payload: any) {

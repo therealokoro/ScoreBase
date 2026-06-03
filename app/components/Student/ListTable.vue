@@ -16,13 +16,9 @@ type Student = {
   createdAt: string
 }
 
-const props = withDefaults(
-  defineProps<{ isAdmin?: boolean; classId?: string; showCreateButton?: boolean }>(),
-  {
-    isAdmin: false,
-    showCreateButton: true
-  }
-)
+const props = withDefaults(defineProps<{ classId?: string; showCreateButton?: boolean }>(), {
+  showCreateButton: true
+})
 
 const route = useRoute()
 const router = useRouter()
@@ -151,8 +147,7 @@ const columns = [
   columnHelper.accessor("name", {
     header: "Full Name",
     cell: ({ getValue, row }) => {
-      const prefix = props.isAdmin ? "/admin" : "/teacher"
-      return h(UiButton, { variant: "link", to: `${prefix}/students/${row.original.id}` }, () =>
+      return h(UiButton, { variant: "link", to: `/dashboard/students/${row.original.id}` }, () =>
         getValue()
       )
     }
@@ -164,7 +159,7 @@ const columns = [
     cell: ({ row }) =>
       h(
         UiBadge,
-        { variant: "outline", to: `/admin/classes/${row.original.class?.id}` },
+        { variant: "outline", to: `/dashboard/classes/${row.original.class?.id}` },
         () => row.original.class?.name ?? "Unassigned"
       )
   }),
