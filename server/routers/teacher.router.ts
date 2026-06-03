@@ -50,6 +50,7 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
       name: input.name,
       email: input.email,
       password: input.phoneNumber,
+      role: "teacher",
       data: { phoneNumber: input.phoneNumber }
     }
   })

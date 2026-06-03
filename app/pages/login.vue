@@ -27,14 +27,17 @@ const submit = handleSubmit(async (payload) => {
 </script>
 
 <template>
-  <div class="flex h-screen items-center justify-center">
+  <div class="relative flex h-screen items-center justify-center">
     <div
-      class="border-border/60 bg-card dark:border-border w-full max-w-95 border px-8 py-5 shadow-xs min-[480px]:rounded-lg"
+      class="relative z-10 border-border/60 bg-card dark:border-border w-full max-w-95 border px-8 py-5 shadow-xs min-[480px]:rounded-lg"
     >
-      <h1 class="text-lg font-bold tracking-tight">Welcome, Log in</h1>
-      <p class="text-sm text-muted-foreground mt-1">Enter your email & password to log in.</p>
+      <div class="text-center">
+        <h1 class="mb-5 text-2xl font-bold text-primary underline underline-offset-4">ScoreBase</h1>
+        <h3 class="text-lg font-bold tracking-tight">Welcome Back!</h3>
+        <p class="text-xs text-muted-foreground mt-1">Enter your email & password to log in.</p>
+      </div>
 
-      <form class="mt-10" @submit="submit">
+      <form class="mt-5" @submit="submit">
         <fieldset :disabled="isSubmitting" class="grid gap-5">
           <FormInput
             label="Email Address"
@@ -48,6 +51,7 @@ const submit = handleSubmit(async (payload) => {
             class="w-full"
             type="submit"
             size="lg"
+            icon-right="lucide:arrow-right"
             text="Continue to account"
           />
         </fieldset>
@@ -56,5 +60,7 @@ const submit = handleSubmit(async (payload) => {
         Forgot password? Please contact your admin to reset your password!
       </p>
     </div>
+
+    <AppSubtleBg />
   </div>
 </template>

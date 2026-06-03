@@ -21,7 +21,7 @@ const teacherNavItems = [
 
 async function handleSignOut() {
   await signOut()
-  navigateTo("/login")
+  navigateTo("/")
 }
 
 const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")

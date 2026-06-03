@@ -14,10 +14,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const userRole = ((data?.user as any)?.role as string | null) ?? null
 
   // ── Root redirect ──────────────────────────────────────────────────────────
-  if (to.path === "/") {
-    if (import.meta.server) return
-    return navigateTo(isLoggedIn ? "/dashboard" : "/login")
-  }
+  // if (to.path === "/") {
+  //   if (import.meta.server) return
+  //   return navigateTo(isLoggedIn ? "/dashboard" : "/login")
+  // }
 
   // ── Already logged in, don't allow visiting /login ─────────────────────────
   if (to.path === "/login" && isLoggedIn) {

@@ -61,8 +61,6 @@ export default defineTask({
       return email
     }
 
-    const auth = getServerAuth()
-
     const teacherDrafts = classNames.map(() => {
       const name = nigerianName()
       const surname = name.split(" ")[1]!
@@ -73,6 +71,8 @@ export default defineTask({
         phoneNumber: uniquePhone()
       }
     })
+
+    const auth = getServerAuth()
 
     const teacherRecords = await Promise.all(
       teacherDrafts.map((draft) =>
