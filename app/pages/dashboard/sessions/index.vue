@@ -40,7 +40,7 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
           :title="item.name"
           v-for="item in sessions"
           icon="lucide:arrow-right"
-          :link="`/admin/sessions/${item.id}`"
+          :link="`/dashboard/sessions/${item.id}`"
           :description="formatDate(item.createdAt, 'Created on ')"
         />
 

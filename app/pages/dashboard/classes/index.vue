@@ -43,7 +43,7 @@ function handleCreateClass(payload: UpsertClassInput) {
         :title="item.name"
         v-for="item in classes"
         icon="lucide:arrow-right"
-        :link="`/admin/classes/${item.id}`"
+        :link="`/dashboard/classes/${item.id}`"
         :description="formatDate(item.createdAt, 'Created on ')"
       />
     </div>

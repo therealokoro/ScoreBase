@@ -38,7 +38,7 @@ const columns = [
         UiBadge,
         {
           variant: "outline",
-          to: row.original.class ? `/admin/classes/${row.original.class.id}` : "#"
+          to: row.original.class ? `/dashboard/classes/${row.original.class.id}` : "#"
         },
         () => row.original.class?.name ?? "Unassigned"
       )

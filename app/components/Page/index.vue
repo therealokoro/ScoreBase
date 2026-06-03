@@ -3,9 +3,7 @@ import { normalizeClass } from "vue"
 
 import { ICONS } from "#shared/constants/icons"
 
-const { currentUser } = useAuth()
-const path = computed(() => (currentUser.value?.role == "admin" ? "/admin" : "/teacher"))
-const { crumbs } = useBreadcrumbs({ root: path.value })
+const { crumbs } = useBreadcrumbs({ root: "/dashboard" })
 
 const props = withDefaults(
   defineProps<{
@@ -53,7 +51,7 @@ const styles = tv({ base: "flex items-start gap-3" })
             {{ error?.message || "An unexpected error occurred. Please try again." }}
           </p>
         </div>
-        <UiButton variant="outline" to="/admin" :icon="ICONS.home">Go Back</UiButton>
+        <UiButton variant="outline" to="/dashboard" :icon="ICONS.home">Go Back</UiButton>
       </div>
 
       <!-- Page Content -->

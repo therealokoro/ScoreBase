@@ -1,24 +1,22 @@
 <script lang="ts" setup>
 import { ICONS } from "#shared/constants/icons"
 
-const props = withDefaults(defineProps<{ isAdmin?: boolean }>(), { isAdmin: false })
-
 const { isPending, currentUser, signOut } = useAuth()
 
 const adminNavItems = [
-  { title: "Overview", href: "/admin", icon: ICONS.dashboard },
-  { title: "Sessions", href: "/admin/sessions", icon: ICONS.session },
-  { title: "Classes", href: "/admin/classes", icon: ICONS.class },
-  { title: "Subjects", href: "/admin/subjects", icon: ICONS.subject },
-  { title: "Teachers", href: "/admin/teachers", icon: ICONS.teacher },
-  { title: "Students", href: "/admin/students", icon: ICONS.students },
-  { title: "Results", href: "/#admin/results", icon: ICONS.result }
+  { title: "Overview", href: "/dashboard", icon: ICONS.dashboard },
+  { title: "Sessions", href: "/dashboard/sessions", icon: ICONS.session },
+  { title: "Classes", href: "/dashboard/classes", icon: ICONS.class },
+  { title: "Subjects", href: "/dashboard/subjects", icon: ICONS.subject },
+  { title: "Teachers", href: "/dashboard/teachers", icon: ICONS.teacher },
+  { title: "Students", href: "/dashboard/students", icon: ICONS.students },
+  { title: "Results", href: "/#dashboard/results", icon: ICONS.result }
 ]
 
 const teacherNavItems = [
-  { title: "Overview", href: "/teacher", icon: ICONS.dashboard },
-  { title: "My Class", href: "/teacher/class", icon: ICONS.students },
-  { title: "My Results", href: "/#teacher/results", icon: ICONS.result }
+  { title: "Overview", href: "/dashboard", icon: ICONS.dashboard },
+  { title: "My Class", href: "/dashboard/my-class", icon: ICONS.students },
+  { title: "My Results", href: "/#dashboard/results", icon: ICONS.result }
 ]
 
 async function handleSignOut() {
@@ -26,12 +24,12 @@ async function handleSignOut() {
   navigateTo("/login")
 }
 
-// const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")
+const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")
 const sidebarContents = computed(() => {
   return {
-    navItems: props.isAdmin ? adminNavItems : teacherNavItems,
-    userIcon: props.isAdmin ? ICONS.admin : ICONS.teacher,
-    userColor: props.isAdmin ? "bg-primary" : "bg-gray-800"
+    navItems: isAdmin.value ? adminNavItems : teacherNavItems,
+    userIcon: isAdmin.value ? ICONS.admin : ICONS.teacher,
+    userColor: isAdmin.value ? "bg-primary" : "bg-gray-800"
   }
 })
 </script>
@@ -57,13 +55,17 @@ const sidebarContents = computed(() => {
 
       <!-- Sidebar Content -->
       <UiSidebarContent class="p-2">
-        <UiSidebarMenu>
+        <template v-if="isPending">
+          <UiSkeleton v-for="n in 5" class="h-10 w-full" />
+        </template>
+
+        <UiSidebarMenu v-else>
           <UiSidebarMenuItem v-for="item in sidebarContents.navItems" :key="item.href">
             <UiSidebarMenuButton
               as-child
               :is-active="
                 $route.path === item.href ||
-                (item.href !== '/admin' && $route.path.startsWith(item.href))
+                (item.href !== '/dashboard' && $route.path.startsWith(item.href))
               "
             >
               <NuxtLink :to="item.href" class="nav-item">

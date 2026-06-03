@@ -44,7 +44,7 @@ const columns = [
         {
           variant: "link",
           title: "Click to view",
-          to: `/admin/students/${row.original.id}`
+          to: `/dashboard/students/${row.original.id}`
         },
         () => getValue()
       )
@@ -58,7 +58,7 @@ const columns = [
         {
           variant: "outline",
           title: "Click to view",
-          to: `/admin/classes/${row.original.class.id}`
+          to: `/dashboard/classes/${row.original.class.id}`
         },
         () => row.original.class.name
       )
