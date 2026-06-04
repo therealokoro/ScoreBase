@@ -25,7 +25,7 @@ const columns = [
   columnHelper.accessor("name", {
     header: "Full Name",
     cell: ({ getValue, row }) =>
-      h(UiButton, { variant: "link", onClick: () => emit("edit", row) }, () => getValue())
+      h(UiButton, { variant: "link", onClick: () => emit("edit", row.original) }, () => getValue())
   }),
 
   columnHelper.accessor("email", { header: "Email Address" }),
