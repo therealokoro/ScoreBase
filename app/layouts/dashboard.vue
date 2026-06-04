@@ -79,7 +79,10 @@ const sidebarContents = computed(() => {
 
       <!-- Sidebar Footer -->
       <UiSidebarFooter class="border-t p-2 mt-auto">
-        <UiSkeleton class="w-full h-30" v-if="isPending && !currentUser" />
+        <div v-if="isPending && !currentUser" class="space-y-3">
+          <UiSkeleton v-for="n in 2" class="w-full h-6" />
+          <UiSkeleton class="w-full h-10" />
+        </div>
 
         <div v-else-if="currentUser" class="flex flex-col gap-2">
           <UiSidebarMenu>

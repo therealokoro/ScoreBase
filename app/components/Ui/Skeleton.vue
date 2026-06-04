@@ -23,23 +23,22 @@ const props = withDefaults(defineProps<Props>(), {
 const forwarded = reactiveOmit(props, "class", "loading", "shimmer")
 
 const styles = tv({
-  base: ["rounded-md", "relative overflow-hidden", "bg-muted"],
+  base: ["rounded-md", "bg-size-[600px_100%]"],
   variants: {
     loading: {
-      true: [
-        "cursor-wait",
-        "before:absolute before:inset-0",
-        "before:bg-linear-to-r",
-        "before:from-transparent before:via-white/10 before:to-transparent",
-        "before:animate-[shimmer_1.6s_ease-in-out_infinite]",
-        "before:-translate-x-full"
-      ],
-      false: "cursor-default opacity-60"
+      true: ["cursor-wait", "animate-shimmer"],
+      false: ["cursor-default", "opacity-60", "bg-muted"]
     },
     shimmer: {
-      subtle: "before:via-white/5",
-      default: "before:via-white/10",
-      strong: "before:via-white/20"
+      subtle: [
+        "bg-[linear-gradient(90deg,var(--color-muted)_25%,color-mix(in_oklch,var(--color-muted-foreground)_8%,transparent)_50%,var(--color-muted)_75%)]"
+      ],
+      default: [
+        "bg-[linear-gradient(90deg,var(--color-muted)_25%,color-mix(in_oklch,var(--color-muted-foreground)_15%,transparent)_50%,var(--color-muted)_75%)]"
+      ],
+      strong: [
+        "bg-[linear-gradient(90deg,var(--color-muted)_25%,color-mix(in_oklch,var(--color-muted-foreground)_25%,transparent)_50%,var(--color-muted)_75%)]"
+      ]
     }
   },
   defaultVariants: {

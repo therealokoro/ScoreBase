@@ -111,29 +111,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-input: var(--sidebar-input);
 
-  --color-gradient-lime: var(--gradient-lime);
-  --color-gradient-ocean: var(--gradient-ocean);
-  --color-gradient-wine: var(--gradient-wine);
-  --color-gradient-rust: var(--gradient-rust);
-
-  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(300%);
-    }
-  }
-}
-
-:root {
-  /* Gradient slide show Colors */
-  --gradient-lime: oklch(67.287% 0.1546 116.644);
-  --gradient-ocean: oklch(44.56% 0.10114 242.813);
-  --gradient-wine: oklch(32.332% 0.12034 5.266);
-  --gradient-rust: oklch(55.695% 0.19944 34.155);
+  --animate-shimmer: shimmer 3s ease-in-out infinite;
 }
 
 :root {
@@ -241,6 +219,15 @@
   }
   html.light {
     color-scheme: light;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -600px 0;
+    }
+    100% {
+      background-position: 600px 0;
+    }
   }
 }
 
