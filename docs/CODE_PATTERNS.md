@@ -6,7 +6,7 @@
 - **File Naming**: `useXXXX.ts` (e.g., `useAuth.ts`, `useTeachers.ts`)
 - **Function Naming**:
   - Lists: `useListXXXX()` (e.g., `useListAcademicSessions()`)
-  - Single item: `useGetXXXXDetail()` or `useFetchXXXX()` (e.g., `useGetDetaAcademicSessions()`)
+  - Single item: `useGetXXXXDetail()` or `useFetchXXXX()` (e.g., `useGetAcademicSessions()`)
   - Mutations: `useCreateXXXX()`, `useUpdateXXXX()`, `useDeleteXXXX()`
 - **Pattern**:
   - Exposes reactive state (refs/computed) and methods

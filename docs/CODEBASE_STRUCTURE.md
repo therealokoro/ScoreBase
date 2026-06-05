@@ -63,7 +63,7 @@ ScoreBase/
 ### 2. Page Structure
 
 - Uses Nuxt's file-based routing
-- Admin pages under `/app/pages/admin/` with subdirectories for each resource
+- Dashboard pages live in `/app/pages/dashboard/` with subdirectories for each resource
 - Pages typically:
   - Define layout metadata
   - Fetch data using `useAsyncData` or custom composables

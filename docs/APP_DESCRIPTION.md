@@ -1,10 +1,4 @@
-Here's the rewritten document — professional, structured, and agent-friendly (clear enough for an AI agent to parse roles, rules, and relationships unambiguously):
-
----
-
-# ScoreBase - A Nigerian Secondary School Result Management System — Product Requirements Document (PRD)
-
----
+# ScoreBase - A Nigerian School Result Management System — Product Requirements Document (PRD)
 
 ## 1. Overview
 
