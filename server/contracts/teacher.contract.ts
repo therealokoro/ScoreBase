@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
-import { ClassSchema, ClassWithSubjectListSchema } from "~~/shared/validators/academic"
+import { ClassWithSubjectListSchema } from "~~/shared/validators/academic"
 import {
   TeacherSchema,
   UpsertTeacherSchema,

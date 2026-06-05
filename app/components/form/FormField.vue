@@ -16,7 +16,9 @@ const id = useId()
 const slots = useSlots()
 const isInvalid = computed(() => !!props.error)
 const hasAddonStart = computed(() => !!props.icon || !!props.addonText)
-const hasAddonEnd = computed(() => !!props.iconRight || !!props.addonTextRight)
+const hasAddonEnd = computed(
+  () => !!props.iconRight || !!props.addonTextRight || slots["addon-right"]
+)
 
 defineExpose({ id })
 </script>

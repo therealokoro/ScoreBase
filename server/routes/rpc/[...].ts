@@ -1,6 +1,10 @@
 import { onError } from "@orpc/server"
 import { RPCHandler, BodyLimitPlugin } from "@orpc/server/fetch"
-import { CORSPlugin, SimpleCsrfProtectionHandlerPlugin } from "@orpc/server/plugins"
+import {
+  CORSPlugin,
+  RequestHeadersPlugin,
+  SimpleCsrfProtectionHandlerPlugin
+} from "@orpc/server/plugins"
 import { apiRouter } from "~~/server/routers"
 
 const handler = new RPCHandler(apiRouter, {
@@ -10,6 +14,7 @@ const handler = new RPCHandler(apiRouter, {
       allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
       credentials: true // required since client sends credentials: 'include'
     }),
+    new RequestHeadersPlugin(),
     new SimpleCsrfProtectionHandlerPlugin(),
     new BodyLimitPlugin({
       maxBodySize: 10 * 1024 * 1024 // 10MB

@@ -2,6 +2,8 @@ import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  if (import.meta.server) return
+
   const rc = useRuntimeConfig()
   const client = createAuthClient({
     baseURL: rc.public.betterAuthUrl as string,

@@ -88,8 +88,11 @@ const sidebarContents = computed(() => {
           <UiSidebarMenu>
             <!-- Settings Route -->
             <UiSidebarMenuItem>
-              <UiSidebarMenuButton as-child>
-                <NuxtLink to="/#settings" class="nav-item">
+              <UiSidebarMenuButton
+                as-child
+                :is-active="$route.path.startsWith('/dashboard/settings')"
+              >
+                <NuxtLink to="/dashboard/settings/account" class="nav-item">
                   <Icon :name="ICONS.settings" />
                   <span>Settings</span>
                 </NuxtLink>

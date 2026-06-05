@@ -104,8 +104,8 @@ const styles = tv({ base: "flex items-start gap-3" })
 
     <!-- Page Content -->
     <div v-else-if="!isLoading && !hasError" class="grid w-full gap-6">
-      <!-- Breadcrumb -->
       <div class="flex items-center gap-2">
+        <!-- Quick Navigation Buttons -->
         <ui-button-group>
           <ui-button
             @click="router.go(-1)"
@@ -122,6 +122,8 @@ const styles = tv({ base: "flex items-start gap-3" })
             size="icon-sm"
           />
         </ui-button-group>
+
+        <!-- Breadcrumb -->
         <UiBreadcrumbs v-if="crumbs.length" :items="crumbs" class="text-xs md:text-sm" />
       </div>
 
