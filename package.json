@@ -21,6 +21,7 @@
     "@iconify-json/lucide": "^1.2.107",
     "@iconify-json/tabler": "^1.2.35",
     "@internationalized/date": "^3.12.1",
+    "@internationalized/number": "^3.6.7",
     "@libsql/client": "^0.17.3",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.2",
