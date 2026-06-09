@@ -11,18 +11,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { TagsInputClear } from "reka-ui";
-  import type { TagsInputClearProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HtmlHTMLAttributes } from "vue";
+import { TagsInputClear } from "reka-ui"
+import type { TagsInputClearProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HtmlHTMLAttributes } from "vue"
 
-  const props = withDefaults(
-    defineProps<TagsInputClearProps & { icon?: string; class?: HtmlHTMLAttributes["class"] }>(),
-    {
-      icon: "lucide:x",
-    }
-  );
-  const styles = tv({
-    base: "hover:bg-muted-foreground flex items-center justify-center rounded bg-transparent p-1 opacity-40 transition hover:opacity-100 focus:opacity-100 focus-visible:outline-none",
-  });
+const props = withDefaults(
+  defineProps<TagsInputClearProps & { icon?: string; class?: HtmlHTMLAttributes["class"] }>(),
+  {
+    icon: "lucide:x"
+  }
+)
+const styles = tv({
+  base: "hover:bg-muted-foreground flex items-center justify-center rounded bg-transparent p-1 opacity-40 transition hover:opacity-100 focus:opacity-100 focus-visible:outline-none"
+})
 </script>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
-import FormField from './FormField.vue'
-import FormAddon from './FormAddon.vue'
+import { computed, useSlots } from "vue"
+
+import FormAddon from "./FormAddon.vue"
+import FormField from "./FormField.vue"
 
 interface Props {
   name?: string
@@ -21,14 +22,16 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   validateOnMount: false,
-  addOnKeys: () => ['Enter', ','],
+  addOnKeys: () => ["Enter", ","]
 })
 
 const model = defineModel<string[]>({ default: () => [] })
 
 const slots = useSlots()
-const hasAddonStart = computed(() => !!slots['addon']       || !!props.icon || !!props.addonText)
-const hasAddonEnd   = computed(() => !!slots['addon-right'] || !!props.iconRight || !!props.addonTextRight)
+const hasAddonStart = computed(() => !!slots["addon"] || !!props.icon || !!props.addonText)
+const hasAddonEnd = computed(
+  () => !!slots["addon-right"] || !!props.iconRight || !!props.addonTextRight
+)
 
 const styles = tv({
   base: "flex-1 rounded-none border-0 shadow-none ring-0 focus-within:ring-0 aria-invalid:border-destructive! aria-invalid:focus-within:ring-destructive/30!"
@@ -65,12 +68,7 @@ const styles = tv({
           <UiTagsInputItemDelete />
         </UiTagsInputItem>
 
-        <UiTagsInputInput
-          :id="inputId"
-          :placeholder
-          :disabled
-          @blur="field.handleBlur()"
-        />
+        <UiTagsInputInput :id="inputId" :placeholder :disabled @blur="field.handleBlur()" />
       </UiTagsInput>
 
       <FormAddon v-if="hasAddonEnd" :icon="iconRight" :text="addonTextRight" align="inline-end">
