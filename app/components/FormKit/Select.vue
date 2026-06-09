@@ -12,10 +12,6 @@ function handleOpenChange(open: boolean) {
 const isInvalid = computed(
   () => props.context.state.validationVisible && !props.context.state.valid
 )
-
-onMounted(() => {
-  console.log(props.context)
-})
 </script>
 
 <template>

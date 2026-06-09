@@ -37,6 +37,7 @@ const normalizedOptions = computed<SelectOption[]>(() =>
       <UiSelectTrigger class="w-full">
         <UiSelectValue :placeholder />
       </UiSelectTrigger>
+
       <UiSelectContent>
         <UiSelectItem v-for="option in normalizedOptions" :key="option.value" v-bind="option">
           {{ option.label }}
