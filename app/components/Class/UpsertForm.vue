@@ -1,15 +1,21 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { UpsertClassSchema, type UpsertClassInput } from "~~/shared/validators/academic"
+import { type UpsertClassInput } from "~~/shared/validators/academic"
 
 const props = defineProps<{
   initialData?: UpsertClassInput
   mode: "Edit" | "Create"
 }>()
 
+const initiaValue = computed(() => ({
+  name: props.initialData?.name,
+  teacherId: props.initialData?.teacherId
+}))
+
 const emit = defineEmits<{ submit: [payload: UpsertClassInput] }>()
 const isSheetOpen = defineModel<boolean>("open", { required: true })
+
+// Hoist FormKit's loading state out of the slot
+const isSubmitting = ref(false)
 
 const { data } = useListTeachers()
 const teachers = computed(() => {
@@ -22,14 +28,14 @@ const teachers = computed(() => {
   )
 })
 
-const { handleSubmit, isSubmitting } = useForm<UpsertClassInput>({
-  validationSchema: toTypedSchema(UpsertClassSchema),
-  initialValues: props.initialData ?? {}
-})
-
-const onSubmit = handleSubmit((payload) => {
-  emit("submit", payload)
-})
+async function onSubmit(payload: UpsertClassInput) {
+  isSubmitting.value = true
+  try {
+    emit("submit", payload)
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -41,24 +47,35 @@ const onSubmit = handleSubmit((payload) => {
       :description="`${mode === 'Create' ? 'Create a new' : 'Update a'} class`"
     >
       <template #content>
-        <form id="class-form" @submit.prevent="onSubmit">
-          <fieldset :disabled="isSubmitting" class="flex flex-col gap-4 p-4">
-            <FormInput
+        <FormKit
+          :value="initiaValue"
+          id="class-form"
+          type="form"
+          :actions="false"
+          @submit="onSubmit"
+        >
+          <fieldset :disabled="isSubmitting" class="p-4 pt-0">
+            <FormKitMessages class="mb-4" />
+
+            <FormKit
+              type="text"
               name="name"
               label="Class Name"
               placeholder="Enter the class name here"
-              description="e.g JSS1 or JSS1A"
+              help="e.g JSS1 or JSS1A"
+              validation="required"
             />
 
-            <FormSelect
+            <FormKit
+              type="_select"
               name="teacherId"
-              label="Class"
+              label="Class Teacher"
               :options="teachers"
               placeholder="Select a teacher for the class"
-              description="This is optional and can be done later"
+              help="This is optional and can be done later"
             />
           </fieldset>
-        </form>
+        </FormKit>
       </template>
 
       <template #footer>
@@ -69,6 +86,7 @@ const onSubmit = handleSubmit((payload) => {
                 Cancel
               </UiButton>
             </UiSheetClose>
+
             <UiButton
               class="flex-1"
               type="submit"

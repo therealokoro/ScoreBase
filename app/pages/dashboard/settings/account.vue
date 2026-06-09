@@ -1,34 +1,36 @@
 <script lang="ts" setup>
-import { UpdateAccountInfoSchema, type UpdateAccountInfoInput } from "~~/shared/validators/actors"
+import { type UpdateAccountInfoInput } from "~~/shared/validators/actors"
 
 const auth = useAuth()
 const user = computed(() => auth.currentUser.value)
 
-const { handleSubmit, isSubmitting, setValues } = useForm<UpdateAccountInfoInput>({
-  initialValues: { ...user.value },
-  validationSchema: toTypedSchema(UpdateAccountInfoSchema)
-})
-
-watch(
-  user,
-  (values) => {
-    if (values) setValues({ ...values })
-  },
-  { immediate: true }
-)
+// watch(
+//   user,
+//   (values) => {
+//     if (values) setValues({ ...values })
+//   },
+//   { immediate: true }
+// )
 
 const { $orpc } = useNuxtApp()
 const updateAccount = useMutation($orpc.account.updateAccount.mutationOptions())
-const onSubmit = handleSubmit((payload) => {
+
+const isSubmitting = ref(false)
+async function onSubmit(payload: UpdateAccountInfoInput) {
+  isSubmitting.value = true
   useSonner.promise(updateAccount.mutateAsync(payload), {
     loading: "Updating account info, please wait...",
     success: async () => {
+      isSubmitting.value = false
       await auth.refresh()
       return "Account info updated successfully"
     },
-    error: (e: any) => e.message
+    error: (e: any) => {
+      isSubmitting.value = false
+      return e.message
+    }
   })
-})
+}
 </script>
 
 <template>
@@ -42,11 +44,34 @@ const onSubmit = handleSubmit((payload) => {
 
     <!-- Body Content -->
     <div class="w-full">
-      <form @submit.prevent="onSubmit()" id="account-info-form">
+      <FormKit type="form" :actions="false" :value="user" @submit="onSubmit" id="account-info-form">
         <fieldset :disabled="isSubmitting" class="md:max-w-md space-y-4">
-          <FormInput name="name" placeholder="e.g John Doe" label="Full Name" />
-          <FormInput name="email" placeholder="e.g user@gmail.com" label="Email Address" />
-          <FormInput name="phoneNumber" placeholder="e.g 08012345678" label="Phone Number" />
+          <FormKitMessages class="mb-3" />
+
+          <FormKit
+            type="text"
+            name="name"
+            placeholder="e.g John Doe"
+            label="Full Name"
+            validation="required"
+          />
+
+          <FormKit
+            type="email"
+            name="email"
+            placeholder="e.g user@gmail.com"
+            label="Email Address"
+            validation="required|email"
+          />
+
+          <FormKit
+            type="tel"
+            name="phoneNumber"
+            placeholder="e.g 08012345678"
+            label="Phone Number"
+            validation="required"
+          />
+
           <UiButton
             :loading="isSubmitting"
             type="submit"
@@ -55,7 +80,7 @@ const onSubmit = handleSubmit((payload) => {
             class="h-10"
           />
         </fieldset>
-      </form>
+      </FormKit>
     </div>
   </div>
 </template>

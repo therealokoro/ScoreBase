@@ -1,40 +1,31 @@
 <script lang="ts" setup>
-import {
-  UpdateAccountPasswordSchema,
-  type UpdateAccountPasswordInput
-} from "~~/shared/validators/actors"
+import { reset } from "@formkit/vue"
+import { type UpdateAccountPasswordInput } from "~~/shared/validators/actors"
 
 const auth = useAuth()
 const userId = computed(() => auth.currentUser.value?.id)
 
-const { handleSubmit, isSubmitting, resetForm, setFieldValue } =
-  useForm<UpdateAccountPasswordInput>({
-    initialValues: { id: userId.value },
-    validationSchema: toTypedSchema(UpdateAccountPasswordSchema)
-  })
-
-watch(
-  userId,
-  (id) => {
-    if (id) setFieldValue("id", id)
-  },
-  { immediate: true }
-)
-
 const { $orpc } = useNuxtApp()
 const updatPassword = useMutation($orpc.account.updatePassword.mutationOptions())
-const onSubmit = handleSubmit((payload) => {
+
+const isSubmitting = ref(false)
+async function onSubmit(payload: UpdateAccountPasswordInput) {
   if (!userId.value) return
 
+  isSubmitting.value = true
   useSonner.promise(updatPassword.mutateAsync(payload), {
     loading: "Updating password, please wait...",
     success: () => {
-      resetForm()
+      reset("change-password-form")
+      isSubmitting.value = false
       return "Password updated successfully"
     },
-    error: (e: any) => e.message
+    error: (e: any) => {
+      isSubmitting.value = false
+      return e.message
+    }
   })
-})
+}
 </script>
 
 <template>
@@ -48,31 +39,40 @@ const onSubmit = handleSubmit((payload) => {
 
     <!-- Body Content -->
     <div class="w-full">
-      <form @submit.prevent="onSubmit()" id="change-password-form">
+      <FormKit type="form" :actions="false" @submit="onSubmit" id="change-password-form">
         <fieldset :disabled="isSubmitting" class="md:max-w-md space-y-4">
-          <FormPassword
+          <FormKitMessages class="mb-4" />
+
+          <FormKitPassword
             name="currentPassword"
             placeholder="**************"
             label="Current Password"
+            validation="required"
           />
 
-          <FormPassword name="newPassword" placeholder="**************" label="New Password" />
+          <FormKitPassword
+            name="newPassword"
+            placeholder="**************"
+            label="New Password"
+            validation="required"
+          />
 
-          <FormPassword
+          <FormKitPassword
             name="confirmPassword"
             placeholder="**************"
             label="Confirm Password"
+            validation="required|confirm:newPassword"
           />
 
           <UiButton
-            :loading="isSubmitting"
-            type="submit"
             block
-            text="Change Password"
             class="h-10"
+            type="submit"
+            text="Change Password"
+            :loading="isSubmitting"
           />
         </fieldset>
-      </form>
+      </FormKit>
     </div>
   </div>
 </template>

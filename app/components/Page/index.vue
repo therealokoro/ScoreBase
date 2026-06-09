@@ -38,11 +38,12 @@ const nuxtError = useError()
 
 // Only show the loader on the initial page mount, not on subsequent navigations,
 // to avoid replacing visible content with a spinner on every route change.
-const isMounted = ref(false)
-onMounted(() => {
-  isMounted.value = true
-})
-const isLoading = computed(() => (!isMounted.value && isPageLoading.value) || props.loading)
+// const isMounted = ref(false)
+// onMounted(() => {
+//   isMounted.value = true
+// })
+const isLoading = computed(() => isPageLoading.value || props.loading)
+// const isLoading = computed(() => (!isMounted.value && isPageLoading.value) || props.loading)
 
 // Prop error takes priority, then Nuxt's app-level error
 const activeError = computed(() => props.error ?? nuxtError.value ?? null)

@@ -16,10 +16,7 @@ const optimizeDepsArr = [
   "drizzle-orm",
   "drizzle-orm/sqlite-core",
   "@tanstack/vue-query",
-  "class-variance-authority",
-  "reka-ui",
-  "clsx",
-  "tailwind-merge"
+  "reka-ui"
 ]
 
 export default defineNuxtConfig({
@@ -27,15 +24,15 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   modules: [
-    "@peterbud/nuxt-query",
     "@nuxt/icon",
     "@nuxt/fonts",
     "@vueuse/nuxt",
     "@nuxthub/core",
-    "motion-v/nuxt",
+    "@formkit/nuxt",
     "vue-sonner/nuxt",
+    "@nuxtjs/color-mode",
     "@vee-validate/nuxt",
-    "@nuxtjs/color-mode"
+    "@peterbud/nuxt-query"
   ],
 
   nuxtQuery: { autoImports: true },
@@ -49,10 +46,7 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    optimizeDeps: {
-      noDiscovery: true,
-      include: optimizeDepsArr
-    }
+    optimizeDeps: { noDiscovery: true, include: optimizeDepsArr }
   },
 
   nitro: { experimental: { tasks: true } },
@@ -70,36 +64,27 @@ export default defineNuxtConfig({
 
   imports: {
     imports: [
-      {
-        from: "tailwind-variants",
-        name: "tv"
-      },
-      {
-        from: "tailwind-variants",
-        name: "VariantProps",
-        type: true
-      },
-      {
-        from: "vue-sonner",
-        name: "toast",
-        as: "useSonner"
-      }
+      { from: "tailwind-variants", name: "tv" },
+      { from: "tailwind-variants", name: "VariantProps", type: true },
+      { from: "vue-sonner", name: "toast", as: "useSonner" }
     ]
   },
 
+  formkit: {
+    autoImport: true,
+    configFile: "./app/formkit.config.ts"
+  },
+
   colorMode: {
-    storageKey: "ScoreBase-color-mode",
-    classSuffix: ""
+    classSuffix: "",
+    storageKey: "ScoreBase-color-mode"
   },
 
   icon: {
-    clientBundle: {
-      scan: true,
-      sizeLimitKb: 0
-    },
     mode: "svg",
     class: "shrink-0",
     fetchTimeout: 2000,
-    serverBundle: "local"
+    serverBundle: "local",
+    clientBundle: { scan: true, sizeLimitKb: 0 }
   }
 })

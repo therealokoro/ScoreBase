@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { UpsertStudentSchema, type UpsertStudentInput } from "~~/shared/validators/academic"
+import { type UpsertStudentInput } from "~~/shared/validators/academic"
 
 const props = defineProps<{
   initialData?: Partial<UpsertStudentInput>
@@ -19,14 +17,15 @@ const classes = computed(
     }) ?? []
 )
 
-// ─── Form ─────────────────────────────────────────────────────────────────────
-
-const { handleSubmit, isSubmitting } = useForm<UpsertStudentInput>({
-  validationSchema: toTypedSchema(UpsertStudentSchema),
-  initialValues: props.initialData ?? {}
-})
-
-const onSubmit = handleSubmit((payload) => emit("submit", payload))
+const isSubmitting = ref(false)
+async function onSubmit(payload: UpsertStudentInput) {
+  isSubmitting.value = true
+  try {
+    emit("submit", payload)
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
 // True when creating a student from within a class page —
 // classId is pre-filled and the select should be locked
@@ -54,44 +53,55 @@ const isCreateStudentForClass = computed(
           <UiSkeleton v-for="n in 4" :key="n" class="h-9 w-full" />
         </div>
 
-        <form v-else id="student-form" @submit.prevent="onSubmit">
-          <fieldset :disabled="isSubmitting" class="flex flex-col gap-4 p-4">
-            <FormInput
+        <FormKit
+          v-else
+          type="form"
+          id="student-form"
+          :actions="false"
+          :value="initialData"
+          @submit="onSubmit"
+        >
+          <fieldset :disabled="isSubmitting" class="p-4 pt-0">
+            <FormKitMessages class="mb-4" />
+
+            <FormKit
               name="name"
               label="Student Name"
               placeholder="Enter the student's name"
-              description="Full name of the student"
+              help="Full name of the student"
+              validation="required"
             />
 
-            <FormInput
+            <FormKit
               name="studentId"
               label="Student ID"
               placeholder="Enter student ID (optional)"
-              description="Optional student identifier (e.g., STU-2026-001)"
+              help="Optional student identifier (e.g., STU-2026-001)"
             />
 
             <!--
               Disabled when creating from a class page (classId is pre-filled).
               The field still shows the class name but can't be changed.
             -->
-            <FormSelect
+            <FormKit
+              type="_select"
               name="classId"
               label="Class"
               :options="classes"
               :disabled="isCreateStudentForClass"
               placeholder="Select a class for the student"
-              description="Required - student must be assigned to a class"
+              help="Required - student must be assigned to a class"
             />
 
-            <FormInput
+            <FormKit
+              type="tel"
               name="phoneNumber"
               label="Phone Number"
               placeholder="Enter phone number (optional)"
-              description="Optional contact number"
-              type="tel"
+              help="Optional contact number"
             />
           </fieldset>
-        </form>
+        </FormKit>
       </template>
 
       <template #footer>

@@ -1,0 +1,596 @@
+/*
+ * formkit.theme.css
+ *
+ * shadcn/ui theme for FormKit — pure CSS, no rootClasses function needed.
+ *
+ * ── How to use ────────────────────────────────────────────────────────────────
+ * 1. Import this file in your Nuxt app's main CSS entry:
+ *      In nuxt.config.ts:  css: ['~/assets/css/formkit.theme.css']
+ *    Or at the top of your tailwind.css:
+ *      @import './formkit.theme.css';
+ *
+ * 2. In formkit.config.ts just use an empty config — no rootClasses needed:
+ *      export default defineFormKitConfig({})
+ *
+ * 3. No @source directives needed — this file uses raw CSS custom properties,
+ *    not Tailwind utility classes, so there's nothing for Tailwind to purge.
+ *
+ * ── Token reference (from your tailwind.css) ─────────────────────────────────
+ *    --background        --foreground      --primary       --primary-foreground
+ *    --input             --border          --ring          --muted-foreground
+ *    --destructive       --secondary       --radius
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+@layer components {
+  /* ── Shared helpers ──────────────────────────────────────────────────────── */
+
+  /*
+   * These custom properties are local to FormKit elements.
+   * Declaring them on .formkit-outer lets child selectors inherit them,
+   * and makes overrides trivial: just re-declare on a parent element.
+   */
+  .formkit-outer {
+    --fk-radius: var(--radius, 0.65rem);
+    --fk-border: var(--input);
+    --fk-ring-color: var(--ring);
+    --fk-ring-width: 3px;
+    --fk-ring-shadow: 0 0 0 var(--fk-ring-width)
+      color-mix(in oklch, var(--fk-ring-color) 50%, transparent);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     OUTER  — the root wrapper of every FormKit input
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-outer {
+    margin-bottom: 1rem; /* mb-4 */
+  }
+
+  .formkit-outer[data-disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     WRAPPER  — sits between outer and label/inner
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem; /* space-y-1.5 */
+  }
+
+  /* Box inputs (checkbox / radio) use a row layout */
+  .formkit-outer[data-type="checkbox"] .formkit-wrapper,
+  .formkit-outer[data-type="radio"] .formkit-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem; /* gap-3 */
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     LABEL
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    line-height: 1; /* leading-none */
+    color: var(--foreground);
+  }
+
+  /* Checkbox / radio label: sits next to the box, cursor pointer */
+  .formkit-outer[data-type="checkbox"] .formkit-label,
+  .formkit-outer[data-type="radio"] .formkit-label {
+    cursor: pointer;
+    padding-top: 1px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--foreground);
+  }
+
+  /* Disabled label */
+  .formkit-outer[data-disabled] .formkit-label {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     INNER  — wraps the raw <input>; provides the visible border + focus ring
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: calc(var(--fk-radius) - 2px); /* rounded-md */
+    border: 1px solid var(--fk-border);
+    background-color: var(--background);
+    /* box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);  */
+    transition:
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  /* Focus ring — applied to inner when any child is focused */
+  .formkit-inner:focus-within {
+    border-color: var(--fk-ring-color);
+    box-shadow: var(--fk-ring-shadow);
+    outline: none;
+  }
+
+  /* Invalid state */
+  .formkit-outer[data-invalid] .formkit-inner {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 var(--fk-ring-width) color-mix(in oklch, var(--destructive) 20%, transparent);
+  }
+
+  /* Box inputs don't get a border wrapper */
+  .formkit-outer[data-type="checkbox"] .formkit-inner,
+  .formkit-outer[data-type="radio"] .formkit-inner {
+    width: auto;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border: none;
+    background: none;
+    box-shadow: none;
+  }
+
+  .formkit-outer[data-type="checkbox"] .formkit-inner:focus-within,
+  .formkit-outer[data-type="radio"] .formkit-inner:focus-within {
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Range — no border wrapper */
+  .formkit-outer[data-type="range"] .formkit-inner {
+    border: none;
+    background: none;
+    box-shadow: none;
+  }
+
+  .formkit-outer[data-type="range"] .formkit-inner:focus-within {
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Select — needs position:relative for the chevron icon */
+  .formkit-outer[data-type="select"] .formkit-inner {
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     INPUT  — the raw <input> / <textarea> / <select> element
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-input {
+    display: flex;
+    height: 2.25rem; /* h-9 */
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+    padding: 0.25rem 0.75rem; /* py-1 px-3 */
+    font-size: 0.875rem; /* text-sm */
+    color: var(--foreground);
+    outline: none;
+    border: none;
+  }
+
+  .formkit-input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  .formkit-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ── textarea ── */
+  .formkit-outer[data-type="textarea"] .formkit-input {
+    height: auto;
+    min-height: 5rem; /* min-h-[80px] */
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    resize: vertical;
+  }
+
+  /* ── select ── */
+  .formkit-outer[data-type="select"] .formkit-input {
+    appearance: none;
+    padding-right: 2rem; /* space for chevron */
+    cursor: pointer;
+  }
+
+  /* ── checkbox ── */
+  .formkit-outer[data-type="checkbox"] .formkit-input {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    border-radius: calc(var(--fk-radius) - 4px); /* rounded-sm */
+    border: 1px solid var(--input);
+    background-color: var(--background);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+    appearance: none;
+    accent-color: var(--primary);
+  }
+
+  .formkit-outer[data-type="checkbox"] .formkit-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    /* Custom checkmark via SVG background */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .formkit-outer[data-type="checkbox"] .formkit-input:focus-visible {
+    outline: none;
+    border-color: var(--fk-ring-color);
+    box-shadow: var(--fk-ring-shadow);
+  }
+
+  /* ── radio ── */
+  .formkit-outer[data-type="radio"] .formkit-input {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    border-radius: 9999px; /* rounded-full */
+    border: 1px solid var(--input);
+    background-color: var(--background);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+    appearance: none;
+    accent-color: var(--primary);
+  }
+
+  .formkit-outer[data-type="radio"] .formkit-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    /* Filled circle via radial-gradient */
+    background-image: radial-gradient(circle, var(--primary-foreground) 35%, transparent 36%);
+  }
+
+  .formkit-outer[data-type="radio"] .formkit-input:focus-visible {
+    outline: none;
+    border-color: var(--fk-ring-color);
+    box-shadow: var(--fk-ring-shadow);
+  }
+
+  /* ── range ── */
+  .formkit-outer[data-type="range"] .formkit-input {
+    height: 0.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--secondary);
+    cursor: pointer;
+    appearance: none;
+    accent-color: var(--primary);
+    outline: none;
+  }
+
+  /* WebKit thumb */
+  .formkit-outer[data-type="range"] .formkit-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background-color: var(--primary);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    cursor: grab;
+  }
+
+  .formkit-outer[data-type="range"] .formkit-input::-webkit-slider-thumb:active {
+    cursor: grabbing;
+  }
+
+  /* Firefox thumb */
+  .formkit-outer[data-type="range"] .formkit-input::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--primary);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    cursor: grab;
+  }
+
+  /* ── color ── */
+  .formkit-outer[data-type="color"] .formkit-inner {
+    padding: 0 0.75rem;
+    height: 2.25rem;
+  }
+
+  .formkit-outer[data-type="color"] .formkit-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    border-radius: calc(var(--fk-radius) - 4px);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* ── file ── */
+  .formkit-outer[data-type="file"] .formkit-input {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .formkit-outer[data-type="file"] .formkit-input::file-selector-button {
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     PREFIX / SUFFIX ICONS  — rendered inside .formkit-inner by FormKit's
+     icon system. Triggered via prefix-icon / suffix-icon props on <FormKit>.
+     The icon SVG is injected into .formkit-prefix-icon / .formkit-suffix-icon.
+
+     When an icon is present FormKit also adds data-has-prefix-icon /
+     data-has-suffix-icon to .formkit-outer, which we use to shift the
+     input's padding so text never slides under the icon.
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Icon containers */
+  .formkit-prefix-icon,
+  .formkit-suffix-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--muted-foreground);
+    /* Vertically centre relative to the h-9 inner */
+    align-self: center;
+  }
+
+  .formkit-prefix-icon {
+    padding-left: 0.75rem; /* 12px — same as input px-3 */
+  }
+
+  .formkit-suffix-icon {
+    padding-right: 0.75rem;
+  }
+
+  .formkit-prefix-icon svg,
+  .formkit-suffix-icon svg {
+    width: 1rem; /* 16px */
+    height: 1rem;
+    display: block;
+    pointer-events: none;
+  }
+
+  /*
+   * Input padding compensation — when a prefix icon is present the input
+   * needs reduced left padding (icon already provides visual separation).
+   * Same logic for suffix.
+   *
+   * FormKit sets data-has-prefix-icon / data-has-suffix-icon on .formkit-outer
+   * whenever those icon props are populated.
+   */
+  .formkit-outer[data-has-prefix-icon] .formkit-input {
+    padding-left: 0.375rem; /* px-1.5 — tight gap after the icon */
+  }
+
+  .formkit-outer[data-has-suffix-icon] .formkit-input {
+    padding-right: 0.375rem;
+  }
+
+  /* ── Select chevron icon ── */
+  /* FormKit renders this as .formkit-select-icon inside .formkit-inner */
+  .formkit-select-icon {
+    pointer-events: none;
+    position: absolute;
+    right: 0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    color: var(--muted-foreground);
+  }
+
+  .formkit-select-icon svg {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     DECORATOR  — FormKit's checkbox/radio visual indicator (we hide it;
+                  we're using the native styled <input> directly instead)
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-decorator,
+  .formkit-decorator-icon {
+    display: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     HELP  — hint text below the field
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-help {
+    margin-top: 0.375rem; /* mt-1.5 */
+    font-size: 0.75rem; /* text-xs */
+    color: var(--muted-foreground);
+  }
+
+  /* Checkbox / radio: indent help to align with label */
+  .formkit-outer[data-type="checkbox"] .formkit-help,
+  .formkit-outer[data-type="radio"] .formkit-help {
+    margin-top: 0.125rem;
+    margin-left: 1.75rem; /* 1rem box + 0.75rem gap */
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     MESSAGES / MESSAGE  — validation errors
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-messages {
+    margin-top: 0.375rem; /* mt-1.5 */
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* space-y-1 */
+  }
+
+  /* Checkbox / radio: indent to align with label */
+  .formkit-outer[data-type="checkbox"] .formkit-messages,
+  .formkit-outer[data-type="radio"] .formkit-messages {
+    margin-left: 1.75rem;
+  }
+
+  .formkit-message {
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 500; /* font-medium */
+    color: var(--destructive);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SUBMIT BUTTON
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-outer[data-type="submit"] .formkit-wrapper,
+  .formkit-outer[data-type="submit"] .formkit-inner {
+    /* Reset the wrapper/inner — submit doesn't need them */
+    display: contents;
+  }
+
+  .formkit-outer[data-type="submit"] .formkit-input {
+    /* shadcn/ui Button — default variant */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: calc(var(--fk-radius) - 2px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    height: 2.25rem; /* h-9 */
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    width: 100%;
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+
+  .formkit-outer[data-type="submit"] .formkit-input:hover:not(:disabled) {
+    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+  }
+
+  .formkit-outer[data-type="submit"] .formkit-input:focus-visible {
+    border-color: var(--fk-ring-color);
+    box-shadow: var(--fk-ring-shadow);
+  }
+
+  .formkit-outer[data-type="submit"] .formkit-input:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* Loading state (async submit in flight) */
+  .formkit-outer[data-type="submit"] .formkit-input[data-loading] {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FORM-LEVEL MESSAGES  — errors on <FormKit type="form">
+     (shown via <FormKitMessages /> — these target the root form node)
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-outer[data-type="form"] > .formkit-messages {
+    margin-bottom: 1rem;
+    border-radius: calc(var(--fk-radius) - 2px);
+    border: 1px solid color-mix(in oklch, var(--destructive) 50%, transparent);
+    background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+    padding: 0.75rem 1rem;
+  }
+
+  .formkit-outer[data-type="form"] > .formkit-messages .formkit-message {
+    font-size: 0.875rem; /* text-sm for form-level errors — more prominent */
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FILE INPUT  — file list rendered below the input
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  .formkit-file-list {
+    margin-top: 0.375rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .formkit-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+  }
+
+  .formkit-file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .formkit-file-remove {
+    margin-left: auto;
+    font-size: 0.75rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    transition: color 0.15s ease;
+  }
+
+  .formkit-file-remove:hover {
+    color: var(--foreground);
+  }
+
+  .formkit-no-files {
+    display: none;
+  }
+
+  /* ── Custom select (_select type) ─────────────────────────────────────────── */
+
+  .formkit-outer[data-type="_select"] .formkit-inner {
+    border: none;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .formkit-outer[data-type="_select"] .formkit-inner:focus-within {
+    border: none;
+    box-shadow: none;
+  }
+} /* end @layer components */

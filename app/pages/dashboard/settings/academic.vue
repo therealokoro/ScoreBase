@@ -5,6 +5,10 @@ const termPresetOptions = [
   { label: "1st, 2nd and 3rd", value: "numbered" },
   { label: "First, Second and Third", value: "verbertim" }
 ]
+
+function handleSubmit(payload: any) {
+  console.log(payload)
+}
 </script>
 
 <template>
@@ -18,51 +22,75 @@ const termPresetOptions = [
 
     <!-- Body Content -->
     <div class="w-full">
-      <form @submit.prevent="" id="account-info-form">
-        <fieldset class="md:max-w-md space-y-4">
-          <FormInput
-            name="school_name"
+      <FormKit type="form" :actions="false" @submit="handleSubmit">
+        <fieldset class="md:max-w-md space-y-6">
+          <FormKit
+            type="text"
+            name="schoolName"
             label="School Name"
-            placeholder="Enter the name of your school"
-            description="This will be used in the result page"
+            placeholder="Enter your school's name here"
+            help="This will be displayed on the result page"
           />
 
-          <FormSelect
+          <FormKit
+            type="text"
+            name="sessionSuffix"
+            label="Session Suffix"
+            placeholder="e.g Academic Session"
+            help="This is a text prepended to the session names"
+          />
+
+          <FormKit
+            type="_select"
             name="termPreset"
             label="Term Preset"
             placeholder="Select a term preset"
-            description="This is how terms will be displayed"
             :options="termPresetOptions"
+            help="Choose how you'd like your terms to be created"
           />
 
-          <UiField>
-            <UiFieldLabel>Total Score Per Term</UiFieldLabel>
-            <UiFieldDescription>
-              This is the total score obtainable per term for each student
-            </UiFieldDescription>
-            <div class="grid grid-cols-3 gap-4">
-              <FormNumber
-                :min="10"
-                name="first-term-score"
-                label="1st Term"
-                placeholder="1st Term"
-              />
-              <FormNumber
-                :min="10"
-                name="second-term-score"
-                label="2nd Term"
-                placeholder="2nd Term"
-              />
-              <FormNumber
-                :min="10"
-                name="third-term-score"
-                label="3rd Term"
-                placeholder="3rd Term"
-              />
+          <FormKit type="group" name="scoreDistribution">
+            <div class="space-y-2">
+              <UiFieldLabel>Score Distribution</UiFieldLabel>
+              <div class="grid grid-cols-4 gap-2">
+                <FormKit
+                  v-for="item in ['1st', '2nd', '3rd', 'Exam']"
+                  type="number"
+                  :name="item"
+                  :label="item === 'Exam' ? item : `${item} CA`"
+                  :classes="{
+                    outer: 'mb-0',
+                    label: 'text-xs text-muted-foreground',
+                    input: 'text-xs'
+                  }"
+                  placeholder="Enter score"
+                  validation="required"
+                  :validation-messages="{ required: 'Required' }"
+                />
+              </div>
+              <UiFieldDescription>
+                Input your preferred score distribution for CAs and Exams
+              </UiFieldDescription>
             </div>
-          </UiField>
+          </FormKit>
+
+          <FormKit
+            type="_tags"
+            name="subjectTags"
+            label="Subject Tags"
+            placeholder="Create tags for subjects"
+            help="Subject tags are used to filter and manage subjects"
+          />
+
+          <FormKit
+            type="text"
+            name="studentIdPrefix"
+            label="Student ID Prefix"
+            placeholder="e.g STU-2026-XXXX"
+            help="Create a prefix for student's ID creation"
+          />
         </fieldset>
-      </form>
+      </FormKit>
     </div>
   </div>
 </template>
