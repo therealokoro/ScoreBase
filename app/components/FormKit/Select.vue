@@ -12,6 +12,10 @@ function handleOpenChange(open: boolean) {
 const isInvalid = computed(
   () => props.context.state.validationVisible && !props.context.state.valid
 )
+
+onMounted(() => {
+  console.log(props.context)
+})
 </script>
 
 <template>
@@ -21,6 +25,7 @@ const isInvalid = computed(
     :multiple="context.multiple"
     :disabled="context.disabled"
     :value="context.value"
+    :default-value="context.value"
     :id="context.id"
     @update:model-value="handleInput"
     @update:open="handleOpenChange"

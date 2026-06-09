@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { UpsertTeacherSchema, type UpsertTeacherInput } from "~~/shared/validators/actors"
+import { type UpsertTeacherInput } from "~~/shared/validators/actors"
 
 const props = defineProps<{
   initialData?: UpsertTeacherInput
@@ -16,14 +14,15 @@ const classes = computed(() => {
   return data.value?.map((curr) => ({ value: curr.id, label: curr.name })) || []
 })
 
-const { handleSubmit, isSubmitting } = useForm<UpsertTeacherInput>({
-  validationSchema: toTypedSchema(UpsertTeacherSchema),
-  initialValues: props.initialData ?? {}
-})
-
-const onSubmit = handleSubmit((payload) => {
-  emit("submit", payload)
-})
+const isSubmitting = ref(false)
+async function onSubmit(payload: UpsertTeacherInput) {
+  isSubmitting.value = true
+  try {
+    emit("submit", payload)
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -35,40 +34,52 @@ const onSubmit = handleSubmit((payload) => {
       :description="`${mode === 'Create' ? 'Create a new' : 'Update'} teacher's info`"
     >
       <template #content>
-        <form id="teacher-form" @submit="onSubmit">
-          <fieldset :disabled="isSubmitting" class="flex flex-col gap-4 p-4">
-            <FormInput
+        <FormKit
+          type="form"
+          :actions="false"
+          :value="initialData"
+          id="teacher-form"
+          @submit="onSubmit"
+        >
+          <fieldset :disabled="isSubmitting" class="p-4 pt-0">
+            <FormKitMessages class="mb-4" />
+
+            <FormKit
               name="name"
               label="Full Name"
               placeholder="Enter the teacher's full name here"
-              description="e.g John Emeka Olabisi"
+              help="e.g John Emeka Olabisi"
+              validation="required"
             />
 
-            <FormInput
+            <FormKit
               type="email"
               name="email"
               label="Email Address"
               placeholder="Enter the teacher's email address here"
-              description="e.g john@gmail.com"
+              help="e.g john@gmail.com"
+              validation="required|email"
             />
 
-            <FormInput
+            <FormKit
               type="tel"
               name="phoneNumber"
               label="Phone Number"
               placeholder="Enter the teacher's phone number here"
-              description="e.g 09012345678"
+              help="e.g 09012345678"
+              validation="required"
             />
 
-            <FormSelect
+            <FormKit
+              type="_select"
               name="classId"
               label="Class"
               :options="classes"
               placeholder="Pick a class to assign the teacher to"
-              description="This is optional and can be done later"
+              help="This is optional and can be done later"
             />
           </fieldset>
-        </form>
+        </FormKit>
       </template>
 
       <template #footer>
