@@ -31,7 +31,6 @@ export default defineNuxtConfig({
     "@formkit/nuxt",
     "vue-sonner/nuxt",
     "@nuxtjs/color-mode",
-    "@vee-validate/nuxt",
     "@peterbud/nuxt-query"
   ],
 

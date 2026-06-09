@@ -1,6 +1,5 @@
 {
-  "name": "scorebase",
-  "private": true,
+  "name": "Scorebase",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
