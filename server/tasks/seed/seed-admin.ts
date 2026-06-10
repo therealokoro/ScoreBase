@@ -1,8 +1,9 @@
+import { serverAuth as auth } from "~~/server/utils/server-auth"
+
 export default defineTask({
   meta: { name: "seed:admin" },
   async run() {
     console.log("🛡 Seeding admin...")
-    const auth = getServerAuth()
 
     const rc = useRuntimeConfig()
     const { user } = await auth.api.createUser({
@@ -10,9 +11,8 @@ export default defineTask({
         email: rc.defaultAdminEmail,
         password: rc.defaultAdminPass,
         name: rc.defaultAdminName,
-        data: {
-          phoneNumber: rc.defaultAdminPhone
-        }
+        role: "admin",
+        data: { phoneNumber: rc.defaultAdminPhone }
       }
     })
 

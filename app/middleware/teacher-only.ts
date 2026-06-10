@@ -1,17 +1,14 @@
-import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
-import { createAuthClient } from "better-auth/vue"
+export default defineNuxtRouteMiddleware((to) => {
+  const { isLoggedIn, currentUser } = useAuth()
 
-export default defineNuxtRouteMiddleware(async (to) => {
-  const rc = useRuntimeConfig()
-  const client = createAuthClient({
-    baseURL: rc.public.betterAuthUrl as string,
-    plugins: [adminClient(), inferAdditionalFields()]
-  })
+  // Redirect unauthenticated users to login
+  if (!isLoggedIn.value) {
+    return navigateTo({ path: "/login", query: { redirect: to.fullPath } })
+  }
 
-  const { data } = await client.getSession()
-  const userRole = ((data?.user as any)?.role as string | null) ?? null
+  const userRole = ((currentUser.value as any)?.role as string | null) ?? null
 
   if (userRole !== "teacher") {
-    return navigateTo({ path: "/login", query: { redirect: to.fullPath } })
+    return navigateTo("/dashboard")
   }
 })

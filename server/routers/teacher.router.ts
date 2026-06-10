@@ -2,13 +2,14 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { teacherContract } from "../contracts/teacher.contract"
+import { serverAuth } from "../utils/server-auth"
 import { classes, user } from "../db/schema"
 import { listStudentsByClass } from "../queries/student.query"
 import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
 
 async function assignClassToTeacher(classId: string | undefined, userId: string) {
-  // Assign class to teacher if class is provided
   let selectedClass: { id: string; name: string } | null = null
   if (classId) {
     const [assignedClass] = await db
@@ -23,7 +24,9 @@ async function assignClassToTeacher(classId: string | undefined, userId: string)
   return selectedClass
 }
 
-const os = implement(teacherContract)
+// All procedures share the APiContext so `context.session` is available
+// if you need to restrict any of these to admins in the future.
+const os = implement(teacherContract).$context<APiContext>()
 
 const listTeachers = os.list.handler(async () => await listAllTeachers())
 
@@ -34,9 +37,7 @@ const getSingleTeacher = os.getOne.handler(async ({ input, errors }) => {
 })
 
 const createTeacher = os.create.handler(async ({ input, errors }) => {
-  const auth = getServerAuth()
-
-  // check if a user exist with either of the provided email or phone number
+  // Use the singleton — no more re-initialization on every call
   const existingTeacher = await db.query.user.findFirst({
     where: (user, { eq, or }) =>
       or(eq(user.email, input.email), eq(user.phoneNumber, input.phoneNumber))
@@ -44,25 +45,24 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
 
   if (existingTeacher) throw errors.CONFLICT()
 
-  // create the teacher using better-auth create user api since teachers are users
-  const { user } = await auth.api.createUser({
+  const { user: newUser } = await serverAuth.api.createUser({
     body: {
       name: input.name,
       email: input.email,
       password: input.phoneNumber,
-      role: "teacher",
+      role: "teacher" as "user" | "admin",
       data: { phoneNumber: input.phoneNumber }
     }
   })
 
-  const selectedClass = await assignClassToTeacher(input.classId, user.id)
+  const selectedClass = await assignClassToTeacher(input.classId, newUser.id)
 
   return {
-    id: user.id,
-    name: user.name,
-    role: user.role!,
-    email: user.email,
-    createdAt: user.createdAt,
+    id: newUser.id,
+    name: newUser.name,
+    role: newUser.role!,
+    email: newUser.email,
+    createdAt: newUser.createdAt,
     phoneNumber: input.phoneNumber,
     class: selectedClass
   }
@@ -72,13 +72,11 @@ const updateTeacher = os.update.handler(async ({ input, errors }) => {
   const existingTeacher = await fetchSingleTeacher(input.id)
   if (!existingTeacher) throw errors.NOT_FOUND()
 
-  // Check email conflict if email changed
   if (input.email !== existingTeacher.email) {
     const emailExist = await db.query.user.findFirst({ where: eq(user.email, input.email) })
     if (emailExist) throw errors.CONFLICT({ message: "This email is already taken" })
   }
 
-  // Check phoneNumber conflict if phoneNumber changed
   if (input.phoneNumber !== existingTeacher.phoneNumber) {
     const phoneNoExist = await db.query.user.findFirst({
       where: eq(user.phoneNumber, input.phoneNumber)

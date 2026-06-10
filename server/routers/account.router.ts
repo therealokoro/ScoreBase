@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm"
 import type { APiContext } from "../context"
 import { accountContract } from "../contracts/account.contract"
 import { user } from "../db/schema"
+import { serverAuth } from "../utils/server-auth"
 
 const os = implement(accountContract).$context<APiContext>()
 
@@ -12,13 +13,11 @@ const updateAccount = os.updateInfo.handler(async ({ input, errors }) => {
   const existingAccount = await db.query.user.findFirst({ where: eq(user.id, input.id) })
   if (!existingAccount) throw errors.NOT_FOUND()
 
-  // Check email conflict if email changed
   if (input.email !== existingAccount.email) {
     const emailExist = await db.query.user.findFirst({ where: eq(user.email, input.email) })
     if (emailExist) throw errors.CONFLICT({ message: "This email is already taken" })
   }
 
-  // Check phoneNumber conflict if phoneNumber changed
   if (input.phoneNumber !== existingAccount.phoneNumber) {
     const phoneNoExist = await db.query.user.findFirst({
       where: eq(user.phoneNumber, input.phoneNumber)
@@ -37,10 +36,12 @@ const updatePassword = os.updatePassword.handler(async ({ input, errors, context
   const existingAccount = await db.query.user.findFirst({ where: eq(user.id, input.id) })
   if (!existingAccount) throw errors.NOT_FOUND()
 
-  const auth = getServerAuth()
-
+  // Use the singleton — no more re-initialization on every call.
+  // context.reqHeaders carries the original request headers (including the
+  // session cookie) forwarded by RequestHeadersPlugin, which better-auth
+  // needs to validate the current session for changePassword.
   try {
-    await auth.api.changePassword({
+    await serverAuth.api.changePassword({
       body: {
         currentPassword: input.currentPassword,
         newPassword: input.newPassword
@@ -52,6 +53,7 @@ const updatePassword = os.updatePassword.handler(async ({ input, errors, context
     throw errors.INCORRECT_PASSWORD({ message: error.message })
   }
 })
+
 export const accountRouter = {
   updateAccount,
   updatePassword

@@ -1,15 +1,17 @@
+import { serverAuth as auth } from "~~/server/utils/server-auth"
+
 export default defineEventHandler(async () => {
   try {
-    const auth = getServerAuth()
+    console.log("🛡 Seeding admin...")
     const rc = useRuntimeConfig()
 
     const { user } = await auth.api.createUser({
       body: {
-        email: rc.nuxtDefaultAdminEmail,
-        password: rc.nuxtDefaultAdminPass,
-        name: "Administrator",
+        email: rc.defaultAdminEmail,
+        password: rc.defaultAdminPass,
+        name: rc.defaultAdminName,
         role: "admin",
-        data: { phoneNumber: "00000000000" }
+        data: { phoneNumber: rc.defaultAdminPhone }
       }
     })
 

@@ -5,7 +5,9 @@ import {
   RequestHeadersPlugin,
   SimpleCsrfProtectionHandlerPlugin
 } from "@orpc/server/plugins"
+import type { APiContext } from "~~/server/context"
 import { apiRouter } from "~~/server/routers"
+import { serverAuth } from "~~/server/utils/server-auth"
 
 const handler = new RPCHandler(apiRouter, {
   plugins: [
@@ -29,8 +31,22 @@ const handler = new RPCHandler(apiRouter, {
 
 export default defineEventHandler(async (event) => {
   const request = toWebRequest(event)
+
+  // Resolve the session once per request and inject it into the ORPC context.
+  // This means individual routers no longer need to call auth themselves, and
+  // unauthenticated requests can be rejected centrally here or per-procedure.
+  const session = await serverAuth.api.getSession({ headers: request.headers })
+
+  const context: APiContext = {
+    session,
+    // reqHeaders is consumed by RequestHeadersPlugin (used by account router
+    // when it calls auth.api.changePassword with the original request headers)
+    reqHeaders: request.headers
+  }
+
   const { matched, response } = await handler.handle(request, {
-    prefix: "/rpc"
+    prefix: "/rpc",
+    context
   })
 
   if (matched) {

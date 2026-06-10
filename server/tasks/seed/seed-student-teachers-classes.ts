@@ -7,7 +7,7 @@ import {
   numberPrefixes,
   classNames
 } from "~~/server/lib/seed-data"
-import { getServerAuth } from "~~/server/utils/server-auth"
+import { serverAuth as auth } from "~~/server/utils/server-auth"
 
 // Nigerian first names and last names pools
 
@@ -72,8 +72,6 @@ export default defineTask({
       }
     })
 
-    const auth = getServerAuth()
-
     const teacherRecords = await Promise.all(
       teacherDrafts.map((draft) =>
         auth.api
@@ -82,7 +80,7 @@ export default defineTask({
               name: draft.name,
               email: draft.email,
               password: draft.password,
-              role: "user",
+              role: "teacher" as "user" | "admin",
               data: {
                 phoneNumber: draft.phoneNumber,
                 emailVerified: true

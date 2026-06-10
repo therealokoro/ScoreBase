@@ -48,13 +48,15 @@ async function onSubmit(payload: UpdateAccountPasswordInput) {
             placeholder="**************"
             label="Current Password"
             validation="required"
+            help="Enter your current account password"
           />
 
           <FormKitPassword
             name="newPassword"
             placeholder="**************"
             label="New Password"
-            validation="required"
+            validation="required|min:5"
+            help="Not less than 5 characters long"
           />
 
           <FormKitPassword

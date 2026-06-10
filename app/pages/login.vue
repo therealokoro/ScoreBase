@@ -15,7 +15,6 @@ async function onSubmit(payload: LoginInputType) {
     async onSuccess() {
       isSubmitting.value = false
       useSonner.success("Login successful, redirecting you....")
-      await auth.refresh()
       await navigateTo("/dashboard")
     },
     onError(e: any) {

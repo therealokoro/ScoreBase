@@ -16,16 +16,10 @@ const props = withDefaults(
     error?: Error | null
     class?: string
     badge?: string
-    /** Show an empty state instead of the page slot */
-    empty?: boolean
-    /** Message shown in the empty state */
-    emptyMessage?: string
   }>(),
   {
     loading: false,
-    error: null,
-    empty: false,
-    emptyMessage: "Nothing to show here yet."
+    error: null
   }
 )
 
@@ -33,17 +27,19 @@ useHead(() => ({
   title: props.title ? `${props.title} | ScoreBase` : "ScoreBase"
 }))
 
-const { isLoading: isPageLoading } = useLoadingIndicator()
 const nuxtError = useError()
 
-// Only show the loader on the initial page mount, not on subsequent navigations,
-// to avoid replacing visible content with a spinner on every route change.
-// const isMounted = ref(false)
-// onMounted(() => {
-//   isMounted.value = true
-// })
-const isLoading = computed(() => isPageLoading.value || props.loading)
-// const isLoading = computed(() => (!isMounted.value && isPageLoading.value) || props.loading)
+// useLoadingIndicator() reflects Nuxt's router-level loading bar and fires on
+// every <NuxtPage /> render — including nested ones (e.g. settings sub-pages).
+// Using it to gate page *content* visibility means any parent Page component
+// re-hides its content behind a spinner whenever a child route navigates,
+// which is what caused the permanent spinner on /dashboard/settings/*.
+//
+// The loading indicator belongs on a global progress bar (e.g. in app.vue),
+// not inside individual page content guards. Page content should only show a
+// spinner when the page itself is explicitly fetching something — i.e. when
+// the `loading` prop is passed as true by the consumer.
+const isLoading = computed(() => props.loading)
 
 // Prop error takes priority, then Nuxt's app-level error
 const activeError = computed(() => props.error ?? nuxtError.value ?? null)
@@ -64,26 +60,26 @@ const styles = tv({ base: "flex items-start gap-3" })
 <template>
   <div class="w-full">
     <!-- Loading State -->
-    <ClientOnly>
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
-        <UiLoader class="size-10" text="Loading Content..." />
-      </div>
-    </ClientOnly>
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <UiLoader class="size-10" text="Loading Content..." />
+    </div>
 
     <!-- Error State -->
     <div
-      v-if="!isLoading && hasError"
+      v-else-if="hasError"
       class="flex flex-col items-center justify-center py-16 gap-4 text-center"
     >
       <div class="flex items-center justify-center size-12 rounded-full bg-destructive/10">
         <Icon :name="ICONS.error" class="size-5 text-destructive" />
       </div>
+
       <div class="space-y-1 max-w-sm">
         <ui-heading :level="2" class="text-base font-semibold">
           {{ errorCode ? `Error ${errorCode}` : "Something went wrong" }}
         </ui-heading>
         <p class="text-sm text-foreground/80">{{ errorMessage }}</p>
       </div>
+
       <div class="flex items-center gap-2">
         <UiButton
           v-if="canGoBack"
@@ -104,7 +100,7 @@ const styles = tv({ base: "flex items-start gap-3" })
     </div>
 
     <!-- Page Content -->
-    <div v-else-if="!isLoading && !hasError" class="grid w-full gap-6">
+    <div v-else class="grid w-full gap-6">
       <div class="flex items-center gap-2">
         <!-- Quick Navigation Buttons -->
         <ui-button-group>
@@ -144,18 +140,8 @@ const styles = tv({ base: "flex items-start gap-3" })
         <slot name="actions" />
       </div>
 
-      <!-- Empty State -->
-      <div v-if="empty" class="flex flex-col items-center justify-center py-16 gap-3 text-center">
-        <div class="flex items-center justify-center size-12 rounded-full bg-muted">
-          <Icon :name="ICONS.empty" class="size-5 text-muted-foreground" />
-        </div>
-        <p class="text-sm text-muted-foreground max-w-xs">
-          <slot name="empty">{{ emptyMessage }}</slot>
-        </p>
-      </div>
-
       <!-- Page Slot -->
-      <slot v-else />
+      <slot />
     </div>
   </div>
 </template>

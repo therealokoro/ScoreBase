@@ -4,8 +4,6 @@ import { SUBJECTS } from "~~/server/lib/seed-data"
 
 import { subjects, subjectLists } from "../../db/schema"
 
-// ─── Nigerian Secondary School Subjects ──────────────────────────────────────
-
 // ─── Seed Task ────────────────────────────────────────────────────────────────
 
 export default defineTask({

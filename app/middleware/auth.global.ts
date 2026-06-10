@@ -1,34 +1,38 @@
-import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
-import { createAuthClient } from "better-auth/vue"
-
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Skip on the server — better-auth's Vue client is browser-only.
   if (import.meta.server) return
 
-  const rc = useRuntimeConfig()
-  const client = createAuthClient({
-    baseURL: rc.public.betterAuthUrl as string,
-    plugins: [adminClient(), inferAdditionalFields()]
-  })
+  const { isLoggedIn, currentUser, isPending } = useAuth()
 
-  const { data } = await client.getSession()
+  // Only wait if session is still loading. On the first hard refresh isPending
+  // starts true; on every subsequent navigation it is already false so this
+  // entire block is skipped synchronously — no delay on in-app navigations.
+  if (isPending.value) {
+    await new Promise<void>((resolve) => {
+      const stop = watch(
+        isPending,
+        (pending) => {
+          if (!pending) {
+            stop()
+            resolve()
+          }
+        },
+        { immediate: true }
+      )
+    })
+  }
 
-  const isLoggedIn = data !== null
-  const userRole = ((data?.user as any)?.role as string | null) ?? null
+  const isAuthenticated = isLoggedIn.value
+  const userRole = ((currentUser.value as any)?.role as string | null) ?? null
 
-  // ── Root redirect ──────────────────────────────────────────────────────────
-  // if (to.path === "/") {
-  //   if (import.meta.server) return
-  //   return navigateTo(isLoggedIn ? "/dashboard" : "/login")
-  // }
-
-  // ── Already logged in, don't allow visiting /login ─────────────────────────
-  if (to.path === "/login" && isLoggedIn) {
+  // ── Already logged in, don't allow visiting /login ──────────────────────
+  if (to.path === "/login" && isAuthenticated) {
     return navigateTo("/dashboard")
   }
 
-  // ── Protected routes ───────────────────────────────────────────────────────
+  // ── Protected routes ─────────────────────────────────────────────────────
   if (to.path.startsWith("/dashboard")) {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       return navigateTo({ path: "/login", query: { redirect: to.fullPath } })
     }
 
