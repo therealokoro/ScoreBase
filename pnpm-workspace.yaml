@@ -11,3 +11,9 @@ minimumReleaseAgeExclude:
   - '@better-auth/prisma-adapter@1.6.15'
   - '@better-auth/telemetry@1.6.15'
   - better-auth@1.6.15
+  - '@formkit/addons@2.1.0'
+  - '@formkit/core@2.1.0'
+  - '@formkit/inputs@2.1.0'
+  - '@formkit/observer@2.1.0'
+  - '@formkit/utils@2.1.0'
+  - '@formkit/validation@2.1.0'

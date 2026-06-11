@@ -1,3 +1,4 @@
+import { createLocalStoragePlugin } from "@formkit/addons"
 import { defineFormKitConfig, createInput } from "@formkit/vue"
 
 import FormKitSelect from "~/components/FormKit/Select.vue"
@@ -24,8 +25,27 @@ async function nuxtIconLoader(iconName: string): Promise<string | undefined> {
   }
 }
 
+const exactLength = (node: any, length: number | string) => {
+  const value = node.value
+
+  if (value === null || value === undefined || value === "") {
+    return true
+  }
+
+  return String(value).length === Number(length)
+}
+
 export default defineFormKitConfig({
   iconLoader: nuxtIconLoader,
+  rules: { exactLength },
+  plugins: [createLocalStoragePlugin()],
+  messages: {
+    en: {
+      validation: {
+        exactLength: ({ args }) => `Must be exactly ${args?.[0]} digits long.`
+      }
+    }
+  },
   inputs: {
     _select: createInput(FormKitSelect, {
       props: ["options", "placeholder", "multiple", "disabled"]

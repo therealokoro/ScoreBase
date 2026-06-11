@@ -16,8 +16,10 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@formkit/core": "^2.0.0",
+    "@formkit/addons": "^2.1.0",
+    "@formkit/core": "^2.1.0",
     "@formkit/nuxt": "^2.0.0",
+    "@formkit/validation": "^2.1.0",
     "@formkit/vue": "^2.0.0",
     "@iconify-json/lucide": "^1.2.111",
     "@iconify-json/svg-spinners": "^1.2.4",
