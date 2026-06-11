@@ -1,27 +1,40 @@
 <script lang="ts" setup>
 const props = defineProps<{ context: any }>()
 
-function handleInput(value: any) {
-  props.context.node.input(value)
-}
-
 const addOnKeys = computed(() => props.context.addOnKeys || ["Enter", ","])
 
 const isInvalid = computed(
   () => props.context.state.validationVisible && !props.context.state.valid
 )
+
+// Local ref seeded from context.value
+const tags = ref<string[]>(props.context.value ?? [])
+
+// Keep in sync if FormKit sets the value externally (e.g. form :value prop)
+watch(
+  () => props.context.value,
+  (val) => {
+    if (JSON.stringify(val) !== JSON.stringify(tags.value)) {
+      tags.value = val ?? []
+    }
+  }
+)
+
+// Push changes back into FormKit
+watch(tags, (val) => {
+  props.context.node.input(val)
+})
 </script>
 
 <template>
   <UiTagsInput
-    :value="context.value"
+    v-model="tags"
     :add-on-keys="addOnKeys"
     :disabled="props.context.disabled"
     :aria-invalid="isInvalid || undefined"
     :aria-describedby="context.help ? `${context.id}-desc` : undefined"
     data-slot="input-group-control"
     class="w-full"
-    @update:modelValue="handleInput"
   >
     <UiTagsInputInput
       :id="context.id"
@@ -30,8 +43,8 @@ const isInvalid = computed(
       @blur="context.handlers.blur()"
     />
 
-    <div class="flex flex-wrap gap-1 mb-2.5" v-if="context.value?.length">
-      <UiTagsInputItem v-for="tag in context.value" :key="tag" :value="tag" />
+    <div class="flex flex-wrap gap-1 mb-2.5" v-if="tags.length">
+      <UiTagsInputItem v-for="tag in tags" :key="tag" :value="tag" />
     </div>
   </UiTagsInput>
 </template>
