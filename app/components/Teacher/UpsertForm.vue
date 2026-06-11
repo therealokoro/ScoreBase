@@ -62,12 +62,12 @@ async function onSubmit(payload: UpsertTeacherInput) {
             />
 
             <FormKit
-              type="tel"
+              type="number"
               name="phoneNumber"
               label="Phone Number"
               placeholder="Enter the teacher's phone number here"
               help="e.g 09012345678"
-              validation="required"
+              validation="required|number|min:11|max:11"
             />
 
             <FormKit

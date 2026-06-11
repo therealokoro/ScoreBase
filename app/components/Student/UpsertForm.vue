@@ -94,11 +94,12 @@ const isCreateStudentForClass = computed(
             />
 
             <FormKit
-              type="tel"
+              type="number"
               name="phoneNumber"
               label="Phone Number"
               placeholder="Enter phone number (optional)"
               help="Optional contact number"
+              validation="number|min:11|max:11"
             />
           </fieldset>
         </FormKit>

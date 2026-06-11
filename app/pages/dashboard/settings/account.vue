@@ -65,11 +65,11 @@ async function onSubmit(payload: UpdateAccountInfoInput) {
           />
 
           <FormKit
-            type="tel"
+            type="number"
             name="phoneNumber"
             placeholder="e.g 08012345678"
             label="Phone Number"
-            validation="required"
+            validation="required|number|min:11|max:11"
           />
 
           <UiButton
