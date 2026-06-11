@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import type { UpsertAcademicSessionInput } from "~~/shared/validators/academic"
-
-const { data, isLoading } = useAcademicSessionList()
+const { data, isLoading, refetch } = useAcademicSessionList()
 const sessions = computed(() => data.value ?? [])
-const { mutateAsync: createSession } = useCreateAcademicSession()
 
-const openCreateSheet = ref(false)
-
-function handleCreateSession(payload: UpsertAcademicSessionInput) {
-  useSonner.promise(createSession(payload), {
+const createSession = useCreateAcademicSession()
+const handleCreateSession = useDebounceFn(() => {
+  useSonner.promise(createSession.mutateAsync({}), {
     loading: "Creating academic session...",
     success: () => {
-      openCreateSheet.value = false
+      refetch()
       return "Academic session created successfully"
     },
     error: (err: any) => err.message
   })
-}
+}, 1000)
 </script>
 
 <template>
@@ -30,7 +26,7 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
         title="No academic sessions"
         description="Create your first academic session to get started"
         button-text="Create Session"
-        @button-action="openCreateSheet = true"
+        @button-action="handleCreateSession"
       />
 
       <!-- Content -->
@@ -44,7 +40,7 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
           :description="formatDate(item.createdAt, 'Created on ')"
         />
 
-        <AppEntityAddButton text="Create a session" @click="openCreateSheet = true" />
+        <AppEntityAddButton text="Create a session" @click="handleCreateSession" />
       </div>
 
       <!-- Fallback shown on server and before client hydrates -->
@@ -54,11 +50,5 @@ function handleCreateSession(payload: UpsertAcademicSessionInput) {
         </div>
       </template>
     </ClientOnly>
-
-    <LazySessionCreateEditForm
-      mode="Create"
-      v-model:open="openCreateSheet"
-      @submit="handleCreateSession"
-    />
   </Page>
 </template>

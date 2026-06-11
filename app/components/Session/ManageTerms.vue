@@ -54,6 +54,8 @@ const handleCreateTerm = () => {
 
       <!-- Confirm Term Deletion -->
       <AppConfirmDeleteAction
+        v-if="activeTerm"
+        :key="activeTerm.id"
         v-model:open="isDeleteSheetOpen"
         description="Are you sure you want to delete this term? You will loose all results associated with this term"
         :confirm-input-text="activeTerm?.name"

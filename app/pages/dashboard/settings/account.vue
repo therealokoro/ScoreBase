@@ -4,14 +4,6 @@ import { type UpdateAccountInfoInput } from "~~/shared/validators/actors"
 const auth = useAuth()
 const user = computed(() => auth.currentUser.value)
 
-// watch(
-//   user,
-//   (values) => {
-//     if (values) setValues({ ...values })
-//   },
-//   { immediate: true }
-// )
-
 const { $orpc } = useNuxtApp()
 const updateAccount = useMutation($orpc.account.updateAccount.mutationOptions())
 
@@ -69,7 +61,7 @@ async function onSubmit(payload: UpdateAccountInfoInput) {
             name="phoneNumber"
             placeholder="e.g 08012345678"
             label="Phone Number"
-            validation="required|number|min:11|max:11"
+            validation="required|number|exactLength:11"
           />
 
           <UiButton

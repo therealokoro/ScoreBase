@@ -6,6 +6,26 @@ import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
 
+export function generateNextSessionName(sessions: { name: string }[], suffix = ""): string {
+  if (sessions.length === 0) {
+    const year = new Date().getFullYear()
+    return suffix ? `${year}/${year + 1} ${suffix}` : `${year}/${year + 1}`
+  }
+
+  const highestYear = Math.max(
+    ...sessions.map((s) => {
+      const match = s.name.match(/^(\d{4})\/\d{4}/)
+      if (!match) {
+        throw new Error(`Invalid session format: ${s.name}`)
+      }
+      return Number(match[1])
+    })
+  )
+
+  const nextYear = highestYear + 1
+  return suffix ? `${nextYear}/${nextYear + 1} ${suffix}` : `${nextYear}/${nextYear + 1}`
+}
+
 const os = implement(academicSessionContract)
 
 const listAcademicSessions = os.list.handler(async () => await listAllAcademicSessions())
@@ -17,11 +37,20 @@ const getSingleAcademicSession = os.getOne.handler(async ({ input, errors }) => 
   return academicSesison
 })
 
-const createAcademicSession = os.create.handler(async ({ input, errors }) => {
-  const existingSession = await fetchSingleAcademicSession(input.name, "name")
-  if (existingSession) throw errors.CONFLICT()
+const createAcademicSession = os.create.handler(async () => {
+  // list sessions
+  const allSessions = await listAllAcademicSessions()
+  // extract existing session names
+  const sessionNames = allSessions.map((curr: IAcademicSession) => ({ name: curr.name }))
+  // get session suffix and generate next session name
+  const sessionSuffix = await getSchoolSettings("sessionSuffix")
+  const nextSession = generateNextSessionName(sessionNames, sessionSuffix)
 
-  const [academicSession] = await db.insert(academicSessions).values(input).returning()
+  // store session
+  const [academicSession] = await db
+    .insert(academicSessions)
+    .values({ name: nextSession })
+    .returning()
 
   const termPreset = await getTermPreset()
 

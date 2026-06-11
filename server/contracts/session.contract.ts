@@ -15,9 +15,9 @@ export const getOne = oc
   .errors({ NOT_FOUND: { message: "The session was not found" } })
 
 export const create = oc
-  .input(UpsertAcademicSessionSchema)
+  // .input(UpsertAcademicSessionSchema)
   .output(AcademicSessionSchema)
-  .errors({ CONFLICT: { message: "A session already exists with that name" } })
+// .errors({ CONFLICT: { message: "A session already exists with that name" } })
 
 export const update = oc
   .input(UpdateAcademicSessionSchema)

@@ -32,6 +32,8 @@ async function onSubmit(payload: UpsertStudentInput) {
 const isCreateStudentForClass = computed(
   () => props.mode === "Create" && Boolean(props.initialData?.classId)
 )
+
+const autoGenerateStudentId = ref(true)
 </script>
 
 <template>
@@ -39,8 +41,8 @@ const isCreateStudentForClass = computed(
     <UiSheetContent
       side="right"
       :title="`${mode} Student`"
-      class="w-full sm:max-w-none md:w-100"
       :description="`${mode === 'Create' ? 'Create a new' : 'Update a'} student`"
+      class="w-full sm:max-w-none md:w-100"
     >
       <template #content>
         <!--
@@ -72,13 +74,6 @@ const isCreateStudentForClass = computed(
               validation="required"
             />
 
-            <FormKit
-              name="studentId"
-              label="Student ID"
-              placeholder="Enter student ID (optional)"
-              help="Optional student identifier (e.g., STU-2026-001)"
-            />
-
             <!--
               Disabled when creating from a class page (classId is pre-filled).
               The field still shows the class name but can't be changed.
@@ -91,6 +86,7 @@ const isCreateStudentForClass = computed(
               :disabled="isCreateStudentForClass"
               placeholder="Select a class for the student"
               help="Required - student must be assigned to a class"
+              validation="required"
             />
 
             <FormKit
@@ -99,7 +95,24 @@ const isCreateStudentForClass = computed(
               label="Phone Number"
               placeholder="Enter phone number (optional)"
               help="Optional contact number"
-              validation="number|min:11|max:11"
+              validation="number|exactLength:11"
+            />
+
+            <FormKit
+              type="checkbox"
+              name="autoGenerateStudentId"
+              label="Auto generate student IDs"
+              help="Choose whether to generate student IDs automatically or manually"
+              v-model="autoGenerateStudentId"
+            />
+
+            <FormKit
+              v-if="!autoGenerateStudentId"
+              name="studentId"
+              label="Student ID"
+              placeholder="Enter student ID"
+              help="Optional student identifier (e.g., STU-2026-001)"
+              validation="required"
             />
           </fieldset>
         </FormKit>

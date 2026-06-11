@@ -1,32 +1,37 @@
 <script lang="ts" setup>
+import { DEFAULT_SETTINGS, TERMS_PRESET } from "~~/shared/constants/settings"
+
 definePageMeta({ middleware: ["admin-only"] })
 
-const settings = ref({
-  sessionSuffix: "Academic Session",
-  termPreset: "ordinals",
-  numberOfCAs: 1,
-  scoreDistribution: {
-    "1st": 10,
-    "2nd": 10,
-    "3rd": 10,
-    exam: 70
-  },
-  subjectTags: ["Art", "Science"],
-  autoGenerateStudentId: true,
-  studentIdPrefix: "STU"
-})
+const { $orpc } = useNuxtApp()
+const { data, refresh } = await useAsyncData("settings", () =>
+  $orpc.settings.school.getSettings.call()
+)
+const settings = computed(() => data.value ?? DEFAULT_SETTINGS)
+
+const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => ({
+  value,
+  label: terms.join(", ")
+}))
+
+const setSettings = useMutation($orpc.settings.school.setSettings.mutationOptions())
+const isSubmitting = ref(false)
+function handleSubmit(payload: any) {
+  isSubmitting.value = true
+  useSonner.promise(setSettings.mutateAsync(payload), {
+    loading: "Updating settings, please wait....",
+    success: () => {
+      refresh()
+      return "Settings updated successfully"
+    },
+    error: (e: any) => e.message,
+    finally() {
+      isSubmitting.value = false
+    }
+  })
+}
 
 const showStudentIdInput = computed(() => settings.value.autoGenerateStudentId)
-const numberOfCAs = computed(() => settings.value.numberOfCAs)
-
-const termPresetOptions = [
-  { label: "1st, 2nd and 3rd", value: "ordinals" },
-  { label: "First, Second and Third", value: "verbertim" }
-]
-
-function handleSubmit(payload: any) {
-  console.log(payload)
-}
 </script>
 
 <template>
@@ -58,9 +63,6 @@ function handleSubmit(payload: any) {
             :options="termPresetOptions"
             help="Choose how you'd like your terms to be created"
           />
-
-          <!-- Contains fields for CA and Exams -->
-          <SettingsScoreDistributionInput v-model:caCount="numberOfCAs" />
 
           <FormKit
             type="_tags"

@@ -10,6 +10,7 @@ setPageBreadcrumbLabel(computed(() => session.value?.name))
 
 const isSheetOpen = ref(false)
 const openDeleteDialog = ref(false)
+
 const { mutateAsync: updateSession } = useUpdateAcademicSession()
 function handleUpdateSession(payload: any) {
   useSonner.promise(updateSession(payload), {
@@ -17,6 +18,18 @@ function handleUpdateSession(payload: any) {
     success: () => {
       isSheetOpen.value = false
       return "Academic session updated successfully"
+    },
+    error: (err: any) => err.message
+  })
+}
+
+const { mutateAsync: deleteSession } = useDeleteAcademicSession()
+function handleDeleteSession() {
+  useSonner.promise(deleteSession({ id: sessionId! }), {
+    loading: "Deleting academic session...",
+    success: () => {
+      navigateTo("/dashboard/sessions")
+      return "Academic session deleted successfully"
     },
     error: (err: any) => err.message
   })
@@ -58,6 +71,7 @@ const activeTerm = ref<ITerm | null>(null)
     <AppConfirmDeleteAction
       v-model:open="openDeleteDialog"
       description="Are you sure you want to delete this session? You will loose all terms and results for this particular session"
+      @confirm="handleDeleteSession"
       :confirm-input-text="session?.name"
     />
   </Page>
