@@ -1,11 +1,22 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { eq, ne, and } from "drizzle-orm"
+import { eq, or, sql, desc } from "drizzle-orm"
 
 import { studentContract } from "../contracts/student.contract"
 import { students } from "../db/schema"
-import { fetchSingleClass } from "../queries/class.query"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
+
+async function checkConflict(name: string, studentId: string, errors: any) {
+  // Check for conflicts
+  const conflict = await db.query.students.findFirst({
+    where: or(eq(students.name, name), eq(students.studentId, studentId))
+  })
+  if (conflict) {
+    if (conflict.name === name)
+      throw errors.CONFLICT({ message: "A student exists with this name" })
+    throw errors.CONFLICT({ message: "A student exists with this student ID" })
+  }
+}
 
 const os = implement(studentContract)
 
@@ -18,49 +29,40 @@ const getSingleStudent = os.getOne.handler(async ({ input, errors }) => {
 })
 
 const createStudent = os.create.handler(async ({ input, errors }) => {
-  // Check name conflict
-  const nameConflict = await db.query.students.findFirst({ where: eq(students.name, input.name) })
-  if (nameConflict) throw errors.CONFLICT({ message: "A student exists with this name" })
+  let studentId: string
 
-  // Check studentId conflict
-  if (input.studentId) {
-    const studentIdConflict = await db.query.students.findFirst({
-      where: eq(students.studentId, input.studentId)
+  if (!input.studentId?.trim()) {
+    const prefix = await getSchoolSettings("studentIdPrefix")
+    const year = new Date().getFullYear()
+
+    const latest = await db.query.students.findFirst({
+      where: sql`${students.studentId} LIKE ${`${prefix}-${year}-%`}`,
+      orderBy: desc(students.studentId)
     })
-    if (studentIdConflict)
-      throw errors.CONFLICT({ message: "A student exists with this student ID" })
+
+    const lastSequence = latest ? Number(latest.studentId.split("-").at(-1)) : 0
+    const sequence = String(lastSequence + 1).padStart(4, "0")
+    studentId = `${prefix}-${year}-${sequence}`
+  } else {
+    studentId = input.studentId.trim()
   }
 
-  const [newStudent] = await db.insert(students).values(input).returning()
-  // fetch the student's class and return it along with student's info
-  const studentClass = await fetchSingleClass(input.classId)
+  // Check for conflicts
+  await checkConflict(input.name, studentId, errors)
 
-  return {
-    ...newStudent!,
-    class: { id: studentClass?.id, name: studentClass?.name }
-  }
+  const [newStudent] = await db
+    .insert(students)
+    .values({ ...input, studentId })
+    .returning()
+  return newStudent!
 })
 
 const updateStudent = os.update.handler(async ({ input, errors }) => {
   const existingStudent = await fetchStudentById(input.id)
   if (!existingStudent) throw errors.NOT_FOUND()
 
-  // Check name conflict — exclude current student
-  if (input.name !== existingStudent.name) {
-    const nameConflict = await db.query.students.findFirst({
-      where: and(eq(students.name, input.name), ne(students.id, input.id))
-    })
-    if (nameConflict) throw errors.CONFLICT({ message: "A student exists with this name" })
-  }
-
-  // Check studentId conflict — exclude current student
-  if (input.studentId && input.studentId !== existingStudent.studentId) {
-    const studentIdConflict = await db.query.students.findFirst({
-      where: and(eq(students.studentId, input.studentId), ne(students.id, input.id))
-    })
-    if (studentIdConflict)
-      throw errors.CONFLICT({ message: "A student exists with this student ID" })
-  }
+  // Check for conflicts
+  await checkConflict(input.name, input.studentId!, errors)
 
   await db
     .update(students)

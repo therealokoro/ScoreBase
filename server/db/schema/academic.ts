@@ -65,7 +65,7 @@ export const students = sqliteTable("students", {
     .primaryKey()
     .$default(() => typeid("stu").toString()),
   name: text("name").notNull(),
-  studentId: text("student_id").unique(),
+  studentId: text("student_id").unique().notNull(),
   classId: text("class_id")
     .notNull()
     .references(() => classes.id, { onDelete: "restrict" }),

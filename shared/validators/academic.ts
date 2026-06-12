@@ -75,7 +75,7 @@ export const StudentSchema = createSelectSchema(students).extend({
 
 export const UpsertStudentSchema = createInsertSchema(students, {
   name: z.string("Please provide the student's name"),
-  studentId: z.string("Please provide a student ID (optional)").optional().nullable(),
+  studentId: z.string("Please provide a student ID").optional(),
   classId: z.string("Please assign the student to a class"),
   phoneNumber: z
     .string()

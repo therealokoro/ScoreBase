@@ -109,14 +109,14 @@ export default defineTask({
     // ── 3. Seed Students ─────────────────────────────────────────────────────
     console.log("👩‍🎓 Creating students...")
 
-    let studentCounter = 1
+    // let studentCounter = 1
     const studentRecords = classRecords.flatMap((cls) =>
       Array.from({ length: STUDENTS_PER_CLASS }, () => {
-        const paddedNum = String(studentCounter++).padStart(4, "0")
+        // const paddedNum = String(studentCounter++).padStart(4, "0")
         return {
           id: typeid("stu").toString(),
           name: nigerianName(),
-          studentId: `STU-2026-${paddedNum}`,
+          // studentId: `STU-2026-${paddedNum}`,
           classId: cls.id,
           phoneNumber: faker.datatype.boolean(0.6) ? uniquePhone() : null
         }
