@@ -4,9 +4,9 @@ import { DEFAULT_SETTINGS, TERMS_PRESET } from "~~/shared/constants/settings"
 definePageMeta({ middleware: ["admin-only"] })
 
 const { $orpc } = useNuxtApp()
-const { data, refresh } = await useAsyncData("settings", () =>
-  $orpc.settings.school.getSettings.call()
-)
+const { data, refresh } = await useAsyncData("settings", () => {
+  return $orpc.settings.school.getSettings.call()
+})
 const settings = computed(() => data.value ?? DEFAULT_SETTINGS)
 
 const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => ({

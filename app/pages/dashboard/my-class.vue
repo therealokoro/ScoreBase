@@ -9,7 +9,7 @@ const { currentUser, isPending } = useAuth()
 
 const { $orpc } = useNuxtApp()
 const queryKey = computed(() => `${currentUser.value?.id}-class-fetch`)
-const { data, pending, refresh } = useAsyncData(queryKey, () => {
+const { data, pending, refresh } = await useAsyncData(queryKey, () => {
   return $orpc.teacher.getClass.call({ teacherId: currentUser.value!.id })
 })
 

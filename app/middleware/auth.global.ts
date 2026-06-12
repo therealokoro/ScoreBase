@@ -2,31 +2,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on the server — better-auth's Vue client is browser-only.
   if (import.meta.server) return
 
-  const { isLoggedIn, currentUser, isPending } = useAuth()
+  const { isLoggedIn, currentUser, waitForSession } = useAuth()
 
-  // Only wait if session is still loading. On the first hard refresh isPending
-  // starts true; on every subsequent navigation it is already false so this
-  // entire block is skipped synchronously — no delay on in-app navigations.
-  if (isPending.value) {
-    await new Promise<void>((resolve) => {
-      const stop = watch(
-        isPending,
-        (pending) => {
-          if (!pending) {
-            stop()
-            resolve()
-          }
-        },
-        { immediate: true }
-      )
-    })
-  }
+  // Wait for the session fetch to fully complete. waitForSession() watches
+  // isPending with { immediate: true }, so if it's already false this resolves
+  // on the same tick with no async penalty on subsequent navigations.
+  await waitForSession()
 
   const isAuthenticated = isLoggedIn.value
   const userRole = ((currentUser.value as any)?.role as string | null) ?? null
 
   // ── Already logged in, don't allow visiting /login ──────────────────────
-  if (to.path === "/login" && isAuthenticated) {
+  if (isAuthenticated && to.path === "/login") {
     return navigateTo("/dashboard")
   }
 
@@ -36,6 +23,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       return navigateTo({ path: "/login", query: { redirect: to.fullPath } })
     }
 
+    // block routing to this pages if user is not an admin
     const ADMIN_ONLY_PAGES = [
       "/dashboard/classes",
       "/dashboard/sessions",

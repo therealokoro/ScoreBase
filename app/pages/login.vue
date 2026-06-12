@@ -13,9 +13,10 @@ async function onSubmit(payload: LoginInputType) {
   isSubmitting.value = true
   await auth.signIn.email(payload, {
     async onSuccess() {
+      await auth.refresh()
       isSubmitting.value = false
       useSonner.success("Login successful, redirecting you....")
-      await navigateTo("/dashboard")
+      await navigateTo("/dashboard", { replace: true })
     },
     onError(e: any) {
       useSonner.error(e.error.message)

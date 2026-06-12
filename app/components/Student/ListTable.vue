@@ -33,7 +33,7 @@ const pagination = ref({
 const debouncedSearch = refDebounced(globalSearch, 1000)
 
 const { $orpc } = useNuxtApp()
-const { data, pending, refresh } = useAsyncData(
+const { data, pending, refresh } = await useAsyncData(
   // Static but unique key per usage — scoped by classId when on a class page
   `student-list${props.classId ? `-${props.classId}` : ""}`,
   () =>

@@ -2,8 +2,8 @@
 import { ICONS } from "~~/shared/constants/icons"
 import type { UpsertTeacherInput } from "~~/shared/validators/actors"
 
+const { $orpc } = useNuxtApp()
 const { data, pending, error, refresh } = await useAsyncData("teachers-list", () => {
-  const { $orpc } = useNuxtApp()
   return $orpc.teacher.list.call()
 })
 

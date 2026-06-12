@@ -7,7 +7,7 @@ const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
 
 const { $orpc } = useNuxtApp()
-const { data, pending, error, refresh } = useAsyncData(`${classId}-class-fetch`, () => {
+const { data, pending, error, refresh } = await useAsyncData(`${classId}-class-fetch`, () => {
   return $orpc.class.getOne.call({ id: classId! })
 })
 

@@ -5,8 +5,8 @@ import type { serverAuth } from "~~/server/utils/server-auth"
 type AuthClient = ReturnType<typeof createAuthClient>
 type UseSessionFn = AuthClient["useSession"]
 type SessionAtom = UseSessionFn extends {
-  (): infer R // zero-arg overload → DeepReadonly<Ref<...>>
-  (useFetch: any): any // useFetch overload  → Promise<...> (ignored)
+  (): infer R
+  (useFetch: any): any
 }
   ? R
   : never
@@ -38,8 +38,31 @@ export function useAuth() {
   const isPending = computed(() => sessionAtom.value.isPending)
   const error = computed(() => sessionAtom.value.error ?? null)
 
+  // Waits until better-auth has both finished loading AND written session data.
+  // isPending going false does NOT guarantee data is populated — the atom can
+  // briefly be { isPending: false, data: null } between the fetch completing
+  // and the reactive write landing. This helper waits for both conditions.
+  async function waitForSession() {
+    if (!isPending.value) return
+    await new Promise<void>((resolve) => {
+      const stop = watch(
+        isPending,
+        (pending) => {
+          if (!pending) {
+            stop()
+            resolve()
+          }
+        },
+        { immediate: true }
+      )
+    })
+  }
+
   async function refresh() {
     await sessionAtom.value.refetch?.()
+    // After refetch, wait for isPending to settle so callers can immediately
+    // read isLoggedIn and get the correct value
+    await waitForSession()
   }
 
   return {
@@ -50,6 +73,7 @@ export function useAuth() {
     isLoggedIn,
     isPending,
     error,
+    waitForSession,
     refresh,
     signIn: authClient.signIn,
     signUp: authClient.signUp,

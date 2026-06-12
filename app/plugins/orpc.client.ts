@@ -14,7 +14,7 @@ export default defineNuxtPlugin(() => {
         credentials: "include"
       })
     },
-    headers: useRequestHeaders(),
+    // headers: useRequestHeaders(),
     plugins: [new SimpleCsrfProtectionLinkPlugin()]
   })
 

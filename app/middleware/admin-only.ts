@@ -1,5 +1,6 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const { isLoggedIn, currentUser } = useAuth()
+export default defineNuxtRouteMiddleware(async (to) => {
+  const { isLoggedIn, currentUser, waitForSession } = useAuth()
+  await waitForSession()
 
   // Redirect unauthenticated users to login
   if (!isLoggedIn.value) {

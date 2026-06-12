@@ -4,7 +4,7 @@ const props = defineProps<{ activeClass: IClassWithSubjectList }>()
 const emit = defineEmits<{ onMutation: [] }>()
 
 const { $orpc } = useNuxtApp()
-const { data } = useAsyncData("subject-list", () => $orpc.subjectList.list.call())
+const { data } = await useAsyncData("subject-list", () => $orpc.subjectList.list.call())
 const presets = computed(
   () =>
     data.value?.map((curr) => ({

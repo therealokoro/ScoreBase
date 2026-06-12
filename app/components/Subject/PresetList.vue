@@ -6,7 +6,7 @@ const openEditSheet = ref(false)
 const openDeleteDialog = ref(false)
 const { $orpc } = useNuxtApp()
 
-const { data, pending, refresh } = useAsyncData("subject-list", () => $orpc.subjectList.list.call())
+const { data, pending, refresh } = await useAsyncData("subject-list", () => $orpc.subjectList.list.call())
 
 const presets = computed(() => data.value || [])
 const activePreset = ref<ISubjectList | null>(null)
