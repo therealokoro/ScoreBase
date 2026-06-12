@@ -1,6 +1,6 @@
 // server/tasks/seed/subjects.ts
 import { db } from "@nuxthub/db"
-import { SUBJECTS } from "~~/server/lib/seed-data"
+import { SUBJECTS } from "~~/server/lib/seed/data"
 
 import { subjects, subjectLists } from "../../db/schema"
 
