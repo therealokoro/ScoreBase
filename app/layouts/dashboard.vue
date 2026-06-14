@@ -36,97 +36,91 @@ const sidebarContents = computed(() => {
 
 <template>
   <UiSidebarProvider>
-    <UiSidebar side="left" class="border-r">
-      <!-- Sidebar Header -->
-      <UiSidebarHeader class="flex flex-col gap-2 p-3">
-        <div class="flex items-center gap-3 px-2 py-1.5">
-          <div
-            class="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-          >
-            <Icon :name="ICONS.school" />
-          </div>
-
-          <div class="grid flex-1">
-            <span class="font-semibold text-sm">ScoreBase</span>
-            <span class="text-xs text-muted-foreground">Result Management</span>
-          </div>
-        </div>
-      </UiSidebarHeader>
-
-      <!-- Sidebar Content -->
-      <UiSidebarContent class="p-2">
-        <template v-if="isPending">
-          <UiSkeleton v-for="n in 5" class="h-10 w-full" />
-        </template>
-
-        <UiSidebarMenu v-else>
-          <UiSidebarMenuItem v-for="item in sidebarContents.navItems" :key="item.href">
-            <UiSidebarMenuButton
-              as-child
-              :is-active="
-                $route.path === item.href ||
-                (item.href !== '/dashboard' && $route.path.startsWith(item.href))
-              "
+    <ClientOnly>
+      <UiSidebar side="left" class="border-r">
+        <!-- Sidebar Header -->
+        <UiSidebarHeader class="flex flex-col gap-2 p-3">
+          <div class="flex items-center gap-3 px-2 py-1.5">
+            <div
+              class="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
             >
-              <NuxtLink :to="item.href" class="nav-item">
-                <Icon :name="item.icon" />
-                <span>{{ item.title }}</span>
-              </NuxtLink>
-            </UiSidebarMenuButton>
-          </UiSidebarMenuItem>
-        </UiSidebarMenu>
-      </UiSidebarContent>
-
-      <!-- Sidebar Footer -->
-      <UiSidebarFooter class="border-t p-2 mt-auto">
-        <div v-if="isPending && !currentUser" class="space-y-3">
-          <UiSkeleton v-for="n in 2" class="w-full h-6" />
-          <UiSkeleton class="w-full h-10" />
-        </div>
-
-        <div v-else-if="currentUser" class="flex flex-col gap-2">
-          <UiSidebarMenu>
-            <!-- Settings Route -->
-            <UiSidebarMenuItem>
+              <Icon :name="ICONS.school" />
+            </div>
+            <div class="grid flex-1">
+              <span class="font-semibold text-sm">ScoreBase</span>
+              <span class="text-xs text-muted-foreground">Result Management</span>
+            </div>
+          </div>
+        </UiSidebarHeader>
+        <!-- Sidebar Content -->
+        <UiSidebarContent class="p-2">
+          <template v-if="isPending">
+            <UiSkeleton v-for="n in 5" class="h-10 w-full" />
+          </template>
+          <UiSidebarMenu v-else>
+            <UiSidebarMenuItem v-for="item in sidebarContents.navItems" :key="item.href">
               <UiSidebarMenuButton
                 as-child
-                :is-active="$route.path.startsWith('/dashboard/settings')"
+                :is-active="
+                  $route.path === item.href ||
+                  (item.href !== '/dashboard' && $route.path.startsWith(item.href))
+                "
               >
-                <NuxtLink to="/dashboard/settings/account" class="nav-item">
-                  <Icon :name="ICONS.settings" />
-                  <span>Settings</span>
+                <NuxtLink :to="item.href" class="nav-item">
+                  <Icon :name="item.icon" />
+                  <span>{{ item.title }}</span>
                 </NuxtLink>
               </UiSidebarMenuButton>
             </UiSidebarMenuItem>
-
-            <!-- Sign Out Button -->
-            <UiSidebarMenuItem>
-              <UiSidebarMenuButton @click="handleSignOut" class="nav-item">
-                <Icon :name="ICONS.logout" />
-                <span>Sign out</span>
-              </UiSidebarMenuButton>
-            </UiSidebarMenuItem>
           </UiSidebarMenu>
-
-          <!-- Users Info -->
-          <div class="flex items-center gap-3 rounded-md bg-muted/50 p-2">
-            <div
-              class="flex size-9 items-center justify-center rounded-full"
-              :class="sidebarContents.userColor"
-            >
-              <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
-            </div>
-            <div class="grid flex-1">
-              <span class="truncate text-sm font-medium">{{ currentUser.name }}</span>
-              <span class="truncate text-xs text-muted-foreground">{{ currentUser.email }}</span>
+        </UiSidebarContent>
+        <!-- Sidebar Footer -->
+        <UiSidebarFooter class="border-t p-2 mt-auto">
+          <div v-if="isPending && !currentUser" class="space-y-3">
+            <UiSkeleton v-for="n in 2" class="w-full h-6" />
+            <UiSkeleton class="w-full h-10" />
+          </div>
+          <div v-else-if="currentUser" class="flex flex-col gap-2">
+            <UiSidebarMenu>
+              <!-- Settings Route -->
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton
+                  as-child
+                  :is-active="$route.path.startsWith('/dashboard/settings')"
+                >
+                  <NuxtLink to="/dashboard/settings/account" class="nav-item">
+                    <Icon :name="ICONS.settings" />
+                    <span>Settings</span>
+                  </NuxtLink>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <!-- Sign Out Button -->
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton @click="handleSignOut" class="nav-item">
+                  <Icon :name="ICONS.logout" />
+                  <span>Sign out</span>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+            </UiSidebarMenu>
+            <!-- Users Info -->
+            <div class="flex items-center gap-3 rounded-md bg-muted/50 p-2">
+              <div
+                class="flex size-9 items-center justify-center rounded-full"
+                :class="sidebarContents.userColor"
+              >
+                <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
+              </div>
+              <div class="grid flex-1">
+                <span class="truncate text-sm font-medium">{{ currentUser.name }}</span>
+                <span class="truncate text-xs text-muted-foreground">{{ currentUser.email }}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </UiSidebarFooter>
-
-      <!-- Sidebar Rail -->
-      <UiSidebarRail />
-    </UiSidebar>
+        </UiSidebarFooter>
+        <!-- Sidebar Rail -->
+        <UiSidebarRail />
+      </UiSidebar>
+    </ClientOnly>
 
     <!-- Main Page content -->
     <UiSidebarInset>

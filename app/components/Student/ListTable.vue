@@ -189,9 +189,11 @@ const columns = [
     <!-- Toolbar: search + optional create button -->
     <div class="flex w-full items-center justify-between">
       <div class="w-1/2">
-        <UiInput
+        <FormKit
           v-model="globalSearch"
-          class="h-7 md:h-9 text-xs md:text-sm"
+          type="search"
+          prefix-icon="lucide:search"
+          :classes="{ outer: 'mb-0' }"
           placeholder="Search for a student"
         />
       </div>

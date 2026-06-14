@@ -11,6 +11,7 @@
     "db:migrate": "nuxt db migrate",
     "clean-deps": "rm -rf node_modules package-lock.json yarn.lock pnpm-lock.yaml",
     "lint": "oxlint",
+    "check:code": "npx fallow",
     "fmt": "oxfmt .",
     "lint:fix": "oxlint --fix",
     "fmt:check": "oxfmt --check"
