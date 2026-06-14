@@ -27,6 +27,10 @@ Teachers are scoped to their assigned class only:
 - Propose edits to published results (subject to Admin approval)
 - Manage subject offerings per student scoresheet (add/remove subjects)
 
+### 2.3 Shared Dashboard
+
+The teachers and the admins both share a single /dashboard route, with sub routes hidden/shown based on `user.role` in the `/layouts/dashboard.vue` file were the navigation routes are defined and mounted. When necessary, pages can use the `admin-only` and `teacher-only` middleware to authorize access to certain pages.
+
 ---
 
 ## 3. Core Entities & Relationships
