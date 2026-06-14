@@ -64,10 +64,16 @@ const removeSubject = os.delete.handler(async ({ input, errors }) => {
   return { success: true }
 })
 
+const getSubjectTags = os.getTags.handler(async () => {
+  const subjectTags = await getSchoolSettings("subjectTags")
+  return subjectTags
+})
+
 export const subjectRouter = {
   list: listSubjects,
   getOne: getSingleSubject,
   create: createSubject,
   update: updateSubject,
-  delete: removeSubject
+  delete: removeSubject,
+  getTags: getSubjectTags
 }

@@ -176,7 +176,7 @@ const columns = [
     header: "Phone Number",
     cell: ({ getValue }) => {
       const val = getValue()
-      return val ?? h(UiBadge, { variant: "outline" }, () => "No Value")
+      return val ?? h(UiBadge, { variant: "outline" }, () => "No Number")
     }
   }),
 

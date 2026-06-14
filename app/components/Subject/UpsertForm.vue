@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { SUBJECT_TAGS } from "~~/shared/constants/data"
 import { type UpsertSubjectInput } from "~~/shared/validators/academic"
 
 const props = defineProps<{
@@ -9,6 +8,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{ submit: [payload: UpsertSubjectInput] }>()
 const isSheetOpen = defineModel<boolean>("open", { required: true })
+
+const { $orpc } = useNuxtApp()
+const { data: tags } = useQuery($orpc.subject.getTags.queryOptions({ placeholderData: () => [] }))
 
 const isSubmitting = ref(false)
 async function onSubmit(payload: UpsertSubjectInput) {
@@ -53,7 +55,7 @@ async function onSubmit(payload: UpsertSubjectInput) {
               multiple
               name="tags"
               label="Tags"
-              :options="SUBJECT_TAGS"
+              :options="tags"
               placeholder="Select one or multiple tags for the subject"
               help="This is used to categorize and filter the subjects"
             />

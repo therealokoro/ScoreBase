@@ -36,11 +36,14 @@ export const remove = oc
     }
   })
 
+export const getTags = oc.output(z.array(z.string()))
+
 export const subjectContract = {
   list,
   getOne,
   create,
   update,
+  getTags,
   delete: remove
 }
 
