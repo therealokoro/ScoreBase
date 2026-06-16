@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DEFAULT_SETTINGS, TERMS_PRESET } from "~~/shared/constants/settings"
+import { DEFAULT_SETTINGS, TERMS_PRESET } from "~~/shared/constants/kv-settings"
 
 definePageMeta({ middleware: ["admin-only"] })
 
@@ -17,20 +17,15 @@ const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => (
   label: terms.join(", ")
 }))
 
-const setSettings = useMutation($orpc.settings.school.setSettings.mutationOptions())
-const isSubmitting = ref(false)
+const setSettings = useUpdateSchoolSettings()
 function handleSubmit(payload: any) {
-  isSubmitting.value = true
   useSonner.promise(setSettings.mutateAsync(payload), {
-    loading: "Updating settings, please wait....",
+    loading: "Updating school settings, please wait....",
     success: () => {
       refresh()
-      return "Settings updated successfully"
+      return "School settings updated successfully"
     },
-    error: (e: any) => e.message,
-    finally() {
-      isSubmitting.value = false
-    }
+    error: (e: any) => e.message
   })
 }
 
@@ -41,7 +36,7 @@ const showStudentIdInput = computed(() => settings.value.autoGenerateStudentId)
   <div class="w-full space-y-5">
     <!-- Heading -->
     <div class="space-y-2">
-      <ui-heading :level="5">Academic Settings</ui-heading>
+      <ui-heading :level="5">School Settings</ui-heading>
       <p class="text-sm text-muted-foreground">Manage the school related settings and preference</p>
       <UiSeparator />
     </div>
@@ -49,7 +44,7 @@ const showStudentIdInput = computed(() => settings.value.autoGenerateStudentId)
     <!-- Body Content -->
     <div class="w-full">
       <FormKit type="form" v-model="settings" :actions="false" @submit="handleSubmit">
-        <fieldset class="md:max-w-md space-y-6">
+        <fieldset class="md:max-w-md space-y-6" :disabled="setSettings.isPending.value">
           <FormKit
             type="text"
             name="sessionSuffix"
@@ -92,7 +87,13 @@ const showStudentIdInput = computed(() => settings.value.autoGenerateStudentId)
             validation="required|alpha|length:2,5"
           />
 
-          <UiButton type="submit" block text="Submit" class="h-10" />
+          <UiButton
+            :loading="setSettings.isPending.value"
+            type="submit"
+            block
+            text="Submit"
+            class="h-10"
+          />
         </fieldset>
       </FormKit>
     </div>

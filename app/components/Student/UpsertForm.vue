@@ -33,7 +33,9 @@ const isCreateStudentForClass = computed(
   () => props.mode === "Create" && Boolean(props.initialData?.classId)
 )
 
-const autoGenerateStudentId = ref(true)
+// local ref to toggle on/off studentId field, initializes with stored settings
+const { data: settings } = useGetSchoolSettings()
+const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
 </script>
 
 <template>
