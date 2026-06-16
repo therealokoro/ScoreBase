@@ -1,16 +1,9 @@
 <script lang="ts" setup>
-import { DEFAULT_SETTINGS, TERMS_PRESET } from "~~/shared/constants/kv-settings"
+import { TERMS_PRESET } from "~~/shared/constants/kv-settings"
 
 definePageMeta({ middleware: ["admin-only"] })
 
-const { $orpc } = useNuxtApp()
-const { data: settings, refresh } = await useAsyncData(
-  "settings",
-  () => {
-    return $orpc.settings.school.getSettings.call()
-  },
-  { default: () => DEFAULT_SETTINGS }
-)
+const { data: settings, refetch } = useGetSchoolSettings()
 
 const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => ({
   value,
@@ -22,14 +15,14 @@ function handleSubmit(payload: any) {
   useSonner.promise(setSettings.mutateAsync(payload), {
     loading: "Updating school settings, please wait....",
     success: () => {
-      refresh()
+      refetch()
       return "School settings updated successfully"
     },
     error: (e: any) => e.message
   })
 }
 
-const showStudentIdInput = computed(() => settings.value.autoGenerateStudentId)
+const showStudentIdInput = computed(() => settings.value?.autoGenerateStudentId)
 </script>
 
 <template>
