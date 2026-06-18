@@ -1,6 +1,10 @@
 import { kv } from "@nuxthub/kv"
 
-import { DEFAULT_SETTINGS, SchoolSettings, TERMS_PRESET } from "#shared/constants/settings"
+import {
+  DEFAULT_SCHOOL_SETTINGS,
+  type SchoolSettings,
+  TERMS_PRESET
+} from "#shared/constants/kv-settings"
 
 const SCHOOL_SETTINGS_KV_KEY = "settings:school"
 
@@ -12,7 +16,7 @@ export async function getSchoolSettings<K extends keyof SchoolSettings>(
   key?: K
 ): Promise<SchoolSettings | SchoolSettings[K]> {
   const stored = await kv.get<SchoolSettings>(SCHOOL_SETTINGS_KV_KEY)
-  const settings = { ...DEFAULT_SETTINGS, ...stored }
+  const settings = { ...DEFAULT_SCHOOL_SETTINGS, ...stored }
   return key ? settings[key] : settings
 }
 
@@ -29,5 +33,5 @@ export const resetSchoolSettings = async (): Promise<void> => {
 
 export const getTermPreset = async (): Promise<readonly string[]> => {
   const termType = await getSchoolSettings("termPreset")
-  return TERMS_PRESET[termType] ?? TERMS_PRESET[DEFAULT_SETTINGS.termPreset]
+  return TERMS_PRESET[termType] ?? TERMS_PRESET[DEFAULT_SCHOOL_SETTINGS.termPreset]
 }

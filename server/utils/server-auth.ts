@@ -23,6 +23,12 @@ export const serverAuth = betterAuth({
         required: true,
         unique: true,
         returned: true
+      },
+      classId: {
+        type: "string",
+        required: false, // nullable — teacher may not be assigned yet
+        returned: true, // ✅ included in session user
+        input: false // not settable directly via auth endpoints; managed by your own API
       }
     }
   },

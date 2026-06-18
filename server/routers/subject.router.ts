@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm"
 
 import { subjectContract } from "../contracts/subject.contract"
 import { subjects } from "../db/schema"
+import { getSchoolSettings } from "../kv/school-settings"
 import { fetchSingleSubject, listAllSubjects } from "../queries/subject.query"
 
 const os = implement(subjectContract)

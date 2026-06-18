@@ -4,6 +4,7 @@ import { eq, or, sql, desc } from "drizzle-orm"
 
 import { studentContract } from "../contracts/student.contract"
 import { students } from "../db/schema"
+import { getSchoolSettings } from "../kv/school-settings"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
 
 async function checkConflict(name: string, studentId: string, errors: any) {

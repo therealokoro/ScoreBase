@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm"
 
 import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
+import { getSchoolSettings } from "../kv/school-settings"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
 
 export function generateNextSessionName(sessions: { name: string }[], suffix = ""): string {

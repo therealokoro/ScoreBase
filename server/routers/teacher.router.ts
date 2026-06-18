@@ -4,10 +4,10 @@ import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { teacherContract } from "../contracts/teacher.contract"
-import { serverAuth } from "../utils/server-auth"
 import { classes, user } from "../db/schema"
 import { listStudentsByClass } from "../queries/student.query"
 import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
+import { serverAuth } from "../utils/server-auth"
 
 async function assignClassToTeacher(classId: string | undefined, userId: string) {
   let selectedClass: { id: string; name: string } | null = null
@@ -26,6 +26,7 @@ async function assignClassToTeacher(classId: string | undefined, userId: string)
 
 // All procedures share the APiContext so `context.session` is available
 // if you need to restrict any of these to admins in the future.
+// access the logged in user via `context.session.user` and `.role` to get the role
 const os = implement(teacherContract).$context<APiContext>()
 
 const listTeachers = os.list.handler(async () => await listAllTeachers())

@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm"
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core"
+import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core"
 
 import { classes } from "."
 
@@ -20,7 +21,10 @@ export const user = sqliteTable("user", {
   banned: integer("banned", { mode: "boolean" }).default(false),
   banReason: text("ban_reason"),
   banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
-  phoneNumber: text("phone_number").notNull().unique()
+  phoneNumber: text("phone_number").notNull().unique(),
+  classId: text("class_id")
+    .unique()
+    .references((): AnySQLiteColumn => classes.id, { onDelete: "set null" })
 })
 
 export const user_session = sqliteTable(

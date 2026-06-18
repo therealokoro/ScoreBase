@@ -3,11 +3,14 @@ import type { RouterClient } from "@orpc/server"
 import { baseORPC } from "../utils/orpc"
 import { accountRouter } from "./account.router"
 import { classRouter } from "./class.router"
+import { resultRouter } from "./results.router"
+import { scoresheetRouter } from "./scoresheet.router"
 import { academicSessionRouter } from "./session.router"
 import { settingsRouter } from "./settings.router"
 import { studentRouter } from "./student.router"
 import { subjectRouter } from "./subject.router"
 import { subjectListRouter } from "./subjectList.router"
+import { subjectScoreRouter } from "./subjectScore.router"
 import { teacherRouter } from "./teacher.router"
 import { termRouter } from "./term.router"
 
@@ -21,6 +24,9 @@ export const apiRouter = {
   student: studentRouter,
   teacher: teacherRouter,
   account: accountRouter,
+  scoresheet: scoresheetRouter,
+  subjectScore: subjectScoreRouter,
+  result: resultRouter,
   settings: settingsRouter
 }
 
