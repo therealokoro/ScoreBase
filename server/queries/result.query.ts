@@ -102,3 +102,14 @@ export async function fetchSingleSubjectScore(id: string) {
     where: eq(subjectScores.id, id)
   })
 }
+
+/**
+ * Resolves the result that owns a given scoresheet, then returns both. Used in
+ * scoresheet/subjectScore procedures that need to check result status and role permissions without
+ * the caller having to do two separate lookups.
+ */
+export async function getResultForScoresheet(scoresheetId: string) {
+  // fetchScoresheetWithResult joins scoresheets → results in one query
+  const scoresheet = await fetchScoresheetWithResult(scoresheetId)
+  return scoresheet ?? null
+}

@@ -9,25 +9,9 @@ import { getResultScoreConfig } from "../kv/result-settings"
 import {
   fetchResultWithScoresheets,
   fetchSingleResult,
-  fetchScoresheetWithResult,
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Resolves the result that owns a given scoresheet, then returns both. Used in
- * scoresheet/subjectScore procedures that need to check result status and role permissions without
- * the caller having to do two separate lookups.
- */
-async function getResultForScoresheet(scoresheetId: string) {
-  // fetchScoresheetWithResult joins scoresheets → results in one query
-  const scoresheet = await fetchScoresheetWithResult(scoresheetId)
-  return scoresheet ?? null
-}
 
 /**
  * Valid status transitions per role.
