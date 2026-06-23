@@ -49,11 +49,10 @@ const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
 })
 
 /**
- * CREATE — admin/teacher creates a result for a given term + class, and in the same transaction: 
- * 1. Snapshots the current ResultSettings into scoreConfig 
- * 2. Creates the result row (status: draft)
- * 3. Bulk-creates a scoresheet for every student currently enrolled in the class 
- * 4. Pre-populates each scoresheet's subject scores from the class's subject list preset, seeding caScores as an
+ * CREATE — admin/teacher creates a result for a given term + class, and in the same transaction: 1.
+ * Snapshots the current ResultSettings into scoreConfig 2. Creates the result row (status: draft)
+ * 3. Bulk-creates a scoresheet for every student currently enrolled in the class 4. Pre-populates
+ * each scoresheet's subject scores from the class's subject list preset, seeding caScores as an
  * array of 0 (length = caCount)
  *
  * This keeps "create a result" a single atomic action from the admin's point of view — a result is
@@ -76,7 +75,7 @@ const createResult = os.create.handler(async ({ input, errors }) => {
 
   // Snapshot the current admin-configured score distribution
   const scoreConfig = await getResultScoreConfig()
-  const emptyCaScores = Array<number>(scoreConfig.caCount).fill(0) // caScores defaults to zero
+  const emptyCaScores = Array<null>(scoreConfig.caCount).fill(null) // caScores defaults to null
 
   // Fetch the class's enrolled students and its subject list preset up front,
   // outside the transaction, since these are just reads
@@ -120,7 +119,7 @@ const createResult = os.create.handler(async ({ input, errors }) => {
               scoresheetId: sheet.id,
               subjectId: subject.id,
               caScores: emptyCaScores,
-              exam: 0 // exam score defaults to zero(0)
+              exam: null // exam score defaults to null
             }))
           )
         )

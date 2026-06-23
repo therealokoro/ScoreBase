@@ -119,11 +119,11 @@ export const subjectScores = sqliteTable("subject_scores", {
 
   // Variable-length CA scores — must match result.scoreConfig.caCount
   caScores: text("ca_scores", { mode: "json" })
-    .$type<number[]>()
+    .$type<(number|null)[]>()
     .notNull()
     .default(sql`(json_array())`),
 
-  exam: real("exam").notNull().default(0), // null = not yet entered
+  exam: real("exam"), // null = not yet entered
 
   ...dateTimeSchema
 })

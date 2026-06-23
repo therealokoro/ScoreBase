@@ -80,7 +80,7 @@ export type DeleteResultInput = z.infer<typeof DeleteResultSchema>
  * CaScores is a JSON column — drizzle-zod gives it z.unknown(), so we override it with the correct
  * typed array shape.
  */
-const CaScoresArraySchema = z.array(z.number().min(0)).min(1).max(5)
+const CaScoresArraySchema = z.array(z.number().min(0).nullable()).min(1).max(5)
 
 export const SubjectScoreSchema = createSelectSchema(subjectScores, {
   caScores: CaScoresArraySchema

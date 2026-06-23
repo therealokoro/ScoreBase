@@ -8,8 +8,8 @@ type EditableScore = {
   id: string
   subjectId: string | null
   subjectName: string
-  caScores: number[]
-  exam: number
+  caScores: (number | null)[]
+  exam: number | null
 }
 
 export const useScoresheetHelpers = () => {
@@ -22,8 +22,8 @@ export const useScoresheetHelpers = () => {
       id: s.id,
       subjectId: s.subjectId,
       subjectName: s.subject?.name ?? "Unknown subject",
-      caScores: s.caScores.map((c) => Number(c)),
-      exam: Number(s.exam)
+      caScores: [...s.caScores],
+      exam: s.exam
     }))
   }
 

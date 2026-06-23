@@ -117,8 +117,8 @@ async function handleSave() {
         scoresheetId,
         scores: rows.value.map((r) => ({
           id: r.id,
-          caScores: r.caScores.map(Number),
-          exam: Number(r.exam)
+          caScores: r.caScores.map((c) => (c ? Number(c) : c)),
+          exam: r.exam ? Number(r.exam) : r.exam
         }))
       })
     )
