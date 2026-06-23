@@ -1,6 +1,8 @@
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
 import { z } from "zod"
-import { results, scoresheets, subjectScores } from "~~/server/db/schema"
+import { results, subjectScores } from "~~/server/db/schema"
+
+import { SubjectSchema } from "./academic"
 
 // ---------------------------------------------------------------------------
 // ScoreConfigSnapshot
@@ -71,32 +73,6 @@ export const DeleteResultSchema = ResultSchema.pick({ id: true })
 export type DeleteResultInput = z.infer<typeof DeleteResultSchema>
 
 // ---------------------------------------------------------------------------
-// Scoresheet
-// ---------------------------------------------------------------------------
-
-export const ScoresheetSchema = createSelectSchema(scoresheets)
-export type Scoresheet = z.infer<typeof ScoresheetSchema>
-
-/**
- * Scoresheets are bulk-created — one per student. Server resolves name/ID snapshots from the DB;
- * client only supplies the student IDs.
- */
-export const CreateScoresheetsSchema = z.object({
-  resultId: z.string().min(1),
-  studentIds: z.array(z.string().min(1)).min(1, "At least one student is required")
-})
-export type CreateScoresheetsInput = z.infer<typeof CreateScoresheetsSchema>
-
-export const UpdateScoresheetRemarksSchema = createUpdateSchema(scoresheets)
-  .pick({ id: true, teacherRemark: true, principalRemark: true })
-  .required({ id: true })
-  .extend({
-    teacherRemark: z.string().max(500).nullable().optional(),
-    principalRemark: z.string().max(500).nullable().optional()
-  })
-export type UpdateScoresheetRemarksInput = z.infer<typeof UpdateScoresheetRemarksSchema>
-
-// ---------------------------------------------------------------------------
 // SubjectScore
 // ---------------------------------------------------------------------------
 
@@ -104,11 +80,14 @@ export type UpdateScoresheetRemarksInput = z.infer<typeof UpdateScoresheetRemark
  * CaScores is a JSON column — drizzle-zod gives it z.unknown(), so we override it with the correct
  * typed array shape.
  */
-const CaScoresArraySchema = z.array(z.number().min(0).nullable()).min(1).max(5)
+const CaScoresArraySchema = z.array(z.number().min(0)).min(1).max(5)
 
 export const SubjectScoreSchema = createSelectSchema(subjectScores, {
   caScores: CaScoresArraySchema
+}).extend({
+  subject: SubjectSchema.nullable()
 })
+
 export type SubjectScore = z.infer<typeof SubjectScoreSchema>
 
 /**
@@ -148,7 +127,7 @@ export const BulkUpdateSubjectScoresSchema = z.object({
     .array(
       createUpdateSchema(subjectScores, { caScores: CaScoresArraySchema })
         .pick({ id: true, caScores: true, exam: true })
-        .required({ id: true })
+        .required()
     )
     .min(1, "At least one score entry is required")
 })

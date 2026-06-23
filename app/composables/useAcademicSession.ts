@@ -2,7 +2,11 @@
 
 export const useAcademicSessionList = () => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.academicSession.list.queryOptions({}))
+  return useQuery(
+    $orpc.academicSession.list.queryOptions({
+      placeholderData: () => []
+    })
+  )
 }
 
 export const useGetAcademicSessionDetail = (id: MaybeRef<string>) => {

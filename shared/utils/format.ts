@@ -20,3 +20,7 @@ export function formatDate(raw: RawDateTime, prefix?: string): string {
 
   return prefix ? `${prefix} ${formatted}` : formatted
 }
+
+export function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}

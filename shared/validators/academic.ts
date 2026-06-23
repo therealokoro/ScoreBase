@@ -3,8 +3,19 @@ import { z } from "zod"
 import { academicSessions, terms, classes, subjects, subjectLists } from "~~/server/db/schema"
 import { students } from "~~/server/db/schema"
 
+/* Term Schemas */
+export const TermSchema = createSelectSchema(terms)
+export const CreateTermSchema = createInsertSchema(terms).pick({ sessionId: true })
+export const UpdateTermSchema = createUpdateSchema(terms, {
+  id: z.string(),
+  name: z.string("The term requires a name")
+})
+
 /* Academic Session Schemas */
-export const AcademicSessionSchema = createSelectSchema(academicSessions)
+export const AcademicSessionSchema = createSelectSchema(academicSessions).extend({
+  terms: TermSchema.array()
+})
+
 export const UpsertAcademicSessionSchema = createInsertSchema(academicSessions, {
   name: z.string("Please provide a name for the academic session")
 })
@@ -14,14 +25,6 @@ export type UpsertAcademicSessionInput = z.infer<typeof UpsertAcademicSessionSch
 export const UpdateAcademicSessionSchema = createUpdateSchema(academicSessions, {
   id: z.string(),
   name: z.string("The academic session requires a name")
-})
-
-/* Term Schemas */
-export const TermSchema = createSelectSchema(terms)
-export const CreateTermSchema = createInsertSchema(terms).pick({ sessionId: true })
-export const UpdateTermSchema = createUpdateSchema(terms, {
-  id: z.string(),
-  name: z.string("The term requires a name")
 })
 
 /* Class Schemas */
@@ -41,6 +44,7 @@ export type UpsertClassInput = z.infer<typeof UpsertClassSchema>
 
 /* Subject Schemas */
 export const SubjectSchema = createSelectSchema(subjects)
+
 export const UpsertSubjectSchema = createInsertSchema(subjects, {
   name: z.string("The subject requires a name"),
   tags: z

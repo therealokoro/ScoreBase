@@ -3,18 +3,14 @@ import z from "zod"
 import {
   CreateScoresheetsSchema,
   ScoresheetSchema,
-  SubjectScoreSchema,
+  ScoresheetWithDetailsSchema,
   UpdateScoresheetRemarksSchema
-} from "~~/shared/validators/results"
+} from "~~/shared/validators/scoresheet"
 
 // ---------------------------------------------------------------------------
 // Composed output schemas
 // (select schemas extended with nested relations for detail views)
 // ---------------------------------------------------------------------------
-
-export const ScoresheetWithScoresSchema = ScoresheetSchema.extend({
-  subjectScores: z.array(SubjectScoreSchema)
-})
 
 /**
  * Bulk-create scoresheets for a result — one per supplied student ID. Server resolves name/ID
@@ -33,13 +29,13 @@ export const createScoresheets = oc
 /** Single scoresheet with its subject scores */
 export const getOneScoresheet = oc
   .input(ScoresheetSchema.pick({ id: true }))
-  .output(ScoresheetWithScoresSchema)
+  .output(ScoresheetWithDetailsSchema)
   .errors({ NOT_FOUND: { message: "The scoresheet was not found" } })
 
 /** Update teacher and/or principal remarks */
 export const updateScoresheetRemarks = oc
   .input(UpdateScoresheetRemarksSchema)
-  .output(ScoresheetSchema)
+  // .output(ScoresheetSchema)
   .errors({
     NOT_FOUND: { message: "The scoresheet was not found" },
     FORBIDDEN: { message: "You do not have permission to edit remarks on this scoresheet" }

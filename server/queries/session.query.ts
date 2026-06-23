@@ -21,6 +21,7 @@ export const fetchSingleAcademicSession = async (payload: string, column: "id" |
 /** List all academic sessions */
 export const listAllAcademicSessions = async () => {
   return await db.query.academicSessions.findMany({
+    with: { terms: true },
     orderBy(fields, operators) {
       return operators.desc(fields.name)
     }

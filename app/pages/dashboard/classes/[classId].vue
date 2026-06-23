@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
 
-import type { StatsCardProps } from "~/components/Class/StatsCard.vue"
+import type { StatsCardProps } from "~/components/App/StatsCard.vue"
 
 const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
@@ -82,7 +82,7 @@ function handleDeleteAction() {
       />
 
       <!-- Show class stats -->
-      <ClassStatsCard v-for="item in classStats" v-bind="item" />
+      <AppStatsCard v-for="item in classStats" v-bind="item" />
     </div>
 
     <StudentListTable :class-id="classId" :show-create-button="true" />

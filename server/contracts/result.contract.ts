@@ -1,16 +1,25 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
+import { AcademicSessionSchema, ClassSchema } from "~~/shared/validators/academic"
 import {
   CreateResultSchema,
   ResultSchema,
   UpdateResultScoreConfigSchema,
   UpdateResultStatusSchema
 } from "~~/shared/validators/results"
+import { ScoresheetWithDetailsSchema } from "~~/shared/validators/scoresheet"
 
-import { ScoresheetWithScoresSchema } from "./scoresheet.contract"
+const ExtendedResultSchema = ResultSchema.extend({
+  name: z.string(),
+  term: z.object({
+    name: z.string(),
+    session: AcademicSessionSchema.pick({ name: true })
+  }),
+  class: ClassSchema.pick({ name: true, id: true })
+})
 
-const ResultDetailSchema = ResultSchema.extend({
-  scoresheets: z.array(ScoresheetWithScoresSchema)
+const ResultDetailSchema = ExtendedResultSchema.extend({
+  scoresheets: z.array(ScoresheetWithDetailsSchema.omit({ result: true }))
 })
 
 // ---------------------------------------------------------------------------
@@ -18,7 +27,7 @@ const ResultDetailSchema = ResultSchema.extend({
 // ---------------------------------------------------------------------------
 
 /** Admin sees all results; teacher sees only their assigned class's results */
-export const listResults = oc.output(z.array(ResultSchema))
+export const listResults = oc.output(z.array(ExtendedResultSchema))
 
 /** Single result with all scoresheets and subject scores nested */
 export const getOneResult = oc

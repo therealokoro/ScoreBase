@@ -11,7 +11,7 @@ import {
 /** Add a subject row to a scoresheet. caScores seeded with nulls server-side. */
 export const addSubjectScore = oc
   .input(AddSubjectScoreSchema)
-  .output(SubjectScoreSchema)
+  .output(SubjectScoreSchema.omit({ subject: true }))
   .errors({
     NOT_FOUND: { message: "The scoresheet was not found" },
     CONFLICT: { message: "This subject is already on the scoresheet" },
@@ -35,7 +35,7 @@ export const removeSubjectScore = oc
  */
 export const updateSubjectScore = oc
   .input(UpdateSubjectScoreSchema)
-  .output(SubjectScoreSchema)
+  .output(SubjectScoreSchema.omit({ subject: true }))
   .errors({
     NOT_FOUND: { message: "The subject score was not found" },
     FORBIDDEN: { message: "You do not have permission to edit scores on this result" },
@@ -46,7 +46,7 @@ export const updateSubjectScore = oc
 /** Save all subject scores on a scoresheet in one round-trip */
 export const bulkUpdateSubjectScores = oc
   .input(BulkUpdateSubjectScoresSchema)
-  .output(z.array(SubjectScoreSchema))
+  .output(z.array(SubjectScoreSchema.omit({ subject: true })))
   .errors({
     NOT_FOUND: { message: "The scoresheet or one or more subject scores were not found" },
     FORBIDDEN: { message: "You do not have permission to edit scores on this result" },

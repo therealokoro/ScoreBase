@@ -7,9 +7,11 @@ import {
 } from "@orpc/server/plugins"
 import type { APiContext } from "~~/server/context"
 import { apiRouter } from "~~/server/routers"
+import { loggingInterceptor } from "~~/server/utils/logger"
 import { serverAuth } from "~~/server/utils/server-auth"
 
 const handler = new RPCHandler(apiRouter, {
+  clientInterceptors: [loggingInterceptor],
   plugins: [
     new CORSPlugin({
       origin: (origin) => origin, // reflect origin — tighten this in production

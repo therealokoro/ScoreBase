@@ -475,6 +475,8 @@ const props = withDefaults(
     columnPinIconOff?: string
 
     columnVisibility?: Record<string, boolean>
+    /** External global filter value — lets the parent control search (e.g. from a URL-synced ref). */
+    globalFilter?: string
   }>(),
   {
     data: () => [],
@@ -526,6 +528,8 @@ const emit = defineEmits<{
   "update:columnPinning": [pinning: ColumnPinningState]
   /** Emitted when a column is pinned/unpinned via header button. */
   "column-pin": [payload: { column: any; pin: "left" | "right" | false }]
+  /** Emitted when the global filter changes. */
+  "update:globalFilter": [value: string]
 }>()
 
 // Auto-generate columns from data if not provided
@@ -565,6 +569,15 @@ watch(
   () => props.columnVisibility,
   (val) => {
     if (val) columnVisibility.value = val
+  },
+  { immediate: true }
+)
+
+// Sync when prop changes (e.g. parent updates from a URL-synced ref)
+watch(
+  () => props.globalFilter,
+  (val) => {
+    if (val !== undefined && val !== globalFilter.value) globalFilter.value = val
   },
   { immediate: true }
 )
@@ -626,6 +639,7 @@ const table = useVueTable({
   onGlobalFilterChange: (updaterOrValue) => {
     globalFilter.value =
       typeof updaterOrValue === "function" ? updaterOrValue(globalFilter.value) : updaterOrValue
+    emit("update:globalFilter", globalFilter.value) // ← add this line
   },
   onPaginationChange: (updaterOrValue) => {
     pagination.value =

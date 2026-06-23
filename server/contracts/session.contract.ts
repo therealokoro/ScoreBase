@@ -2,7 +2,6 @@ import { oc } from "@orpc/contract"
 import { z } from "zod"
 import {
   AcademicSessionSchema,
-  UpsertAcademicSessionSchema,
   UpdateAcademicSessionSchema,
   TermSchema
 } from "~~/shared/validators/academic"
@@ -16,12 +15,12 @@ export const getOne = oc
 
 export const create = oc
   // .input(UpsertAcademicSessionSchema)
-  .output(AcademicSessionSchema)
+  .output(AcademicSessionSchema.omit({ terms: true }))
 // .errors({ CONFLICT: { message: "A session already exists with that name" } })
 
 export const update = oc
   .input(UpdateAcademicSessionSchema)
-  .output(AcademicSessionSchema)
+  .output(AcademicSessionSchema.extend({ terms: z.optional(TermSchema.array()) }))
   .errors({
     NOT_FOUND: { message: "The session was not found" },
     CONFLICT: { message: "A session already exists with that name" }

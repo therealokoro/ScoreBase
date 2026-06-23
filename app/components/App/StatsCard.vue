@@ -1,7 +1,7 @@
 <script lang="ts">
 export type StatsCardProps = {
   label: string
-  value: string
+  value: string | number
   icon?: string
 }
 </script>
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<StatsCardProps>(), {
 
 <template>
   <div class="flex items-center justify-between px-4 py-2 rounded-lg border">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 sm:gap-4">
       <Icon :name="props.icon" class="size-4" />
       <p class="text-muted-foreground text-xs font-medium text-ellipsis truncate">
         {{ props.label }}

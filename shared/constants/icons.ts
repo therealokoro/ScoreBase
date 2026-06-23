@@ -104,6 +104,9 @@ export const ICONS = {
   archive: "lucide:archive",
   restore: "lucide:rotate-ccw",
 
+  undo: "lucide:undo-2",
+  redo: "lucide:redo-2",
+
   // =========================
   // Navigation & UI
   // =========================
@@ -176,6 +179,7 @@ export const ICONS = {
 
   message: "lucide:message-circle",
   email: "lucide:mail",
+  send: "lucide:mail",
   phone: "lucide:phone",
 
   // =========================
@@ -214,6 +218,8 @@ export const ICONS = {
 
   online: "tabler:wifi",
   offline: "tabler:wifi-off",
+
+  check: "tabler:check",
 
   // =========================
   // Tags & Labels

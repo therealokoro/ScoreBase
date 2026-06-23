@@ -36,10 +36,41 @@ CREATE TABLE `classes` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `classes_name_unique` ON `classes` (`name`);--> statement-breakpoint
 CREATE UNIQUE INDEX `classes_teacher_id_unique` ON `classes` (`teacher_id`);--> statement-breakpoint
+CREATE TABLE `results` (
+	`id` text PRIMARY KEY NOT NULL,
+	`term_id` text NOT NULL,
+	`class_id` text NOT NULL,
+	`score_config` text NOT NULL,
+	`status` text DEFAULT 'draft' NOT NULL,
+	`submitted_by_id` text,
+	`submitted_at` text,
+	`reviewed_by_id` text,
+	`reviewed_at` text,
+	`published_at` text,
+	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	FOREIGN KEY (`term_id`) REFERENCES `terms`(`id`) ON UPDATE no action ON DELETE restrict,
+	FOREIGN KEY (`class_id`) REFERENCES `classes`(`id`) ON UPDATE no action ON DELETE restrict,
+	FOREIGN KEY (`submitted_by_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (`reviewed_by_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+);
+--> statement-breakpoint
+CREATE TABLE `scoresheets` (
+	`id` text PRIMARY KEY NOT NULL,
+	`result_id` text NOT NULL,
+	`student_id` text NOT NULL,
+	`teacher_remark` text,
+	`principal_remark` text,
+	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	FOREIGN KEY (`result_id`) REFERENCES `results`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON UPDATE no action ON DELETE restrict
+);
+--> statement-breakpoint
 CREATE TABLE `students` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
-	`student_id` text,
+	`student_id` text NOT NULL,
 	`class_id` text NOT NULL,
 	`phone_number` text,
 	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
@@ -54,6 +85,18 @@ CREATE TABLE `subject_lists` (
 	`subjects` text NOT NULL,
 	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
 	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `subject_scores` (
+	`id` text PRIMARY KEY NOT NULL,
+	`scoresheet_id` text NOT NULL,
+	`subject_id` text,
+	`ca_scores` text DEFAULT (json_array()) NOT NULL,
+	`exam` real DEFAULT 0 NOT NULL,
+	`createdAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	`updatedAt` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,
+	FOREIGN KEY (`scoresheet_id`) REFERENCES `scoresheets`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`subject_id`) REFERENCES `subjects`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE TABLE `subjects` (
@@ -86,11 +129,14 @@ CREATE TABLE `user` (
 	`banned` integer DEFAULT false,
 	`ban_reason` text,
 	`ban_expires` integer,
-	`phone_number` text NOT NULL
+	`phone_number` text NOT NULL,
+	`class_id` text,
+	FOREIGN KEY (`class_id`) REFERENCES `classes`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_phone_number_unique` ON `user` (`phone_number`);--> statement-breakpoint
+CREATE UNIQUE INDEX `user_class_id_unique` ON `user` (`class_id`);--> statement-breakpoint
 CREATE TABLE `user_session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`expires_at` integer NOT NULL,

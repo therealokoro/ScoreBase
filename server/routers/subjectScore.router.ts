@@ -68,8 +68,8 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
     if (duplicate) throw errors.CONFLICT()
   }
 
-  // Seed caScores with one null slot per CA defined in the snapshot
-  const emptyCaScores = Array<null>(result.scoreConfig.caCount).fill(null)
+  // Seed caScores with one zero(0) slot per CA defined in the snapshot
+  const emptyCaScores = Array<number>(result.scoreConfig.caCount).fill(0)
 
   const [newScore] = await db
     .insert(subjectScores)
@@ -77,7 +77,7 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
       scoresheetId: input.scoresheetId,
       subjectId: input.subjectId ?? null,
       caScores: emptyCaScores,
-      exam: null
+      exam: 0
     })
     .returning()
 

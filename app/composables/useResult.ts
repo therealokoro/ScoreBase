@@ -20,7 +20,12 @@ export const useGetResult = (id: MaybeRefOrGetter<string>) => {
 
 export const useCreateResult = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.result.create.mutationOptions())
+  const queryClient = useQueryClient()
+  return useMutation(
+    $orpc.result.create.mutationOptions({
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: $orpc.result.key() })
+    })
+  )
 }
 
 export const useUpdateResultStatus = () => {
