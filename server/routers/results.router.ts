@@ -40,7 +40,17 @@ const listResults = os.list.handler(async ({ context }) => {
 
 const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
   const user = context.session!.user
-  const result = await fetchResultWithScoresheets(input.id)
+  const result = await fetchResultWithScoresheets(input.id, "id")
+  if (!result) throw errors.NOT_FOUND()
+  if (user.role === "teacher" && result.classId !== user.classId) {
+    throw errors.NOT_FOUND()
+  }
+  return result
+})
+
+const getOneResultByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
+  const user = context.session!.user
+  const result = await fetchResultWithScoresheets(input.termId, "termId")
   if (!result) throw errors.NOT_FOUND()
   if (user.role === "teacher" && result.classId !== user.classId) {
     throw errors.NOT_FOUND()
@@ -62,7 +72,10 @@ const createResult = os.create.handler(async ({ input, errors }) => {
   // Guard: check the term and class actually exist
   // (fixed — previously checked results.id instead of terms.id / classes.id)
   const [term, cls] = await Promise.all([
-    db.query.terms.findFirst({ where: eq(terms.id, input.termId) }),
+    db.query.terms.findFirst({
+      where: eq(terms.id, input.termId),
+      with: { session: { columns: { name: true } } }
+    }),
     db.query.classes.findFirst({ where: eq(classes.id, input.classId) })
   ])
   if (!term || !cls) throw errors.NOT_FOUND()
@@ -93,10 +106,14 @@ const createResult = os.create.handler(async ({ input, errors }) => {
   // Everything below happens atomically — if any step fails, nothing is
   // persisted, so we never end up with a result that has no scoresheets
   const newResult = await db.transaction(async (tx) => {
+    // derive result name
+    const sessionName = term.session.name.split(" ")[0] // get only the session date without the prefix
+    const resultName = `${sessionName} - ${term.name} - ${cls.name}`
+
     // 1. Insert the result row
     const [result] = await tx
       .insert(results)
-      .values({ ...input, scoreConfig })
+      .values({ ...input, name: resultName, scoreConfig })
       .returning()
 
     // 2. Bulk-create one scoresheet per enrolled student
@@ -243,6 +260,7 @@ const deleteResult = os.delete.handler(async ({ input, errors }) => {
 export const resultRouter = {
   list: listResults,
   getOne: getOneResult,
+  getByTerm: getOneResultByTerm,
   create: createResult,
   updateScoreConfig: updateResultScoreConfig,
   updateStatus: updateResultStatus,

@@ -28,6 +28,13 @@ const handleCreateTerm = () => {
     error: (e: any) => e.message
   })
 }
+
+const { data: result } = useGetResultByTerm(() => activeTerm.value?.id ?? null)
+
+const initOpenResult = useDebounceFn(async (term: ITerm) => {
+  activeTerm.value = term
+  return navigateTo(`/dashoard/results/${result.value?.id}`)
+}, 1000)
 </script>
 
 <template>
@@ -36,7 +43,7 @@ const handleCreateTerm = () => {
     <h3 class="text-sm font-semibold">Session Terms</h3>
     <div class="flex flex-wrap gap-4">
       <UiButtonGroup v-for="item in terms">
-        <ui-button variant="outline" @click="emit('selectTerm', item)">
+        <ui-button variant="outline" @click="initOpenResult(item)">
           {{ item.name }}
         </ui-button>
 

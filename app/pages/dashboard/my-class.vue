@@ -1,7 +1,6 @@
 <script lang="ts" setup>
+import type { StatsCardProps } from "~/components/App/StatsCard.vue"
 import { ICONS } from "~~/shared/constants/icons"
-
-import type { StatsCardProps } from "~/components/Class/StatsCard.vue"
 
 definePageMeta({ middleware: ["teacher-only"] })
 

@@ -7,15 +7,22 @@ export const useListResults = () => {
   return useQuery($orpc.result.list.queryOptions())
 }
 
-export const useGetResult = (id: MaybeRefOrGetter<string>) => {
+export const useGetResultByTerm = (termId: MaybeRefOrGetter<string | null>) => {
   const { $orpc } = useNuxtApp()
   return useQuery(
-    computed(() =>
-      $orpc.result.getOne.queryOptions({
-        input: { id: toValue(id) }
+    computed(() => {
+      const id = toValue(termId)
+      return $orpc.result.getByTerm.queryOptions({
+        input: { termId: id ?? "" },
+        enabled: !!id
       })
-    )
+    })
   )
+}
+
+export const useGetResult = (id: MaybeRefOrGetter<string>) => {
+  const { $orpc } = useNuxtApp()
+  return useQuery(computed(() => $orpc.result.getOne.queryOptions({ input: { id: toValue(id) } })))
 }
 
 export const useCreateResult = () => {

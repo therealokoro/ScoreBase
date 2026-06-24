@@ -40,7 +40,7 @@ const formData = ref(toFormShape(DEFAULT_RESULT_SETTINGS))
 const gradeBoundaryRows = ref([...DEFAULT_GRADE_BOUNDARIES])
 const gradeBoundaryRenderKey = ref(0)
 
-// Sync both when the query resolves
+// Sync stored settings to local settings variable when the query resolves
 watch(
   settings,
   (val) => {

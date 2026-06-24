@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm"
 import { real, sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
+import { resultStatus } from "~~/shared/constants/extras"
 
 import { user } from "."
 import { classes, students, subjects, terms } from "./academic"
@@ -31,13 +32,11 @@ type ScoreConfigSnapshot = {
 // that were active when it was created.
 // ---------------------------------------------------------------------------
 
-export const resultStatus = ["draft", "submitted", "reviewed", "published"] as const
-export type ResultStatus = (typeof resultStatus)[number]
-
 export const results = sqliteTable("results", {
   id: text("id")
     .primaryKey()
     .$default(() => typeid("result").toString()),
+  name: text("name").notNull(),
   termId: text("term_id")
     .notNull()
     .references(() => terms.id, { onDelete: "restrict" }),
@@ -119,7 +118,7 @@ export const subjectScores = sqliteTable("subject_scores", {
 
   // Variable-length CA scores — must match result.scoreConfig.caCount
   caScores: text("ca_scores", { mode: "json" })
-    .$type<(number|null)[]>()
+    .$type<(number | null)[]>()
     .notNull()
     .default(sql`(json_array())`),
 

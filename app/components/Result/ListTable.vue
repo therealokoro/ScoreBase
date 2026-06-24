@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { createColumnHelper } from "@tanstack/vue-table"
 import { refDebounced, breakpointsTailwind, useDebounceFn } from "@vueuse/core"
-import { ICONS } from "~~/shared/constants/icons"
 
+import ResultStatusBadge from "~/components/Result/StatusBadge.vue"
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
 
@@ -67,19 +67,6 @@ watch(globalSearch, () => {
   pagination.value = { ...pagination.value, pageIndex: 0 }
 })
 
-// Status → badge color mapping. Keys match the result lifecycle values
-// exactly: draft, submitted, reviewed, published
-const STATUS_BADGE_VARIANTS: Record<string, any> = {
-  draft: "secondary",
-  submitted: "warning",
-  reviewed: "info",
-  published: "success"
-}
-
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
-
 // Format dates before passing to the table
 const results = computed(() => {
   return (
@@ -135,9 +122,7 @@ const columns = [
   columnHelper.accessor("status", {
     header: "Status",
     cell: ({ getValue }) => {
-      const val = getValue()
-      const variant = STATUS_BADGE_VARIANTS[val] ?? "outline"
-      return h(UiBadge, { variant }, () => capitalize(val))
+      return h(ResultStatusBadge, { status: getValue() as any })
     }
   }),
 
@@ -151,7 +136,7 @@ const columns = [
       )
   }),
 
-  columnHelper.accessor("createdAt", { header: "Registered" })
+  columnHelper.accessor("createdAt", { header: "Created" })
 ]
 </script>
 

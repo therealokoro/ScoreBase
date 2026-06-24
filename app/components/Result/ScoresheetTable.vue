@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { createColumnHelper } from "@tanstack/vue-table"
 import { breakpointsTailwind } from "@vueuse/core"
+import type { ResultWithDetail } from "~~/shared/validators/scoresheet"
 
 import UiButton from "~/components/Ui/Button.vue"
 import UiProgress from "~/components/Ui/Progress/Progress.vue"
@@ -13,10 +14,27 @@ type ScoresheetRow = {
   progress: number
 }
 
-const props = defineProps<{
-  scoresheets: ScoresheetRow[]
-  resultId: string
-}>()
+const props = defineProps<{ result: ResultWithDetail }>()
+
+// Per-scoresheet completion — fraction of subject scores that are fully
+// entered (both CAs and exam filled in) out of total subjects on the sheet
+// ---------------------------------------------------------------------------
+
+const { isScoreComplete } = useScoresheetHelpers()
+
+const scoresheets = computed(() => {
+  return (props.result?.scoresheets ?? []).map((sheet) => {
+    const total = sheet.subjectScores.length
+    const completed = sheet.subjectScores.filter(isScoreComplete).length
+    return {
+      ...sheet,
+      totalSubjects: total,
+      completedSubjects: completed,
+      progress: total === 0 ? 0 : Math.round((completed / total) * 100),
+      isFullyScored: total > 0 && completed === total
+    }
+  })
+})
 
 const globalSearch = ref("")
 const columnHelper = createColumnHelper<ScoresheetRow>()
@@ -40,7 +58,7 @@ const columns = [
         UiButton,
         {
           variant: "link",
-          to: `/dashboard/results/${props.resultId}/${row.original.id}`,
+          to: `/dashboard/results/${props.result.id}/${row.original.id}`,
           class: "text-xs md:text-sm font-medium"
         },
         () => row.original.student?.name ?? "Unknown student"
@@ -80,7 +98,7 @@ const columns = [
       h(UiButton, {
         variant: "outline",
         size: "sm",
-        to: `/dashboard/results/${props.resultId}/${row.original.id}`,
+        to: `/dashboard/results/${props.result.id}/${row.original.id}`,
         text: "Open"
       })
   })

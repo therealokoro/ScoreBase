@@ -39,6 +39,11 @@ export const ResultSchema = createSelectSchema(results, {
 })
 export type Result = z.infer<typeof ResultSchema>
 
+// NOTE: ResultDetailSchema (Result + nested scoresheets) now lives in
+// ./scoresheet, since it needs ScoresheetWithDetailsSchema and that file
+// already imports ResultSchema from here. Defining it here too would
+// recreate a circular import between results.ts and scoresheet.ts.
+
 export const CreateResultSchema = createInsertSchema(results, {
   // termId and classId are required on creation — strip the optional wrapper
   // drizzle-zod adds for columns that have no notNull in insert position

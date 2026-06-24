@@ -47,10 +47,6 @@ async function handleCreateResult(payload: any) {
       </ui-button>
     </div>
 
-    <!-- <AppContentPlaceholder
-      title="View Result"
-      text='Use the "Load a Result" button above to open a result'
-    /> -->
     <ResultListTable />
 
     <UiSheet v-model:open="isSheetOpen">

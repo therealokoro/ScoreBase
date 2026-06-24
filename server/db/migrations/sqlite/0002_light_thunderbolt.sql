@@ -1,0 +1,1 @@
+ALTER TABLE `results` ADD `name` text NOT NULL;

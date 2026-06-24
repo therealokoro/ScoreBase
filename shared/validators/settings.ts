@@ -14,7 +14,7 @@ export const SchoolSettingsSchema = z.object({
     .regex(/^[a-zA-Z]+$/, "Prefix must be alphabets only")
 })
 
-export type SchoolSettings = z.infer<typeof SchoolSettingsSchema>
+export type SchoolSettingsType = z.infer<typeof SchoolSettingsSchema>
 
 // ---------------------------------------------------------------------------
 // Result Settings
@@ -48,4 +48,4 @@ export const ResultSettingsSchema = ResultSettingsBaseSchema.refine(
 // partial updates may not have enough fields to check the sum invariant
 export const PartialResultSettingsSchema = ResultSettingsBaseSchema.partial()
 
-export type ResultSettings = z.infer<typeof ResultSettingsSchema>
+export type ResultSettingsType = z.infer<typeof ResultSettingsSchema>

@@ -7,7 +7,7 @@ import {
   UpdateResultScoreConfigSchema,
   UpdateResultStatusSchema
 } from "~~/shared/validators/results"
-import { ScoresheetWithDetailsSchema } from "~~/shared/validators/scoresheet"
+import { ResultDetailSchema } from "~~/shared/validators/scoresheet"
 
 const ExtendedResultSchema = ResultSchema.extend({
   name: z.string(),
@@ -16,10 +16,6 @@ const ExtendedResultSchema = ResultSchema.extend({
     session: AcademicSessionSchema.pick({ name: true })
   }),
   class: ClassSchema.pick({ name: true, id: true })
-})
-
-const ResultDetailSchema = ExtendedResultSchema.extend({
-  scoresheets: z.array(ScoresheetWithDetailsSchema.omit({ result: true }))
 })
 
 // ---------------------------------------------------------------------------
@@ -32,6 +28,12 @@ export const listResults = oc.output(z.array(ExtendedResultSchema))
 /** Single result with all scoresheets and subject scores nested */
 export const getOneResult = oc
   .input(ResultSchema.pick({ id: true }))
+  .output(ResultDetailSchema)
+  .errors({ NOT_FOUND: { message: "The result was not found" } })
+
+/** Single result by its term Id with all scoresheets and subject scores nested */
+export const getOneResultByTerm = oc
+  .input(ResultSchema.pick({ termId: true }))
   .output(ResultDetailSchema)
   .errors({ NOT_FOUND: { message: "The result was not found" } })
 
@@ -83,6 +85,7 @@ export const deleteResult = oc
 export const resultContract = {
   list: listResults,
   getOne: getOneResult,
+  getByTerm: getOneResultByTerm,
   create: createResult,
   updateScoreConfig: updateResultScoreConfig,
   updateStatus: updateResultStatus,

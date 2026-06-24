@@ -23,15 +23,8 @@ function getResultDisplayName(result: {
 // Shared relation presets
 // ---------------------------------------------------------------------------
 
-/**
- * Minimal relations needed to derive the display name of a result. Produces: "2024/2025 - 1st Term
- * - JSS1A"
- */
-const resultDisplayRelations = {
-  term: {
-    columns: { name: true },
-    with: { session: { columns: { name: true } } }
-  },
+const termWithRelation = {
+  term: { columns: { name: true }, with: { session: { columns: { name: true } } } },
   class: { columns: { name: true, id: true } }
 } as const
 
@@ -39,72 +32,47 @@ const resultDisplayRelations = {
 // Result queries
 // ---------------------------------------------------------------------------
 
-/**
- * Fetches every result row with display relations (term → session, class). Used by admins who have
- * visibility across all classes.
- */
+/** Fetches every result row. Used by admins who have visibility across all classes. */
 export async function listAllResults() {
-  const rows = await db.query.results.findMany({
-    with: resultDisplayRelations
-  })
-
-  return rows.map((curr) => {
-    return { ...curr, name: getResultDisplayName(curr) }
+  return await db.query.results.findMany({
+    with: { ...termWithRelation }
   })
 }
 
 /**
- * Fetches all results that belong to a specific class with display relations. Used to scope the
- * list view for teachers (who can only see their class).
+ * Fetches all results that belong to a specific class. Used to scope the list view for teachers
+ * (who can only see their class).
  */
 export async function listResultsByClass(classId: string) {
-  const rows = await db.query.results.findMany({
+  return await db.query.results.findMany({
     where: eq(results.classId, classId),
-    with: resultDisplayRelations
-  })
-
-  return rows.map((curr) => {
-    return { ...curr, name: getResultDisplayName(curr) }
+    with: { ...termWithRelation }
   })
 }
 
-/**
- * Fetches a single result row by its ID with display relations. Used internally in the router when
- * you need the result's own fields (e.g. to check status, scoreConfig, or classId) plus its display
- * name.
- */
+/** Fetches a single result row by its ID */
 export async function fetchSingleResult(id: string) {
-  const res = await db.query.results.findFirst({
-    where: eq(results.id, id),
-    with: resultDisplayRelations
-  })
-  return res ? { ...res, name: getResultDisplayName(res) } : null
+  return await db.query.results.findFirst({ where: eq(results.id, id) })
 }
 
 /**
  * Fetches a result with all its scoresheets and each scoresheet's subject scores fully nested. This
- * is the "full detail" shape used by the score entry page and the report card.
- *
- * Shape returned: result (with display relations) └── scoresheets[] ├── student (id, name,
- * studentId) └── subjectScores[]
+ * is the "full detail" shape used by the score entry page and the report card. Looks the result up
+ * by either its own id or by its termId — pass exactly one.
  */
-export async function fetchResultWithScoresheets(id: string) {
-  const res = await db.query.results.findFirst({
-    where: eq(results.id, id),
+export async function fetchResultWithScoresheets(payload: string, column: "id" | "termId") {
+  return await db.query.results.findFirst({
+    where: eq(results[column], payload),
     with: {
-      ...resultDisplayRelations,
       scoresheets: {
         with: {
           subjectScores: { with: { subject: true } },
-          // Needed so the scoresheet list on the result page can display
-          // each student's name without a separate fetch
+          // Needed so the scoresheet list on the result page can display each student's name
           student: { columns: { id: true, name: true, studentId: true } }
         }
       }
     }
   })
-
-  return res ? { ...res, name: getResultDisplayName(res) } : null
 }
 
 // ---------------------------------------------------------------------------
@@ -136,11 +104,7 @@ export async function fetchSingleScoresheet(id: string) {
 export async function fetchScoresheetWithResult(id: string) {
   return await db.query.scoresheets.findFirst({
     where: eq(scoresheets.id, id),
-    with: {
-      result: {
-        with: resultDisplayRelations
-      }
-    }
+    with: { result: true }
   })
 }
 

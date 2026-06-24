@@ -23,7 +23,7 @@ const pageTitle = computed(() => {
 
 setPageBreadcrumbLabel(computed(() => student.value?.name))
 setPageBreadcrumbLabels({
-  // [route.params.resultId as string]: computed(() => result.value?.name),
+  [route.params.resultId as string]: computed(() => result.value?.name),
   [route.params.sheetId as string]: computed(() => pageTitle.value)
 })
 
@@ -143,7 +143,7 @@ async function handleSave() {
 }
 
 const metaData = computed(() => [
-  { term: "Result Name", details: "The Result Name Goes Here" },
+  { term: "Result Name", details: result.value?.name },
   { term: "Student Name", details: student.value?.name },
   { term: "Student ID", details: student.value?.studentId }
 ])

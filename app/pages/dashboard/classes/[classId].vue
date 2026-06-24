@@ -24,9 +24,7 @@ const classStats = computed<StatsCardProps[]>(() => {
       label: "Total Students",
       value: currClass.value?.count.students || "0",
       icon: ICONS.students as string
-    },
-    { label: "Total Results", value: "15", icon: ICONS.result as string }
-    // { label: "Subject List", value: "Junior Courses", icon: ICONS.subject as string }
+    }
   ]
 })
 

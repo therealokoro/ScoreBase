@@ -37,6 +37,9 @@ function handleDeleteSession() {
 
 // TODO: get selected term, fetch and dispaly its result in a table
 const activeTerm = ref<ITerm | null>(null)
+const { data: result, isFetching: isFetchingResult } = useGetResultByTerm(
+  () => activeTerm.value?.id ?? null
+)
 </script>
 
 <template>
@@ -58,7 +61,11 @@ const activeTerm = ref<ITerm | null>(null)
     />
 
     <!-- Session/Term Result Table -->
-    <AppContentPlaceholder text="Select a term to view its results" />
+    <div class="w-full">
+      <ResultScoresheetTable v-if="result && !isFetchingResult" :result="result" />
+      <UiSkeleton v-else-if="!result && isFetchingResult" class="w-full h-30" />
+      <AppContentPlaceholder v-else text="Select a term to view its results" />
+    </div>
 
     <!-- Session Edit Form -->
     <LazySessionCreateEditForm

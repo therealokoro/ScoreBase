@@ -3,6 +3,7 @@ import { db } from "@nuxthub/db"
 import { eq, and, asc } from "drizzle-orm"
 
 import { terms } from "../db/schema"
+import { getTermPreset } from "../kv/school-settings"
 /** Find a term by id or name within a session */
 export const fetchSingleTerm = async (
   payload: string,

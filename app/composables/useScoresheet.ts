@@ -77,6 +77,10 @@ export const useScoresheetHelpers = () => {
     return toRef(gradeBoundaries).value.find((b) => total >= b.min && total <= b.max) ?? null
   }
 
+  function isScoreComplete(score: { caScores: (number | null)[]; exam: number | null }) {
+    return score.exam !== null && score.caScores.every((s) => s !== null)
+  }
+
   return {
     rows,
     createLocalScoresheet,
@@ -85,6 +89,7 @@ export const useScoresheetHelpers = () => {
     overallMax,
     overallTotal,
     getRowGrade,
-    getRowTotal
+    getRowTotal,
+    isScoreComplete
   }
 }

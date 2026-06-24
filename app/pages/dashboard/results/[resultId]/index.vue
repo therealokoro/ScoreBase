@@ -13,34 +13,12 @@ const isAdmin = computed(() => auth.currentUser.value?.role === "admin")
 // Set breadcrumb label once data resolves
 setPageBreadcrumbLabel(computed(() => result.value?.name))
 
-// Status badge — color-coded, same mapping as the list table
-// ---------------------------------------------------------------------------
-const STATUS_BADGE_VARIANTS: Record<string, any> = {
-  draft: "secondary",
-  submitted: "warning",
-  reviewed: "info",
-  published: "success"
-}
-
-const statusVariant = computed(() => STATUS_BADGE_VARIANTS[result.value?.status ?? ""] ?? "outline")
-
-// Per-scoresheet completion — fraction of subject scores that are fully
-// entered (both CAs and exam filled in) out of total subjects on the sheet
-// ---------------------------------------------------------------------------
-function isScoreComplete(score: { caScores: (number | null)[]; exam: number | null }) {
-  return score.exam !== null && score.caScores.every((s) => s !== null)
-}
-
-// add progress to each scoresheet
-const scoresheetsWithProgress = computed(() => {
+const { isScoreComplete } = useScoresheetHelpers()
+const scoresheets = computed(() => {
   return (result.value?.scoresheets ?? []).map((sheet) => {
     const total = sheet.subjectScores.length
     const completed = sheet.subjectScores.filter(isScoreComplete).length
     return {
-      ...sheet,
-      totalSubjects: total,
-      completedSubjects: completed,
-      progress: total === 0 ? 0 : Math.round((completed / total) * 100),
       isFullyScored: total > 0 && completed === total
     }
   })
@@ -48,7 +26,7 @@ const scoresheetsWithProgress = computed(() => {
 
 // Result-level summary stats
 const resultStats = computed(() => {
-  const sheets = scoresheetsWithProgress.value
+  const sheets = scoresheets.value
   const fullyScored = sheets.filter((s) => s.isFullyScored).length
 
   return [
@@ -117,7 +95,11 @@ function handleDelete() {
 </script>
 
 <template>
-  <Page :title="result?.name || 'Loading...'" :loading="isPending" :error="error ?? undefined">
+  <Page
+    :title="`${result?.name} Result` || 'Loading...'"
+    :loading="isPending"
+    :error="error ?? undefined"
+  >
     <template #actions>
       <div class="flex items-center gap-2">
         <UiButton
@@ -171,9 +153,7 @@ function handleDelete() {
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div class="flex items-center justify-between gap-2 px-4 py-2 rounded-lg border">
           <p class="text-muted-foreground text-xs font-medium text-ellipsis truncate">Status</p>
-          <UiBadge :variant="statusVariant" class="w-fit">
-            {{ capitalize(result.status) }}
-          </UiBadge>
+          <ResultStatusBadge :status="result.status" />
         </div>
 
         <AppStatsCard v-for="item in resultStats" v-bind="item" class="col-span-1" />
@@ -185,7 +165,7 @@ function handleDelete() {
         <p class="text-sm text-muted-foreground">Click a student to enter or edit their scores</p>
       </div>
 
-      <ResultScoresheetTable :scoresheets="scoresheetsWithProgress" :result-id="resultId" />
+      <ResultScoresheetTable :result="result" />
     </template>
 
     <!-- Confirm Delete -->

@@ -39,3 +39,13 @@ export const ScoresheetWithDetailsSchema = ScoresheetSchema.extend({
 })
 
 export type ScoresheetWithDetails = z.infer<typeof ScoresheetWithDetailsSchema>
+
+// Moved here from results.ts to avoid a circular import: this schema needs
+// ScoresheetWithDetailsSchema (defined above), and results.ts already gets
+// imported by this file for ResultSchema/SubjectScoreSchema. Keeping it here
+// means the dependency only flows one way: academic -> results -> scoresheet.
+export const ResultDetailSchema = ResultSchema.extend({
+  scoresheets: z.array(ScoresheetWithDetailsSchema.omit({ result: true }))
+})
+
+export type ResultWithDetail = z.infer<typeof ResultDetailSchema>
