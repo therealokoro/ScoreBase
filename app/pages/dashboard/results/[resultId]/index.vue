@@ -92,6 +92,8 @@ function handleDelete() {
     error: (e: any) => e.message
   })
 }
+
+const openScoreConfigSheet = ref(false)
 </script>
 
 <template>
@@ -117,6 +119,13 @@ function handleDelete() {
             <UiButton variant="ghost" size="icon" :icon="ICONS.more" />
           </UiDropdownMenuTrigger>
           <UiDropdownMenuContent align="end">
+            <UiDropdownMenuItem
+              v-if="isAdmin"
+              :icon="ICONS.settings"
+              title="Edit Score Config"
+              class="text-sm"
+              @select="() => (openScoreConfigSheet = true)"
+            />
             <UiDropdownMenuItem
               v-if="primaryAction"
               :icon="primaryAction.icon"
@@ -174,6 +183,14 @@ function handleDelete() {
       description="Are you sure you want to delete this result? All scoresheets and scores under it will be lost."
       :confirm-input-text="result?.name"
       @confirm="handleDelete"
+    />
+
+    <ResultEditScoreConfig
+      v-if="result"
+      v-model:open="openScoreConfigSheet"
+      :result-id="resultId"
+      :score-config="result.scoreConfig"
+      @submit="() => refetch()"
     />
   </Page>
 </template>
