@@ -152,36 +152,27 @@ const columns = [
       />
     </div>
 
-    <!-- Wrapped in ClientOnly to avoid SSR hydration mismatches -->
-    <ClientOnly>
-      <div class="w-full rounded-lg border">
-        <UiTanStackTable
-          :columns
-          :data="results"
-          :loading="isPending"
-          v-model:global-filter="globalSearch"
-          :column-visibility="columnVisibility"
-          :initial-page-size="pagination.pageSize"
-          :manual-pagination="false"
-          :manual-filtering="false"
-          :manual-sorting="false"
-          @update:pagination="(p) => (pagination = p)"
-        >
-          <template #empty>
-            <span v-if="globalSearch">
-              No results found for "<strong>{{ globalSearch }}</strong
-              >"
-            </span>
-            <span v-else>No results yet to display.</span>
-          </template>
-        </UiTanStackTable>
-      </div>
-
-      <template #fallback>
-        <div class="w-full space-y-3">
-          <UiSkeleton v-for="n in 6" :key="n" class="h-13 w-full" />
-        </div>
-      </template>
-    </ClientOnly>
+    <div class="w-full rounded-lg border">
+      <UiTanStackTable
+        :columns
+        :data="results"
+        :loading="isPending"
+        v-model:global-filter="globalSearch"
+        :column-visibility="columnVisibility"
+        :initial-page-size="pagination.pageSize"
+        :manual-pagination="false"
+        :manual-filtering="false"
+        :manual-sorting="false"
+        @update:pagination="(p) => (pagination = p)"
+      >
+        <template #empty>
+          <span v-if="globalSearch">
+            No results found for "<strong>{{ globalSearch }}</strong
+            >"
+          </span>
+          <span v-else>No results yet to display.</span>
+        </template>
+      </UiTanStackTable>
+    </div>
   </div>
 </template>

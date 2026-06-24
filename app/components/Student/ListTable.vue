@@ -207,37 +207,28 @@ const columns = [
       </UiButton>
     </div>
 
-    <!-- Wrapped in ClientOnly to avoid SSR hydration mismatches -->
-    <ClientOnly>
-      <div class="w-full rounded-lg border">
-        <UiTanStackTable
-          :columns
-          :data="students"
-          :loading="pending"
-          :page-count="pageCount"
-          :manual-filtering="true"
-          :manual-pagination="true"
-          :column-visibility="columnVisibility"
-          :initial-page-size="pagination.pageSize"
-          @update:pagination="(p) => (pagination = p)"
-        >
-          <!-- Contextual empty state depending on whether a search is active -->
-          <template #empty>
-            <span v-if="globalSearch">
-              No students found for "<strong>{{ globalSearch }}</strong
-              >"
-            </span>
-            <span v-else>No students yet to display.</span>
-          </template>
-        </UiTanStackTable>
-      </div>
-
-      <template #fallback>
-        <div class="w-full space-y-3">
-          <UiSkeleton v-for="n in 6" :key="n" class="h-13 w-full" />
-        </div>
-      </template>
-    </ClientOnly>
+    <div class="w-full rounded-lg border">
+      <UiTanStackTable
+        :columns
+        :data="students"
+        :loading="pending"
+        :page-count="pageCount"
+        :manual-filtering="true"
+        :manual-pagination="true"
+        :column-visibility="columnVisibility"
+        :initial-page-size="pagination.pageSize"
+        @update:pagination="(p) => (pagination = p)"
+      >
+        <!-- Contextual empty state depending on whether a search is active -->
+        <template #empty>
+          <span v-if="globalSearch">
+            No students found for "<strong>{{ globalSearch }}</strong
+            >"
+          </span>
+          <span v-else>No students yet to display.</span>
+        </template>
+      </UiTanStackTable>
+    </div>
 
     <LazyStudentUpsertForm
       v-if="showCreateButton && openCreateSheet"

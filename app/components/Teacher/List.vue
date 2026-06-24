@@ -72,13 +72,11 @@ const columnVisibility = computed(() => ({
 </script>
 
 <template>
-  <ClientOnly>
-    <div class="w-full rounded-lg border">
-      <UiTanStackTable :columns :data="teachers" :column-visibility="columnVisibility">
-        <template #empty>
-          <span>No teachers yet to display.</span>
-        </template>
-      </UiTanStackTable>
-    </div>
-  </ClientOnly>
+  <div class="w-full rounded-lg border">
+    <UiTanStackTable :columns :data="teachers" :column-visibility="columnVisibility">
+      <template #empty>
+        <span>No teachers yet to display.</span>
+      </template>
+    </UiTanStackTable>
+  </div>
 </template>
