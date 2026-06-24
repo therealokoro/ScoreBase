@@ -7,17 +7,32 @@ export const useListTeachers = () => {
 
 export const useCreateTeacher = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.teacher.create.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.teacher.create.mutationOptions({
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.teacher.list.queryKey() })
+    })
+  )
 }
 
 export const useUpdateTeacher = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.teacher.update.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.teacher.update.mutationOptions({
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.teacher.list.queryKey() })
+    })
+  )
 }
 
 export const useDeleteTeacher = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.teacher.delete.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.teacher.delete.mutationOptions({
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.teacher.list.queryKey() })
+    })
+  )
 }
 
 export const useGetSingleTeacher = (id: MaybeRef<string>) => {

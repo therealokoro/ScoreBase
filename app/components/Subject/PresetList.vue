@@ -4,11 +4,8 @@ import type { UpsertSubjectListInput } from "~~/shared/validators/academic"
 const openCreateSheet = ref(false)
 const openEditSheet = ref(false)
 const openDeleteDialog = ref(false)
-const { $orpc } = useNuxtApp()
 
-const { data, pending, refresh } = await useAsyncData("subject-list", () =>
-  $orpc.subjectList.list.call()
-)
+const { data, isPending } = useFetchSubjectLists()
 
 const presets = computed(() => data.value || [])
 const activePreset = ref<ISubjectList | null>(null)
@@ -35,7 +32,6 @@ async function handleCreateSubjectList(payload: UpsertSubjectListInput) {
   useSonner.promise(createSubjectList.mutateAsync(payload), {
     loading: "Creating a new subject preset...",
     success: () => {
-      refresh()
       openCreateSheet.value = false
       return "Subject preset created successfully"
     },
@@ -48,7 +44,6 @@ async function handleUpdateSubjectList(payload: any) {
   useSonner.promise(updateSubjectList.mutateAsync(payload), {
     loading: "Updating the active preset...",
     success: () => {
-      refresh()
       openEditSheet.value = false
       return "Subject preset was updated successfully"
     },
@@ -61,7 +56,6 @@ async function handleDeleteSubjectList() {
   useSonner.promise(deleteSubjectList.mutateAsync({ id: activePreset.value!.id }), {
     loading: "Deleting the selected preset...",
     success: () => {
-      refresh()
       return "Subject preset was deleted successfully"
     },
     error: (e: any) => e.message
@@ -73,7 +67,7 @@ async function handleDeleteSubjectList() {
   <div class="w-full">
     <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <!-- Loading -->
-      <template v-if="pending">
+      <template v-if="isPending">
         <UiSkeleton v-for="n in 3" class="w-full h-15 mb-4" />
       </template>
 

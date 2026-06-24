@@ -3,7 +3,7 @@ import type { UpsertSubjectInput } from "~~/shared/validators/academic"
 const openCreateSheet = ref(false)
 
 const { $orpc } = useNuxtApp()
-const { data, pending, refresh } = await useAsyncData("subjects", () => $orpc.subject.list.call())
+const { data, isPending, refetch } = useListSubjects()
 const subjects = computed(() => data.value ?? [])
 const createSubject = useCreateSubject()
 
@@ -11,7 +11,6 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
   useSonner.promise(createSubject.mutateAsync(payload), {
     loading: "Creating a new subject...",
     success: () => {
-      refresh()
       openCreateSheet.value = false
       return "New subject was created successfully"
     },
@@ -40,7 +39,7 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
         </h5>
 
         <!-- Loading -->
-        <AppEntitySkeleton v-if="pending" :count="4" />
+        <AppEntitySkeleton v-if="isPending" :count="4" />
 
         <!-- Empty -->
         <UiEmpty
@@ -56,7 +55,7 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
           <AppEntityAddButton text="Create a subject" @click="openCreateSheet = true" />
 
           <SubjectCard
-            @on-mutation="refresh"
+            @on-mutation="refetch"
             :key="item.id"
             :name="item.name"
             v-for="item in subjects"

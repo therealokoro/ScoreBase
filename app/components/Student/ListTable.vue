@@ -33,7 +33,7 @@ const pagination = ref({
 const debouncedSearch = refDebounced(globalSearch, 1000)
 
 const { $orpc } = useNuxtApp()
-const { data, pending, refresh } = await useAsyncData(
+const { data, pending, refresh } = useLazyAsyncData(
   // Static but unique key per usage — scoped by classId when on a class page
   `student-list${props.classId ? `-${props.classId}` : ""}`,
   () =>
@@ -217,7 +217,7 @@ const columns = [
         :manual-pagination="true"
         :column-visibility="columnVisibility"
         :initial-page-size="pagination.pageSize"
-        @update:pagination="(p) => (pagination = p)"
+        @update:pagination="(p: any) => (pagination = p)"
       >
         <!-- Contextual empty state depending on whether a search is active -->
         <template #empty>
