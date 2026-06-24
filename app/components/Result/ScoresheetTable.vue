@@ -112,14 +112,16 @@ const columnVisibility = computed(() => ({
 
 <template>
   <div class="space-y-4">
-    <div class="w-full md:w-1/2">
+    <div class="w-full flex items-center justify-between">
       <FormKit
         v-model="globalSearch"
         type="search"
         prefix-icon="lucide:search"
-        :classes="{ outer: 'mb-0' }"
+        :classes="{ outer: 'mb-0 w-full md:w-1/2' }"
         placeholder="Search for a student"
       />
+
+      <slot name="toolbar" />
     </div>
 
     <ClientOnly>

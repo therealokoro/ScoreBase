@@ -103,54 +103,42 @@ const openScoreConfigSheet = ref(false)
     :error="error ?? undefined"
   >
     <template #actions>
-      <div class="flex items-center gap-2">
-        <UiButton
-          v-if="result?.status === 'published' || result?.status === 'reviewed'"
-          variant="outline"
-          :icon="ICONS.print"
-          :to="`/dashboard/results/${resultId}/report-card`"
-          text="Report Card"
-        />
-
-        <UiDropdownMenu
-          v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')"
-        >
-          <UiDropdownMenuTrigger as-child>
-            <UiButton variant="ghost" size="icon" :icon="ICONS.more" />
-          </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent align="end">
-            <UiDropdownMenuItem
-              v-if="isAdmin"
-              :icon="ICONS.settings"
-              title="Edit Score Config"
-              class="text-sm"
-              @select="() => (openScoreConfigSheet = true)"
-            />
-            <UiDropdownMenuItem
-              v-if="primaryAction"
-              :icon="primaryAction.icon"
-              :loading="updateStatus.isPending.value"
-              :title="primaryAction.label"
-              class="text-sm"
-              @select="handleStatusChange(primaryAction.nextStatus)"
-            />
-            <UiDropdownMenuItem
-              v-if="canReject"
-              title="Send Back to Draft"
-              :icon="ICONS.undo"
-              class="text-sm"
-              @select="handleStatusChange('draft')"
-            />
-            <UiDropdownMenuItem
-              v-if="isAdmin && result?.status === 'draft'"
-              title="Delete Result"
-              :icon="ICONS.delete"
-              class="text-sm text-destructive"
-              @select="openDeleteDialog = true"
-            />
-          </UiDropdownMenuContent>
-        </UiDropdownMenu>
-      </div>
+      <UiDropdownMenu v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')">
+        <UiDropdownMenuTrigger as-child>
+          <UiButton variant="ghost" size="icon" :icon="ICONS.more" />
+        </UiDropdownMenuTrigger>
+        <UiDropdownMenuContent align="end">
+          <UiDropdownMenuItem
+            v-if="isAdmin"
+            :icon="ICONS.settings"
+            title="Edit Score Config"
+            class="text-sm"
+            @select="() => (openScoreConfigSheet = true)"
+          />
+          <UiDropdownMenuItem
+            v-if="primaryAction"
+            :icon="primaryAction.icon"
+            :loading="updateStatus.isPending.value"
+            :title="primaryAction.label"
+            class="text-sm"
+            @select="handleStatusChange(primaryAction.nextStatus)"
+          />
+          <UiDropdownMenuItem
+            v-if="canReject"
+            title="Send Back to Draft"
+            :icon="ICONS.undo"
+            class="text-sm"
+            @select="handleStatusChange('draft')"
+          />
+          <UiDropdownMenuItem
+            v-if="isAdmin && result?.status === 'draft'"
+            title="Delete Result"
+            :icon="ICONS.delete"
+            class="text-sm text-destructive"
+            @select="openDeleteDialog = true"
+          />
+        </UiDropdownMenuContent>
+      </UiDropdownMenu>
     </template>
 
     <!-- Loading -->
@@ -174,7 +162,16 @@ const openScoreConfigSheet = ref(false)
         <p class="text-sm text-muted-foreground">Click a student to enter or edit their scores</p>
       </div>
 
-      <ResultScoresheetTable :result="result" />
+      <ResultScoresheetTable :result="result">
+        <template #toolbar>
+          <UiButton
+            v-if="result?.status === 'published' || result?.status === 'reviewed'"
+            :icon="ICONS.result"
+            :to="`/dashboard/results/${resultId}/report-card`"
+            text="Open Report Card"
+          />
+        </template>
+      </ResultScoresheetTable>
     </template>
 
     <!-- Confirm Delete -->
