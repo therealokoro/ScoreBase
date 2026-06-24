@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod"
-import { useForm } from "vee-validate"
-import { UpsertSubjectListSchema, type UpsertSubjectListInput } from "~~/shared/validators/academic"
+import { createInput } from "@formkit/vue"
+import { type UpsertSubjectListInput } from "~~/shared/validators/academic"
+
+import SelectCheckbox from "./SelectCheckbox.vue"
 
 const props = defineProps<{
   initialData?: UpsertSubjectListInput
@@ -20,14 +21,18 @@ const subjectOptions = computed(
 const emit = defineEmits<{ submit: [payload: UpsertSubjectListInput] }>()
 const isSheetOpen = defineModel<boolean>("open", { required: true })
 
-const { handleSubmit, isSubmitting } = useForm({
-  validationSchema: toTypedSchema(UpsertSubjectListSchema),
-  initialValues: props.initialData ?? {}
-})
+const isSubmitting = ref(false)
+async function handleSubmit(payload: any) {
+  isSubmitting.value = true
+  try {
+    isSubmitting.value = false
+    emit("submit", payload)
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
-const onSubmit = handleSubmit((payload) => {
-  emit("submit", payload)
-})
+const subjectCheckboxes = createInput(SelectCheckbox, { props: ["subjects"] })
 </script>
 
 <template>
@@ -39,18 +44,35 @@ const onSubmit = handleSubmit((payload) => {
       :description="`${mode === 'Create' ? 'Create a new' : 'Update a'} subject list preset`"
     >
       <template #content>
-        <form id="subjectlist-form" @submit="onSubmit">
+        <FormKit
+          type="form"
+          :value="initialData"
+          id="subjectlist-form"
+          :actions="false"
+          @submit="handleSubmit"
+        >
           <fieldset :disabled="isSubmitting" class="flex flex-col gap-4 p-4">
-            <FormInput
+            <FormKitMessages />
+
+            <FormKit
               name="name"
               label="Name"
               placeholder="Enter a name for the preset here"
-              description="e.g JSS1 or JSS1A"
+              help="e.g JSS1 or JSS1A"
+              validation="required"
             />
 
-            <SubjectSelectCheckbox :options="subjectOptions" />
+            <FormKit
+              :type="subjectCheckboxes"
+              name="subjects"
+              label="Subjects"
+              help="Select a minimum of one subject to be added to the list"
+              :subjects="subjectOptions"
+              inner-class="border-0 ring-0"
+              validation="required|min:1"
+            />
           </fieldset>
-        </form>
+        </FormKit>
       </template>
 
       <template #footer>
