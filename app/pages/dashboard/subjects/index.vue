@@ -2,7 +2,6 @@
 import type { UpsertSubjectInput } from "~~/shared/validators/academic"
 const openCreateSheet = ref(false)
 
-const { $orpc } = useNuxtApp()
 const { data, isPending, refetch } = useListSubjects()
 const subjects = computed(() => data.value ?? [])
 const createSubject = useCreateSubject()
@@ -39,7 +38,7 @@ function handleUpsertSubject(payload: UpsertSubjectInput) {
         </h5>
 
         <!-- Loading -->
-        <AppEntitySkeleton v-if="isPending" :count="4" />
+        <AppEntitySkeleton v-if="isPending" :count="2" />
 
         <!-- Empty -->
         <UiEmpty

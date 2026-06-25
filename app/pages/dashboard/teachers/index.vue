@@ -68,7 +68,6 @@ function handleDeleteAction() {
 <template>
   <Page
     :error
-    :loading="isPending"
     title="Class teachers"
     description="This is a list of all teachers. Create, edit and delete Teachers"
     class="justify-between flex-wrap"
@@ -80,7 +79,12 @@ function handleDeleteAction() {
     </template>
 
     <!-- Teachers List -->
-    <TeacherList :teachers @edit="initUpdateAction" @delete="initDeleteAction" />
+    <TeacherList
+      :loading="isPending"
+      :teachers
+      @edit="initUpdateAction"
+      @delete="initDeleteAction"
+    />
 
     <!-- Form for create -->
     <LazyTeacherUpsertForm

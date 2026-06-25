@@ -65,29 +65,26 @@ async function handleDeleteSubjectList() {
 
 <template>
   <div class="w-full">
+    <!-- Loading -->
+    <AppEntitySkeleton v-if="isPending" :count="3" />
+
+    <!-- List the presets and show an add button -->
     <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- Loading -->
-      <template v-if="isPending">
-        <UiSkeleton v-for="n in 3" class="w-full h-15 mb-4" />
-      </template>
+      <!-- Add Preset Button -->
+      <AppEntityAddButton @click="openCreateSheet = true" text="Create a subject preset" />
 
-      <template v-else>
-        <!-- Add Preset Button -->
-        <AppEntityAddButton @click="openCreateSheet = true" text="Create a subject preset" />
-
-        <AppEntityCard
-          v-for="n in presets"
-          no-icon
-          :key="n.id"
-          :title="n.name"
-          :clickable="false"
-          :description="`Contains ${n.subjects.length} subjects`"
-        >
-          <template #action>
-            <AppEntityActionDropdown @edit="initViewPreset(n)" @delete="initDeletePreset(n)" />
-          </template>
-        </AppEntityCard>
-      </template>
+      <AppEntityCard
+        v-for="n in presets"
+        no-icon
+        :key="n.id"
+        :title="n.name"
+        :clickable="false"
+        :description="`Contains ${n.subjects.length} subjects`"
+      >
+        <template #action>
+          <AppEntityActionDropdown @edit="initViewPreset(n)" @delete="initDeletePreset(n)" />
+        </template>
+      </AppEntityCard>
     </div>
 
     <!-- Form for creation -->

@@ -90,7 +90,7 @@ const isIconOnly = computed(
 )
 
 // Spinner is shown inline when loading with no leading icon
-const showInlineSpinner = computed(() => props.loading && !props.icon)
+const showInlineSpinner = computed(() => props.loading && !props.icon && !props.iconRight)
 
 // iconRight shows the spinner only when icon is not already handling it
 const iconRightName = computed(() => {

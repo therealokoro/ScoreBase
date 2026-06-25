@@ -64,7 +64,7 @@ function handleDeleteAction() {
     </template>
 
     <!-- When loading -->
-    <AppEntitySkeleton v-if="isPending" :count="4" />
+    <AppEntitySkeleton skeleton-classes="h-10" v-if="isPending" :count="4" />
 
     <!-- Class Stats -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" v-else>

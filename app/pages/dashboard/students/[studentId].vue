@@ -52,7 +52,7 @@ const closeAll = () => {
 </script>
 
 <template>
-  <Page :title="student?.name || 'Loading...'" :loading="isPending" :error="error ?? undefined">
+  <Page :title="student?.name || 'Loading...'" :error="error ?? undefined">
     <template #actions>
       <div class="space-x-2">
         <AppEntityActionDropdown
@@ -62,8 +62,19 @@ const closeAll = () => {
       </div>
     </template>
 
+    <!-- Loading Skeleton -->
+    <div v-if="isPending && !student" class="w-full">
+      <div class="w-full">
+        <UiSkeleton class="w-full h-7" />
+        <UiSkeleton class="w-full h-5" />
+      </div>
+      <div class="w-full space-y-3">
+        <UiSkeleton v-for="n in 5" class="w-full h-7" />
+      </div>
+    </div>
+
     <!-- Content -->
-    <div v-if="student">
+    <div v-else-if="student">
       <UiCard>
         <UiCardHeader>
           <UiCardTitle title="Student Information" />

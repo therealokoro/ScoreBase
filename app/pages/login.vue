@@ -64,11 +64,13 @@ async function onSubmit(payload: LoginInputType) {
           />
         </fieldset>
       </FormKit>
+
       <p class="mt-8 text-xs text-center text-muted-foreground">
         Forgot password? Please contact your admin to reset your password!
       </p>
     </div>
 
+    <!-- Subtle Background Pattern -->
     <AppSubtleBg />
   </div>
 </template>

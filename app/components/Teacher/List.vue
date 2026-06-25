@@ -6,7 +6,7 @@ import AppEntityActionDropdown from "~/components/App/EntityActionDropdown.vue"
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
 
-const props = defineProps<{ teachers: ITeacher[] }>()
+const props = defineProps<{ teachers: ITeacher[]; loading?: boolean }>()
 const emit = defineEmits(["edit", "delete"])
 
 const columnHelper = createColumnHelper<ITeacher>()
@@ -73,7 +73,12 @@ const columnVisibility = computed(() => ({
 
 <template>
   <div class="w-full rounded-lg border">
-    <UiTanStackTable :columns :data="teachers" :column-visibility="columnVisibility">
+    <UiTanStackTable
+      :loading="loading"
+      :columns
+      :data="teachers"
+      :column-visibility="columnVisibility"
+    >
       <template #empty>
         <span>No teachers yet to display.</span>
       </template>

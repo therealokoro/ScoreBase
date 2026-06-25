@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data, isLoading, refetch } = useAcademicSessionList()
+const { data, isPending, refetch } = useAcademicSessionList()
 const sessions = computed(() => data.value ?? [])
 
 const createSession = useCreateAcademicSession()
@@ -17,7 +17,7 @@ const handleCreateSession = useDebounceFn(() => {
 
 <template>
   <Page title="Academic Sessions" description="Manage the schools academic sessions">
-    <AppEntitySkeleton v-if="isLoading" />
+    <AppEntitySkeleton v-if="isPending" />
 
     <!-- Empty -->
     <UiEmpty
