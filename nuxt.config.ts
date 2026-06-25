@@ -22,6 +22,7 @@ const optimizeDepsArr = [
 export default defineNuxtConfig({
   compatibilityDate: "latest",
   devtools: { enabled: true },
+  ssr: false,
 
   modules: [
     "@nuxt/icon",
@@ -83,6 +84,7 @@ export default defineNuxtConfig({
     mode: "svg",
     class: "shrink-0",
     fetchTimeout: 2000,
+    provider: "server",
     serverBundle: "local",
     clientBundle: { scan: true, sizeLimitKb: 0 }
   }

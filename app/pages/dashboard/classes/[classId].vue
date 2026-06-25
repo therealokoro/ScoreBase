@@ -6,10 +6,7 @@ import type { StatsCardProps } from "~/components/App/StatsCard.vue"
 const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
 
-const { $orpc } = useNuxtApp()
-const { data, pending, error, refresh } = await useAsyncData(`${classId}-class-fetch`, () => {
-  return $orpc.class.getOne.call({ id: classId! })
-})
+const { data, isPending, error, refetch } = useGetSingleClass(classId || "")
 
 const currClass = computed(() => data.value)
 const classTeacher = computed(() => data.value?.teacher || null)
@@ -36,7 +33,6 @@ function handleUpdateClass(payload: any) {
   useSonner.promise(updateClass.mutateAsync(payload), {
     loading: "Updating class info...",
     success: () => {
-      refresh()
       isSheetOpen.value = false
       return "Class was updated successfully"
     },
@@ -68,7 +64,7 @@ function handleDeleteAction() {
     </template>
 
     <!-- When loading -->
-    <AppEntitySkeleton v-if="pending" :count="4" />
+    <AppEntitySkeleton v-if="isPending" :count="4" />
 
     <!-- Class Stats -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" v-else>
@@ -76,7 +72,7 @@ function handleDeleteAction() {
       <ClassSubjectPresetControl
         v-if="currClass"
         :active-class="currClass"
-        @onMutation="() => refresh()"
+        @onMutation="() => refetch()"
       />
 
       <!-- Show class stats -->

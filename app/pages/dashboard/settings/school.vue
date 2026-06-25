@@ -10,6 +10,18 @@ const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => (
   label: terms.join(", ")
 }))
 
+// Local, writable copy for the form — never bind v-model to query `data` directly,
+// it's wrapped in readonly() by Vue Query to protect the cache.
+const formValues = ref<Record<string, any>>({})
+
+watch(
+  settings,
+  (val) => {
+    if (val) formValues.value = { ...val }
+  },
+  { immediate: true }
+)
+
 const setSettings = useUpdateSchoolSettings()
 function handleSubmit(payload: any) {
   useSonner.promise(setSettings.mutateAsync(payload), {
@@ -22,7 +34,7 @@ function handleSubmit(payload: any) {
   })
 }
 
-const showStudentIdInput = computed(() => settings.value?.autoGenerateStudentId)
+const showStudentIdInput = computed(() => formValues.value.autoGenerateStudentId)
 </script>
 
 <template>
@@ -36,7 +48,7 @@ const showStudentIdInput = computed(() => settings.value?.autoGenerateStudentId)
 
     <!-- Body Content -->
     <div class="w-full">
-      <FormKit type="form" v-model="settings" :actions="false" @submit="handleSubmit">
+      <FormKit type="form" v-model="formValues" :actions="false" @submit="handleSubmit">
         <fieldset class="md:max-w-md space-y-6" :disabled="setSettings.isPending.value">
           <FormKit
             type="text"

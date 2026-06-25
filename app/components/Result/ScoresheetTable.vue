@@ -124,32 +124,24 @@ const columnVisibility = computed(() => ({
       <slot name="toolbar" />
     </div>
 
-    <ClientOnly>
-      <div class="w-full rounded-lg border">
-        <UiTanStackTable
-          :columns
-          :data="scoresheets"
-          :global-filter="globalSearch"
-          :column-visibility="columnVisibility"
-          :manual-pagination="false"
-          :manual-filtering="false"
-          :manual-sorting="false"
-        >
-          <template #empty>
-            <span v-if="globalSearch">
-              No students found for "<strong>{{ globalSearch }}</strong
-              >"
-            </span>
-            <span v-else>No scoresheets found for this result.</span>
-          </template>
-        </UiTanStackTable>
-      </div>
-
-      <template #fallback>
-        <div class="w-full space-y-3">
-          <UiSkeleton v-for="n in 5" :key="n" class="h-13 w-full" />
-        </div>
-      </template>
-    </ClientOnly>
+    <div class="w-full rounded-lg border">
+      <UiTanStackTable
+        :columns
+        :data="scoresheets"
+        :global-filter="globalSearch"
+        :column-visibility="columnVisibility"
+        :manual-pagination="false"
+        :manual-filtering="false"
+        :manual-sorting="false"
+      >
+        <template #empty>
+          <span v-if="globalSearch">
+            No students found for "<strong>{{ globalSearch }}</strong
+            >"
+          </span>
+          <span v-else>No scoresheets found for this result.</span>
+        </template>
+      </UiTanStackTable>
+    </div>
   </div>
 </template>

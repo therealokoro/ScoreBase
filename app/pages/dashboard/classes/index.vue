@@ -1,17 +1,15 @@
 <script lang="ts" setup>
 import type { UpsertClassInput } from "~~/shared/validators/academic"
-const openCreateSheet = ref(false)
 
-const { $orpc } = useNuxtApp()
-const { data, pending, refresh } = await useAsyncData("classes", () => $orpc.class.list.call())
+const { data, isPending } = useListClasses()
 const classes = computed(() => data.value ?? [])
+const openCreateSheet = ref(false)
 
 const createClass = useCreateClass()
 function handleCreateClass(payload: UpsertClassInput) {
   useSonner.promise(createClass.mutateAsync(payload), {
     loading: "Creating a new class...",
     success: () => {
-      refresh()
       openCreateSheet.value = false
       return "New class created successfully"
     },
@@ -23,7 +21,7 @@ function handleCreateClass(payload: UpsertClassInput) {
 <template>
   <Page title="Classes" description="Create, edit, delete school classes">
     <!-- Loading -->
-    <AppEntitySkeleton v-if="pending" :count="4" />
+    <AppEntitySkeleton v-if="isPending" :count="4" />
 
     <!-- Empty -->
     <UiEmpty

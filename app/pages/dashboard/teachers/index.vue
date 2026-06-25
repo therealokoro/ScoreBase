@@ -2,11 +2,7 @@
 import { ICONS } from "~~/shared/constants/icons"
 import type { UpsertTeacherInput } from "~~/shared/validators/actors"
 
-const { $orpc } = useNuxtApp()
-const { data, pending, error, refresh } = await useAsyncData("teachers-list", () => {
-  return $orpc.teacher.list.call()
-})
-
+const { data, isPending, error } = useListTeachers()
 const teachers = computed(() => data.value || [])
 const activeTeacher = ref<ITeacher | null>(null)
 
@@ -16,7 +12,6 @@ function handleCreateAction(payload: UpsertTeacherInput) {
   useSonner.promise(createTeacher.mutateAsync(payload), {
     loading: "Creating new teacher, please wait...",
     success: () => {
-      refresh()
       openCreateSheet.value = false
       return "New teacher was created successfully"
     },
@@ -41,7 +36,6 @@ function handleUpdateAction(payload: any) {
   useSonner.promise(updateTeacher.mutateAsync({ ...payload, id: activeTeacher.value?.id }), {
     loading: "Updating teacher's info, please wait...",
     success: () => {
-      refresh()
       openUpdateSheet.value = false
       return "Teacher's info was updated successfully"
     },
@@ -63,7 +57,6 @@ function handleDeleteAction() {
   useSonner.promise(deleteTeacher.mutateAsync({ id: activeTeacher.value!.id }), {
     loading: "Deleting teacher's info, please wait...",
     success: () => {
-      refresh()
       openDeleteDialog.value = false
       return "Teacher's info was deleted successfully"
     },
@@ -75,7 +68,7 @@ function handleDeleteAction() {
 <template>
   <Page
     :error
-    :loading="pending"
+    :loading="isPending"
     title="Class teachers"
     description="This is a list of all teachers. Create, edit and delete Teachers"
     class="justify-between flex-wrap"
