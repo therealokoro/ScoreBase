@@ -1,27 +1,27 @@
 // ---------------------------------------------------------------------------
 // School Settings
+
+import {
+  type TermPresetKeys,
+  type PositionDisplayMode,
+  type SchoolSettings
+} from "../validators/settings"
+
 // ---------------------------------------------------------------------------
-export const TERMS_PRESET = {
+
+export const TERMS_PRESET: Record<TermPresetKeys, string[]> = {
   ordinals: ["1st Term", "2nd Term", "3rd Term"],
-  verbatim: ["First Term", "Second Term", "Third Term"]
+  verbetim: ["First Term", "Second Term", "Third Term"]
 } as const
 
-export type TermPreset = keyof typeof TERMS_PRESET
-
-export const TERM_PRESET_OPTIONS = Object.keys(TERMS_PRESET) as TermPreset[]
-export interface SchoolSettings {
-  sessionSuffix: string
-  termPreset: TermPreset
-  subjectTags: string[]
-  autoGenerateStudentId: boolean
-  studentIdPrefix: string
-}
 export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
   sessionSuffix: "Session",
   termPreset: "ordinals",
   subjectTags: ["Art", "Science", "Religous", "Business", "Core"],
   autoGenerateStudentId: true,
-  studentIdPrefix: "STU"
+  studentIdPrefix: "STU",
+  activeSession: null,
+  activeTerm: null
 }
 
 // ---------------------------------------------------------------------------
@@ -45,14 +45,6 @@ export const DEFAULT_GRADE_BOUNDARIES: GradeBoundary[] = [
   { label: "E", min: 40, max: 44, remark: "Fair" },
   { label: "F", min: 0, max: 39, remark: "Fail" }
 ]
-
-// "all"      → show every student's position on their report card
-// "top"      → show position only for students ranked within topN
-// "none"     → never show position on report cards
-export const positionDisplayMode = ["all", "top", "none"] as const
-
-export type PositionDisplayMode = (typeof positionDisplayMode)[number]
-export type PositionDisplayOption = { value: PositionDisplayMode; label: string }
 
 export interface ResultSettings {
   gradeBoundaries: GradeBoundary[]

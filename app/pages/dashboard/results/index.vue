@@ -2,10 +2,25 @@
 import { ICONS } from "~~/shared/constants/icons"
 
 const isSheetOpen = ref(false)
-const { isAdmin } = useAuth()
+const { isAdmin, currentUser } = useAuth()
 
 const { data: sessions } = useAcademicSessionList()
-const activeSessionId = ref("")
+const { data: schoolSettings } = useGetSchoolSettings()
+
+const formData = ref<Record<string, any>>({})
+
+watch(
+  [schoolSettings, currentUser],
+  ([settings, user]) => {
+    formData.value = {
+      sessionId: settings?.activeSession,
+      termId: settings?.activeTerm,
+      classId: user?.classId
+    }
+  },
+  { immediate: true }
+)
+
 const sessionOptions = computed(() => {
   return (
     sessions.value?.map((curr: IAcademicSession) => ({ label: curr.name, value: curr.id })) || []
@@ -14,7 +29,8 @@ const sessionOptions = computed(() => {
 
 const activeSessionTermsOptions = computed(() => {
   return (
-    sessions.value?.find((curr: IAcademicSession) => curr.id === activeSessionId.value)?.terms || []
+    sessions.value?.find((curr: IAcademicSession) => curr.id === formData.value.sessionId)?.terms ||
+    []
   ).map((curr: ITerm) => ({ value: curr.id, label: curr.name }))
 })
 
@@ -63,21 +79,23 @@ async function handleCreateResult(payload: any) {
         description="Create a new result for a term and class"
       >
         <template #content>
+          <pre>{{ formData }}</pre>
           <FormKit
             id="create-result-form"
             type="form"
             :actions="false"
+            v-model="formData"
             @submit="handleCreateResult"
           >
             <fieldset :disabled="createResult.isPending.value" class="p-4 pt-0">
               <FormKitMessages class="mb-4" />
 
               <FormKit
+                :disabled="!isAdmin"
                 type="_select"
                 name="sessionId"
                 label="Session"
                 :options="sessionOptions"
-                v-model="activeSessionId"
                 placeholder="Select a session"
                 help="Automatically selects the active session"
                 validation="required"
@@ -87,7 +105,7 @@ async function handleCreateResult(payload: any) {
                 type="_select"
                 name="termId"
                 label="Term"
-                :disabled="!activeSessionTermsOptions.length"
+                :disabled="!activeSessionTermsOptions.length || !isAdmin"
                 :options="activeSessionTermsOptions"
                 placeholder="Select a term for the result"
                 help="Options are fetched once a session is selected"
@@ -95,6 +113,7 @@ async function handleCreateResult(payload: any) {
               />
 
               <FormKit
+                :disabled="!isAdmin"
                 type="_select"
                 name="classId"
                 label="Class"

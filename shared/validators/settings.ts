@@ -1,12 +1,15 @@
 import { z } from "zod"
 
-import { positionDisplayMode, TERMS_PRESET, type TermPreset } from "../constants/kv-settings"
+export const TERM_PRESET_KEYS = ["ordinals", "verbetim"] as const
+export type TermPresetKeys = (typeof TERM_PRESET_KEYS)[number]
 
 export const SchoolSettingsSchema = z.object({
   sessionSuffix: z.string().min(1),
-  termPreset: z.enum(Object.keys(TERMS_PRESET) as [TermPreset, ...TermPreset[]]),
+  termPreset: z.enum(TERM_PRESET_KEYS),
   subjectTags: z.array(z.string()),
   autoGenerateStudentId: z.boolean(),
+  activeSession: z.string().nullable(),
+  activeTerm: z.string().nullable(),
   studentIdPrefix: z
     .string()
     .min(2)
@@ -14,11 +17,19 @@ export const SchoolSettingsSchema = z.object({
     .regex(/^[a-zA-Z]+$/, "Prefix must be alphabets only")
 })
 
-export type SchoolSettingsType = z.infer<typeof SchoolSettingsSchema>
+export type SchoolSettings = z.infer<typeof SchoolSettingsSchema>
 
 // ---------------------------------------------------------------------------
 // Result Settings
 // ---------------------------------------------------------------------------
+
+// "all"  → show every student's position on their report card
+// "top"  → show position only for students ranked within topN
+// "none" → never show position on report cards
+export const positionDisplayMode = ["all", "top", "none"] as const
+
+export type PositionDisplayMode = (typeof positionDisplayMode)[number]
+export type PositionDisplayOption = { value: PositionDisplayMode; label: string }
 
 export const GradeBoundarySchema = z.object({
   label: z.string().min(1),
