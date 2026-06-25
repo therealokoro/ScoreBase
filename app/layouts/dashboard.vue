@@ -39,23 +39,22 @@ const sidebarContents = computed(() => {
     <UiSidebar side="left" class="border-r">
       <!-- Sidebar Header -->
       <UiSidebarHeader class="flex flex-col gap-2 p-3">
-        <div class="flex items-center gap-3 px-2 py-1.5">
-          <div
-            class="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-          >
-            <Icon :name="ICONS.school" />
-          </div>
+        <NuxtLink
+          to="/dashboard"
+          class="rounded-lg hover:bg-muted flex items-center gap-3 px-2 py-1.5"
+        >
+          <AppLogo class="size-10" />
           <div class="grid flex-1">
-            <span class="font-semibold text-sm">ScoreBase</span>
-            <span class="text-xs text-muted-foreground">Result Management</span>
+            <span class="text-lg font-extrabold">ScoreBase</span>
+            <!-- <span class="text-xs text-muted-foreground">Brilliance College</span> -->
           </div>
-        </div>
+        </NuxtLink>
       </UiSidebarHeader>
 
       <!-- Sidebar Content -->
       <UiSidebarContent class="p-2">
         <template v-if="isPending">
-          <UiSkeleton v-for="n in 5" class="h-10 w-full" />
+          <UiSidebarMenuSkeleton v-for="n in 5" />
         </template>
         <UiSidebarMenu v-else>
           <UiSidebarMenuItem v-for="item in sidebarContents.navItems" :key="item.href">
@@ -78,8 +77,8 @@ const sidebarContents = computed(() => {
       <!-- Sidebar Footer -->
       <UiSidebarFooter class="border-t p-2 mt-auto">
         <div v-if="isPending && !currentUser" class="space-y-3">
-          <UiSkeleton v-for="n in 2" class="w-full h-6" />
-          <UiSkeleton class="w-full h-10" />
+          <UiSidebarMenuSkeleton v-for="n in 2" class="w-full h-6" />
+          <UiSidebarMenuSkeleton class="w-full h-10" />
         </div>
         <div v-else-if="currentUser" class="flex flex-col gap-2">
           <UiSidebarMenu>
