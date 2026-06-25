@@ -3,7 +3,7 @@ import { reset } from "@formkit/vue"
 import { type UpdateAccountPasswordInput } from "~~/shared/validators/actors"
 
 const auth = useAuth()
-const userId = computed(() => auth.currentUser.value?.id)
+const userId = computed(() => auth.user.value.id)
 
 const { $orpc } = useNuxtApp()
 const updatPassword = useMutation($orpc.account.updatePassword.mutationOptions())

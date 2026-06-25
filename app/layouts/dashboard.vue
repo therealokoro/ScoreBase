@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ICONS } from "#shared/constants/icons"
 
-const { isPending, currentUser, signOut, isAdmin } = useAuth()
+const { isPending, user, signOut, isAdmin } = useAuth()
 
 const adminNavItems = [
   { title: "Overview", href: "/dashboard", icon: ICONS.dashboard },
@@ -75,11 +75,11 @@ const sidebarContents = computed(() => {
 
       <!-- Sidebar Footer -->
       <UiSidebarFooter class="border-t p-2 mt-auto">
-        <div v-if="isPending && !currentUser" class="space-y-3">
+        <div v-if="isPending && !user" class="space-y-3">
           <UiSidebarMenuSkeleton v-for="n in 2" class="w-full h-6" />
           <UiSidebarMenuSkeleton class="w-full h-10" />
         </div>
-        <div v-else-if="currentUser" class="flex flex-col gap-2">
+        <div v-else-if="user" class="flex flex-col gap-2">
           <UiSidebarMenu>
             <!-- Settings Route -->
             <UiSidebarMenuItem>
@@ -110,8 +110,8 @@ const sidebarContents = computed(() => {
               <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
             </div>
             <div class="grid flex-1">
-              <span class="truncate text-sm font-medium">{{ currentUser.name }}</span>
-              <span class="truncate text-xs text-muted-foreground">{{ currentUser.email }}</span>
+              <span class="truncate text-sm font-medium">{{ user.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
             </div>
           </div>
         </div>

@@ -3,10 +3,18 @@ const { data, isPending, refetch } = useAcademicSessionList()
 const sessions = computed(() => data.value ?? [])
 
 const { data: schoolSettings } = useGetSchoolSettings()
-const formData = ref({
-  activeSession: schoolSettings.value?.activeSession,
-  activeTerm: schoolSettings.value?.activeTerm
-})
+const formData = ref<Record<string, any>>({})
+
+watch(
+  schoolSettings,
+  (settings) => {
+    formData.value = {
+      activeSession: settings?.activeSession,
+      activeTerm: settings?.activeTerm
+    }
+  },
+  { immediate: true }
+)
 
 const sessionOptions = computed(() =>
   sessions.value.map((curr) => ({

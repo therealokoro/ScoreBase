@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on the server — better-auth's Vue client is browser-only.
   if (import.meta.server) return
 
-  const { isLoggedIn, currentUser, waitForSession } = useAuth()
+  const { isLoggedIn, isAdmin, waitForSession } = useAuth()
 
   // Wait for the session fetch to fully complete. waitForSession() watches
   // isPending with { immediate: true }, so if it's already false this resolves
@@ -10,7 +10,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   await waitForSession()
 
   const isAuthenticated = isLoggedIn.value
-  const userRole = ((currentUser.value as any)?.role as string | null) ?? null
 
   // ── Already logged in, don't allow visiting /login ──────────────────────
   if (isAuthenticated && to.path === "/login") {
@@ -35,7 +34,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       (route) => to.path === route || to.path.startsWith(route + "/")
     )
 
-    if (isAdminRoute && userRole !== "admin") {
+    if (isAdminRoute && !isAdmin.value) {
       return navigateTo("/dashboard")
     }
   }

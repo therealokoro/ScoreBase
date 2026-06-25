@@ -52,7 +52,7 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
       email: input.email,
       password: input.phoneNumber,
       role: "teacher" as "user" | "admin",
-      data: { phoneNumber: input.phoneNumber }
+      data: { phoneNumber: input.phoneNumber, classId: input.classId }
     }
   })
 

@@ -10,8 +10,7 @@ const adminNav = { title: "School", icon: ICONS.school, link: "/dashboard/settin
 
 const auth = useAuth()
 const navList = computed(() => {
-  const user = auth.currentUser.value as typeof auth.currentUser.value & { role?: string }
-  if (user?.role === "admin") return [...commonNav, adminNav]
+  if (auth.isAdmin.value) return [...commonNav, adminNav]
   return commonNav
 })
 </script>

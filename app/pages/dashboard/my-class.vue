@@ -5,12 +5,12 @@ import type { StatsCardProps } from "~/components/App/StatsCard.vue"
 
 definePageMeta({ middleware: ["teacher-only"] })
 
-const { currentUser, isPending } = useAuth()
+const { user, isPending } = useAuth()
 
 const { $orpc } = useNuxtApp()
-const queryKey = computed(() => `${currentUser.value?.id}-class-fetch`)
+const queryKey = computed(() => `${user.value.id}-class-fetch`)
 const { data, pending, refresh } = useLazyAsyncData(queryKey, () => {
-  return $orpc.teacher.getClass.call({ teacherId: currentUser.value!.id })
+  return $orpc.teacher.getClass.call({ teacherId: user.value!.id })
 })
 
 const currClass = computed(() => data.value)

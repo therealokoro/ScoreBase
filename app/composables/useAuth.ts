@@ -2,7 +2,15 @@ import { adminClient, inferAdditionalFields } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/vue"
 import type { serverAuth } from "~~/server/utils/server-auth"
 
-type AuthClient = ReturnType<typeof createAuthClient>
+function makeAuthClient() {
+  const rc = useRuntimeConfig()
+  return createAuthClient({
+    baseURL: rc.public.betterAuthUrl as string,
+    plugins: [adminClient(), inferAdditionalFields<typeof serverAuth>()]
+  })
+}
+
+type AuthClient = ReturnType<typeof makeAuthClient>
 type UseSessionFn = AuthClient["useSession"]
 type SessionAtom = UseSessionFn extends {
   (): infer R
@@ -16,15 +24,10 @@ let _sessionAtom: SessionAtom | undefined
 
 function getAuthClient() {
   if (!_authClient) {
-    const rc = useRuntimeConfig()
-    // @ts-ignore - pnpm module resolution causes duplicate type conflict
-    _authClient = createAuthClient({
-      baseURL: rc.public.betterAuthUrl as string,
-      plugins: [adminClient(), inferAdditionalFields<typeof serverAuth>()]
-    })
-    _sessionAtom = (_authClient!.useSession as UseSessionFn)() as SessionAtom
+    _authClient = makeAuthClient()
+    _sessionAtom = (_authClient.useSession as UseSessionFn)() as SessionAtom
   }
-  return { client: _authClient!, sessionAtom: _sessionAtom! }
+  return { client: _authClient, sessionAtom: _sessionAtom! }
 }
 
 export function useAuth() {
@@ -61,8 +64,6 @@ export function useAuth() {
 
   async function refresh() {
     await sessionAtom.value.refetch?.()
-    // After refetch, wait for isPending to settle so callers can immediately
-    // read isLoggedIn and get the correct value
     await waitForSession()
   }
 
@@ -81,8 +82,6 @@ export function useAuth() {
     signUp: authClient.signUp,
     signOut: authClient.signOut,
     getSession: authClient.getSession,
-    changePassword: authClient.changePassword,
-    deleteUser: authClient.deleteUser,
     client: authClient
   }
 }

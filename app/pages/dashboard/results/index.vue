@@ -2,7 +2,7 @@
 import { ICONS } from "~~/shared/constants/icons"
 
 const isSheetOpen = ref(false)
-const { isAdmin, currentUser } = useAuth()
+const { isAdmin, user } = useAuth()
 
 const { data: sessions } = useAcademicSessionList()
 const { data: schoolSettings } = useGetSchoolSettings()
@@ -10,12 +10,12 @@ const { data: schoolSettings } = useGetSchoolSettings()
 const formData = ref<Record<string, any>>({})
 
 watch(
-  [schoolSettings, currentUser],
-  ([settings, user]) => {
+  [schoolSettings, user],
+  ([settings, _user]) => {
     formData.value = {
       sessionId: settings?.activeSession,
       termId: settings?.activeTerm,
-      classId: user?.classId
+      classId: _user.classId
     }
   },
   { immediate: true }

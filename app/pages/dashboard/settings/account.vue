@@ -2,7 +2,7 @@
 import { type UpdateAccountInfoInput } from "~~/shared/validators/actors"
 
 const auth = useAuth()
-const user = computed(() => auth.currentUser.value)
+const formData = ref(auth.user.value)
 
 const { $orpc } = useNuxtApp()
 const updateAccount = useMutation($orpc.account.updateAccount.mutationOptions())
@@ -36,7 +36,13 @@ async function onSubmit(payload: UpdateAccountInfoInput) {
 
     <!-- Body Content -->
     <div class="w-full">
-      <FormKit type="form" :actions="false" :value="user" @submit="onSubmit" id="account-info-form">
+      <FormKit
+        type="form"
+        :actions="false"
+        :value="formData"
+        @submit="onSubmit"
+        id="account-info-form"
+      >
         <fieldset :disabled="isSubmitting" class="md:max-w-md space-y-4">
           <FormKitMessages class="mb-3" />
 

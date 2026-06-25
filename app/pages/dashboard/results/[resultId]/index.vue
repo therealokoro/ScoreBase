@@ -7,8 +7,7 @@ const resultId = route.params.resultId as string
 const { data, isPending, error, refetch } = useGetResult(resultId)
 const result = computed(() => data.value)
 
-const auth = useAuth()
-const isAdmin = computed(() => auth.currentUser.value?.role === "admin")
+const { isAdmin } = useAuth()
 
 // Set breadcrumb label once data resolves
 setPageBreadcrumbLabel(computed(() => result.value?.name))

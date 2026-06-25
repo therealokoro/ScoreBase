@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { isLoggedIn, currentUser, waitForSession } = useAuth()
+  const { isLoggedIn, user, waitForSession } = useAuth()
   await waitForSession()
 
   // Redirect unauthenticated users to login
@@ -7,9 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo({ path: "/login", query: { redirect: to.fullPath } })
   }
 
-  const userRole = ((currentUser.value as any)?.role as string | null) ?? null
-
-  if (userRole !== "teacher") {
+  if (user.value.role !== "teacher") {
     return navigateTo("/dashboard")
   }
 })

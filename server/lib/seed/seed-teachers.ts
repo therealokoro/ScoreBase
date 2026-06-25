@@ -11,7 +11,7 @@ export async function seedTeachers(
 
   const drafts = classNames.map(() => {
     const name = nigerianName()
-    const surname = name.split(" ")[1]!
+    const surname = name.split(" ")[0]!
 
     return {
       name,
