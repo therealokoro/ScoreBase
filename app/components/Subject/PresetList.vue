@@ -64,7 +64,7 @@ async function handleDeleteSubjectList() {
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="w-full space-y-4">
     <!-- Loading -->
     <AppEntitySkeleton v-if="isPending" :count="3" />
 

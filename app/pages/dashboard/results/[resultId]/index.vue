@@ -97,11 +97,7 @@ const openScoreConfigSheet = ref(false)
 </script>
 
 <template>
-  <Page
-    :title="`${result?.name} Result` || 'Loading...'"
-    :loading="isPending"
-    :error="error ?? undefined"
-  >
+  <Page :title="`${result?.name} Result` || 'Loading...'" :error="error ?? undefined">
     <template #actions>
       <UiDropdownMenu v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')">
         <UiDropdownMenuTrigger as-child>
@@ -162,7 +158,7 @@ const openScoreConfigSheet = ref(false)
         <p class="text-sm text-muted-foreground">Click a student to enter or edit their scores</p>
       </div>
 
-      <ResultScoresheetTable :result="result">
+      <ResultScoresheetTable :result="result" :loading="isPending">
         <template #toolbar>
           <UiButton
             v-if="result?.status === 'published' || result?.status === 'reviewed'"

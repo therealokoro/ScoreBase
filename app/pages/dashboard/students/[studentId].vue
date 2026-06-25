@@ -64,7 +64,7 @@ const closeAll = () => {
 
     <!-- Loading Skeleton -->
     <div v-if="isPending && !student" class="w-full">
-      <div class="w-full">
+      <div class="w-full space-y-3">
         <UiSkeleton class="w-full h-7" />
         <UiSkeleton class="w-full h-5" />
       </div>

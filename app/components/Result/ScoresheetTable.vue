@@ -14,7 +14,7 @@ type ScoresheetRow = {
   progress: number
 }
 
-const props = defineProps<{ result: ResultWithDetail }>()
+const props = defineProps<{ result: ResultWithDetail; loading?: boolean }>()
 
 // Per-scoresheet completion — fraction of subject scores that are fully
 // entered (both CAs and exam filled in) out of total subjects on the sheet
@@ -128,6 +128,7 @@ const columnVisibility = computed(() => ({
       <UiTanStackTable
         :columns
         :data="scoresheets"
+        :loading="loading"
         :global-filter="globalSearch"
         :column-visibility="columnVisibility"
         :manual-pagination="false"
