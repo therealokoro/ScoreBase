@@ -17,7 +17,10 @@ export const fetchStudentById = async (id: string) => {
 /** List all students and include their class information */
 export const listAllStudents = async () => {
   return await db.query.students.findMany({
-    with: { ...includeClass }
+    with: { ...includeClass },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }
 
@@ -25,7 +28,10 @@ export const listAllStudents = async () => {
 export const listStudentsByClass = async (classId: string) => {
   return await db.query.students.findMany({
     where: eq(students.classId, classId),
-    with: { ...includeClass }
+    with: { ...includeClass },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }
 

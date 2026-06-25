@@ -79,7 +79,6 @@ async function handleCreateResult(payload: any) {
         description="Create a new result for a term and class"
       >
         <template #content>
-          <pre>{{ formData }}</pre>
           <FormKit
             id="create-result-form"
             type="form"
@@ -89,6 +88,14 @@ async function handleCreateResult(payload: any) {
           >
             <fieldset :disabled="createResult.isPending.value" class="p-4 pt-0">
               <FormKitMessages class="mb-4" />
+
+              <UiAlert
+                v-if="!isAdmin"
+                icon="lucide:info"
+                description="The form is pre-filled with the currently active session, term and your class. If selections are incorrect, please contact an admin. Click on
+                the submit button to create the result."
+                class="text-blue-300 mb-4 text-xs"
+              />
 
               <FormKit
                 :disabled="!isAdmin"

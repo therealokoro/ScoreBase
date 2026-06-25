@@ -13,12 +13,19 @@ export const fetchSingleSubject = async (payload: string, column: "id" | "name" 
 
 /** List all subjects */
 export const listAllSubjects = async () => {
-  return await db.query.subjects.findMany()
+  return await db.query.subjects.findMany({
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
+  })
 }
 
 /** List subjects by tags (contains any of the provided tags) */
 export const listSubjectsByTags = async (tags: string[]) => {
   return await db.query.subjects.findMany({
-    where: (subjects, { sql }) => sql`${subjects.tags} LIKE '%' || ${tags[0]} || '%'`
+    where: (subjects, { sql }) => sql`${subjects.tags} LIKE '%' || ${tags[0]} || '%'`,
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }

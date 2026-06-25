@@ -3,23 +3,6 @@ import { eq } from "drizzle-orm"
 
 import { results, scoresheets, subjectScores } from "../db/schema"
 
-// ---------------------------------------------------------------------------
-// Shared utility — derive the human-readable result name from relations
-// ---------------------------------------------------------------------------
-
-/**
- * Derives the display name for a result from its nested term/session/class. e.g. "2024/2025 - 1st
- * Term - JSS1A"
- */
-function getResultDisplayName(result: {
-  term: { name: string; session: { name: string } }
-  class: { name: string }
-}): string {
-  const sessionName = result.term.session.name.split(" ")[0] // get only the session date without the prefix
-  return `${sessionName} - ${result.term.name} - ${result.class.name}`
-}
-
-// ---------------------------------------------------------------------------
 // Shared relation presets
 // ---------------------------------------------------------------------------
 
@@ -28,14 +11,16 @@ const termWithRelation = {
   class: { columns: { name: true, id: true } }
 } as const
 
-// ---------------------------------------------------------------------------
 // Result queries
 // ---------------------------------------------------------------------------
 
 /** Fetches every result row. Used by admins who have visibility across all classes. */
 export async function listAllResults() {
   return await db.query.results.findMany({
-    with: { ...termWithRelation }
+    with: { ...termWithRelation },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }
 
@@ -46,7 +31,10 @@ export async function listAllResults() {
 export async function listResultsByClass(classId: string) {
   return await db.query.results.findMany({
     where: eq(results.classId, classId),
-    with: { ...termWithRelation }
+    with: { ...termWithRelation },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
   })
 }
 

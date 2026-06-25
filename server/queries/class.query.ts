@@ -12,7 +12,7 @@ export const fetchSingleClass = async (payload: string, column: "id" | "name" = 
     where: eq(classes[column], payload),
     with: {
       ...includeTeacher,
-      subjectList: { columns: { id: true, name: true } },
+      subjectList: { columns: { id: true, name: true } }
     }
   })
 }
