@@ -3,7 +3,8 @@
 <template>
   <UiContainer class="relative h-screen">
     <div class="relative z-20 h-full flex flex-col flex-center py-16 text-center lg:py-24">
-      <h3 class="mb-4 text-3xl font-semibold md:mb-5 md:text-4xl">
+      <AppLogo class="size-15" />
+      <h3 class="my-4 text-3xl font-semibold md:mb-5 md:text-4xl">
         Welcome to <span class="text-primary underline underline-offset-4">ScoreBase</span>
       </h3>
       <p class="text-muted-foreground max-w-lg">
