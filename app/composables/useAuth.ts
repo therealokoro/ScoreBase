@@ -37,6 +37,7 @@ export function useAuth() {
   const isLoggedIn = computed(() => data.value !== null)
   const isPending = computed(() => sessionAtom.value.isPending)
   const error = computed(() => sessionAtom.value.error ?? null)
+  const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")
 
   // Waits until better-auth has both finished loading AND written session data.
   // isPending going false does NOT guarantee data is populated — the atom can
@@ -72,6 +73,7 @@ export function useAuth() {
     session,
     isLoggedIn,
     isPending,
+    isAdmin,
     error,
     waitForSession,
     refresh,

@@ -2,6 +2,7 @@
 import { ICONS } from "~~/shared/constants/icons"
 
 const isSheetOpen = ref(false)
+const { isAdmin } = useAuth()
 
 const { data: sessions } = useAcademicSessionList()
 const activeSessionId = ref("")
@@ -42,14 +43,19 @@ async function handleCreateResult(payload: any) {
   <Page title="Results" description="Manage results across sessions and terms">
     <div class="w-full flex gap-3">
       <ui-button @click="isSheetOpen = true" :icon="ICONS.add">Create New Result</ui-button>
-      <ui-button to="/dashboard/results/settings" variant="outline" :icon="ICONS.settings">
+      <ui-button
+        v-if="isAdmin"
+        to="/dashboard/results/settings"
+        variant="outline"
+        :icon="ICONS.settings"
+      >
         Result Settings
       </ui-button>
     </div>
 
     <ResultListTable />
 
-    <UiSheet v-model:open="isSheetOpen">
+    <LazyUiSheet v-model:open="isSheetOpen">
       <UiSheetContent
         side="right"
         title="Create a Result"
@@ -128,6 +134,6 @@ async function handleCreateResult(payload: any) {
           </UiSheetFooter>
         </template>
       </UiSheetContent>
-    </UiSheet>
+    </LazyUiSheet>
   </Page>
 </template>

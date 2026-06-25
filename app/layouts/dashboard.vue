@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ICONS } from "#shared/constants/icons"
 
-const { isPending, currentUser, signOut } = useAuth()
+const { isPending, currentUser, signOut, isAdmin } = useAuth()
 
 const adminNavItems = [
   { title: "Overview", href: "/dashboard", icon: ICONS.dashboard },
@@ -24,10 +24,9 @@ async function handleSignOut() {
   navigateTo("/")
 }
 
-const isAdmin = computed(() => currentUser.value && currentUser.value.role == "admin")
 const sidebarContents = computed(() => {
   return {
-    navItems: isAdmin.value ? adminNavItems : teacherNavItems,
+    navItems: !isPending.value && isAdmin.value ? adminNavItems : teacherNavItems,
     userIcon: isAdmin.value ? ICONS.admin : ICONS.teacher,
     userColor: isAdmin.value ? "bg-primary" : "bg-gray-800"
   }

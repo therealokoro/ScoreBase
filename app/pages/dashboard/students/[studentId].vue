@@ -4,8 +4,7 @@ const studentId = route.params.studentId as string
 const { data, isPending, error, refetch } = useGetSingleStudent(studentId)
 const student = computed(() => data.value)
 
-const auth = useAuth()
-const isUserAdmin = computed(() => auth.currentUser.value?.role == "admin")
+const { isAdmin } = useAuth()
 
 // Set breadcrumb label
 setPageBreadcrumbLabel(computed(() => student.value?.name))
@@ -97,7 +96,7 @@ const closeAll = () => {
               <ui-button
                 v-if="student.class"
                 variant="link"
-                :to="isUserAdmin ? `/dashboard/classes/${student.class.id}` : '/dashboard/my-class'"
+                :to="isAdmin ? `/dashboard/classes/${student.class.id}` : '/dashboard/my-class'"
                 title="Click to view class"
               >
                 {{ student.class.name }}
