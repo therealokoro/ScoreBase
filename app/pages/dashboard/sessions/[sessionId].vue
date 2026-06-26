@@ -35,11 +35,17 @@ function handleDeleteSession() {
   })
 }
 
-// TODO: get selected term, fetch and dispaly its result in a table
 const activeTerm = ref<ITerm | null>(null)
-const { data: result, isFetching: isFetchingResult } = useGetResultByTerm(
-  () => activeTerm.value?.id ?? null
-)
+const {
+  data: result,
+  isFetching: isFetchingResult,
+  refetch: fetchTermResult
+} = useGetResultByTerm(() => activeTerm.value?.id ?? null)
+
+async function selectTerm(term: ITerm) {
+  activeTerm.value = term
+  await fetchTermResult()
+}
 </script>
 
 <template>
@@ -54,11 +60,7 @@ const { data: result, isFetching: isFetchingResult } = useGetResultByTerm(
     </template>
 
     <!-- Manage Sesison Terms -->
-    <SessionManageTerms
-      :terms="sessionTerms"
-      :session-id="sessionId!"
-      @select-term="(e) => (activeTerm = e)"
-    />
+    <SessionManageTerms :terms="sessionTerms" :session-id="sessionId!" @select-term="selectTerm" />
 
     <!-- Session/Term Result Table -->
     <div class="w-full">

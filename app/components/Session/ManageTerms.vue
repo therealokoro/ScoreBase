@@ -32,8 +32,7 @@ const handleCreateTerm = () => {
 const { data: result } = useGetResultByTerm(() => activeTerm.value?.id ?? null)
 
 const initOpenResult = useDebounceFn(async (term: ITerm) => {
-  activeTerm.value = term
-  return navigateTo(`/dashoard/results/${result.value?.id}`)
+  emit("selectTerm", term)
 }, 1000)
 </script>
 

@@ -14,7 +14,7 @@ export const useGetResultByTerm = (termId: MaybeRefOrGetter<string | null>) => {
       const id = toValue(termId)
       return $orpc.result.getByTerm.queryOptions({
         input: { termId: id ?? "" },
-        enabled: !!id
+        enabled: false
       })
     })
   )
