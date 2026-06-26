@@ -3,6 +3,7 @@ import type { RouterClient } from "@orpc/server"
 import { baseORPC } from "../utils/orpc"
 import { accountRouter } from "./account.router"
 import { classRouter } from "./class.router"
+import { dashboardRouter } from "./dashboard.router"
 import { resultRouter } from "./results.router"
 import { scoresheetRouter } from "./scoresheet.router"
 import { academicSessionRouter } from "./session.router"
@@ -16,6 +17,7 @@ import { termRouter } from "./term.router"
 
 export const apiRouter = {
   health: baseORPC.handler(() => ({ status: "API Working", timestamp: Date.now() })),
+  dashboard: dashboardRouter,
   academicSession: academicSessionRouter,
   term: termRouter,
   subject: subjectRouter,
