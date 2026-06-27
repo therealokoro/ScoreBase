@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ICONS } from "~~/shared/constants/icons"
 const sessionId = useRoute().params.sessionId?.toString()
 const sessionIdError = !sessionId ? new Error("Academic session was not found") : undefined
 
@@ -37,12 +38,15 @@ function handleDeleteSession() {
 
 const activeTerm = ref<ITerm | null>(null)
 const {
-  data: result,
+  data: d,
   isFetching: isFetchingResult,
   refetch: fetchTermResult
 } = useGetResultByTerm(() => activeTerm.value?.id ?? null)
+const results = computed(() => d.value || [])
 
 async function selectTerm(term: ITerm) {
+  if (activeTerm.value?.id == term.id) return
+
   activeTerm.value = term
   await fetchTermResult()
 }
@@ -63,11 +67,29 @@ async function selectTerm(term: ITerm) {
     <SessionManageTerms :terms="sessionTerms" :session-id="sessionId!" @select-term="selectTerm" />
 
     <!-- Session/Term Result Table -->
-    <div class="w-full">
-      <ResultScoresheetTable v-if="result && !isFetchingResult" :result="result" />
-      <UiSkeleton v-else-if="!result && isFetchingResult" class="w-full h-30" />
-      <AppContentPlaceholder v-else text="Select a term to view its results" />
+    <div v-if="activeTerm" class="w-full">
+      <h3 class="text-sm font-semibold mb-3">{{ activeTerm.name }} Results</h3>
+
+      <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- loading skeleton -->
+        <AppEntitySkeleton v-if="isFetchingResult" :count="2" />
+
+        <!-- show results for selected term -->
+        <template v-else-if="!isFetchingResult && results.length">
+          <AppEntityCard
+            v-for="item in results"
+            :title="item.name"
+            :link="`/dashboard/results/${item.id}`"
+            :description="item.submittedBy ? `Submitted By ${item.submittedBy}` : undefined"
+          />
+        </template>
+        <!-- When term doesn't have a result -->
+        <AppContentPlaceholder v-else text="No result for the selected term" :icon="ICONS.result" />
+      </div>
     </div>
+
+    <!-- When no term is selected -->
+    <AppContentPlaceholder v-else :icon="ICONS.empty" text="Select a term to view its results" />
 
     <!-- Session Edit Form -->
     <LazySessionCreateEditForm

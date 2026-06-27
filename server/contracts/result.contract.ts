@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
 import { AcademicSessionSchema, ClassSchema } from "~~/shared/validators/academic"
+import { TeacherSchema } from "~~/shared/validators/actors"
 import {
   CreateResultSchema,
   ResultSchema,
@@ -31,10 +32,14 @@ export const getOneResult = oc
   .output(ResultDetailSchema)
   .errors({ NOT_FOUND: { message: "The result was not found" } })
 
-/** Single result by its term Id with all scoresheets and subject scores nested */
-export const getOneResultByTerm = oc
+/** Fetch all results belonging to a particular term */
+export const getResultsByTerm = oc
   .input(ResultSchema.pick({ termId: true }))
-  .output(ResultDetailSchema)
+  .output(
+    ResultSchema.extend({
+      submittedBy: TeacherSchema.pick({ name: true }).nullable()
+    }).array()
+  )
   .errors({ NOT_FOUND: { message: "The result was not found" } })
 
 /** Admin creates a result for a term + class, snapshotting the current score config */
@@ -85,7 +90,7 @@ export const deleteResult = oc
 export const resultContract = {
   list: listResults,
   getOne: getOneResult,
-  getByTerm: getOneResultByTerm,
+  getByTerm: getResultsByTerm,
   create: createResult,
   updateScoreConfig: updateResultScoreConfig,
   updateStatus: updateResultStatus,

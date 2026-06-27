@@ -2,7 +2,7 @@ import { createSelectSchema, createUpdateSchema } from "drizzle-zod"
 import z from "zod"
 import { scoresheets } from "~~/server/db/schema"
 
-import { StudentSchema } from "./academic"
+import { ClassSchema, StudentSchema } from "./academic"
 import { SubjectScoreSchema, ResultSchema } from "./results"
 
 export const ScoresheetSchema = createSelectSchema(scoresheets)
@@ -35,6 +35,8 @@ export const ScoresheetWithDetailsSchema = ScoresheetSchema.extend({
     id: true,
     name: true,
     studentId: true
+  }).extend({
+    class: ClassSchema.pick({ id: true, name: true })
   })
 })
 

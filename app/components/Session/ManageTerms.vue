@@ -29,8 +29,6 @@ const handleCreateTerm = () => {
   })
 }
 
-const { data: result } = useGetResultByTerm(() => activeTerm.value?.id ?? null)
-
 const initOpenResult = useDebounceFn(async (term: ITerm) => {
   emit("selectTerm", term)
 }, 1000)

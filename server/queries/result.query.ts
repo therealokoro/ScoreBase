@@ -63,6 +63,17 @@ export async function fetchResultWithScoresheets(payload: string, column: "id" |
   })
 }
 
+/** Fetches all results belonging to a particular term */
+export async function fetchResultsByTerm(termId: string) {
+  return await db.query.results.findMany({
+    where: eq(results.termId, termId),
+    with: { submittedBy: { columns: { name: true } } },
+    orderBy(fields, operators) {
+      return operators.desc(fields.createdAt)
+    }
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Scoresheet queries
 // ---------------------------------------------------------------------------
@@ -77,7 +88,10 @@ export async function fetchSingleScoresheet(id: string) {
     with: {
       result: true,
       subjectScores: { with: { subject: true } },
-      student: { columns: { id: true, name: true, studentId: true } }
+      student: {
+        columns: { id: true, name: true, studentId: true },
+        with: { class: { columns: { id: true, name: true } } }
+      }
     }
   })
 }

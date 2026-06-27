@@ -9,6 +9,7 @@ import { getResultScoreConfig } from "../kv/result-settings"
 import {
   fetchResultWithScoresheets,
   fetchSingleResult,
+  fetchResultsByTerm,
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
@@ -48,13 +49,13 @@ const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
   return result
 })
 
-const getOneResultByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
+const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
   const user = context.session!.user
-  const result = await fetchResultWithScoresheets(input.termId, "termId")
+  if (user.role === "teacher") throw errors.NOT_FOUND()
+
+  const result = await fetchResultsByTerm(input.termId)
   if (!result) throw errors.NOT_FOUND()
-  if (user.role === "teacher" && result.classId !== user.classId) {
-    throw errors.NOT_FOUND()
-  }
+
   return result
 })
 
@@ -260,7 +261,7 @@ const deleteResult = os.delete.handler(async ({ input, errors }) => {
 export const resultRouter = {
   list: listResults,
   getOne: getOneResult,
-  getByTerm: getOneResultByTerm,
+  getByTerm: getResultsByTerm,
   create: createResult,
   updateScoreConfig: updateResultScoreConfig,
   updateStatus: updateResultStatus,
