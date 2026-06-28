@@ -1,6 +1,6 @@
 /* This file contains reusable queries for the admin dashboard summary */
 import { db } from "@nuxthub/db"
-import { count, eq, isNotNull, not } from "drizzle-orm"
+import { and, count, eq, not } from "drizzle-orm"
 
 import { classes, results, students, user } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
@@ -74,46 +74,17 @@ export const fetchResultStatusCountsByTerm = async (termId: string) => {
   return counts
 }
 
-/**
- * Pulls the most recent N results that have moved past "draft" (i.e. have at least one of
- * submittedAt/reviewedAt/publishedAt set), across the whole school — not scoped to a single term —
- * so the feed stays populated even right after a new term starts.
- *
- * For each result, picks whichever audit timestamp matches its _current_ status as the "occurredAt"
- * value, and resolves the matching actor name.
- */
-export const fetchRecentResultActivity = async (limit = 6) => {
-  const rows = await db.query.results.findMany({
-    where: isNotNull(results.submittedAt),
-    orderBy(fields, operators) {
-      return operators.desc(fields.updatedAt)
-    },
-    limit,
-    with: {
-      submittedBy: { columns: { name: true } },
-      reviewedBy: { columns: { name: true } }
-    }
+/** Finds the single class a teacher owns (classes.teacherId is unique). */
+export const fetchClassByTeacherId = async (teacherId: string) => {
+  return await db.query.classes.findFirst({
+    where: eq(classes.teacherId, teacherId),
+    with: { students: { columns: { id: true } } }
   })
+}
 
-  return rows.map((result) => {
-    let occurredAt: string
-    let actorName: string | null
-
-    if (result.status === "submitted") {
-      occurredAt = result.submittedAt!
-      actorName = result.submittedBy?.name ?? null
-    } else {
-      // reviewed or published — both are stamped by the reviewer
-      occurredAt = result.status === "published" ? result.publishedAt! : result.reviewedAt!
-      actorName = result.reviewedBy?.name ?? null
-    }
-
-    return {
-      id: result.id,
-      resultName: result.name,
-      status: result.status,
-      actorName,
-      occurredAt
-    }
+/** Finds the result row for a given (termId, classId) pair, if one exists yet. */
+export const fetchResultByTermAndClass = async (termId: string, classId: string) => {
+  return await db.query.results.findFirst({
+    where: and(eq(results.termId, termId), eq(results.classId, classId))
   })
 }

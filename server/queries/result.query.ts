@@ -56,7 +56,10 @@ export async function fetchResultWithScoresheets(payload: string, column: "id" |
         with: {
           subjectScores: { with: { subject: true } },
           // Needed so the scoresheet list on the result page can display each student's name
-          student: { columns: { id: true, name: true, studentId: true } }
+          student: {
+            columns: { id: true, name: true, studentId: true },
+            with: { class: { columns: { id: true, name: true } } }
+          }
         }
       }
     }

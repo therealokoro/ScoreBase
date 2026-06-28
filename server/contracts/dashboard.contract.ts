@@ -10,19 +10,6 @@ const ResultStatusCountsSchema = z.object({
   reviewed: z.number(),
   published: z.number()
 })
-
-const RecentActivityItemSchema = z.object({
-  id: z.string(),
-  resultName: z.string(),
-  status: z.enum(resultStatus),
-  // Who triggered this status — submitter for "submitted", reviewer for
-  // "reviewed"/"published". Null if no audit actor is recorded yet.
-  actorName: z.string().nullable(),
-  // The timestamp this activity actually happened at — submittedAt,
-  // reviewedAt, or publishedAt depending on `status`.
-  occurredAt: z.string()
-})
-
 export const getAdminSummary = oc.output(
   z.object({
     counts: z.object({
@@ -37,11 +24,29 @@ export const getAdminSummary = oc.output(
     // Status breakdown scoped to the active term only — this is what makes
     // the pipeline numbers meaningful ("results this term"), not a
     // school-wide-forever count that never resets.
-    resultStatusCounts: ResultStatusCountsSchema,
-    recentActivity: z.array(RecentActivityItemSchema)
+    resultStatusCounts: ResultStatusCountsSchema
+  })
+)
+export const getTeacherSummary = oc.output(
+  z.object({
+    // Null if this teacher has no class assigned yet — UI should show a
+    // setup-needed state rather than crashing on missing fields.
+    class: z.object({ id: z.string(), name: z.string(), studentCount: z.number() }).nullable(),
+    activeSession: z.object({ id: z.string(), name: z.string() }).nullable(),
+    activeTerm: z.object({ id: z.string(), name: z.string() }).nullable(),
+    // Null when no result row exists yet for (activeTerm, theirClass) — the
+    // admin hasn't created one yet. Distinct from status:"draft", which
+    // means a result DOES exist but hasn't been submitted.
+    result: z
+      .object({
+        id: z.string(),
+        status: z.enum(resultStatus)
+      })
+      .nullable()
   })
 )
 
 export const dashboardContract = {
-  getAdminSummary
+  getAdminSummary,
+  getTeacherSummary
 }

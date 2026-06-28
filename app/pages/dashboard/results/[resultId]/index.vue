@@ -96,7 +96,7 @@ const openScoreConfigSheet = ref(false)
 </script>
 
 <template>
-  <Page :title="`${result?.name} Result` || 'Loading...'" :error="error ?? undefined">
+  <Page :title="result ? `${result.name} Result` : 'Loading...'" :error="error ?? undefined">
     <template #actions>
       <UiDropdownMenu v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')">
         <UiDropdownMenuTrigger as-child>

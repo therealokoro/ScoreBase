@@ -36,7 +36,7 @@ const STATUS_META = [
       <p class="text-sm font-semibold">{{ title }}</p>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div
         v-for="status in STATUS_META"
         :key="status.key"

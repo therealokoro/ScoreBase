@@ -136,6 +136,7 @@ async function handleSave() {
     loading: "Saving student's scores...",
     success: () => {
       refetchScoresheet()
+      useRouter().go(-1)
       return "Scores saved successfully"
     },
     error: (e: any) => e.message

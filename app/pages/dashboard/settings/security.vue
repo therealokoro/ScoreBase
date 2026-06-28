@@ -43,6 +43,8 @@ async function onSubmit(payload: UpdateAccountPasswordInput) {
         <fieldset :disabled="isSubmitting" class="md:max-w-md space-y-4">
           <FormKitMessages class="mb-4" />
 
+          <FormKit type="hidden" name="id" :value="userId" />
+
           <FormKitPassword
             name="currentPassword"
             placeholder="**************"

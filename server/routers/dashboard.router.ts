@@ -1,21 +1,21 @@
-import { implement } from "@orpc/server"
+import { implement, ORPCError } from "@orpc/server"
 
 import type { APiContext } from "../context"
 import { dashboardContract } from "../contracts/dashboard.contract"
 import {
   fetchActiveSessionAndTerm,
   fetchDashboardCounts,
-  fetchRecentResultActivity,
-  fetchResultStatusCountsByTerm
+  fetchResultStatusCountsByTerm,
+  fetchClassByTeacherId,
+  fetchResultByTermAndClass
 } from "../queries/dashboard.query"
 
 const os = implement(dashboardContract).$context<APiContext>()
 
 const getAdminSummary = os.getAdminSummary.handler(async () => {
-  const [counts, { activeSession, activeTerm }, recentActivity] = await Promise.all([
+  const [counts, { activeSession, activeTerm }] = await Promise.all([
     fetchDashboardCounts(),
-    fetchActiveSessionAndTerm(),
-    fetchRecentResultActivity()
+    fetchActiveSessionAndTerm()
   ])
 
   // Result status counts are scoped to the active term — if there's no
@@ -29,11 +29,64 @@ const getAdminSummary = os.getAdminSummary.handler(async () => {
     counts,
     activeSession,
     activeTerm,
-    resultStatusCounts,
-    recentActivity
+    resultStatusCounts
+  }
+})
+
+const getTeacherSummary = os.getTeacherSummary.handler(async ({ context }) => {
+  const teacherId = context.session?.user?.id
+  if (!teacherId) throw new ORPCError("UNAUTHORIZED")
+
+  const [klass, { activeSession, activeTerm }] = await Promise.all([
+    fetchClassByTeacherId(teacherId),
+    fetchActiveSessionAndTerm()
+  ])
+
+  // No class assigned yet — return early with everything else null/empty
+  // rather than throwing, so the UI can show a clear "not assigned" state.
+  if (!klass) {
+    return {
+      class: null,
+      activeSession,
+      activeTerm,
+      result: null
+    }
+  }
+
+  const classSummary = { id: klass.id, name: klass.name, studentCount: klass.students.length }
+
+  // No active term configured at all — nothing further to resolve.
+  if (!activeTerm) {
+    return {
+      class: classSummary,
+      activeSession,
+      activeTerm: null,
+      result: null
+    }
+  }
+
+  const result = await fetchResultByTermAndClass(activeTerm.id, klass.id)
+
+  // Active term is set, but no result row exists yet for this class — the
+  // admin hasn't created one. Distinct from a result existing in "draft".
+  if (!result) {
+    return {
+      class: classSummary,
+      activeSession,
+      activeTerm,
+      result: null
+    }
+  }
+
+  return {
+    class: classSummary,
+    activeSession,
+    activeTerm,
+    result: { id: result.id, status: result.status }
   }
 })
 
 export const dashboardRouter = {
-  getAdminSummary
+  getAdminSummary,
+  getTeacherSummary
 }
