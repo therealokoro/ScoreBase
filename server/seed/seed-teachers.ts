@@ -1,4 +1,4 @@
-import { classNames } from "~~/server/lib/seed/data"
+import { classNames } from "~~/server/seed/data"
 import { serverAuth as auth } from "~~/server/utils/server-auth"
 
 import { nigerianName } from "./helpers"

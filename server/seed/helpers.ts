@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker"
-import { nigerianFirstNames, nigerianLastNames, numberPrefixes } from "~~/server/lib/seed/data"
+import { nigerianFirstNames, nigerianLastNames, numberPrefixes } from "~~/server/seed/data"
 
 export function nigerianName() {
   const first = faker.helpers.arrayElement(nigerianFirstNames)

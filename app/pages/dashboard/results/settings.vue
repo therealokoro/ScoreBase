@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
-import {
-  DEFAULT_GRADE_BOUNDARIES,
-  DEFAULT_RESULT_SETTINGS,
-  type PositionDisplayOption
-} from "~~/shared/constants/kv-settings"
+import { DEFAULT_GRADE_BOUNDARIES, DEFAULT_RESULT_SETTINGS } from "~~/shared/constants/kv-settings"
+import type { PositionDisplayOption } from "~~/shared/validators/settings"
 
 definePageMeta({ middleware: ["admin-only"] })
 
@@ -13,7 +10,6 @@ const setSettings = useUpdateResultSettings()
 
 // Helpers — transform between KV shape and FormKit shape
 // ---------------------------------------------------------------------------
-
 function toFormShape(s: typeof DEFAULT_RESULT_SETTINGS) {
   // Build scoreDistribution group value from caMaxScores[] + examMax
   const scoreDistribution: Record<string, number> = { exam: s.examMax }
@@ -53,7 +49,6 @@ watch(
 
 // Submit — transform FormKit shape back to KV shape
 // ---------------------------------------------------------------------------
-
 function handleSubmit(payload: any) {
   const { caCount, scoreDistribution, gradeBoundaries, ...rest } = payload
   // Rebuilds the ca_0, ca_1... entries from the scoreDistribution object into an ordered caMaxScores[] array (sorted by index), separate from examMax.

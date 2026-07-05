@@ -4,15 +4,19 @@ import { typeid } from "typeid-js"
 
 import { nigerianName } from "./helpers"
 
-const STUDENTS_PER_CLASS = 30
+const DEFAULT_STUDENTS_PER_CLASS = 10
 const CHUNK_SIZE = 50
 
-export async function seedStudents(classRecords: any[], uniquePhone: () => string) {
+export async function seedStudents(
+  classRecords: any[],
+  uniquePhone: () => string,
+  studentsPerClass: number = DEFAULT_STUDENTS_PER_CLASS
+) {
   console.log("👩‍🎓 Creating students...")
 
   let studentCounter = 1
   const records = classRecords.flatMap((cls) =>
-    Array.from({ length: STUDENTS_PER_CLASS }, () => {
+    Array.from({ length: studentsPerClass }, () => {
       const seq = String(studentCounter++).padStart(4, "0")
 
       return {

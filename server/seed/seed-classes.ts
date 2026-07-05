@@ -1,6 +1,6 @@
 import { db, schema } from "@nuxthub/db"
 import { typeid } from "typeid-js"
-import { classNames } from "~~/server/lib/seed/data"
+import { classNames } from "~~/server/seed/data"
 
 export async function seedClasses(teachers: any[]) {
   console.log("🏫 Creating classes...")
