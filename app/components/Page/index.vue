@@ -128,9 +128,9 @@ const styles = tv({ base: "flex items-start gap-3" })
       <div :class="styles({ class: normalizeClass(props.class) || undefined })">
         <div class="space-y-1">
           <div class="flex flex-wrap items-center gap-2">
-            <ui-heading :level="1" class="text-2xl font-semibold tracking-tight">
+            <h1 class="md:text-xl lg:text-2xl font-semibold tracking-tight">
               {{ title }}
-            </ui-heading>
+            </h1>
             <UiBadge v-if="badge" class="font-medium bg-primary/5 text-primary">
               {{ badge }}
             </UiBadge>

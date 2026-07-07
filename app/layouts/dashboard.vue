@@ -125,7 +125,7 @@ const sidebarContents = computed(() => {
     </UiSidebar>
 
     <!-- Main Page content -->
-    <UiSidebarInset>
+    <UiSidebarInset class="min-w-0 overflow-hidden">
       <header class="sticky top-0 w-full h-14 z-10 bg-background border-b">
         <UiContainer class="flex h-full shrink-0 items-center gap-4">
           <UiSidebarTrigger />

@@ -1,5 +1,6 @@
 import { oc } from "@orpc/contract"
 import z from "zod"
+import { ScoreConfigSnapshotSchema } from "~~/shared/validators/results"
 import {
   CreateScoresheetsSchema,
   ScoresheetSchema,
@@ -9,13 +10,8 @@ import {
 
 // ---------------------------------------------------------------------------
 // Composed output schemas
-// (select schemas extended with nested relations for detail views)
 // ---------------------------------------------------------------------------
 
-/**
- * Bulk-create scoresheets for a result — one per supplied student ID. Server resolves name/ID
- * snapshots from the DB.
- */
 export const createScoresheets = oc
   .input(CreateScoresheetsSchema)
   .output(z.array(ScoresheetSchema))
@@ -26,23 +22,69 @@ export const createScoresheets = oc
     FORBIDDEN: { message: "You are not allowed to do that" }
   })
 
-/** Single scoresheet with its subject scores */
 export const getOneScoresheet = oc
   .input(ScoresheetSchema.pick({ id: true }))
   .output(ScoresheetWithDetailsSchema)
   .errors({ NOT_FOUND: { message: "The scoresheet was not found" } })
 
-/** Update teacher and/or principal remarks */
-export const updateScoresheetRemarks = oc
-  .input(UpdateScoresheetRemarksSchema)
-  // .output(ScoresheetSchema)
+export const updateScoresheetRemarks = oc.input(UpdateScoresheetRemarksSchema).errors({
+  NOT_FOUND: { message: "The scoresheet was not found" },
+  FORBIDDEN: { message: "You do not have permission to edit remarks on this scoresheet" }
+})
+
+// ---------------------------------------------------------------------------
+// Report card
+// ---------------------------------------------------------------------------
+
+const ComputedSubjectRowSchema = z.object({
+  id: z.string(),
+  subjectName: z.string(),
+  caScores: z.array(z.number().nullable()),
+  caTotal: z.number().nullable(),
+  exam: z.number().nullable(),
+  total: z.number().nullable(),
+  grade: z.string(),
+  remark: z.string()
+})
+
+const ComputedReportCardSchema = z.object({
+  studentName: z.string(),
+  studentSchoolId: z.string(),
+  subjectRows: z.array(ComputedSubjectRowSchema),
+  grandTotal: z.number().nullable(),
+  subjectCount: z.number(),
+  average: z.number().nullable(),
+  position: z.string(),
+  positionRank: z.number().nullable()
+})
+
+export const ReportCardOutputSchema = z.object({
+  resultName: z.string(),
+  resultStatus: z.enum(["draft", "submitted", "reviewed", "published"]),
+  scoreConfig: ScoreConfigSnapshotSchema,
+  term: z.object({
+    id: z.string(),
+    name: z.string(),
+    session: z.object({ name: z.string() })
+  }),
+  class: z.object({ id: z.string(), name: z.string() }),
+  computed: ComputedReportCardSchema,
+  teacherRemark: z.string().nullable(),
+  principalRemark: z.string().nullable(),
+  totalStudents: z.number()
+})
+
+export const getReportCard = oc
+  .input(ScoresheetSchema.pick({ id: true }))
+  .output(ReportCardOutputSchema)
   .errors({
-    NOT_FOUND: { message: "The scoresheet was not found" },
-    FORBIDDEN: { message: "You do not have permission to edit remarks on this scoresheet" }
+    NOT_FOUND: { message: "The scoresheet or its parent result was not found" },
+    FORBIDDEN: { message: "You do not have permission to view this report card" }
   })
 
 export const scoresheetContract = {
   createScoresheets,
   getOneScoresheet,
-  updateScoresheetRemarks
+  updateScoresheetRemarks,
+  getReportCard
 }

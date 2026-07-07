@@ -137,3 +137,26 @@ export async function getResultForScoresheet(scoresheetId: string) {
   const scoresheet = await fetchScoresheetWithResult(scoresheetId)
   return scoresheet ?? null
 }
+
+/**
+ * Report-card-specific variant of fetchResultWithScoresheets. Adds term (with session) and class
+ * relations needed for the report card header.
+ */
+export async function fetchResultForReportCard(resultId: string) {
+  return await db.query.results.findFirst({
+    where: eq(results.id, resultId),
+    with: {
+      term: {
+        columns: { id: true, name: true },
+        with: { session: { columns: { name: true } } }
+      },
+      class: { columns: { id: true, name: true } },
+      scoresheets: {
+        with: {
+          subjectScores: { with: { subject: { columns: { id: true, name: true } } } },
+          student: { columns: { id: true, name: true, studentId: true } }
+        }
+      }
+    }
+  })
+}

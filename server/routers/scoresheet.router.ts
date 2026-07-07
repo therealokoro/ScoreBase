@@ -5,6 +5,7 @@ import { inArray, and, eq } from "drizzle-orm"
 import { type APiContext } from "../context"
 import { scoresheetContract } from "../contracts/scoresheet.contract"
 import { results, scoresheets, subjectScores } from "../db/schema"
+import { fetchReportCardData } from "../queries/reportCard.query"
 import { fetchSingleResult, fetchSingleScoresheet } from "../queries/result.query"
 
 const os = implement(scoresheetContract).$context<APiContext>()
@@ -153,8 +154,24 @@ const updateScoresheetRemarks = os.updateScoresheetRemarks.handler(
   }
 )
 
+const getReportCard = os.getReportCard.handler(async ({ input, errors, context }) => {
+  const sessionUser = context.session?.user
+  if (!sessionUser) throw errors.FORBIDDEN()
+
+  const data = await fetchReportCardData(input.id)
+  if (!data) throw errors.NOT_FOUND()
+
+  // Teachers may only view report cards for their own class
+  if (sessionUser.role === "teacher" && data.class.id !== sessionUser.classId) {
+    throw errors.FORBIDDEN()
+  }
+
+  return data
+})
+
 export const scoresheetRouter = {
   createScoresheets,
   getOneScoresheet,
-  updateScoresheetRemarks
+  updateScoresheetRemarks,
+  getReportCard
 }

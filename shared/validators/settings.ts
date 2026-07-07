@@ -38,6 +38,8 @@ export const GradeBoundarySchema = z.object({
   remark: z.string().min(1)
 })
 
+export type GradeBoundary = z.infer<typeof GradeBoundarySchema>
+
 const ResultSettingsBaseSchema = z.object({
   gradeBoundaries: z.array(GradeBoundarySchema).min(1),
   positionDisplayMode: z.enum(positionDisplayMode),

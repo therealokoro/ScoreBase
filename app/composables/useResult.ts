@@ -98,3 +98,14 @@ export const useBulkUpdateSubjectScores = () => {
   const { $orpc } = useNuxtApp()
   return useMutation($orpc.subjectScore.bulkUpdateSubjectScores.mutationOptions())
 }
+
+export const useGetReportCard = (scoresheetId: MaybeRefOrGetter<string>) => {
+  const { $orpc } = useNuxtApp()
+  return useQuery(
+    computed(() =>
+      $orpc.scoresheet.getReportCard.queryOptions({
+        input: { id: toValue(scoresheetId) }
+      })
+    )
+  )
+}
