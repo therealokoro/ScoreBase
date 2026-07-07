@@ -110,8 +110,6 @@ const sharedStyles = "rounded-lg border bg-card p-4 grid grid-cols-2 md:grid-col
             </UiTableRow>
           </UiTableBody>
         </UiTable>
-
-        <UiScrollBar orientation="horizontal" />
       </UiScrollArea>
     </div>
 
