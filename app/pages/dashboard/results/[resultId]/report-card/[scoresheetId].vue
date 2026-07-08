@@ -26,16 +26,19 @@ function initPrintAction() {
     :loading="isPending"
     :error="error"
   >
-    <div class="flex justify-end">
-      <div class="flex items-center gap-2 print:hidden">
+    <div class="flex items-center justify-between gap-2 print:hidden">
+      <UiButton :icon="ICONS.scoresheet" :to="`/dashboard/results/${resultId}/${scoresheetId}`">
+        Edit {{ card?.computed.studentName }}'s Scores
+      </UiButton>
+
+      <div class="flex items-center gap-3">
         <UiButton
-          variant="outline"
+          variant="ghost"
           :icon="ICONS.previous"
           :to="`/dashboard/results/${resultId}/report-card`"
         >
           All Students
         </UiButton>
-
         <UiButton :icon="ICONS.print" @click="initPrintAction()">Print</UiButton>
       </div>
     </div>
