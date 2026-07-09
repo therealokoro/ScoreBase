@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+useHead({
+  title: "Welcome to ScoreBase - The smart school result management system"
+})
+</script>
 
 <template>
   <UiContainer class="relative h-screen">
