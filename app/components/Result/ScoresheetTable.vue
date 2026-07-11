@@ -16,10 +16,47 @@ type ScoresheetRow = {
 
 const props = defineProps<{ result: ResultWithDetail; loading?: boolean }>()
 
-// Per-scoresheet completion — fraction of subject scores that are fully
-// entered (both CAs and exam filled in) out of total subjects on the sheet
-// ---------------------------------------------------------------------------
+const route = useRoute()
+const router = useRouter()
 
+// ── URL-persisted state ───────────────────────────────────────────────────
+// pageIndex is 0-based internally (TanStack Table convention) but stored as
+// 1-based in the URL to match user expectations (?page=1, not ?page=0).
+const globalSearch = computed({
+  get: () => (route.query.q as string) || "",
+  set: (val) =>
+    router.replace({
+      query: { ...route.query, q: val || undefined, page: undefined }
+    })
+})
+
+const pageIndex = computed({
+  get: () => Math.max(0, (Number(route.query.page) || 1) - 1),
+  set: (val) =>
+    router.replace({
+      query: { ...route.query, page: val > 0 ? String(val + 1) : undefined }
+    })
+})
+
+const pageSize = computed({
+  get: () => Number(route.query.size) || 10,
+  set: (val) =>
+    router.replace({
+      query: { ...route.query, size: val !== 10 ? String(val) : undefined, page: undefined }
+    })
+})
+
+function onPaginationChange(p: { pageIndex: number; pageSize: number }) {
+  // Only push to URL if values actually changed to avoid redundant history entries
+  if (p.pageIndex !== pageIndex.value) pageIndex.value = p.pageIndex
+  if (p.pageSize !== pageSize.value) pageSize.value = p.pageSize
+}
+
+function onFilterChange(val: any) {
+  globalSearch.value = val
+}
+
+// ── Scoresheet computation ────────────────────────────────────────────────
 const { isScoreComplete } = useScoresheetHelpers()
 
 const scoresheets = computed(() => {
@@ -36,25 +73,23 @@ const scoresheets = computed(() => {
   })
 })
 
-const globalSearch = ref("")
+// ── Columns ───────────────────────────────────────────────────────────────
 const columnHelper = createColumnHelper<ScoresheetRow>()
 const columns = [
-  // Serial number — stays correct across pages
   columnHelper.display({
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination
-      return pageIndex * pageSize + row.index + 1
+      const { pageIndex: pi, pageSize: ps } = table.getState().pagination
+      return pi * ps + row.index + 1
     }
   }),
 
-  // Student name — links to the score entry page for that scoresheet
   columnHelper.accessor((row) => row.student?.name ?? "Unknown student", {
     id: "studentName",
     header: "Student",
-    cell: ({ row }) => {
-      return h(
+    cell: ({ row }) =>
+      h(
         UiButton,
         {
           variant: "link",
@@ -63,16 +98,13 @@ const columns = [
         },
         () => row.original.student?.name ?? "Unknown student"
       )
-    }
   }),
 
-  // Student ID — secondary identifying info, hidden on small screens via columnVisibility
   columnHelper.accessor((row) => row.student?.studentId ?? "—", {
     id: "studentId",
     header: "Student ID"
   }),
 
-  // Progress bar + percentage
   columnHelper.accessor("progress", {
     header: "Score Progress",
     cell: ({ getValue, row }) => {
@@ -90,7 +122,6 @@ const columns = [
     }
   }),
 
-  // Open action
   columnHelper.display({
     id: "action",
     header: "",
@@ -105,22 +136,20 @@ const columns = [
 ]
 
 const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("md")
-const columnVisibility = computed(() => ({
-  studentId: isDesktop.value
-}))
+const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="w-full flex items-center justify-between">
       <FormKit
-        v-model="globalSearch"
+        :model-value="globalSearch"
         type="search"
         prefix-icon="lucide:search"
         :classes="{ outer: 'mb-0 w-full md:w-1/2' }"
         placeholder="Search for a student"
+        @input="onFilterChange"
       />
-
       <slot name="toolbar" />
     </div>
 
@@ -131,9 +160,12 @@ const columnVisibility = computed(() => ({
         :loading="loading"
         :global-filter="globalSearch"
         :column-visibility="columnVisibility"
+        :initial-page-size="pageSize"
         :manual-pagination="false"
         :manual-filtering="false"
         :manual-sorting="false"
+        @update:pagination="onPaginationChange"
+        @update:global-filter="onFilterChange"
       >
         <template #empty>
           <span v-if="globalSearch">
