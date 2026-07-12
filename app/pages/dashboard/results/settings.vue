@@ -8,50 +8,40 @@ definePageMeta({ middleware: ["admin-only"] })
 const { data: settings, refetch } = useGetResultSettings()
 const setSettings = useUpdateResultSettings()
 
-// Helpers — transform between KV shape and FormKit shape
-// ---------------------------------------------------------------------------
 function toFormShape(s: typeof DEFAULT_RESULT_SETTINGS) {
-  // Build scoreDistribution group value from caMaxScores[] + examMax
   const scoreDistribution: Record<string, number> = { exam: s.examMax }
   s.caMaxScores.forEach((val, i) => {
     scoreDistribution[`ca_${i}`] = val
   })
-
   return {
     caCount: s.caCount,
     scoreDistribution,
     positionDisplayMode: s.positionDisplayMode,
     positionTopN: s.positionTopN
-    // gradeBoundaries intentionally excluded — handled by its own
-    // decoupled ref (gradeBoundaryRows) below, not by formData
   }
 }
 
-// Local mutable form model — always has a valid shape for FormKit
 const formData = ref(toFormShape(DEFAULT_RESULT_SETTINGS))
-
-// Grade boundaries live in their own ref, fully decoupled from formData,
-// so adding/removing/resetting rows never reassigns into FormKit's
-// internal readonly proxy (see addGradeBoundary etc. below)
 const gradeBoundaryRows = ref([...DEFAULT_GRADE_BOUNDARIES])
 const gradeBoundaryRenderKey = ref(0)
 
-// Sync stored settings to local settings variable when the query resolves
 watch(
   settings,
   (val) => {
     if (!val) return
     formData.value = toFormShape(val)
     gradeBoundaryRows.value = [...val.gradeBoundaries]
+    // Increment the render key every time settings resolve from the server so
+    // the FormKit list node unmounts and remounts, picking up the new :value.
+    // Without this, FormKit reads :value once on mount and ignores subsequent
+    // prop updates — causing the intermittent "fields not populated" bug.
+    gradeBoundaryRenderKey.value++
   },
   { immediate: true }
 )
 
-// Submit — transform FormKit shape back to KV shape
-// ---------------------------------------------------------------------------
 function handleSubmit(payload: any) {
   const { caCount, scoreDistribution, gradeBoundaries, ...rest } = payload
-  // Rebuilds the ca_0, ca_1... entries from the scoreDistribution object into an ordered caMaxScores[] array (sorted by index), separate from examMax.
   const caMaxScores = Object.entries(scoreDistribution)
     .filter(([key]) => key.startsWith("ca_"))
     .sort(([a], [b]) => Number(a.split("_")[1]) - Number(b.split("_")[1]))
@@ -77,8 +67,6 @@ function handleSubmit(payload: any) {
   )
 }
 
-// Position display
-// ---------------------------------------------------------------------------
 const showTopN = computed(() => formData.value.positionDisplayMode === "top")
 const positionDisplayOptions: PositionDisplayOption[] = [
   { value: "all", label: "Show for all students" },
@@ -86,21 +74,16 @@ const positionDisplayOptions: PositionDisplayOption[] = [
   { value: "none", label: "Never show position" }
 ]
 
-// Grade boundaries
-// ---------------------------------------------------------------------------
-// Adds a new empty grade boundary row
 function addGradeBoundary() {
   gradeBoundaryRows.value = [...gradeBoundaryRows.value, { label: "", min: 0, max: 0, remark: "" }]
   gradeBoundaryRenderKey.value++
 }
 
-// Removes a grade boundary row by index
 function removeGradeBoundary(index: number) {
   gradeBoundaryRows.value = gradeBoundaryRows.value.filter((_, i) => i !== index)
   gradeBoundaryRenderKey.value++
 }
 
-// Resets grade boundaries back to the default scale
 function resetGradeBoundaries() {
   gradeBoundaryRows.value = [...DEFAULT_GRADE_BOUNDARIES]
   gradeBoundaryRenderKey.value++
@@ -125,8 +108,6 @@ function resetGradeBoundaries() {
                 Set the number of CAs and their individual max scores. All values must sum to 100.
               </p>
             </div>
-
-            <!-- Distribution Inputs -->
             <div class="md:max-w-lg space-y-4">
               <FormKit
                 type="number"
@@ -143,7 +124,6 @@ function resetGradeBoundaries() {
                   between: 'Must be between 1 and 5'
                 }"
               />
-
               <SettingsScoreDistributionInput :ca-count="formData.caCount" />
             </div>
           </div>
@@ -191,7 +171,6 @@ function resetGradeBoundaries() {
               </p>
             </div>
 
-            <!-- Header row -->
             <div class="hidden md:grid grid-cols-[96px_96px_96px_1fr_32px] gap-3 px-1 mb-1">
               <span class="text-xs text-muted-foreground">Grade</span>
               <span class="text-xs text-muted-foreground">Min</span>
@@ -200,9 +179,6 @@ function resetGradeBoundaries() {
               <span />
             </div>
 
-            <!-- Actual Inputs — :value + :key on the list lets it remount cleanly
-                 whenever gradeBoundaryRows changes length, instead of writing
-                 into FormKit's internal array directly -->
             <div class="relative space-y-3">
               <FormKit
                 type="list"
@@ -210,11 +186,16 @@ function resetGradeBoundaries() {
                 :value="gradeBoundaryRows"
                 :key="gradeBoundaryRenderKey"
               >
-                <FormKit v-for="(boundary, index) in gradeBoundaryRows" :key="index" type="group">
+                <FormKit
+                  v-for="(boundary, index) in gradeBoundaryRows"
+                  :key="`${gradeBoundaryRenderKey}-${index}`"
+                  type="group"
+                >
                   <div class="flex items-end gap-3">
                     <FormKit
                       type="text"
                       name="label"
+                      :value="boundary.label"
                       :placeholder="boundary.label || 'e.g A'"
                       validation="required"
                       :classes="{ outer: 'mb-0 w-20 md:w-24', input: 'text-xs md:text-sm' }"
@@ -224,6 +205,7 @@ function resetGradeBoundaries() {
                     <FormKit
                       type="number"
                       name="min"
+                      :value="boundary.min"
                       :placeholder="String(boundary.min ?? 0)"
                       min="0"
                       max="100"
@@ -235,6 +217,7 @@ function resetGradeBoundaries() {
                     <FormKit
                       type="number"
                       name="max"
+                      :value="boundary.max"
                       :placeholder="String(boundary.max ?? 100)"
                       min="0"
                       max="100"
@@ -246,6 +229,7 @@ function resetGradeBoundaries() {
                     <FormKit
                       type="text"
                       name="remark"
+                      :value="boundary.remark"
                       :placeholder="boundary.remark || 'e.g Excellent'"
                       validation="required"
                       :classes="{
@@ -271,7 +255,6 @@ function resetGradeBoundaries() {
               </FormKit>
             </div>
 
-            <!-- Helper buttons -->
             <div class="flex items-center gap-3">
               <UiButton
                 type="button"
@@ -281,7 +264,6 @@ function resetGradeBoundaries() {
                 :icon="ICONS.add"
                 @click="addGradeBoundary"
               />
-
               <UiButton
                 type="button"
                 variant="outline"
@@ -293,7 +275,6 @@ function resetGradeBoundaries() {
             </div>
           </div>
 
-          <!-- Submit button -->
           <UiButton
             :loading="setSettings.isPending.value"
             type="submit"
