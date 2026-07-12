@@ -118,7 +118,7 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
     :error="error"
   >
     <div v-if="result" class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
         <FormKit
           :model-value="search"
           type="text"
@@ -128,42 +128,44 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
           @input="onFilterChange"
         />
 
-        <UiDropdownMenu>
-          <UiDropdownMenuTrigger as-child>
-            <UiButton variant="outline" class="gap-2">
-              <Icon :name="SORT_OPTIONS.find((o) => o.value === sort)!.icon" class="size-4" />
-              {{ SORT_OPTIONS.find((o) => o.value === sort)!.label }}
-              <Icon name="lucide:chevrons-up-down" class="size-3.5 text-muted-foreground" />
-            </UiButton>
-          </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent align="start" class="w-44">
-            <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
-            <UiDropdownMenuSeparator />
-            <UiDropdownMenuItem
-              v-for="opt in SORT_OPTIONS"
-              :key="opt.value"
-              class="gap-2"
-              @click="sort = opt.value"
-            >
-              <Icon :name="opt.icon" class="size-4 shrink-0" />
-              {{ opt.label }}
-              <Icon
-                v-if="sort === opt.value"
-                name="lucide:check"
-                class="size-4 ml-auto text-primary"
-              />
-            </UiDropdownMenuItem>
-          </UiDropdownMenuContent>
-        </UiDropdownMenu>
+        <div class="flex items-center gap-2">
+          <UiDropdownMenu>
+            <UiDropdownMenuTrigger as-child>
+              <UiButton variant="outline" class="gap-2" title="Sort Students">
+                <span>Sort: </span>
+                <Icon :name="SORT_OPTIONS.find((o) => o.value === sort)!.icon" class="size-3" />
+                <span>{{ SORT_OPTIONS.find((o) => o.value === sort)!.label }}</span>
+              </UiButton>
+            </UiDropdownMenuTrigger>
+            <UiDropdownMenuContent align="start" class="w-44">
+              <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+              <UiDropdownMenuSeparator />
+              <UiDropdownMenuItem
+                v-for="opt in SORT_OPTIONS"
+                :key="opt.value"
+                class="gap-2"
+                @click="sort = opt.value"
+              >
+                <Icon :name="opt.icon" class="size-4 shrink-0" />
+                {{ opt.label }}
+                <Icon
+                  v-if="sort === opt.value"
+                  name="lucide:check"
+                  class="size-4 ml-auto text-primary"
+                />
+              </UiDropdownMenuItem>
+            </UiDropdownMenuContent>
+          </UiDropdownMenu>
 
-        <UiButton
-          variant="outline"
-          :icon="ICONS.previous"
-          :to="`/dashboard/results/${resultId}`"
-          class="shrink-0 sm:ml-auto"
-        >
-          Back to Result
-        </UiButton>
+          <UiButton
+            variant="outline"
+            :icon="ICONS.previous"
+            :to="`/dashboard/results/${resultId}`"
+            class="shrink-0 sm:ml-auto"
+          >
+            Back to Result
+          </UiButton>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
