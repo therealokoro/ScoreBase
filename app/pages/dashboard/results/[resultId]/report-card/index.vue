@@ -14,27 +14,17 @@ setPageBreadcrumbLabels({
   [route.params.resultId as string]: computed(() => result.value?.name)
 })
 
-const PER_PAGE = 10
-
 type SortMode = "alpha" | "completed" | "rank"
 type Scoresheet = ResultWithDetail["scoresheets"][number]
 
-const search = computed({
-  get: () => (route.query.q as string) || "",
-  set: (val) =>
-    router.replace({
-      query: { ...route.query, q: val || undefined, page: undefined }
-    })
+const { search, page, pagination, onFilterChange } = useUrlTableState({
+  mode: "client",
+  searchKey: "q",
+  pageKey: "page",
+  defaultPageSize: 10
 })
 
-const page = computed({
-  get: () => Number(route.query.page) || 1,
-  set: (val) =>
-    router.replace({
-      query: { ...route.query, page: val > 1 ? String(val) : undefined }
-    })
-})
-
+// Sort is domain-specific to this page so it lives outside the composable
 const sort = computed({
   get: () => ((route.query.sort as string) || "alpha") as SortMode,
   set: (val) =>
@@ -43,10 +33,8 @@ const sort = computed({
     })
 })
 
-// ── Per-scoresheet computation ─────────────────────────────────────────────
-// Mirrors the logic in shared/utils/report-card.ts but inlined here so this
-// page has no server-module dependency. We only need total and completion
-// flag — not grades, position labels, or the full computed shape.
+const PER_PAGE = 10
+
 function getStudentTotal(sheet: Scoresheet): number | null {
   let total = 0
   for (const score of sheet.subjectScores) {
@@ -62,8 +50,6 @@ function isComplete(sheet: Scoresheet): boolean {
   return sheet.subjectScores.every((s) => s.caScores.every((c) => c !== null) && s.exam !== null)
 }
 
-// Rank map: studentId → 1-based dense rank (equal totals share same rank).
-// Incomplete students are unranked (undefined in map).
 const rankMap = computed(() => {
   const sheets = result.value?.scoresheets ?? []
   const totals = sheets
@@ -71,14 +57,12 @@ const rankMap = computed(() => {
     .filter((s): s is { id: string; total: number } => s.total !== null)
 
   const unique = [...new Set(totals.map((t) => t.total))].sort((a, b) => b - a)
+
   const map = new Map<string, number>()
-  for (const { id, total } of totals) {
-    map.set(id, unique.indexOf(total) + 1)
-  }
+  for (const { id, total } of totals) map.set(id, unique.indexOf(total) + 1)
   return map
 })
 
-// ── Filter → sort → paginate ───────────────────────────────────────────────
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
   const all = result.value?.scoresheets ?? []
@@ -97,14 +81,10 @@ const sorted = computed(() => {
   }
   if (sort.value === "completed") {
     return list.sort((a, b) => {
-      const ac = isComplete(a) ? 0 : 1
-      const bc = isComplete(b) ? 0 : 1
-      if (ac !== bc) return ac - bc
-      // Secondary sort alphabetically within each group
-      return a.student.name.localeCompare(b.student.name)
+      const diff = (isComplete(a) ? 0 : 1) - (isComplete(b) ? 0 : 1)
+      return diff !== 0 ? diff : a.student.name.localeCompare(b.student.name)
     })
   }
-  // rank: complete students first by rank ascending, incomplete last alphabetically
   return list.sort((a, b) => {
     const ar = rankMap.value.get(a.student.id)
     const br = rankMap.value.get(b.student.id)
@@ -119,7 +99,7 @@ const total = computed(() => sorted.value.length)
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PER_PAGE)))
 
 const paginated = computed(() => {
-  const start = (page.value - 1) * PER_PAGE
+  const start = pagination.value.pageIndex * PER_PAGE
   return sorted.value.slice(start, start + PER_PAGE)
 })
 
@@ -138,53 +118,46 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
     :error="error"
   >
     <div v-if="result" class="space-y-4">
-      <!-- Toolbar -->
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <!-- Search -->
-          <FormKit
-            :model-value="search"
-            type="text"
-            placeholder="Search by name or student ID..."
-            outer-class="!mb-0 flex-1 md:w-lg"
-            input-class="text-xs sm:text-sm h-8"
-            :prefix-icon="ICONS.search"
-            @input="(e) => (search = e as string)"
-          />
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <FormKit
+          :model-value="search"
+          type="text"
+          placeholder="Search by name or student ID..."
+          outer-class="!mb-0 w-full sm:max-w-xs"
+          prefix-icon="heroicons:magnifying-glass"
+          @input="onFilterChange"
+        />
 
-          <!-- Sort dropdown -->
-          <UiDropdownMenu>
-            <UiDropdownMenuTrigger as-child>
-              <UiButton variant="outline" class="gap-2">
-                <Icon :name="SORT_OPTIONS.find((o) => o.value === sort)!.icon" class="size-3" />
-                {{ SORT_OPTIONS.find((o) => o.value === sort)!.label }}
-                <Icon name="lucide:chevrons-up-down" class="size-3 text-muted-foreground" />
-              </UiButton>
-            </UiDropdownMenuTrigger>
-
-            <UiDropdownMenuContent align="start" class="w-44">
-              <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
-              <UiDropdownMenuSeparator />
-              <UiDropdownMenuItem
-                v-for="opt in SORT_OPTIONS"
-                :key="opt.value"
-                class="gap-2"
-                @click="sort = opt.value"
-              >
-                <Icon :name="opt.icon" class="size-3 shrink-0" />
-                <span class="text-xs">{{ opt.label }}</span>
-                <Icon
-                  v-if="sort === opt.value"
-                  name="lucide:check"
-                  class="size-3 ml-auto text-primary"
-                />
-              </UiDropdownMenuItem>
-            </UiDropdownMenuContent>
-          </UiDropdownMenu>
-        </div>
+        <UiDropdownMenu>
+          <UiDropdownMenuTrigger as-child>
+            <UiButton variant="outline" class="gap-2">
+              <Icon :name="SORT_OPTIONS.find((o) => o.value === sort)!.icon" class="size-4" />
+              {{ SORT_OPTIONS.find((o) => o.value === sort)!.label }}
+              <Icon name="lucide:chevrons-up-down" class="size-3.5 text-muted-foreground" />
+            </UiButton>
+          </UiDropdownMenuTrigger>
+          <UiDropdownMenuContent align="start" class="w-44">
+            <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+            <UiDropdownMenuSeparator />
+            <UiDropdownMenuItem
+              v-for="opt in SORT_OPTIONS"
+              :key="opt.value"
+              class="gap-2"
+              @click="sort = opt.value"
+            >
+              <Icon :name="opt.icon" class="size-4 shrink-0" />
+              {{ opt.label }}
+              <Icon
+                v-if="sort === opt.value"
+                name="lucide:check"
+                class="size-4 ml-auto text-primary"
+              />
+            </UiDropdownMenuItem>
+          </UiDropdownMenuContent>
+        </UiDropdownMenu>
 
         <UiButton
-          variant="ghost"
+          variant="outline"
           :icon="ICONS.previous"
           :to="`/dashboard/results/${resultId}`"
           class="shrink-0 sm:ml-auto"
@@ -193,7 +166,6 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
         </UiButton>
       </div>
 
-      <!-- Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <NuxtLink
           v-for="sheet in paginated"
@@ -212,22 +184,17 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
               <p class="text-xs text-muted-foreground">{{ sheet.student.studentId }}</p>
             </div>
           </div>
-
           <div class="flex items-center gap-2 shrink-0">
-            <!-- Completion badge -->
             <span
               v-if="isComplete(sheet)"
               class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              >Complete</span
             >
-              Complete
-            </span>
-            <!-- Rank badge when in rank mode and ranked -->
             <span
               v-if="sort === 'rank' && rankMap.get(sheet.student.id)"
               class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400"
+              >#{{ rankMap.get(sheet.student.id) }}</span
             >
-              #{{ rankMap.get(sheet.student.id) }}
-            </span>
             <Icon :name="ICONS.forward" class="size-4 text-muted-foreground" />
           </div>
         </NuxtLink>
@@ -242,7 +209,6 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
         />
       </div>
 
-      <!-- Pagination -->
       <UiPagination
         v-if="totalPages > 1"
         :page="page"

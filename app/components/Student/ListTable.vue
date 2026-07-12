@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { createColumnHelper } from "@tanstack/vue-table"
-import { refDebounced, breakpointsTailwind, useDebounceFn } from "@vueuse/core"
+import { breakpointsTailwind } from "@vueuse/core"
 import { ICONS } from "~~/shared/constants/icons"
 import { type UpsertStudentInput } from "~~/shared/validators/academic"
 
@@ -20,21 +20,17 @@ const props = withDefaults(defineProps<{ classId?: string; showCreateButton?: bo
   showCreateButton: true
 })
 
-const route = useRoute()
-const router = useRouter()
-
-const globalSearch = ref((route.query.search as string) ?? "")
-const pagination = ref({
-  pageIndex: Number(route.query.page ?? 0),
-  pageSize: Number(route.query.pageSize ?? 10)
+const { search, debouncedSearch, pagination, onPaginationChange } = useUrlTableState({
+  mode: "server",
+  searchKey: "search",
+  pageKey: "page",
+  sizeKey: "pageSize",
+  defaultPageSize: 10,
+  debounce: 1000
 })
-
-// Debounced copy of search — avoids firing a request on every keystroke
-const debouncedSearch = refDebounced(globalSearch, 1000)
 
 const { $orpc } = useNuxtApp()
 const { data, pending, refresh } = useLazyAsyncData(
-  // Static but unique key per usage — scoped by classId when on a class page
   `student-list${props.classId ? `-${props.classId}` : ""}`,
   () =>
     $orpc.student.query.call({
@@ -43,54 +39,18 @@ const { data, pending, refresh } = useLazyAsyncData(
       search: debouncedSearch.value || undefined,
       classId: props.classId || undefined
     }),
-  // Re-run whenever pagination changes or debounced search settles
   { watch: [pagination, debouncedSearch] }
 )
 
-// Safely derived page count — never undefined or negative
 const pageCount = computed(() => data.value?.pageCount ?? 1)
 
-// Clamp pageIndex if the current page exceeds the total after a fetch
-// (e.g. user was on page 5, then searched and got only 1 page of results)
+// Clamp pageIndex if the current page exceeds total after a search narrows results
 watch(pageCount, (count) => {
   if (pagination.value.pageIndex >= count) {
-    pagination.value = { ...pagination.value, pageIndex: 0 }
+    onPaginationChange({ ...pagination.value, pageIndex: 0 })
   }
 })
 
-// Debounced push — collapses rapid pagination clicks into a single history entry
-const pushQuery = useDebounceFn((p: typeof pagination.value, s: string) => {
-  router.push({
-    query: {
-      ...route.query,
-      page: p.pageIndex > 0 ? String(p.pageIndex) : undefined,
-      pageSize: p.pageSize !== 10 ? String(p.pageSize) : undefined,
-      search: s || undefined
-    }
-  })
-}, 300)
-
-// Sync table state → URL
-watch([pagination, debouncedSearch], ([p, s]) => pushQuery(p, s))
-
-// Sync URL → table state (handles browser back/forward)
-watch(
-  () => route.query,
-  (query) => {
-    pagination.value = {
-      pageIndex: Number(query.page ?? 0),
-      pageSize: Number(query.pageSize ?? 10)
-    }
-    globalSearch.value = (query.search as string) ?? ""
-  }
-)
-
-// Reset to first page when search term changes so results start from the top
-watch(debouncedSearch, () => {
-  pagination.value = { ...pagination.value, pageIndex: 0 }
-})
-
-// Format dates before passing to the table
 const students = computed(
   () =>
     data.value?.data.map((s) => ({
@@ -114,8 +74,6 @@ async function handleCreateStudent(payload: UpsertStudentInput) {
   })
 }
 
-// When classId is provided, pre-fill it in the create form and lock the field
-// so the user can't assign the student to a different class by mistake
 const createFormInitialData = computed<any>(() =>
   props.classId ? { classId: props.classId } : undefined
 )
@@ -124,16 +82,12 @@ const columnHelper = createColumnHelper<Student>()
 const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("lg")
 
 const columnVisibility = computed(() => ({
-  // Secondary columns — only visible on large screens
   phoneNumber: isDesktop.value,
   studentId: isDesktop.value,
-  // Class column is redundant when already filtered by a specific class
   class: !props.classId
 }))
 
-// Table columns
 const columns = [
-  // Serial number — stays correct across pages
   columnHelper.display({
     id: "serial",
     header: "#",
@@ -143,17 +97,14 @@ const columns = [
     }
   }),
 
-  // Clicking a student's name navigates to their detail page
   columnHelper.accessor("name", {
     header: "Full Name",
-    cell: ({ getValue, row }) => {
-      return h(UiButton, { variant: "link", to: `/dashboard/students/${row.original.id}` }, () =>
+    cell: ({ getValue, row }) =>
+      h(UiButton, { variant: "link", to: `/dashboard/students/${row.original.id}` }, () =>
         getValue()
       )
-    }
   }),
 
-  // Class badge — links to the class page; hidden when classId prop is set
   columnHelper.accessor("class", {
     header: "Class",
     cell: ({ row }) =>
@@ -164,20 +115,14 @@ const columns = [
       )
   }),
 
-  // Optional fields — show a badge when empty instead of blank cells
   columnHelper.accessor("studentId", {
     header: "Student ID",
-    cell: ({ getValue }) => {
-      const val = getValue()
-      return val ?? h(UiBadge, { variant: "outline" }, () => "No Value")
-    }
+    cell: ({ getValue }) => getValue() ?? h(UiBadge, { variant: "outline" }, () => "No Value")
   }),
+
   columnHelper.accessor("phoneNumber", {
     header: "Phone Number",
-    cell: ({ getValue }) => {
-      const val = getValue()
-      return val ?? h(UiBadge, { variant: "outline" }, () => "No Number")
-    }
+    cell: ({ getValue }) => getValue() ?? h(UiBadge, { variant: "outline" }, () => "No Number")
   }),
 
   columnHelper.accessor("createdAt", { header: "Registered" })
@@ -186,11 +131,10 @@ const columns = [
 
 <template>
   <div class="space-y-4">
-    <!-- Toolbar: search + optional create button -->
     <div class="flex w-full items-center justify-between">
       <div class="w-1/2">
         <FormKit
-          v-model="globalSearch"
+          v-model="search"
           type="search"
           prefix-icon="lucide:search"
           :classes="{ outer: 'mb-0' }"
@@ -217,12 +161,11 @@ const columns = [
         :manual-pagination="true"
         :column-visibility="columnVisibility"
         :initial-page-size="pagination.pageSize"
-        @update:pagination="(p: any) => (pagination = p)"
+        @update:pagination="onPaginationChange"
       >
-        <!-- Contextual empty state depending on whether a search is active -->
         <template #empty>
-          <span v-if="globalSearch">
-            No students found for "<strong>{{ globalSearch }}</strong
+          <span v-if="search">
+            No students found for "<strong>{{ search }}</strong
             >"
           </span>
           <span v-else>No students yet to display.</span>

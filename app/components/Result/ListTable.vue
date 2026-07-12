@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { createColumnHelper } from "@tanstack/vue-table"
-import { refDebounced, breakpointsTailwind, useDebounceFn } from "@vueuse/core"
+import { breakpointsTailwind } from "@vueuse/core"
 
 import ResultStatusBadge from "~/components/Result/StatusBadge.vue"
 import UiBadge from "~/components/Ui/Badge.vue"
@@ -18,56 +18,16 @@ type Result = {
 
 const props = defineProps<{ classId?: string }>()
 
-const route = useRoute()
-const router = useRouter()
-
-// Initial state read from the URL on load — same as before
-const globalSearch = ref((route.query.search as string) ?? "")
-const pagination = ref({
-  pageIndex: Number(route.query.page ?? 0),
-  pageSize: Number(route.query.pageSize ?? 10)
+const { search, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
+  mode: "client",
+  searchKey: "search",
+  pageKey: "page",
+  sizeKey: "pageSize",
+  defaultPageSize: 10
 })
-
-// Debounced copy of search — avoids pushing a new URL entry on every keystroke.
-// Note: this only debounces the URL write, not the actual filtering — the
-// table filters instantly off globalSearch since everything is client-side.
-const debouncedSearch = refDebounced(globalSearch, 300)
 
 const { data, isPending } = useListResults()
 
-// Debounced push — collapses rapid pagination clicks into a single history entry
-const pushQuery = useDebounceFn((p: typeof pagination.value, s: string) => {
-  router.push({
-    query: {
-      ...route.query,
-      page: p.pageIndex > 0 ? String(p.pageIndex) : undefined,
-      pageSize: p.pageSize !== 10 ? String(p.pageSize) : undefined,
-      search: s || undefined
-    }
-  })
-}, 300)
-
-// Sync table state → URL (no refetch involved — purely cosmetic/shareable state)
-watch([pagination, debouncedSearch], ([p, s]) => pushQuery(p, s))
-
-// Sync URL → table state (handles browser back/forward)
-watch(
-  () => route.query,
-  (query) => {
-    pagination.value = {
-      pageIndex: Number(query.page ?? 0),
-      pageSize: Number(query.pageSize ?? 10)
-    }
-    globalSearch.value = (query.search as string) ?? ""
-  }
-)
-
-// Reset to first page when search term changes so results start from the top
-watch(globalSearch, () => {
-  pagination.value = { ...pagination.value, pageIndex: 0 }
-})
-
-// Format dates before passing to the table
 const results = computed(() => {
   return (
     data.value?.map((c) => ({
@@ -104,8 +64,8 @@ const columns = [
 
   columnHelper.accessor("name", {
     header: "Name",
-    cell: ({ getValue, row }) => {
-      return h(
+    cell: ({ getValue, row }) =>
+      h(
         UiButton,
         {
           variant: "link",
@@ -114,16 +74,13 @@ const columns = [
         },
         () => getValue()
       )
-    }
   }),
 
   columnHelper.accessor("term", { header: "Term" }),
 
   columnHelper.accessor("status", {
     header: "Status",
-    cell: ({ getValue }) => {
-      return h(ResultStatusBadge, { status: getValue() as any })
-    }
+    cell: ({ getValue }) => h(ResultStatusBadge, { status: getValue() as any })
   }),
 
   columnHelper.accessor("class", {
@@ -144,11 +101,12 @@ const columns = [
   <div class="space-y-4">
     <div class="w-1/2">
       <FormKit
-        v-model="globalSearch"
+        :model-value="search"
         type="search"
         prefix-icon="lucide:search"
         :classes="{ outer: 'mb-0' }"
         placeholder="Search for a result"
+        @input="onFilterChange"
       />
     </div>
 
@@ -157,17 +115,18 @@ const columns = [
         :columns
         :data="results"
         :loading="isPending"
-        v-model:global-filter="globalSearch"
+        :global-filter="search"
         :column-visibility="columnVisibility"
         :initial-page-size="pagination.pageSize"
         :manual-pagination="false"
         :manual-filtering="false"
         :manual-sorting="false"
-        @update:pagination="(p) => (pagination = p)"
+        @update:pagination="onPaginationChange"
+        @update:global-filter="onFilterChange"
       >
         <template #empty>
-          <span v-if="globalSearch">
-            No results found for "<strong>{{ globalSearch }}</strong
+          <span v-if="search">
+            No results found for "<strong>{{ search }}</strong
             >"
           </span>
           <span v-else>No results yet to display.</span>

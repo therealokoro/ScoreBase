@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { createColumnHelper } from "@tanstack/vue-table"
 import { breakpointsTailwind } from "@vueuse/core"
 import type { ResultWithDetail } from "~~/shared/validators/scoresheet"
@@ -16,47 +16,13 @@ type ScoresheetRow = {
 
 const props = defineProps<{ result: ResultWithDetail; loading?: boolean }>()
 
-const route = useRoute()
-const router = useRouter()
-
-// ── URL-persisted state ───────────────────────────────────────────────────
-// pageIndex is 0-based internally (TanStack Table convention) but stored as
-// 1-based in the URL to match user expectations (?page=1, not ?page=0).
-const globalSearch = computed({
-  get: () => (route.query.q as string) || "",
-  set: (val) =>
-    router.replace({
-      query: { ...route.query, q: val || undefined, page: undefined }
-    })
+const { search, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
+  mode: "client",
+  searchKey: "q",
+  pageKey: "page",
+  sizeKey: "size"
 })
 
-const pageIndex = computed({
-  get: () => Math.max(0, (Number(route.query.page) || 1) - 1),
-  set: (val) =>
-    router.replace({
-      query: { ...route.query, page: val > 0 ? String(val + 1) : undefined }
-    })
-})
-
-const pageSize = computed({
-  get: () => Number(route.query.size) || 10,
-  set: (val) =>
-    router.replace({
-      query: { ...route.query, size: val !== 10 ? String(val) : undefined, page: undefined }
-    })
-})
-
-function onPaginationChange(p: { pageIndex: number; pageSize: number }) {
-  // Only push to URL if values actually changed to avoid redundant history entries
-  if (p.pageIndex !== pageIndex.value) pageIndex.value = p.pageIndex
-  if (p.pageSize !== pageSize.value) pageSize.value = p.pageSize
-}
-
-function onFilterChange(val: any) {
-  globalSearch.value = val
-}
-
-// ── Scoresheet computation ────────────────────────────────────────────────
 const { isScoreComplete } = useScoresheetHelpers()
 
 const scoresheets = computed(() => {
@@ -73,7 +39,6 @@ const scoresheets = computed(() => {
   })
 })
 
-// ── Columns ───────────────────────────────────────────────────────────────
 const columnHelper = createColumnHelper<ScoresheetRow>()
 const columns = [
   columnHelper.display({
@@ -143,7 +108,7 @@ const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
   <div class="space-y-4">
     <div class="w-full flex items-center justify-between">
       <FormKit
-        :model-value="globalSearch"
+        :model-value="search"
         type="search"
         prefix-icon="lucide:search"
         :classes="{ outer: 'mb-0 w-full md:w-1/2' }"
@@ -158,9 +123,9 @@ const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
         :columns
         :data="scoresheets"
         :loading="loading"
-        :global-filter="globalSearch"
+        :global-filter="search"
         :column-visibility="columnVisibility"
-        :initial-page-size="pageSize"
+        :initial-page-size="pagination.pageSize"
         :manual-pagination="false"
         :manual-filtering="false"
         :manual-sorting="false"
@@ -168,8 +133,8 @@ const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
         @update:global-filter="onFilterChange"
       >
         <template #empty>
-          <span v-if="globalSearch">
-            No students found for "<strong>{{ globalSearch }}</strong
+          <span v-if="search">
+            No students found for "<strong>{{ search }}</strong
             >"
           </span>
           <span v-else>No scoresheets found for this result.</span>
