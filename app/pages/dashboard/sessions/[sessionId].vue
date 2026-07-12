@@ -80,7 +80,7 @@ async function selectTerm(term: ITerm) {
             v-for="item in results"
             :title="item.name"
             :link="`/dashboard/results/${item.id}`"
-            :description="item.submittedBy ? `Submitted By ${item.submittedBy}` : undefined"
+            :description="item.submittedBy ? `Submitted By ${item.submittedBy.name}` : undefined"
           />
         </template>
         <!-- When term doesn't have a result -->
