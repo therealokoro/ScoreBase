@@ -4,6 +4,7 @@ import { breakpointsTailwind } from "@vueuse/core"
 
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 type Student = {
   id: string
@@ -16,7 +17,7 @@ type Student = {
 
 defineProps<{ data: Student[] }>()
 
-const columnHelper = createColumnHelper<Student>()
+const columnHelper = createColumnHelper<TanStackTableFeatures, Student>()
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isDesktop = breakpoints.greaterOrEqual("lg")
 
@@ -32,7 +33,7 @@ const columns = [
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination
+      const { pageIndex, pageSize } = table.atoms.pagination.get()
       return pageIndex * pageSize + row.index + 1
     }
   }),

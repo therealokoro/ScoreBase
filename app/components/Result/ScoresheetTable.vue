@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { createColumnHelper } from "@tanstack/vue-table"
 import { breakpointsTailwind } from "@vueuse/core"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 import type { ResultWithDetail } from "~~/shared/validators/scoresheet"
 
 import UiButton from "~/components/Ui/Button.vue"
@@ -39,13 +40,13 @@ const scoresheets = computed(() => {
   })
 })
 
-const columnHelper = createColumnHelper<ScoresheetRow>()
+const columnHelper = createColumnHelper<TanStackTableFeatures, ScoresheetRow>()
 const columns = [
   columnHelper.display({
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex: pi, pageSize: ps } = table.getState().pagination
+      const { pageIndex: pi, pageSize: ps } = table.atoms.pagination.get()
       return pi * ps + row.index + 1
     }
   }),

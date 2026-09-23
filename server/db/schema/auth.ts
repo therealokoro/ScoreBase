@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core"
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core"
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core"
 
 import { classes } from "."
@@ -58,6 +58,9 @@ export const account = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    // --- FIX: Added issuer column ---
+    issuer: text("issuer").notNull(),
+    // --------------------------------
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
@@ -76,7 +79,12 @@ export const account = sqliteTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull()
   },
-  (table) => [index("account_userId_idx").on(table.userId)]
+  (table) => [
+    index("account_userId_idx").on(table.userId),
+    // --- FIX: Added unique index for issuer and accountId ---
+    uniqueIndex("account_issuer_accountId_uidx").on(table.issuer, table.accountId)
+    // -----------------------------------------------------
+  ]
 )
 
 export const verification = sqliteTable(

@@ -5,6 +5,7 @@ import { breakpointsTailwind } from "@vueuse/core"
 import ResultStatusBadge from "~/components/Result/StatusBadge.vue"
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 type Result = {
   id: string
@@ -42,7 +43,7 @@ const results = computed(() => {
   )
 })
 
-const columnHelper = createColumnHelper<Result>()
+const columnHelper = createColumnHelper<TanStackTableFeatures, Result>()
 const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("lg")
 
 const columnVisibility = computed(() => ({
@@ -57,7 +58,7 @@ const columns = [
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination
+      const { pageIndex, pageSize } = table.atoms.pagination.get()
       return pageIndex * pageSize + row.index + 1
     }
   }),

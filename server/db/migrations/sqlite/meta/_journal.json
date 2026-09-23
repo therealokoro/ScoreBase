@@ -22,6 +22,13 @@
       "when": 1782215747385,
       "tag": "0002_light_thunderbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790183723355,
+      "tag": "0003_pink_fixer",
+      "breakpoints": true
     }
   ]
 }

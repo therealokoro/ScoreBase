@@ -6,6 +6,7 @@ import { type UpsertStudentInput } from "~~/shared/validators/academic"
 
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 type Student = {
   id: string
@@ -78,7 +79,7 @@ const createFormInitialData = computed<any>(() =>
   props.classId ? { classId: props.classId } : undefined
 )
 
-const columnHelper = createColumnHelper<Student>()
+const columnHelper = createColumnHelper<TanStackTableFeatures, Student>()
 const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("lg")
 
 const columnVisibility = computed(() => ({
@@ -92,7 +93,7 @@ const columns = [
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination
+      const { pageIndex, pageSize } = table.atoms.pagination.get()
       return pageIndex * pageSize + row.index + 1
     }
   }),

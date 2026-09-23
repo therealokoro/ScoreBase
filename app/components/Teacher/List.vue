@@ -5,18 +5,19 @@ import { breakpointsTailwind } from "@vueuse/core"
 import AppEntityActionDropdown from "~/components/App/EntityActionDropdown.vue"
 import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 const props = defineProps<{ teachers: ITeacher[]; loading?: boolean }>()
 const emit = defineEmits(["edit", "delete"])
 
-const columnHelper = createColumnHelper<ITeacher>()
+const columnHelper = createColumnHelper<TanStackTableFeatures, ITeacher>()
 const columns = [
   // Serial number — stays correct across pages
   columnHelper.display({
     id: "serial",
     header: "#",
     cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination
+      const { pageIndex, pageSize } = table.atoms.pagination.get()
       return pageIndex * pageSize + row.index + 1
     }
   }),

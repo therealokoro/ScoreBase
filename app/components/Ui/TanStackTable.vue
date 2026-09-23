@@ -36,10 +36,7 @@
                     @click="header.column.getToggleSortingHandler()?.($event)"
                   >
                     <span class="text-xs md:text-sm">
-                      <FlexRender
-                        :render="header.column.columnDef.header"
-                        :props="header.getContext()"
-                      />
+                      <FlexRender :header="header" />
                     </span>
                     <UiTooltip>
                       <UiTooltipTrigger>
@@ -69,10 +66,7 @@
                     </UiTooltip>
                   </div>
                   <div v-else class="flex items-center gap-2">
-                    <FlexRender
-                      :render="header.column.columnDef.header"
-                      :props="header.getContext()"
-                    />
+                    <FlexRender :header="header" />
                   </div>
                   <UiTooltip>
                     <UiDropdownMenu v-if="shouldShowColumnPinButton(header.column)">
@@ -93,16 +87,16 @@
                       </UiTooltipContent>
                       <UiDropdownMenuContent align="end" :side-offset="6">
                         <UiDropdownMenuItem
-                          :title="getPinLabel('left')"
+                          :title="getPinLabel('start')"
                           :icon="props.columnPinIconOn"
-                          :disabled="header.column.getIsPinned() == 'left'"
-                          @select="() => pinColumn(header.column, 'left')"
+                          :disabled="header.column.getIsPinned() === 'start'"
+                          @select="() => pinColumn(header.column, 'start')"
                         />
                         <UiDropdownMenuItem
-                          :title="getPinLabel('right')"
+                          :title="getPinLabel('end')"
                           :icon="props.columnPinIconOn"
-                          :disabled="header.column.getIsPinned() == 'right'"
-                          @select="() => pinColumn(header.column, 'right')"
+                          :disabled="header.column.getIsPinned() === 'end'"
+                          @select="() => pinColumn(header.column, 'end')"
                         />
                         <UiDropdownMenuItem
                           :title="getPinLabel(false)"
@@ -212,7 +206,7 @@
                     </UiTooltip>
                   </template>
                   <template v-else>
-                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                    <FlexRender :cell="cell" />
                   </template>
                 </slot>
               </UiTableCell>
@@ -255,7 +249,7 @@
                 :column="footer.column"
                 :table="table"
               >
-                <FlexRender :render="footer.column.columnDef.footer" :props="footer.getContext()" />
+                <FlexRender :footer="footer" />
               </slot>
             </template>
           </UiTableHead>
@@ -300,7 +294,7 @@
             v-if="showPageInfo"
             class="text-muted-foreground text-xs md:text-sm whitespace-nowrap"
           >
-            Page {{ table.getState().pagination.pageIndex + 1 }} of
+            Page {{ table.atoms.pagination.get().pageIndex + 1 }} of
             {{ table.getPageCount() }}
           </div>
 
@@ -346,39 +340,85 @@
 
 <script lang="ts">
 import {
+  columnFacetingFeature,
+  columnFilteringFeature,
+  columnPinningFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  createExpandedRowModel,
+  createFacetedRowModel,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFns,
   FlexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useVueTable
+  globalFilteringFeature,
+  rowExpandingFeature,
+  rowPaginationFeature,
+  rowPinningFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFns,
+  tableFeatures,
+  useTable
 } from "@tanstack/vue-table"
 import type {
   Column,
   ColumnDef,
   ColumnFiltersState,
+  ColumnPinningPosition,
   ColumnPinningState,
+  ColumnVisibilityState,
   Row,
   RowData,
+  RowPinningPosition,
   RowPinningState,
   SortingState,
-  TableOptions,
-  VisibilityState
+  TableFeatures,
+  TableOptions
 } from "@tanstack/vue-table"
 import { startCase } from "lodash-es"
 import type { HTMLAttributes } from "vue"
 
+/**
+ * Explicit v9 feature registration for this table. Only the features this component actually
+ * renders UI for are included; `columnSizingFeature` is required alongside `columnPinningFeature`
+ * because sticky pinned offsets are computed from `column.getStart()`, and `columnFacetingFeature`
+ * backs `column.getFacetedRowModel()` for footer-total style column defs.
+ */
+export const tanStackTableFeatures = tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  columnFacetingFeature,
+  columnPinningFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  rowExpandingFeature,
+  rowPaginationFeature,
+  rowPinningFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  filteredRowModel: createFilteredRowModel(),
+  facetedRowModel: createFacetedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  expandedRowModel: createExpandedRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  filterFns,
+  sortFns
+})
+
+export type TanStackTableFeatures = typeof tanStackTableFeatures
+
 declare module "@tanstack/vue-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface ColumnMeta<TData extends RowData, TValue> {
+  interface ColumnMeta<TFeatures extends TableFeatures, TData extends RowData, TValue> {
     class?: {
       th?: HTMLAttributes["class"]
       td?: HTMLAttributes["class"]
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
+  interface TableMeta<TFeatures extends TableFeatures, TData extends RowData> {
     class?: {
       tr?: HTMLAttributes["class"]
     }
@@ -386,13 +426,13 @@ declare module "@tanstack/vue-table" {
 }
 </script>
 
-<script lang="ts" setup generic="T">
+<script lang="ts" setup generic="T extends RowData">
 const props = withDefaults(
   defineProps<{
     /** Array of data to display. */
     data?: T[]
     /** Column definitions. If not provided, columns will be auto-generated from data. */
-    columns?: ColumnDef<T, any>[]
+    columns?: ColumnDef<TanStackTableFeatures, T, any>[]
     /** Table class. */
     class?: HTMLAttributes["class"]
     /** Text to display when table is empty. */
@@ -430,7 +470,7 @@ const props = withDefaults(
     /** Show pin buttons in column headers. */
     showColumnPinButtons?: boolean
     /** Additional table options. */
-    tableOptions?: Partial<TableOptions<T>>
+    tableOptions?: Partial<TableOptions<TanStackTableFeatures, T>>
     /**
      * Text for "Rows per page" label.
      *
@@ -474,8 +514,15 @@ const props = withDefaults(
      */
     columnPinIconOff?: string
 
+    /**
+     * External column visibility state — lets the parent drive which columns are hidden, typically
+     * from a user-preferences store or a URL-synced ref.
+     */
     columnVisibility?: Record<string, boolean>
-    /** External global filter value — lets the parent control search (e.g. from a URL-synced ref). */
+    /**
+     * External global filter value — lets the parent control search, typically from a URL-synced
+     * ref so the query string stays shareable.
+     */
     globalFilter?: string
   }>(),
   {
@@ -511,7 +558,7 @@ const emit = defineEmits<{
    *
    * Provides the table instance.
    */
-  ready: [table: ReturnType<typeof useVueTable<T>>]
+  ready: [table: ReturnType<typeof useTable<TanStackTableFeatures, T>>]
   /** Emitted when pagination changes. */
   "update:pagination": [pagination: { pageIndex: number; pageSize: number }]
   /** Emitted when sorting changes. */
@@ -523,17 +570,17 @@ const emit = defineEmits<{
   /** Emitted when row pinning changes. */
   "update:rowPinning": [pinning: RowPinningState]
   /** Emitted when a row is pinned/unpinned via the pin cell. */
-  "row-pin": [payload: { row: any; pin: "top" | "bottom" | false }]
+  "row-pin": [payload: { row: any; pin: RowPinningPosition }]
   /** Emitted when column pinning changes. */
   "update:columnPinning": [pinning: ColumnPinningState]
   /** Emitted when a column is pinned/unpinned via header button. */
-  "column-pin": [payload: { column: any; pin: "left" | "right" | false }]
+  "column-pin": [payload: { column: any; pin: ColumnPinningPosition }]
   /** Emitted when the global filter changes. */
   "update:globalFilter": [value: string]
 }>()
 
 // Auto-generate columns from data if not provided
-const computedColumns = computed<ColumnDef<T, any>[]>(() => {
+const computedColumns = computed<ColumnDef<TanStackTableFeatures, T, any>[]>(() => {
   if (props.columns && props.columns.length > 0) {
     return props.columns
   }
@@ -553,18 +600,18 @@ const computedColumns = computed<ColumnDef<T, any>[]>(() => {
 
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
-const columnVisibility = ref<VisibilityState>(props.columnVisibility ?? {})
+const columnVisibility = ref<ColumnVisibilityState>(props.columnVisibility ?? {})
 const rowSelection = ref({})
 const globalFilter = ref("")
 const expanded = ref({})
-const rowPinning = ref<RowPinningState>({})
-const columnPinning = ref<ColumnPinningState>({})
+const rowPinning = ref<RowPinningState>({ top: [], bottom: [] })
+const columnPinning = ref<ColumnPinningState>({ start: [], end: [] })
 const pagination = ref({
   pageIndex: 0,
   pageSize: props.initialPageSize
 })
 
-// Sync when prop changes (e.g. on resize)
+// Sync when prop changes (e.g. from a user-preferences store or a resize event)
 watch(
   () => props.columnVisibility,
   (val) => {
@@ -582,7 +629,8 @@ watch(
   { immediate: true }
 )
 
-const table = useVueTable({
+const table = useTable({
+  features: tanStackTableFeatures,
   get data() {
     return props.data
   },
@@ -639,7 +687,7 @@ const table = useVueTable({
   onGlobalFilterChange: (updaterOrValue) => {
     globalFilter.value =
       typeof updaterOrValue === "function" ? updaterOrValue(globalFilter.value) : updaterOrValue
-    emit("update:globalFilter", globalFilter.value) // ← add this line
+    emit("update:globalFilter", globalFilter.value)
   },
   onPaginationChange: (updaterOrValue) => {
     pagination.value =
@@ -660,115 +708,113 @@ const table = useVueTable({
       typeof updaterOrValue === "function" ? updaterOrValue(columnPinning.value) : updaterOrValue
     emit("update:columnPinning", columnPinning.value)
   },
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getExpandedRowModel: getExpandedRowModel(),
+  // Any row can be expanded to reveal the `expanded-row` slot's detail
+  // content, regardless of whether it has subRows.
+  getRowCanExpand: () => true,
   enableRowPinning: props.enableRowPinning,
   enableColumnPinning: props.enableColumnPinning,
   manualPagination: props.manualPagination,
   manualSorting: props.manualSorting,
   manualFiltering: props.manualFiltering,
-  get pageCount() {
-    return props.manualPagination ? props.pageCount : undefined
-  },
+  pageCount: props.manualPagination ? props.pageCount : undefined,
   ...props.tableOptions
 })
 
 const pageSize = computed({
   get() {
-    return table.getState().pagination.pageSize.toString()
+    return table.atoms.pagination.get().pageSize.toString()
   },
   set(value: string) {
     table.setPageSize(Number(value))
   }
 })
 
-const shouldShowColumnPinButton = (column: Column<T, unknown>) => {
+const shouldShowColumnPinButton = (column: Column<TanStackTableFeatures, T, unknown>) => {
   return props.enableColumnPinning && props.showColumnPinButtons && column.getCanPin?.()
 }
 
-const getColumnPinIcon = (column: Column<T, unknown>) => {
+const getColumnPinIcon = (column: Column<TanStackTableFeatures, T, unknown>) => {
   const state = column.getIsPinned?.()
-  if (state === "left" || state === "right") return props.columnPinIconOn
+  if (state === "start" || state === "end") return props.columnPinIconOn
   return props.columnPinIconOff
 }
 
-const getColumnPinTooltipText = (column: Column<T, unknown>) => {
+const getColumnPinTooltipText = (column: Column<TanStackTableFeatures, T, unknown>) => {
   const state = column.getIsPinned?.()
-  if (state === "left") return "Currently pinned left"
-  if (state === "right") return "Currently pinned right"
+  if (state === "start") return "Currently pinned to start"
+  if (state === "end") return "Currently pinned to end"
   return "Not pinned"
 }
 
-const getPinLabel = (pin: "left" | "right" | false) => {
-  if (pin === "left") return "Pin to the left"
-  if (pin === "right") return "Pin to the right"
+const getPinLabel = (pin: ColumnPinningPosition) => {
+  if (pin === "start") return "Pin to the start"
+  if (pin === "end") return "Pin to the end"
   return "Unpin"
 }
 
-const pinColumn = (column: Column<T, unknown>, pin: "left" | "right" | false) => {
+const pinColumn = (
+  column: Column<TanStackTableFeatures, T, unknown>,
+  pin: ColumnPinningPosition
+) => {
   column.pin(pin)
   emit("column-pin", { column, pin })
 }
 
-const getRowPinTooltipText = (row: Row<T>) => {
+const getRowPinTooltipText = (row: Row<TanStackTableFeatures, T>) => {
   const state = row.getIsPinned()
   if (state === "top") return "Pinned top"
   if (state === "bottom") return "Pinned bottom"
   return "Not pinned"
 }
 
-const getRowPinLabel = (pin: "top" | "bottom" | false) => {
+const getRowPinLabel = (pin: RowPinningPosition) => {
   if (pin === "top") return "Pin to top"
   if (pin === "bottom") return "Pin to bottom"
   return "Unpin"
 }
 
-const pinRow = (row: Row<T>, pin: "top" | "bottom" | false) => {
+const pinRow = (row: Row<TanStackTableFeatures, T>, pin: RowPinningPosition) => {
   row.pin(pin)
   emit("row-pin", { row, pin })
 }
 
-const getPinnedHeaderStyle = (column: Column<T, unknown>) => {
+const getPinnedHeaderStyle = (column: Column<TanStackTableFeatures, T, unknown>) => {
   const pinned = column.getIsPinned?.()
   if (!pinned) return undefined
 
-  const isLeft = pinned === "left"
-  const offset = column.getStart?.(isLeft ? "left" : "right") ?? 0
+  const isStart = pinned === "start"
+  const offset = column.getStart?.(pinned) ?? 0
 
   return {
     position: "sticky",
-    [isLeft ? "left" : "right"]: `${offset}px`,
+    [isStart ? "insetInlineStart" : "insetInlineEnd"]: `${offset}px`,
     zIndex: 30,
     background: "var(--ui-table-pinned-bg, var(--background))",
-    boxShadow: isLeft ? "2px 0 6px -2px rgb(0 0 0 / 0.08)" : "-2px 0 6px -2px rgb(0 0 0 / 0.08)"
+    boxShadow: isStart ? "2px 0 6px -2px rgb(0 0 0 / 0.08)" : "-2px 0 6px -2px rgb(0 0 0 / 0.08)"
   } as const
 }
 
-const getPinnedColumnStyle = (column: Column<T, unknown>) => {
+const getPinnedColumnStyle = (column: Column<TanStackTableFeatures, T, unknown>) => {
   const pinned = column.getIsPinned?.()
   if (!pinned) return undefined
 
-  const isLeft = pinned === "left"
-  const offset = column.getStart?.(isLeft ? "left" : "right") ?? 0
+  const isStart = pinned === "start"
+  const offset = column.getStart?.(pinned) ?? 0
 
   return {
     position: "sticky",
-    [isLeft ? "left" : "right"]: `${offset}px`,
+    [isStart ? "insetInlineStart" : "insetInlineEnd"]: `${offset}px`,
     zIndex: 10,
     background: "var(--ui-table-pinned-bg, var(--background))",
-    boxShadow: isLeft ? "2px 0 6px -2px rgb(0 0 0 / 0.08)" : "-2px 0 6px -2px rgb(0 0 0 / 0.08)"
+    boxShadow: isStart ? "2px 0 6px -2px rgb(0 0 0 / 0.08)" : "-2px 0 6px -2px rgb(0 0 0 / 0.08)"
   } as const
 }
 
-const getPinnedRowStyle = (row: Row<T>) => {
+const getPinnedRowStyle = (row: Row<TanStackTableFeatures, T>) => {
   const pinned = row.getIsPinned()
   if (!pinned) return undefined
 
-  const index =
-    typeof (row as any).getPinnedIndex === "function" ? (row as any).getPinnedIndex() : 0
+  const index = row.getPinnedIndex()
   const offsetVar = "var(--ui-table-row-height, 44px)"
   const offsetValue = `calc(${index} * ${offsetVar})`
 
