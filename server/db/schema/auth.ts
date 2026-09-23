@@ -1,9 +1,10 @@
 import { relations, sql } from "drizzle-orm"
-import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core"
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core"
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core"
 
 import { classes } from "."
 
+// --- CORE TABLES ---
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -58,9 +59,9 @@ export const account = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    // --- FIX: Added issuer column ---
-    issuer: text("issuer").notNull(),
-    // --------------------------------
+    // --- 1.7.3: issuer is now nullable and no longer indexed ---
+    issuer: text("issuer"),
+    // -----------------------------------------------------------
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
@@ -80,10 +81,8 @@ export const account = sqliteTable(
       .notNull()
   },
   (table) => [
-    index("account_userId_idx").on(table.userId),
-    // --- FIX: Added unique index for issuer and accountId ---
-    uniqueIndex("account_issuer_accountId_uidx").on(table.issuer, table.accountId)
-    // -----------------------------------------------------
+    index("account_userId_idx").on(table.userId)
+    // --- 1.7.3: uniqueIndex on (issuer, accountId) removed ---
   ]
 )
 
@@ -104,6 +103,8 @@ export const verification = sqliteTable(
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 )
+
+// --- RELATIONS ---
 
 export const userRelations = relations(user, ({ one, many }) => ({
   user_sessions: many(user_session),
