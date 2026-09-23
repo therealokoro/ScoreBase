@@ -67,3 +67,5 @@ export const DEFAULT_RESULT_SETTINGS: ResultSettings = {
   caMaxScores: [10, 10, 10],
   examMax: 70
 }
+
+export { SchoolSettings }
