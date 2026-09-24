@@ -47,17 +47,19 @@ const updateSubject = os.update.handler(async ({ input, errors, context }) => {
   const existingSubject = await fetchSingleSubject(input.id)
   if (!existingSubject) throw errors.NOT_FOUND()
 
+  const nextName = input.name ?? existingSubject.name
+
   // Check name conflict if name changed
-  if (input.name !== existingSubject.name) {
-    const nameConflict = await fetchSingleSubject(input.name!, "name")
+  if (nextName !== existingSubject.name) {
+    const nameConflict = await fetchSingleSubject(nextName, "name")
     if (nameConflict) throw errors.CONFLICT()
   }
 
   const [updatedSubject] = await db
     .update(subjects)
     .set({
-      name: input.name,
-      tags: input.tags !== undefined ? input.tags : []
+      name: input.name ?? existingSubject.name,
+      ...(input.tags !== undefined && { tags: input.tags })
     })
     .where(eq(subjects.id, input.id))
     .returning()

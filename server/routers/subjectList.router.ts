@@ -41,8 +41,10 @@ const updateSubjectList = os.update.handler(async ({ input, errors, context }) =
   const existingSubjectList = await fetchSingleSubjectList(input.id, "id")
   if (!existingSubjectList) throw errors.NOT_FOUND()
 
-  if (input.name !== existingSubjectList.name) {
-    const nameConflict = await fetchSingleSubjectList(input.name, "name")
+  const nextName = input.name ?? existingSubjectList.name
+
+  if (nextName !== existingSubjectList.name) {
+    const nameConflict = await fetchSingleSubjectList(nextName, "name")
     if (nameConflict) throw errors.CONFLICT()
   }
 

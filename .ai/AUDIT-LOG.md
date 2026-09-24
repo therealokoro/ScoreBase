@@ -567,5 +567,30 @@ procedures.
 ### Verification
 `pnpm lint` — clean. Manual trace: a random `teacherId` now throws `BAD_REQUEST` before the insert.
 
+---
+
+## [2026-09-24] — subject.update wiped tags; subject-list updates unvalidated
+
+**Severity:** Medium
+**Category:** Data-fetching correctness
+**Files changed:** `server/routers/subject.router.ts`, `server/routers/subjectList.router.ts`,
+`shared/validators/academic.ts`
+**Regression risk:** Low
+
+### Problem
+`subject.update` set `tags: input.tags !== undefined ? input.tags : []` — omitted tags were erased
+(violating the create-time ≥1 tag invariant). Its name-conflict check also dereferenced
+`input.name!`, which is optional. `UpdateSubjectListSchema` did not shape-validate the `subjects`
+JSON column, so a malformed payload could be persisted.
+
+### Fix
+- `subject.update` only writes `tags` when provided and falls back to the existing name for the
+  conflict check.
+- Same name fallback in `subjectList.update`.
+- `UpdateSubjectListSchema` now validates `subjects` as an optional array of `{ id, name }` (min 1).
+
+### Verification
+`pnpm lint` — clean. Sending `{ id, name }` without tags leaves tags untouched.
+
 
 
