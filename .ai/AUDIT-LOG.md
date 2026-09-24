@@ -128,5 +128,35 @@ allowlist receive no `Access-Control-Allow-Origin` header.
 `pnpm lint` — clean. Read of `@orpc/server`'s `CORSPlugin` confirms the header is only emitted when
 the returned value matches the request origin.
 
+---
+
+## [2026-09-24] — partial result-settings updates could break the sum-to-100 invariant
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/routers/settings.router.ts`, `server/contracts/settings.contract.ts`
+**Regression risk:** Low (valid payloads unchanged; invalid ones now get a clean error)
+
+### Problem
+`PartialResultSettingsSchema` is `ResultSettingsBaseSchema.partial()` with the cross-field refines
+dropped, so `result.setSettings({ examMax: 80 })` could persist a config whose CA maxima + examMax
+exceeded 100. Every later `result.create` snapshots that broken config, and all score-ceiling checks
+then validate against it.
+
+### Fix
+`result.setSettings` now merges the partial over the stored settings and re-validates the merged
+object with the full `ResultSettingsSchema` (including both refines) before writing. Added a
+`BAD_REQUEST` error to the contract so the failure is typed.
+
+```ts
+const parsed = ResultSettingsSchema.safeParse({ ...current, ...input })
+if (!parsed.success) throw errors.BAD_REQUEST({ message: parsed.error.issues[0]?.message })
+return await setResultSettings(parsed.data)
+```
+
+### Verification
+`pnpm lint` — clean. Manual reasoning: a partial that leaves the sum ≠ 100 now fails `safeParse`
+instead of reaching `kv.set`.
+
 
 
