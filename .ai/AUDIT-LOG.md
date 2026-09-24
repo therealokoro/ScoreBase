@@ -1137,6 +1137,50 @@ typed the results form as `Partial<CreateResultInput>`.
 ### Verification
 `pnpm lint` — 0 errors.
 
+---
+
+## [2026-09-24] — result.create client scoreConfig override
+
+**Severity:** High (retracted — not a real problem)
+**Category:** Logic loopholes
+**Files changed:** none
+**Regression risk:** n/a
+
+### Problem
+The audit suspected `createResult`'s `{ ...input }` spread let a client-supplied `scoreConfig`
+override the server snapshot.
+
+### Fix
+**Won't fix — false positive.** `CreateResultSchema` is `createInsertSchema(results).pick({ termId:
+true, classId: true })`, so `scoreConfig` is not part of the accepted input and oRPC validation
+rejects it before the handler runs. The server snapshot is authoritative. (The related docblock /
+`exam` seeding drift was fixed under audit #44.)
+
+### Verification
+Read of `shared/validators/results.ts` (`CreateResultSchema`) and the contract input confirms only
+`termId`/`classId` reach the handler.
+
+---
+
+## [2026-09-24] — teacher password derived from phone number
+
+**Severity:** Medium
+**Category:** Security
+**Files changed:** none
+**Regression risk:** n/a
+
+### Problem
+`teacher.create` sets the initial password to the teacher's phone number — guessable and effectively
+the password policy.
+
+### Fix
+**Won't fix — deliberate trade-off.** PROJECT.md §4.6/§12.9 explicitly specify auto-generated
+credentials derived from the phone number. Changing it alters the documented onboarding UX. *
+Reconsider if the product moves to an invite/one-time-password flow.*
+
+### Verification
+n/a — documented decision retained.
+
 
 
 
