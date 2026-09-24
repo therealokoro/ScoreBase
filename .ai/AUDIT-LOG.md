@@ -377,5 +377,30 @@ transaction, so a rejection rolls back.
 `pnpm lint` — clean. Manual trace: a stored CA of 8 with a new max of 5 now fails before the result
 row is updated.
 
+---
+
+## [2026-09-24] — bulkUpdateSubjectScores required every field and could return undefined rows
+
+**Severity:** High
+**Category:** Data-fetching correctness
+**Files changed:** `shared/validators/results.ts`, `server/routers/subjectScore.router.ts`
+**Regression risk:** Low (relaxes required fields; existing callers already send full rows)
+
+### Problem
+The bulk entry schema used `.required()`, forcing `id`, `caScores`, and `exam` on every entry. That
+made the router's `entry.caScores !== undefined` / `entry.exam !== undefined` branches dead code and
+contradicted the partial semantics of `updateSubjectScore`. Worse, if an `entry.id` matched no row,
+`rows[0]!` was `undefined`, which propagated into the contract's output array instead of a typed
+error.
+
+### Fix
+`.required({ id: true })` only, plus a per-entry refine that at least one of `caScores`/`exam` is
+present. The transaction now checks each `returning()` result and throws `NOT_FOUND` naming the
+missing subject score.
+
+### Verification
+`pnpm lint` — clean. Caller `[scoresheetId].vue` still sends full rows, so behavior is unchanged on
+the happy path.
+
 
 

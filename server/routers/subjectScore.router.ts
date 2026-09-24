@@ -237,10 +237,12 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
     }
 
     // --- All valid — write all updates in a single transaction ---
+    // Any entry whose id does not belong to this scoresheet now fails explicitly
+    // instead of returning an undefined element that breaks the output schema.
     const updated = await db.transaction(async (tx) => {
       return Promise.all(
-        input.scores.map((entry) =>
-          tx
+        input.scores.map(async (entry) => {
+          const rows = await tx
             .update(subjectScores)
             .set({
               ...(entry.caScores !== undefined && { caScores: entry.caScores }),
@@ -254,8 +256,15 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
               )
             )
             .returning()
-            .then((rows) => rows[0]!)
-        )
+
+          const row = rows[0]
+          if (!row) {
+            throw errors.NOT_FOUND({
+              message: `Subject score ${entry.id} was not found on this scoresheet`
+            })
+          }
+          return row
+        })
       )
     })
 

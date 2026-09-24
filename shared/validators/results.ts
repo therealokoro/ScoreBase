@@ -136,7 +136,10 @@ export const BulkUpdateSubjectScoresSchema = z.object({
         exam: z.number().min(0, "Exam score cannot be negative").nullable()
       })
         .pick({ id: true, caScores: true, exam: true })
-        .required()
+        .required({ id: true })
+        .refine((val) => val.caScores !== undefined || val.exam !== undefined, {
+          message: "Each score entry must provide caScores and/or exam"
+        })
     )
     .min(1, "At least one score entry is required")
 })
