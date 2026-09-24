@@ -24,7 +24,7 @@ const pageTitle = computed(() => {
 setPageBreadcrumbLabel(computed(() => student.value?.name))
 setPageBreadcrumbLabels({
   [route.params.resultId as string]: computed(() => result.value?.name),
-  [route.params.sheetId as string]: computed(() => pageTitle.value)
+  [route.params.scoresheetId as string]: computed(() => pageTitle.value)
 })
 
 // create a snapshot of the scoresheet to work with locally, this is what will be submitted

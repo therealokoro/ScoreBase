@@ -657,5 +657,25 @@ only a remark still POSTed the full score set, risking clobbering concurrent edi
 ### Verification
 `pnpm lint` — clean. Matches the save button's disabled logic.
 
+---
+
+## [2026-09-24] — scoresheet breadcrumb read a non-existent route param
+
+**Severity:** Medium
+**Category:** UI/UX
+**Files changed:** `app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**Regression risk:** None
+
+### Problem
+`setPageBreadcrumbLabels` keyed the scoresheet label on `route.params.sheetId`, but the param is
+`scoresheetId`. The key was the literal `"undefined"`, so the override never matched and the last
+breadcrumb showed the raw `ssheet_…` TypeID.
+
+### Fix
+Use `route.params.scoresheetId`.
+
+### Verification
+`pnpm lint` — clean. The report-card page already uses the correct param.
+
 
 
