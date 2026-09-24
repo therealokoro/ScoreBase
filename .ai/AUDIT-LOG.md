@@ -158,5 +158,29 @@ return await setResultSettings(parsed.data)
 `pnpm lint` — clean. Manual reasoning: a partial that leaves the sum ≠ 100 now fails `safeParse`
 instead of reaching `kv.set`.
 
+---
+
+## [2026-09-24] — class.update optional id and teacher class rename
+
+**Severity:** High
+**Category:** Authorization / Logic loopholes
+**Files changed:** `server/contracts/class.contract.ts`, `server/routers/class.router.ts`
+**Regression risk:** Medium (contract input now requires `id`; all callers already send it)
+
+### Problem
+`class.update` used `UpsertClassSchema`, whose `id` is optional, so omitting it produced
+`eq(classes.id, undefined)` — a runtime SQL error instead of a typed failure. The only
+teacher-protected field was `teacherId`, so a teacher could rename their class (a school-wide change)
+and `setSubjectList` remained class-scoped as documented.
+
+### Fix
+- Contract update input is now `UpsertClassSchema.extend({ id: z.string().min(1) })`.
+- Router drops the `input.id!` assertions and adds an explicit admin-only guard for `name` changes,
+  mirroring the existing teacher-reassignment guard. Replaced the inline `ORPCError` with
+  `errors.FORBIDDEN`.
+
+### Verification
+`pnpm lint` — clean. Affected caller `app/composables/useClasses.ts` already passes `id`.
+
 
 

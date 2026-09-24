@@ -1,5 +1,5 @@
 import { db } from "@nuxthub/db"
-import { ORPCError, implement } from "@orpc/server"
+import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
@@ -40,17 +40,23 @@ const createClass = os.create.handler(async ({ input, errors, context }) => {
 const updateClass = os.update.handler(async ({ input, errors, context }) => {
   requireClassAccess(context, input.id)
 
-  const existingClass = await fetchSingleClass(input.id!)
+  const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
-  // Only admins may reassign the class teacher
   const user = context.session!.user
+
+  // Only admins may reassign the class teacher
   if (
     user.role !== "admin" &&
     input.teacherId !== undefined &&
     input.teacherId !== existingClass.teacherId
   ) {
-    throw new ORPCError("FORBIDDEN", { message: "Only admins can reassign a class teacher" })
+    throw errors.FORBIDDEN({ message: "Only admins can reassign a class teacher" })
+  }
+
+  // Only admins may rename a class (a school-wide change)
+  if (user.role !== "admin" && input.name !== existingClass.name) {
+    throw errors.FORBIDDEN({ message: "Only admins can rename a class" })
   }
 
   // Check name conflict if name changed
@@ -59,12 +65,10 @@ const updateClass = os.update.handler(async ({ input, errors, context }) => {
     if (nameConflict) throw errors.CONFLICT()
   }
 
-  // TODO: apply subject list if available
-
   const [updatedClass] = await db
     .update(classes)
     .set({ name: input.name, teacherId: input.teacherId })
-    .where(eq(classes.id, input.id!))
+    .where(eq(classes.id, input.id))
     .returning()
 
   const returnClass = await fetchSingleClass(updatedClass!.id)

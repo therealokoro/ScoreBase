@@ -25,7 +25,7 @@ export const create = oc
   .errors({ CONFLICT: { message: "A class already exists with that name" } })
 
 export const update = oc
-  .input(UpsertClassSchema)
+  .input(UpsertClassSchema.extend({ id: z.string().min(1, "Please provide the class id") }))
   .output(ClassSchema)
   .errors({
     NOT_FOUND: { message: "The class was not found" },
