@@ -305,5 +305,29 @@ explicit `< 0` checks in both router handlers (defense in depth, mirroring the m
 ### Verification
 `pnpm lint` — clean. Schema and handler both reject negative values before any DB write.
 
+---
+
+## [2026-09-24] — dead, divergent computation module
+
+**Severity:** High
+**Category:** Code quality / Logic loopholes
+**Files changed:** `shared/utils/computations.ts` (deleted)
+**Regression risk:** Low (no callers)
+
+### Problem
+`shared/utils/computations.ts` duplicated grade/position logic with different semantics than the
+live `shared/utils/report-card.ts` (null=0 and competition ranking vs incomplete-unranked and dense
+ranking; array-order vs sorted boundary matching). A grep across the repo found no imports — the
+entire module was dead code, but its docblock claimed to be "the main entry point for report card
+rendering", so wiring it in later would have silently changed ranking output.
+
+### Fix
+Deleted the dead module. `report-card.ts` (used by `server/queries/reportCard.query.ts`) is now the
+single computation source of truth.
+
+### Verification
+Grep for `computations`/`computeResultMetrics`/`getClassPositions`/`getSubjectGrade` returns only
+self-references before deletion and none after; `pnpm lint` clean.
+
 
 
