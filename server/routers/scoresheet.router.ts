@@ -7,7 +7,7 @@ import { scoresheetContract } from "../contracts/scoresheet.contract"
 import { classes, scoresheets, students, subjectScores } from "../db/schema"
 import { fetchReportCardData } from "../queries/reportCard.query"
 import { fetchSingleResult, fetchSingleScoresheet } from "../queries/result.query"
-import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const os = implement(scoresheetContract).$context<APiContext>()
 
@@ -104,7 +104,7 @@ const createScoresheets = os.createScoresheets.handler(async ({ input, errors, c
  * entry view for a single student.
  */
 const getOneScoresheet = os.getOneScoresheet.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   const scoresheet = await fetchSingleScoresheet(input.id)
   if (!scoresheet) throw errors.NOT_FOUND()
@@ -124,7 +124,7 @@ const getOneScoresheet = os.getOneScoresheet.handler(async ({ input, errors, con
  */
 const updateScoresheetRemarks = os.updateScoresheetRemarks.handler(
   async ({ input, errors, context }) => {
-    const user = context.session!.user
+    const user = requireSession(context)
 
     const scoresheet = await fetchSingleScoresheet(input.id)
     if (!scoresheet) throw errors.NOT_FOUND()

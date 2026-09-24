@@ -13,7 +13,7 @@ import {
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
-import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
   draft: ["submitted"]
@@ -33,7 +33,7 @@ const os = implement(resultContract).$context<APiContext>()
 // ---------------------------------------------------------------------------
 
 const listResults = os.list.handler(async ({ context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   if (user.role === "teacher") {
     return user.classId ? await listResultsByClass(user.classId) : []
   }
@@ -41,7 +41,7 @@ const listResults = os.list.handler(async ({ context }) => {
 })
 
 const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   const result = await fetchResultWithScoresheets(input.id, "id")
   if (!result) throw errors.NOT_FOUND()
   if (user.role === "teacher" && result.classId !== user.classId) {
@@ -51,7 +51,7 @@ const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
 })
 
 const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   if (user.role === "teacher") throw errors.NOT_FOUND()
 
   const result = await fetchResultsByTerm(input.termId)
@@ -231,7 +231,7 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
 
 /** UPDATE STATUS — unchanged from before */
 const updateResultStatus = os.updateStatus.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
 

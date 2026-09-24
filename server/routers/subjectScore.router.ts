@@ -10,6 +10,7 @@ import {
   fetchSingleResult,
   fetchSingleSubjectScore
 } from "../queries/result.query"
+import { requireSession } from "../utils/auth-guard"
 
 /**
  * Validates that every CA score in the incoming array is within the ceiling defined by the result's
@@ -41,7 +42,7 @@ const os = implement(subjectScoreContract).$context<APiContext>()
  * results.
  */
 const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   const scoresheet = await fetchSingleScoresheet(input.scoresheetId)
   if (!scoresheet) throw errors.NOT_FOUND()
@@ -89,7 +90,7 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
  * published results are immutable.
  */
 const removeSubjectScore = os.removeSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   // Walk up: subjectScore → scoresheet → result
   const score = await fetchSingleSubjectScore(input.id)
@@ -120,7 +121,7 @@ const removeSubjectScore = os.removeSubjectScore.handler(async ({ input, errors,
  * change status back to draft first).
  */
 const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   const score = await fetchSingleSubjectScore(input.id)
   if (!score) throw errors.NOT_FOUND()
@@ -190,7 +191,7 @@ const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors,
  */
 const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
   async ({ input, errors, context }) => {
-    const user = context.session!.user
+    const user = requireSession(context)
 
     // Resolve the parent result via the scoresheet
     const scoresheet = await fetchSingleScoresheet(input.scoresheetId)

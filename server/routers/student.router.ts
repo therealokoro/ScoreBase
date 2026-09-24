@@ -7,7 +7,7 @@ import { studentContract } from "../contracts/student.contract"
 import { students } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
-import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 async function checkConflict(name: string, studentId: string, errors: any, excludeId?: string) {
   // Check for conflicts, excluding the record being updated (if any)
@@ -91,7 +91,7 @@ const updateStudent = os.update.handler(async ({ input, errors, context }) => {
   requireClassAccess(context, existingStudent.classId)
 
   // Only admins may move a student to another class
-  const user = context.session!.user
+  const user = requireSession(context)
   if (user.role !== "admin" && input.classId !== existingStudent.classId) {
     throw errors.FORBIDDEN({ message: "Only admins can move a student to another class" })
   }

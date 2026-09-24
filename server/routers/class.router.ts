@@ -7,7 +7,7 @@ import { classContract } from "../contracts/class.contract"
 import { classes } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
-import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const os = implement(classContract).$context<APiContext>()
 
@@ -43,7 +43,7 @@ const updateClass = os.update.handler(async ({ input, errors, context }) => {
   const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
-  const user = context.session!.user
+  const user = requireSession(context)
 
   // Only admins may reassign the class teacher
   if (

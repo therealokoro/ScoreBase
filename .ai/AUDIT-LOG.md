@@ -402,5 +402,26 @@ missing subject score.
 `pnpm lint` — clean. Caller `[scoresheetId].vue` still sends full rows, so behavior is unchanged on
 the happy path.
 
+---
+
+## [2026-09-24] — non-null asserted session user produced 500s for anonymous callers
+
+**Severity:** Medium
+**Category:** Security / Code quality
+**Files changed:** `server/utils/auth-guard.ts`, `server/routers/{results,scoresheet,subjectScore,student,class}.router.ts`
+**Regression risk:** None
+
+### Problem
+Twelve handlers read `const user = context.session!.user`. Better Auth returns `null` for anonymous
+requests, so the assertion threw a `TypeError` → `INTERNAL_SERVER_ERROR` instead of `UNAUTHORIZED`,
+inconsistently with handlers that checked correctly.
+
+### Fix
+Added `requireSession(context)` to `server/utils/auth-guard.ts` (throws `UNAUTHORIZED`, returns the
+user) and replaced every `context.session!.user`.
+
+### Verification
+`grep -r "session!.user" server` returns only the helper's doc comment; `pnpm lint` clean.
+
 
 

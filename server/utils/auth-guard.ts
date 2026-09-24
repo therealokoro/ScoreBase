@@ -3,6 +3,19 @@ import { ORPCError } from "@orpc/server"
 import type { APiContext } from "../context"
 
 /**
+ * Requires an authenticated session and returns the session user.
+ *
+ * Use this instead of `context.session!.user`: Better Auth returns `null` for anonymous requests,
+ * and the non-null assertion turned those calls into `INTERNAL_SERVER_ERROR` exceptions instead of a
+ * clean `UNAUTHORIZED`.
+ */
+export function requireSession(context: APiContext) {
+  const user = context.session?.user
+  if (!user) throw new ORPCError("UNAUTHORIZED")
+  return user
+}
+
+/**
  * Guards an admin-only oRPC handler.
  *
  * Throws UNAUTHORIZED when there is no session and FORBIDDEN when the authenticated user is not an
