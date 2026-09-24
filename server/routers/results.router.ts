@@ -171,25 +171,38 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
   const caCountChanged = newCaCount !== oldCaCount
 
   const [updatedResult] = await db.transaction(async (tx) => {
-    const updated = await tx
-      .update(results)
-      .set({ scoreConfig: input.scoreConfig })
-      .where(eq(results.id, input.id))
-      .returning()
+    const resultScoresheets = await tx.query.scoresheets.findMany({
+      where: eq(scoresheets.resultId, input.id),
+      columns: { id: true }
+    })
+    const scoresheetIds = resultScoresheets.map((s) => s.id)
 
-    if (caCountChanged) {
-      const resultScoresheets = await tx.query.scoresheets.findMany({
-        where: eq(scoresheets.resultId, input.id),
-        columns: { id: true }
+    if (scoresheetIds.length > 0) {
+      const existingScores = await tx.query.subjectScores.findMany({
+        where: inArray(subjectScores.scoresheetId, scoresheetIds),
+        columns: { id: true, caScores: true, exam: true }
       })
-      const scoresheetIds = resultScoresheets.map((s) => s.id)
 
-      if (scoresheetIds.length > 0) {
-        const existingScores = await tx.query.subjectScores.findMany({
-          where: inArray(subjectScores.scoresheetId, scoresheetIds),
-          columns: { id: true, caScores: true }
-        })
+      // Reject (rather than silently keep) any stored score that would exceed the
+      // new ceilings — otherwise totals can exceed the configured maxima.
+      for (const row of existingScores) {
+        const badCaSlot = row.caScores.findIndex(
+          (value, i) => value !== null && value > input.scoreConfig.caMaxScores[i]!
+        )
+        if (badCaSlot !== -1) {
+          throw errors.BAD_REQUEST({
+            message: `Cannot apply this score config: existing CA${badCaSlot + 1} scores exceed the new maximum of ${input.scoreConfig.caMaxScores[badCaSlot]}`
+          })
+        }
+        if (row.exam !== null && row.exam > input.scoreConfig.examMax) {
+          throw errors.BAD_REQUEST({
+            message: `Cannot apply this score config: existing exam scores exceed the new maximum of ${input.scoreConfig.examMax}`
+          })
+        }
+      }
 
+      // Only resize the CA array when its length changes.
+      if (caCountChanged) {
         await Promise.all(
           existingScores.map((row) => {
             const resized = Array.from({ length: newCaCount }, (_, i) =>
@@ -203,6 +216,12 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
         )
       }
     }
+
+    const updated = await tx
+      .update(results)
+      .set({ scoreConfig: input.scoreConfig })
+      .where(eq(results.id, input.id))
+      .returning()
 
     return updated
   })

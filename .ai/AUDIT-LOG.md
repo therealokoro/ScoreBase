@@ -353,5 +353,29 @@ blank grade and remark with no error.
 ### Verification
 `pnpm lint` — clean. Default boundaries cover 0–100; the fallback covers any legacy stored gaps.
 
+---
+
+## [2026-09-24] — score-config changes could leave stored scores above the new maxima
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/routers/results.router.ts`, `server/contracts/result.contract.ts`
+**Regression risk:** Low (turns a silent bad state into an explicit `BAD_REQUEST`)
+
+### Problem
+`updateResultScoreConfig` only resized the CA array length when `caCount` changed. Lowering
+`caMaxScores[i]` or `examMax` left existing stored values untouched (an 8 stayed 8 under a new max of
+5), so report-card subject totals could exceed the configured maxima.
+
+### Fix
+Before applying the new config, validate every existing subject score against the new
+`caMaxScores`/`examMax` and throw `BAD_REQUEST` (added to the contract) naming the offending slot.
+The array is then resized only when `caCount` changes. All of this runs inside the existing
+transaction, so a rejection rolls back.
+
+### Verification
+`pnpm lint` — clean. Manual trace: a stored CA of 8 with a new max of 5 now fails before the result
+row is updated.
+
 
 
