@@ -105,5 +105,28 @@ convention log.
 `Test-Path server/api/seed/admin.post.ts` → `False`; only `server/api/auth/[...all].ts` remains under
 `server/api`. `pnpm build` is re-run at the end of the batch.
 
+---
+
+## [2026-09-24] — CORS reflected any origin with credentials enabled
+
+**Severity:** High
+**Category:** Security
+**Files changed:** `server/routes/rpc/[...].ts`
+**Regression risk:** Low (same-origin and the configured app origin are still allowed)
+
+### Problem
+`CORSPlugin({ origin: (origin) => origin, credentials: true })` reflected every requesting origin
+while allowing credentials, so a malicious site could drive credentialed JSON POSTs to `/rpc`
+(preflight passed; `SimpleCsrfProtectionHandlerPlugin` only blocks simple form-style requests).
+
+### Fix
+Replaced the reflector with an allowlist: the configured `BETTER_AUTH_URL` origin, the incoming
+request's own origin (same-origin callers), and localhost in development. Origins outside the
+allowlist receive no `Access-Control-Allow-Origin` header.
+
+### Verification
+`pnpm lint` — clean. Read of `@orpc/server`'s `CORSPlugin` confirms the header is only emitted when
+the returned value matches the request origin.
+
 
 
