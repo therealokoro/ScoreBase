@@ -5,6 +5,7 @@ import {
   type SchoolSettings,
   TERMS_PRESET
 } from "#shared/constants/kv-settings"
+import { SchoolSettingsSchema } from "#shared/validators/settings"
 
 import { mergeSettings } from "./merge-settings"
 
@@ -17,20 +18,23 @@ export async function getSchoolSettings<K extends keyof SchoolSettings>(
 export async function getSchoolSettings<K extends keyof SchoolSettings>(
   key?: K
 ): Promise<SchoolSettings | SchoolSettings[K]> {
-  const stored = await kv.get<SchoolSettings>(SCHOOL_SETTINGS_KV_KEY)
-  const settings = mergeSettings(stored ?? {}, DEFAULT_SCHOOL_SETTINGS) as SchoolSettings
+  const stored = await kv.get<Partial<SchoolSettings>>(SCHOOL_SETTINGS_KV_KEY)
+  const merged = mergeSettings(stored ?? {}, DEFAULT_SCHOOL_SETTINGS) as SchoolSettings
+
+  // Guard against corrupted KV values: fall back to defaults rather than propagating bad data.
+  const parsed = SchoolSettingsSchema.safeParse(merged)
+  const settings = parsed.success ? parsed.data : DEFAULT_SCHOOL_SETTINGS
+
   return key ? settings[key] : settings
 }
 
 export const setSchoolSettings = async (settings: Partial<SchoolSettings>) => {
   const current = await getSchoolSettings()
-  const newSettings = { ...current, ...settings }
+  // Deep-merge over the current value (arrays replaced wholesale) so nested objects
+  // survive partial updates.
+  const newSettings = mergeSettings(settings, current) as SchoolSettings
   await kv.set(SCHOOL_SETTINGS_KV_KEY, newSettings)
   return newSettings
-}
-
-export const resetSchoolSettings = async (): Promise<void> => {
-  await kv.del(SCHOOL_SETTINGS_KV_KEY)
 }
 
 export const getTermPreset = async (): Promise<readonly string[]> => {

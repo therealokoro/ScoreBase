@@ -225,8 +225,9 @@ Settings are typed config objects stored in NuxtHub KV.
   The merger replaces arrays wholesale, because plain `defu` concatenates arrays and would
   duplicate `gradeBoundaries` / `caMaxScores`. Pass a key to read one field:
   `getSchoolSettings("termPreset")`.
-- Write pattern merges the partial into the current value and calls `kv.set`. Reset calls
-  `kv.del`.
+- Write pattern deep-merges the partial over the current value (`mergeSettings(settings,
+  current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
+  back to defaults if the stored value is corrupt.
 - `getResultScoreConfig()` snapshots only `{ caCount, caMaxScores, examMax }` onto a Result
   at creation time. Grading and position settings are read fresh at render time.
 

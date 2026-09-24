@@ -592,5 +592,29 @@ JSON column, so a malformed payload could be persisted.
 ### Verification
 `pnpm lint` — clean. Sending `{ id, name }` without tags leaves tags untouched.
 
+---
+
+## [2026-09-24] — KV settings writes were shallow and reads unvalidated
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `server/kv/school-settings.ts`, `server/kv/result-settings.ts`, `AGENTS.md`
+**Regression risk:** Low (same shapes; corrupted values now recover instead of propagating)
+
+### Problem
+`setSchoolSettings`/`setResultSettings` used `{ ...current, ...settings }`, which would silently drop
+nested partials as soon as settings gained nested objects. `kv.get<T>()` results were trusted without
+runtime validation, so a corrupted KV value flowed straight into typed consumers. The `reset*`
+helpers were dead code with no callers or procedures.
+
+### Fix
+- Writes now use `mergeSettings(settings, current)` (deep merge, arrays replaced wholesale).
+- Reads run the merged value through `SchoolSettingsSchema`/`ResultSettingsSchema` via `safeParse`
+  and fall back to defaults on failure.
+- Deleted the unused `resetSchoolSettings`/`resetResultSettings`; updated the AGENTS KV pattern note.
+
+### Verification
+`grep resetSchoolSettings|resetResultSettings` — no references; `pnpm lint` clean.
+
 
 
