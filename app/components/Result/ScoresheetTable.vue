@@ -126,6 +126,7 @@ const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
         :loading="loading"
         :global-filter="search"
         :column-visibility="columnVisibility"
+        :pagination="pagination"
         :initial-page-size="pagination.pageSize"
         :manual-pagination="false"
         :manual-filtering="false"

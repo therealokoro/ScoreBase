@@ -698,5 +698,29 @@ Added `print:hidden` to the nav/breadcrumb row and to the shared header `styles`
 ### Verification
 `pnpm lint` — clean. `@page { size: A4 }` and `report-card-print-root` were already correct.
 
+---
+
+## [2026-09-24] — UiTanStackTable could not restore pageIndex from the URL
+
+**Severity:** Medium
+**Category:** UI/UX / Data-fetching correctness
+**Files changed:** `app/components/Ui/TanStackTable.vue`, `app/components/Student/ListTable.vue`,
+`app/components/Result/ListTable.vue`, `app/components/Result/ScoresheetTable.vue`
+**Regression risk:** Low (new prop; existing callers unchanged)
+
+### Problem
+Server-mode tables keep page state in the URL (`useUrlTableState` restores `pageIndex` from
+`?page=`), but `UiTanStackTable` always initialised `pagination.pageIndex` to 0 and exposed no prop
+to seed it. A refresh or shared link to `?page=3` rendered rows `#1–#10` and "Page 1 of N".
+
+### Fix
+Added an optional `pagination` prop that seeds the internal ref, plus a watcher that syncs it when
+the values actually differ (so it doesn't fight user interaction). Passed `:pagination="pagination"`
+from the three URL-synced tables.
+
+### Verification
+`pnpm lint` — clean. In server mode the composable already derives `pageIndex` from the query
+string, so the table now receives it.
+
 
 

@@ -524,6 +524,11 @@ const props = withDefaults(
      * ref so the query string stays shareable.
      */
     globalFilter?: string
+    /**
+     * External pagination state — lets a parent seed/restore `pageIndex` (e.g. from a URL-synced
+     * ref) so a hard refresh or shared link lands on the correct page.
+     */
+    pagination?: { pageIndex: number; pageSize: number }
   }>(),
   {
     data: () => [],
@@ -607,9 +612,23 @@ const expanded = ref({})
 const rowPinning = ref<RowPinningState>({ top: [], bottom: [] })
 const columnPinning = ref<ColumnPinningState>({ start: [], end: [] })
 const pagination = ref({
-  pageIndex: 0,
-  pageSize: props.initialPageSize
+  pageIndex: props.pagination?.pageIndex ?? 0,
+  pageSize: props.pagination?.pageSize ?? props.initialPageSize
 })
+
+// Sync when the parent restores pagination (e.g. from a URL-synced ref on load/back-forward).
+watch(
+  () => props.pagination,
+  (val) => {
+    if (
+      val &&
+      (val.pageIndex !== pagination.value.pageIndex || val.pageSize !== pagination.value.pageSize)
+    ) {
+      pagination.value = { pageIndex: val.pageIndex, pageSize: val.pageSize }
+    }
+  },
+  { immediate: true }
+)
 
 // Sync when prop changes (e.g. from a user-preferences store or a resize event)
 watch(

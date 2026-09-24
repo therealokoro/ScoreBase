@@ -161,6 +161,7 @@ const columns = [
         :manual-filtering="true"
         :manual-pagination="true"
         :column-visibility="columnVisibility"
+        :pagination="pagination"
         :initial-page-size="pagination.pageSize"
         @update:pagination="onPaginationChange"
       >

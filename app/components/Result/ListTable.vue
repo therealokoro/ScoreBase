@@ -118,6 +118,7 @@ const columns = [
         :loading="isPending"
         :global-filter="search"
         :column-visibility="columnVisibility"
+        :pagination="pagination"
         :initial-page-size="pagination.pageSize"
         :manual-pagination="false"
         :manual-filtering="false"
