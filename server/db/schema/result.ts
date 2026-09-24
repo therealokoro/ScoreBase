@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { real, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
 import { resultStatus } from "~~/shared/constants/extras"
 
@@ -32,35 +32,40 @@ type ScoreConfigSnapshot = {
 // that were active when it was created.
 // ---------------------------------------------------------------------------
 
-export const results = sqliteTable("results", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("result").toString()),
-  name: text("name").notNull(),
-  termId: text("term_id")
-    .notNull()
-    .references(() => terms.id, { onDelete: "restrict" }),
-  classId: text("class_id")
-    .notNull()
-    .references(() => classes.id, { onDelete: "restrict" }),
+export const results = sqliteTable(
+  "results",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("result").toString()),
+    name: text("name").notNull(),
+    termId: text("term_id")
+      .notNull()
+      .references(() => terms.id, { onDelete: "restrict" }),
+    classId: text("class_id")
+      .notNull()
+      .references(() => classes.id, { onDelete: "restrict" }),
 
-  // Frozen scoring rules — never mutated after creation.
-  // Reading code must use this, not the live admin settings.
-  scoreConfig: text("score_config", { mode: "json" }).$type<ScoreConfigSnapshot>().notNull(),
+    // Frozen scoring rules — never mutated after creation.
+    // Reading code must use this, not the live admin settings.
+    scoreConfig: text("score_config", { mode: "json" }).$type<ScoreConfigSnapshot>().notNull(),
 
-  status: text("status", { enum: resultStatus }).notNull().default("draft"),
+    status: text("status", { enum: resultStatus }).notNull().default("draft"),
 
-  // Teacher who submitted
-  submittedById: text("submitted_by_id").references(() => user.id, { onDelete: "set null" }),
-  submittedAt: text("submitted_at"), // ISO-8601
+    // Teacher who submitted
+    submittedById: text("submitted_by_id").references(() => user.id, { onDelete: "set null" }),
+    submittedAt: text("submitted_at"), // ISO-8601
 
-  // Admin who reviewed / published
-  reviewedById: text("reviewed_by_id").references(() => user.id, { onDelete: "set null" }),
-  reviewedAt: text("reviewed_at"),
-  publishedAt: text("published_at"),
+    // Admin who reviewed / published
+    reviewedById: text("reviewed_by_id").references(() => user.id, { onDelete: "set null" }),
+    reviewedAt: text("reviewed_at"),
+    publishedAt: text("published_at"),
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  // Exactly one result per (term, class).
+  (t) => [uniqueIndex("results_term_class_unique").on(t.termId, t.classId)]
+)
 
 // ---------------------------------------------------------------------------
 // Scoresheet
@@ -69,22 +74,27 @@ export const results = sqliteTable("results", {
 // time but can be individually added/removed per student.
 // ---------------------------------------------------------------------------
 
-export const scoresheets = sqliteTable("scoresheets", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("ssheet").toString()),
-  resultId: text("result_id")
-    .notNull()
-    .references(() => results.id, { onDelete: "cascade" }),
-  studentId: text("student_id")
-    .notNull()
-    .references(() => students.id, { onDelete: "restrict" }),
+export const scoresheets = sqliteTable(
+  "scoresheets",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("ssheet").toString()),
+    resultId: text("result_id")
+      .notNull()
+      .references(() => results.id, { onDelete: "cascade" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
 
-  teacherRemark: text("teacher_remark"),
-  principalRemark: text("principal_remark"),
+    teacherRemark: text("teacher_remark"),
+    principalRemark: text("principal_remark"),
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  // Exactly one scoresheet per student per result.
+  (t) => [uniqueIndex("scoresheets_result_student_unique").on(t.resultId, t.studentId)]
+)
 
 // ---------------------------------------------------------------------------
 // SubjectScore

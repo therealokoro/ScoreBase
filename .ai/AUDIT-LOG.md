@@ -211,5 +211,29 @@ Added `onSuccess` invalidation with the oRPC-generated keys:
 `pnpm lint` — clean. Query-key invalidation is prefix-based, so `getOne`/`getReportCard` queries
 under the same router key are covered.
 
+---
+
+## [2026-09-24] — core domain invariants had no DB-level enforcement
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/db/schema/academic.ts`, `server/db/schema/result.ts`,
+`server/db/migrations/sqlite/0005_perpetual_monster_badoon.sql` (+ meta)
+**Regression risk:** Medium (schema change; duplicate rows would block the migration)
+
+### Problem
+"One result per (term, class)", "one scoresheet per (result, student)", "max one term per ordinal
+per session", and unique session names were enforced only by check-then-insert in the routers. Two
+concurrent requests both pass the check and both insert.
+
+### Fix
+Added unique indexes: `academic_sessions(name)`, `terms(sessionId, position)`,
+`results(termId, classId)`, `scoresheets(resultId, studentId)`. Generated and applied migration
+`0005_perpetual_monster_badoon.sql` against the local SQLite DB. The friendly app-level checks stay.
+
+### Verification
+`pnpm db:generate` produced the four `CREATE UNIQUE INDEX` statements; `pnpm db:migrate` reported
+"Database migration 0005… applied"; `pnpm lint` clean.
+
 
 
