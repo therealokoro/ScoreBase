@@ -423,5 +423,28 @@ user) and replaced every `context.session!.user`.
 ### Verification
 `grep -r "session!.user" server` returns only the helper's doc comment; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — read procedures allowed anonymous access
+
+**Severity:** Medium
+**Category:** Security
+**Files changed:** `server/routers/{class,subject,subjectList,settings,teacher}.router.ts`, `AGENTS.md`
+**Regression risk:** Low (all client consumers run behind auth)
+
+### Problem
+`class.list`, `subject.list`, `subject.getTags`, `subjectList.list`, both settings reads, and
+`teacher.getClass` had no session check, so anonymous callers could enumerate classes, subjects,
+grade boundaries, and any teacher's class + student count. AGENTS.md documents these as intentionally
+not admin-gated; zero-auth was broader than intended.
+
+### Fix
+Added `requireSession(context)` to each. They remain teacher-accessible (not admin-gated). Updated
+AGENTS.md to state the session requirement.
+
+### Verification
+`pnpm lint` — clean. All `useSettings`/`useListClasses`/`useListSubjects`/`useListSubjectLists`
+consumers live under `/dashboard`, so no unauthenticated caller is affected.
+
 
 

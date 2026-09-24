@@ -208,7 +208,9 @@ const getStudent = os.getOne.handler(async ({ input, context }) => {
   record. When a teacher may not change a field (for example reassigning a class teacher or
   moving a student to another class), throw `FORBIDDEN` explicitly. Procedures teachers use
   (settings reads, class/student/subject list reads, result and scoresheet flows,
-  `teacher.getClass`) must not be admin-gated.
+  `teacher.getClass`) must not be admin-gated, but they still require a logged-in user via
+  `requireSession(context)`. Use `requireSession` instead of `context.session!.user` — the
+  assertion turns anonymous calls into 500s.
 
 ### KV settings pattern
 
@@ -349,3 +351,7 @@ _Convention changes logged here:_
   `delete` / `query` are class-scoped (teachers cannot move a student to another class).
 - 2026-09-24 — Removed the unauthenticated `server/api/seed/admin.post.ts` route; Nitro task
   endpoints are gated to development (`nitro.experimental.tasks` = non-production).
+- 2026-09-24 — Added `requireSession(context)` to `server/utils/auth-guard.ts`; anonymous RPC
+  calls now get `UNAUTHORIZED` instead of 500s, and previously ungated read procedures
+  (`class.list`, `subject.list`, `subject.getTags`, `subjectList.list`, both settings reads,
+  `teacher.getClass`) require a logged-in user (still not admin-gated).

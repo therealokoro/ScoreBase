@@ -11,7 +11,10 @@ import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-
 
 const os = implement(classContract).$context<APiContext>()
 
-const listClasses = os.list.handler(async () => await listAllClasses())
+const listClasses = os.list.handler(async ({ context }) => {
+  requireSession(context)
+  return await listAllClasses()
+})
 
 const getSingleClass = os.getOne.handler(async ({ input, errors, context }) => {
   requireAdmin(context)

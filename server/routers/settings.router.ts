@@ -5,7 +5,7 @@ import { settingsContract } from "../contracts/settings.contract"
 import { getResultSettings, setResultSettings } from "../kv/result-settings"
 import { getSchoolSettings, setSchoolSettings } from "../kv/school-settings"
 import { ResultSettingsSchema, validateGradeBoundaryCoverage } from "~~/shared/validators/settings"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 const os = implement(settingsContract).$context<APiContext>()
 
@@ -13,7 +13,8 @@ const os = implement(settingsContract).$context<APiContext>()
 // School settings
 // ---------------------------------------------------------------------------
 
-const fetchSchoolSettings = os.school.getSettings.handler(async () => {
+const fetchSchoolSettings = os.school.getSettings.handler(async ({ context }) => {
+  requireSession(context)
   return await getSchoolSettings()
 })
 
@@ -26,7 +27,8 @@ const updateSchoolSettings = os.school.setSettings.handler(async ({ input, conte
 // Result settings
 // ---------------------------------------------------------------------------
 
-const fetchResultSettings = os.result.getSettings.handler(async () => {
+const fetchResultSettings = os.result.getSettings.handler(async ({ context }) => {
+  requireSession(context)
   return await getResultSettings()
 })
 

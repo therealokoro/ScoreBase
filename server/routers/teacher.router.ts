@@ -7,7 +7,7 @@ import { teacherContract } from "../contracts/teacher.contract"
 import { classes, user } from "../db/schema"
 import { listStudentsByClass } from "../queries/student.query"
 import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
 async function assignClassToTeacher(classId: string | undefined, userId: string) {
@@ -114,7 +114,9 @@ const removeTeacher = os.delete.handler(async ({ input, errors, context }) => {
   return { success: true }
 })
 
-const getTeachersClass = os.getClass.handler(async ({ input, errors }) => {
+const getTeachersClass = os.getClass.handler(async ({ input, errors, context }) => {
+  requireSession(context)
+
   const teachersClass = await fetchTeachersClass(input.teacherId)
   if (!teachersClass) throw errors.NOT_FOUND()
 

@@ -6,11 +6,14 @@ import type { APiContext } from "../context"
 import { SubjectListContract } from "../contracts/subjectList.contract"
 import { subjectLists } from "../db/schema"
 import { fetchSingleSubjectList, listAllSubjectLists } from "../queries/subjectList.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 const os = implement(SubjectListContract).$context<APiContext>()
 
-const listSubjectLists = os.list.handler(async () => await listAllSubjectLists())
+const listSubjectLists = os.list.handler(async ({ context }) => {
+  requireSession(context)
+  return await listAllSubjectLists()
+})
 
 const getOneSubjectList = os.getOne.handler(async ({ input, errors, context }) => {
   requireAdmin(context)

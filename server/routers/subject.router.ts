@@ -7,11 +7,14 @@ import { subjectContract } from "../contracts/subject.contract"
 import { subjects } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchSingleSubject, listAllSubjects } from "../queries/subject.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 const os = implement(subjectContract).$context<APiContext>()
 
-const listSubjects = os.list.handler(async () => await listAllSubjects())
+const listSubjects = os.list.handler(async ({ context }) => {
+  requireSession(context)
+  return await listAllSubjects()
+})
 
 const getSingleSubject = os.getOne.handler(async ({ input, errors, context }) => {
   requireAdmin(context)
@@ -75,7 +78,8 @@ const removeSubject = os.delete.handler(async ({ input, errors, context }) => {
   return { success: true }
 })
 
-const getSubjectTags = os.getTags.handler(async () => {
+const getSubjectTags = os.getTags.handler(async ({ context }) => {
+  requireSession(context)
   const subjectTags = await getSchoolSettings("subjectTags")
   return subjectTags
 })
