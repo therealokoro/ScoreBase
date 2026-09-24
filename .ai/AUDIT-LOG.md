@@ -545,5 +545,27 @@ helpful message (matching the existing `class.delete` student check).
 ### Verification
 `pnpm lint` — clean. Each guard runs before the delete.
 
+---
+
+## [2026-09-24] — class writes accepted non-existent teacher/subject-list IDs
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `server/routers/class.router.ts`, `server/contracts/class.contract.ts`
+**Regression risk:** Low (adds validation; bogus IDs now rejected earlier)
+
+### Problem
+`class.create`, `class.update`, and `class.setSubjectList` wrote `teacherId` / `subjectListId`
+straight to the DB with no existence check, so a bogus value produced a raw SQLite foreign-key
+error → 500. (The teacher side was fixed in audit #21's `syncTeacherClass`.)
+
+### Fix
+Added `assertClassRefsExist` (validates the teacher exists with role `teacher`, and the subject list
+exists) called from create/update/setSubjectList, and declared `BAD_REQUEST` on those contract
+procedures.
+
+### Verification
+`pnpm lint` — clean. Manual trace: a random `teacherId` now throws `BAD_REQUEST` before the insert.
+
 
 

@@ -1,15 +1,43 @@
 import { db } from "@nuxthub/db"
-import { implement } from "@orpc/server"
+import { ORPCError, implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { classContract } from "../contracts/class.contract"
-import { classes, results } from "../db/schema"
+import { classes, results, subjectLists, user } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const os = implement(classContract).$context<APiContext>()
+
+/**
+ * Validates that referenced IDs exist before writing, so a bogus teacherId/subjectListId produces a
+ * typed error instead of a raw foreign-key failure.
+ */
+async function assertClassRefsExist(refs: {
+  teacherId?: string | null
+  subjectListId?: string | null
+}): Promise<void> {
+  if (refs.teacherId) {
+    const teacher = await db.query.user.findFirst({
+      where: eq(user.id, refs.teacherId),
+      columns: { id: true, role: true }
+    })
+    if (!teacher || teacher.role !== "teacher") {
+      throw new ORPCError("BAD_REQUEST", { message: "The selected teacher was not found" })
+    }
+  }
+  if (refs.subjectListId) {
+    const list = await db.query.subjectLists.findFirst({
+      where: eq(subjectLists.id, refs.subjectListId),
+      columns: { id: true }
+    })
+    if (!list) {
+      throw new ORPCError("BAD_REQUEST", { message: "The selected subject list was not found" })
+    }
+  }
+}
 
 const listClasses = os.list.handler(async ({ context }) => {
   requireSession(context)
@@ -31,6 +59,8 @@ const getSingleClass = os.getOne.handler(async ({ input, errors, context }) => {
 const createClass = os.create.handler(async ({ input, errors, context }) => {
   requireAdmin(context)
 
+  await assertClassRefsExist(input)
+
   // Check for name conflict
   const existingClass = await fetchSingleClass(input.name, "name")
   if (existingClass) throw errors.CONFLICT()
@@ -46,11 +76,11 @@ const updateClass = os.update.handler(async ({ input, errors, context }) => {
   const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
-  const user = requireSession(context)
+  const sessionUser = requireSession(context)
 
   // Only admins may reassign the class teacher
   if (
-    user.role !== "admin" &&
+    sessionUser.role !== "admin" &&
     input.teacherId !== undefined &&
     input.teacherId !== existingClass.teacherId
   ) {
@@ -58,9 +88,11 @@ const updateClass = os.update.handler(async ({ input, errors, context }) => {
   }
 
   // Only admins may rename a class (a school-wide change)
-  if (user.role !== "admin" && input.name !== existingClass.name) {
+  if (sessionUser.role !== "admin" && input.name !== existingClass.name) {
     throw errors.FORBIDDEN({ message: "Only admins can rename a class" })
   }
+
+  await assertClassRefsExist(input)
 
   // Check name conflict if name changed
   if (input.name !== existingClass.name) {
@@ -113,6 +145,8 @@ const setSubjectList = os.setSubjectList.handler(async ({ input, errors, context
 
   const existingClass = await fetchSingleClass(input.id!)
   if (!existingClass) throw errors.NOT_FOUND()
+
+  await assertClassRefsExist({ subjectListId: input.subjectListId })
 
   const [updatedClass] = await db
     .update(classes)
