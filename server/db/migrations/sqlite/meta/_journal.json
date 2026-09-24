@@ -43,6 +43,13 @@
       "when": 1790265861026,
       "tag": "0005_perpetual_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1790266006927,
+      "tag": "0006_mysterious_tag",
+      "breakpoints": true
     }
   ]
 }

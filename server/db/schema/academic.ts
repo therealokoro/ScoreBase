@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
 
 import { user } from "."
@@ -69,18 +69,22 @@ export const subjectLists = sqliteTable("subject_lists", {
   ...dateTimeSchema
 })
 
-export const students = sqliteTable("students", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("stu").toString()),
-  name: text("name").notNull(),
-  studentId: text("student_id").unique().notNull(),
-  classId: text("class_id")
-    .notNull()
-    .references(() => classes.id, { onDelete: "restrict" }),
-  phoneNumber: text("phone_number"),
-  ...dateTimeSchema
-})
+export const students = sqliteTable(
+  "students",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("stu").toString()),
+    name: text("name").notNull(),
+    studentId: text("student_id").unique().notNull(),
+    classId: text("class_id")
+      .notNull()
+      .references(() => classes.id, { onDelete: "restrict" }),
+    phoneNumber: text("phone_number"),
+    ...dateTimeSchema
+  },
+  (t) => [index("students_class_id_index").on(t.classId)]
+)
 
 export const academicSessionsRelations = relations(academicSessions, ({ many }) => ({
   terms: many(terms)

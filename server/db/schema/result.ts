@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
+import { index, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
 import { resultStatus } from "~~/shared/constants/extras"
 
@@ -63,8 +63,12 @@ export const results = sqliteTable(
 
     ...dateTimeSchema
   },
-  // Exactly one result per (term, class).
-  (t) => [uniqueIndex("results_term_class_unique").on(t.termId, t.classId)]
+  // Exactly one result per (term, class). The classId index also serves lookups
+  // by class (e.g. listResultsByClass); termId is covered by the composite's leftmost prefix.
+  (t) => [
+    uniqueIndex("results_term_class_unique").on(t.termId, t.classId),
+    index("results_class_id_index").on(t.classId)
+  ]
 )
 
 // ---------------------------------------------------------------------------
@@ -92,8 +96,12 @@ export const scoresheets = sqliteTable(
 
     ...dateTimeSchema
   },
-  // Exactly one scoresheet per student per result.
-  (t) => [uniqueIndex("scoresheets_result_student_unique").on(t.resultId, t.studentId)]
+  // Exactly one scoresheet per student per result. studentId is indexed for
+  // student-scoped lookups; resultId is covered by the composite's leftmost prefix.
+  (t) => [
+    uniqueIndex("scoresheets_result_student_unique").on(t.resultId, t.studentId),
+    index("scoresheets_student_id_index").on(t.studentId)
+  ]
 )
 
 // ---------------------------------------------------------------------------
@@ -114,28 +122,32 @@ export const scoresheets = sqliteTable(
 // computed on the fly from these raw scores and never persisted.
 // ---------------------------------------------------------------------------
 
-export const subjectScores = sqliteTable("subject_scores", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("sscore").toString()),
-  scoresheetId: text("scoresheet_id")
-    .notNull()
-    .references(() => scoresheets.id, { onDelete: "cascade" }),
+export const subjectScores = sqliteTable(
+  "subject_scores",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("sscore").toString()),
+    scoresheetId: text("scoresheet_id")
+      .notNull()
+      .references(() => scoresheets.id, { onDelete: "cascade" }),
 
-  // Soft FK — set to null if the subject is deleted; the snapshot keeps
-  // report cards accurate regardless.
-  subjectId: text("subject_id").references(() => subjects.id, { onDelete: "set null" }),
+    // Soft FK — set to null if the subject is deleted; the snapshot keeps
+    // report cards accurate regardless.
+    subjectId: text("subject_id").references(() => subjects.id, { onDelete: "set null" }),
 
-  // Variable-length CA scores — must match result.scoreConfig.caCount
-  caScores: text("ca_scores", { mode: "json" })
-    .$type<(number | null)[]>()
-    .notNull()
-    .default(sql`(json_array())`),
+    // Variable-length CA scores — must match result.scoreConfig.caCount
+    caScores: text("ca_scores", { mode: "json" })
+      .$type<(number | null)[]>()
+      .notNull()
+      .default(sql`(json_array())`),
 
-  exam: real("exam"), // null = not yet entered
+    exam: real("exam"), // null = not yet entered
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  (t) => [index("subject_scores_scoresheet_id_index").on(t.scoresheetId)]
+)
 
 // ---------------------------------------------------------------------------
 // Relations

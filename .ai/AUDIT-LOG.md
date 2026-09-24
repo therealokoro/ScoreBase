@@ -235,5 +235,29 @@ Added unique indexes: `academic_sessions(name)`, `terms(sessionId, position)`,
 `pnpm db:generate` produced the four `CREATE UNIQUE INDEX` statements; `pnpm db:migrate` reported
 "Database migration 0005… applied"; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — no indexes on hot-path foreign keys
+
+**Severity:** High
+**Category:** Performance
+**Files changed:** `server/db/schema/academic.ts`, `server/db/schema/result.ts`,
+`server/db/migrations/sqlite/0006_mysterious_tag.sql` (+ meta)
+**Regression risk:** Low (additive)
+
+### Problem
+Per-request lookups on `students.classId`, `results.classId`, `scoresheets.studentId`, and
+`subjectScores.scoresheetId` had no supporting indexes, so SQLite did full table scans (worst in
+`bulkUpdateSubjectScores`, which filters by `scoresheetId` per row). `resultId`/`termId`/`sessionId`
+are covered by the leftmost prefixes of the composite unique indexes added in audit #10.
+
+### Fix
+Added `index()` definitions for the four columns. Generated and applied migration
+`0006_mysterious_tag.sql`.
+
+### Verification
+Migration SQL contains the four `CREATE INDEX` statements; `pnpm db:migrate` reported migrations up
+to date; `pnpm lint` clean.
+
 
 
