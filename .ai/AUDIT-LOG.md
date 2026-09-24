@@ -498,5 +498,26 @@ the target class (`NOT_FOUND`).
 `pnpm lint` — clean. Manual trace: moving a teacher from A to B clears `A.teacherId = null` before
 setting `B.teacherId`, so the unique index is satisfied.
 
+---
+
+## [2026-09-24] — remarks editable on published results
+
+**Severity:** Medium
+**Category:** Authorization
+**Files changed:** `server/routers/scoresheet.router.ts`, `server/contracts/scoresheet.contract.ts`
+**Regression risk:** None (UI already treats published as locked)
+
+### Problem
+`updateScoresheetRemarks` checked class scope and admin-only principal remarks but never checked
+`result.status`. Every other scoresheet/subjectScore mutation blocks `published`, so remarks were the
+one field that could be rewritten on a published report card.
+
+### Fix
+Added `if (result.status === "published") throw errors.PRECONDITION_FAILED()` (declared in the
+contract). Matches the page's existing `isLocked = status === "published"` UI guard.
+
+### Verification
+`pnpm lint` — clean. UI and server guards now agree.
+
 
 

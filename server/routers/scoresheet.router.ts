@@ -133,6 +133,9 @@ const updateScoresheetRemarks = os.updateScoresheetRemarks.handler(
     const result = await fetchSingleResult(scoresheet.resultId)
     if (!result) throw errors.NOT_FOUND()
 
+    // Remarks are immutable once a result is published, matching the other score mutations
+    if (result.status === "published") throw errors.PRECONDITION_FAILED()
+
     // Teacher can only update remarks on their own class's scoresheets
     if (user.role === "teacher" && result.classId !== user.classId) {
       throw errors.FORBIDDEN()
