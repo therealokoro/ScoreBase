@@ -156,9 +156,16 @@ const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors,
   }
 
   // Validate exam score against the snapshot ceiling
-  if (input.exam !== null && input.exam !== undefined && input.exam > scoreConfig.examMax) {
+  if (
+    input.exam !== null &&
+    input.exam !== undefined &&
+    (input.exam < 0 || input.exam > scoreConfig.examMax)
+  ) {
     throw errors.BAD_REQUEST({
-      message: `Exam score exceeds the maximum of ${scoreConfig.examMax}`
+      message:
+        input.exam < 0
+          ? "Exam score cannot be negative"
+          : `Exam score exceeds the maximum of ${scoreConfig.examMax}`
     })
   }
 
@@ -215,9 +222,16 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
           })
         }
       }
-      if (entry.exam !== null && entry.exam !== undefined && entry.exam > scoreConfig.examMax) {
+      if (
+        entry.exam !== null &&
+        entry.exam !== undefined &&
+        (entry.exam < 0 || entry.exam > scoreConfig.examMax)
+      ) {
         throw errors.BAD_REQUEST({
-          message: `Exam score exceeds the maximum of ${scoreConfig.examMax} on subject score ${entry.id}`
+          message:
+            entry.exam < 0
+              ? `Exam score cannot be negative on subject score ${entry.id}`
+              : `Exam score exceeds the maximum of ${scoreConfig.examMax} on subject score ${entry.id}`
         })
       }
     }

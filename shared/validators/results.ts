@@ -116,7 +116,8 @@ export type RemoveSubjectScoreInput = z.infer<typeof RemoveSubjectScoreSchema>
  * snapshot is loaded.
  */
 export const UpdateSubjectScoreSchema = createUpdateSchema(subjectScores, {
-  caScores: CaScoresArraySchema
+  caScores: CaScoresArraySchema,
+  exam: z.number().min(0, "Exam score cannot be negative").nullable()
 })
   .pick({ id: true, caScores: true, exam: true })
   .required({ id: true })
@@ -130,7 +131,10 @@ export const BulkUpdateSubjectScoresSchema = z.object({
   scoresheetId: z.string().min(1),
   scores: z
     .array(
-      createUpdateSchema(subjectScores, { caScores: CaScoresArraySchema })
+      createUpdateSchema(subjectScores, {
+        caScores: CaScoresArraySchema,
+        exam: z.number().min(0, "Exam score cannot be negative").nullable()
+      })
         .pick({ id: true, caScores: true, exam: true })
         .required()
     )

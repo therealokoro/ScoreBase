@@ -284,5 +284,26 @@ the concurrency backstop).
 `pnpm lint` — clean. Manual reasoning: the aggregate returns `9` for existing `…0009`, so the next
 ID is `…0010` as expected.
 
+---
+
+## [2026-09-24] — negative exam scores accepted
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `shared/validators/results.ts`, `server/routers/subjectScore.router.ts`
+**Regression risk:** None
+
+### Problem
+CA slots enforce `.min(0)` via `CaScoresArraySchema`, but `exam` came from `createUpdateSchema` with
+no minimum and the router only checked the upper bound. `exam: -40` was accepted in both
+`updateSubjectScore` and `bulkUpdateSubjectScores`, deflating totals/averages/positions.
+
+### Fix
+Added `z.number().min(0, …).nullable()` overrides for the `exam` column in both update schemas, plus
+explicit `< 0` checks in both router handlers (defense in depth, mirroring the max check).
+
+### Verification
+`pnpm lint` — clean. Schema and handler both reject negative values before any DB write.
+
 
 
