@@ -1080,6 +1080,33 @@ matching the pattern already used in `dashboard.query.ts`.
 ### Verification
 `pnpm lint` — 0 errors. Response shape unchanged (`count.students` string).
 
+---
+
+## [2026-09-24] — inconsistent exam seeding and unbounded custom subjects
+
+**Severity:** Low
+**Category:** Logic loopholes
+**Files changed:** `server/routers/subjectScore.router.ts`, `server/routers/scoresheet.router.ts`,
+`server/routers/results.router.ts`
+**Regression risk:** Low (new subjects start "not entered", matching creation)
+
+### Problem
+`addSubjectScore` seeded `exam: 0` while `createResult`/`createScoresheets` seeded `null`, so the
+same score had different "complete/incomplete" semantics depending on how the row was created. It
+also let a caller add unlimited subject-less ("custom") rows, each of which counts toward
+averages/positions. `createScoresheets` wrote a `subjectNameSnapshot` field that does not exist on
+the `subject_scores` table, and `createResult`'s docblock claimed CA slots were seeded as `0`.
+
+### Fix
+- Seed `exam: null` in `addSubjectScore`.
+- Cap custom (null-`subjectId`) rows per scoresheet at 20 with a typed `PRECONDITION_FAILED`.
+- Removed the non-existent `subjectNameSnapshot` write and corrected the `createResult` docblock.
+
+### Verification
+`pnpm lint` — 0 errors. New subject rows now match the creation-time null convention.
+
+
+
 
 
 

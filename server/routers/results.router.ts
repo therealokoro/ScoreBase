@@ -66,8 +66,8 @@ const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context })
  * CREATE — admin/teacher creates a result for a given term + class, and in the same transaction: 1.
  * Snapshots the current ResultSettings into scoreConfig 2. Creates the result row (status: draft)
  * 3. Bulk-creates a scoresheet for every student currently enrolled in the class 4. Pre-populates
- * each scoresheet's subject scores from the class's subject list preset, seeding caScores as an
- * array of 0 (length = caCount)
+ * each scoresheet's subject scores from the class's subject list preset, seeding caScores with null
+ * slots (length = caCount) and exam as null.
  *
  * This keeps "create a result" a single atomic action from the admin's point of view — a result is
  * never left in a state with zero scoresheets.

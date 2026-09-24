@@ -84,7 +84,6 @@ const createScoresheets = os.createScoresheets.handler(async ({ input, errors, c
           presetSubjects.map((subject) => ({
             scoresheetId: sheet.id,
             subjectId: subject.id,
-            subjectNameSnapshot: subject.name,
             // Initialise all CA slots as null — teacher fills them in later
             caScores: emptyCaScores,
             exam: null

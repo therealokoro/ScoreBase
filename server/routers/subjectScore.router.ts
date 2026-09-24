@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { and, eq } from "drizzle-orm"
+import { and, count, eq, isNull } from "drizzle-orm"
 
 import { APiContext } from "../context"
 import { subjectScoreContract } from "../contracts/subjectScore.contract"
@@ -67,9 +67,22 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
       )
     })
     if (duplicate) throw errors.CONFLICT()
+  } else {
+    // Custom (subject-less) rows have no natural unique key, so cap them to keep a
+    // scoresheet from being spammed with rows that skew averages/positions.
+    const MAX_CUSTOM_SUBJECTS = 20
+    const [customCount] = await db
+      .select({ value: count() })
+      .from(subjectScores)
+      .where(and(eq(subjectScores.scoresheetId, input.scoresheetId), isNull(subjectScores.subjectId)))
+
+    if ((customCount?.value ?? 0) >= MAX_CUSTOM_SUBJECTS) {
+      throw errors.PRECONDITION_FAILED({ message: "This scoresheet has too many custom subjects" })
+    }
   }
 
-  // Seed caScores with one null slot per CA defined in the snapshot
+  // Seed caScores with one null slot per CA defined in the snapshot.
+  // exam is seeded as null ("not yet entered"), matching result/scoresheet creation.
   const emptyCaScores = Array<null>(result.scoreConfig.caCount).fill(null)
 
   const [newScore] = await db
@@ -78,7 +91,7 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
       scoresheetId: input.scoresheetId,
       subjectId: input.subjectId ?? null,
       caScores: emptyCaScores,
-      exam: 0
+      exam: null
     })
     .returning()
 
