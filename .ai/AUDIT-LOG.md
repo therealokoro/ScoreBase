@@ -1039,6 +1039,29 @@ Removed the debug log. `getByTerm` now throws `FORBIDDEN` for teachers (declared
 ### Verification
 `grep console server/routers/student.router.ts` — clean; `pnpm lint` 0 errors.
 
+---
+
+## [2026-09-24] — student.query unbounded pagination and unescaped LIKE search
+
+**Severity:** Low
+**Category:** Performance / Logic loopholes
+**Files changed:** `server/contracts/student.contract.ts`, `server/queries/student.query.ts`
+**Regression risk:** Low (input now bounded; existing callers send valid values)
+
+### Problem
+`student.query` accepted any `page`/`pageSize` (a caller could request 100 000 rows with nested class
+relations, or a negative page → negative offset), and the search string was interpolated into a
+`LIKE` without escaping `%`/`_` (and only matched name).
+
+### Fix
+Bounded the contract input (`page >= 0`, `1 <= pageSize <= 100`, `search` ≤ 100 chars, trimmed).
+Escaped LIKE wildcards and added `ESCAPE '\'`, matching both name and student ID.
+
+### Verification
+`pnpm lint` — 0 errors. Wildcard characters in a search are now literal.
+
+
+
 
 
 

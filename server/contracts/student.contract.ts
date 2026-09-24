@@ -39,9 +39,9 @@ const remove = oc
 const query = oc
   .input(
     z.object({
-      page: z.number().default(0),
-      pageSize: z.number().default(10),
-      search: z.string().optional(),
+      page: z.number().int().min(0).default(0),
+      pageSize: z.number().int().min(1).max(100).default(10),
+      search: z.string().trim().max(100).optional(),
       classId: z.string().optional()
     })
   )
