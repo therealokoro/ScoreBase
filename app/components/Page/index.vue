@@ -54,7 +54,7 @@ const errorMessage = computed(
 // Only show Go Back if there's actually somewhere to go back to
 const canGoBack = computed(() => !!router.options.history.state.back)
 
-const styles = tv({ base: "flex items-start gap-3" })
+const styles = tv({ base: "flex items-start gap-3 print:hidden" })
 </script>
 
 <template>
@@ -101,7 +101,7 @@ const styles = tv({ base: "flex items-start gap-3" })
 
     <!-- Page Content -->
     <div v-else class="grid w-full gap-6">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 print:hidden">
         <!-- Quick Navigation Buttons -->
         <ui-button-group>
           <ui-button

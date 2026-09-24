@@ -677,5 +677,26 @@ Use `route.params.scoresheetId`.
 ### Verification
 `pnpm lint` — clean. The report-card page already uses the correct param.
 
+---
+
+## [2026-09-24] — report-card print included Page chrome
+
+**Severity:** Medium
+**Category:** UI/UX
+**Files changed:** `app/components/Page/index.vue`
+**Regression risk:** Low (shared component; only affects print output)
+
+### Problem
+Only the report-card page's own toolbar was `print:hidden`. The `Page` component rendered its
+quick-nav buttons, breadcrumbs, and H1 title without `print:hidden`, so `window.print()` output
+included dashboard chrome above the A4 report card.
+
+### Fix
+Added `print:hidden` to the nav/breadcrumb row and to the shared header `styles` base, so the entire
+`Page` chrome is removed from print while the default slot (report card) remains.
+
+### Verification
+`pnpm lint` — clean. `@page { size: A4 }` and `report-card-print-root` were already correct.
+
 
 
