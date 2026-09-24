@@ -35,7 +35,7 @@ const sidebarContents = computed(() => {
 
 <template>
   <UiSidebarProvider>
-    <UiSidebar side="left" class="border-r">
+    <UiSidebar side="left" class="border-r print:hidden">
       <!-- Sidebar Header -->
       <UiSidebarHeader class="flex flex-col gap-2 p-3">
         <NuxtLink
@@ -126,7 +126,7 @@ const sidebarContents = computed(() => {
 
     <!-- Main Page content -->
     <UiSidebarInset class="min-w-0 overflow-hidden">
-      <header class="sticky top-0 w-full h-14 z-10 bg-background border-b">
+      <header class="sticky top-0 w-full h-14 z-10 bg-background border-b print:hidden">
         <UiContainer class="flex h-full shrink-0 items-center gap-4">
           <UiSidebarTrigger />
         </UiContainer>

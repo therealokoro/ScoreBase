@@ -6,6 +6,8 @@ import {
   TERMS_PRESET
 } from "#shared/constants/kv-settings"
 
+import { mergeSettings } from "./merge-settings"
+
 const SCHOOL_SETTINGS_KV_KEY = "settings:school"
 
 export async function getSchoolSettings(): Promise<SchoolSettings>
@@ -16,7 +18,7 @@ export async function getSchoolSettings<K extends keyof SchoolSettings>(
   key?: K
 ): Promise<SchoolSettings | SchoolSettings[K]> {
   const stored = await kv.get<SchoolSettings>(SCHOOL_SETTINGS_KV_KEY)
-  const settings = { ...DEFAULT_SCHOOL_SETTINGS, ...stored }
+  const settings = mergeSettings(stored ?? {}, DEFAULT_SCHOOL_SETTINGS) as SchoolSettings
   return key ? settings[key] : settings
 }
 

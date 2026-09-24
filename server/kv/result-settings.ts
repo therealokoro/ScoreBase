@@ -3,6 +3,8 @@ import { kv } from "@nuxthub/kv"
 import { DEFAULT_RESULT_SETTINGS, ResultSettings } from "#shared/constants/kv-settings"
 import type { ScoreConfigSnapshot } from "#shared/validators/results"
 
+import { mergeSettings } from "./merge-settings"
+
 const RESULT_SETTINGS_KV_KEY = "settings:result"
 
 export async function getResultSettings(): Promise<ResultSettings>
@@ -13,7 +15,7 @@ export async function getResultSettings<K extends keyof ResultSettings>(
   key?: K
 ): Promise<ResultSettings | ResultSettings[K]> {
   const stored = await kv.get<ResultSettings>(RESULT_SETTINGS_KV_KEY)
-  const settings = { ...DEFAULT_RESULT_SETTINGS, ...stored }
+  const settings = mergeSettings(stored ?? {}, DEFAULT_RESULT_SETTINGS) as ResultSettings
   return key ? settings[key] : settings
 }
 

@@ -1,17 +1,21 @@
 import { db } from "@nuxthub/db"
-import { implement } from "@orpc/server"
+import { ORPCError, implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { classContract } from "../contracts/class.contract"
 import { classes } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
+import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
 
-const os = implement(classContract)
+const os = implement(classContract).$context<APiContext>()
 
 const listClasses = os.list.handler(async () => await listAllClasses())
 
-const getSingleClass = os.getOne.handler(async ({ input, errors }) => {
+const getSingleClass = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const classRecord = await fetchSingleClass(input.id)
   if (!classRecord) throw errors.NOT_FOUND()
 
@@ -21,7 +25,9 @@ const getSingleClass = os.getOne.handler(async ({ input, errors }) => {
   return { ...classRecord, count }
 })
 
-const createClass = os.create.handler(async ({ input, errors }) => {
+const createClass = os.create.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   // Check for name conflict
   const existingClass = await fetchSingleClass(input.name, "name")
   if (existingClass) throw errors.CONFLICT()
@@ -31,9 +37,21 @@ const createClass = os.create.handler(async ({ input, errors }) => {
   return returnClass!
 })
 
-const updateClass = os.update.handler(async ({ input, errors }) => {
+const updateClass = os.update.handler(async ({ input, errors, context }) => {
+  requireClassAccess(context, input.id)
+
   const existingClass = await fetchSingleClass(input.id!)
   if (!existingClass) throw errors.NOT_FOUND()
+
+  // Only admins may reassign the class teacher
+  const user = context.session!.user
+  if (
+    user.role !== "admin" &&
+    input.teacherId !== undefined &&
+    input.teacherId !== existingClass.teacherId
+  ) {
+    throw new ORPCError("FORBIDDEN", { message: "Only admins can reassign a class teacher" })
+  }
 
   // Check name conflict if name changed
   if (input.name !== existingClass.name) {
@@ -53,7 +71,9 @@ const updateClass = os.update.handler(async ({ input, errors }) => {
   return returnClass!
 })
 
-const removeClass = os.delete.handler(async ({ input, errors }) => {
+const removeClass = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
@@ -70,7 +90,9 @@ const removeClass = os.delete.handler(async ({ input, errors }) => {
   return { success: true }
 })
 
-const setSubjectList = os.setSubjectList.handler(async ({ input, errors }) => {
+const setSubjectList = os.setSubjectList.handler(async ({ input, errors, context }) => {
+  requireClassAccess(context, input.id)
+
   const existingClass = await fetchSingleClass(input.id!)
   if (!existingClass) throw errors.NOT_FOUND()
 

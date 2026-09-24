@@ -36,7 +36,7 @@ const sharedStyles = "rounded-lg border bg-card p-4 grid grid-cols-2 md:grid-col
 </script>
 
 <template>
-  <div class="w-full mx-auto space-y-6 print:space-y-4">
+  <div class="report-card-print-root w-full mx-auto space-y-6 print:space-y-4">
     <!-- Header -->
     <div class="rounded-lg border bg-card p-6 text-center space-y-1">
       <h1 class="lg:text-lg font-bold tracking-tight">

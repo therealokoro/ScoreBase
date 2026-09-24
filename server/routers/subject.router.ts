@@ -2,22 +2,28 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { subjectContract } from "../contracts/subject.contract"
 import { subjects } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchSingleSubject, listAllSubjects } from "../queries/subject.query"
+import { requireAdmin } from "../utils/auth-guard"
 
-const os = implement(subjectContract)
+const os = implement(subjectContract).$context<APiContext>()
 
 const listSubjects = os.list.handler(async () => await listAllSubjects())
 
-const getSingleSubject = os.getOne.handler(async ({ input, errors }) => {
+const getSingleSubject = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const subject = await fetchSingleSubject(input.id)
   if (!subject) throw errors.NOT_FOUND()
   return subject
 })
 
-const createSubject = os.create.handler(async ({ input, errors }) => {
+const createSubject = os.create.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   // Check for name conflict
   const existingSubject = await fetchSingleSubject(input.name, "name")
   if (existingSubject) throw errors.CONFLICT()
@@ -32,7 +38,9 @@ const createSubject = os.create.handler(async ({ input, errors }) => {
   return newSubject!
 })
 
-const updateSubject = os.update.handler(async ({ input, errors }) => {
+const updateSubject = os.update.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingSubject = await fetchSingleSubject(input.id)
   if (!existingSubject) throw errors.NOT_FOUND()
 
@@ -54,7 +62,9 @@ const updateSubject = os.update.handler(async ({ input, errors }) => {
   return updatedSubject!
 })
 
-const removeSubject = os.delete.handler(async ({ input, errors }) => {
+const removeSubject = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingSubject = await fetchSingleSubject(input.id)
   if (!existingSubject) throw errors.NOT_FOUND()
 

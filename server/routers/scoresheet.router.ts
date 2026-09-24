@@ -7,6 +7,7 @@ import { scoresheetContract } from "../contracts/scoresheet.contract"
 import { results, scoresheets, subjectScores } from "../db/schema"
 import { fetchReportCardData } from "../queries/reportCard.query"
 import { fetchSingleResult, fetchSingleScoresheet } from "../queries/result.query"
+import { requireAdmin } from "../utils/auth-guard"
 
 const os = implement(scoresheetContract).$context<APiContext>()
 
@@ -136,9 +137,9 @@ const updateScoresheetRemarks = os.updateScoresheetRemarks.handler(
       throw errors.FORBIDDEN()
     }
 
-    // Teachers may not set the principal's remark — that is admin-only
-    if (user.role === "teacher" && input.principalRemark !== undefined) {
-      throw errors.FORBIDDEN({ message: "Only admins can set the principal's remark" })
+    // Only admins may set the principal's remark
+    if (input.principalRemark !== undefined) {
+      requireAdmin(context)
     }
 
     const [updated] = await db

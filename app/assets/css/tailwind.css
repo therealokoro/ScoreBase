@@ -187,3 +187,15 @@
   justify-content: center;
   align-items: center;
 }
+
+/* Report card printing — see .ai/PROJECT.md §5.4 */
+@page {
+  size: A4;
+}
+
+@media print {
+  .report-card-print-root {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

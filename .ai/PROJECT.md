@@ -227,6 +227,12 @@ Calculated on the fly and cached until dependencies change:
 
 ### 5.4 Report Card Template Builder
 
+> **Status: roadmap (post-MVP).** The template builder in this section is not implemented
+> yet. The current report card renderer is `app/components/ReportCard/Document.vue` with a
+> fixed layout. Implementing this section requires enabling NuxtHub Blob first — add the
+> `@nuxthub/blob` dependency and `hub.blob` in `nuxt.config.ts` — because logo and signature
+> images are uploaded there.
+
 The report card template is a first-class feature: admins can fully customise how printed
 report cards look, and the config is persisted in NuxtHub KV under the key
 `settings:report-card-template`. The renderer component reads this config and combines it
@@ -284,7 +290,7 @@ The template is a deeply nested config object with four sections:
 | Score Distribution   | Set CA and Exam weights per term                                |
 | Student ID Pattern   | Configurable format (e.g. `STU/YYYY/###`)                       |
 | Position Display     | Set which positions to show on report cards                     |
-| Report Card Template | Full template builder for layout, logos, and content (see §5.4) |
+| Report Card Template | Full template builder for layout, logos, and content (see §5.4) — roadmap |
 | School Info          | Name, logo, motto, address                                      |
 | Subject Tags         | Manage available subject category tags                          |
 
@@ -293,11 +299,15 @@ The template is a deeply nested config object with four sections:
 ## 7. Authentication & Authorization
 
 - Auth library: **Better Auth** (v1.7.x)
-- Strategies: Email/Password, Username, Admin plugin
+- Strategies: Email/Password and the Admin plugin. A Username strategy is a **post-MVP**
+  feature and is not implemented.
 - Role-based access: `admin` and `teacher` roles with scoped permissions
 - Teachers log in with auto-generated or self-updated credentials
-- Server-side admin gating: check `context.session?.user?.role === "admin"` in oRPC handlers
-  and throw `FORBIDDEN` when the check fails
+- Server-side gating: use the helpers in `server/utils/auth-guard.ts` instead of inline role
+  checks — `requireAdmin(context)` for admin-only handlers, `requireClassAccess(context,
+  classId)` for class-scoped records, and `requireSelf(context, id)` for actions on the
+  caller's own account. They throw `UNAUTHORIZED` when there is no session and `FORBIDDEN`
+  when access is denied.
 - Page-level gating: `definePageMeta({ middleware: ["admin-only"] })`
 
 ---
@@ -317,7 +327,7 @@ The template is a deeply nested config object with four sections:
 | API Layer            | oRPC (v1)                                                            |
 | Database             | SQLite via NuxtHub v0.10 (libSQL/Turso)                              |
 | KV Storage           | NuxtHub KV (`import { kv } from '@nuxthub/kv'`)                      |
-| Blob Storage         | NuxtHub Blob (`import { blob } from '@nuxthub/blob'`)                |
+| Blob Storage         | NuxtHub Blob (`import { blob } from '@nuxthub/blob'`) — roadmap, not installed |
 | Authentication       | Better Auth (email/password + username + admin plugin)               |
 | Icons                | `@nuxt/icon` with an `ICONS` map from `~~/shared/constants/icons.ts` |
 | Dev Seeding          | Faker.js                                                             |
@@ -334,7 +344,7 @@ The template is a deeply nested config object with four sections:
   `FlexRender` with `:header`/`:cell`/`:footer` props.
 - **oRPC is intentionally pinned to v1.** v2 is still in beta with a changed wire format;
   migration is deferred until a stable release.
-- **NuxtHub** uses v0.10 and above, so no use of composables such as `hubBlob()`, `hubKv()` e.t.c, all imports come from `@nuxthub/**`, e.g (`import { blob } from '@nuxthub/blob'`, `import { kv } from "@nuxthub/kv"`), not accessed via a composable.
+- **NuxtHub** uses v0.10 and above, so no use of composables such as `hubBlob()`, `hubKv()` e.t.c, all imports come from `@nuxthub/**`, e.g (`import { kv } from "@nuxthub/kv"`), not accessed via a composable. Blob storage (`import { blob } from "@nuxthub/blob"`) is roadmap and not installed yet — enable `hub.blob` before using it.
 - **Tailwind v4** uses the Vite plugin (`@tailwindcss/vite`) and a CSS-based configuration.
   There is no `tailwind.config.js`.
 
@@ -433,8 +443,9 @@ ScoreBase/
 
 - Implement contract procedures
 - Standard procedure names: `list`, `getOne`, `create`, `update`, `delete`
-- Use the `implement(contract)` helper
-- Admin gating: check `context.session?.user?.role === "admin"`, throw `FORBIDDEN`
+- Use the `implement(contract).$context<APiContext>()` helper
+- Admin gating: call `requireAdmin(context)` from `server/utils/auth-guard.ts`; do not
+  write inline role checks
 
 **Queries** — `server/queries/XXX.query.ts`
 
@@ -601,8 +612,9 @@ Reference these inputs in templates as follows:
 9. Auto-generated teacher credentials follow deterministic rules based on **name and phone number**.
 10. Derived metrics are **never stored** — always computed from raw scores and cached.
 11. Report card templates are stored per-installation in KV and are admin-configurable at any
-    time; changes take effect on the next render.
-12. Logos and signature images are stored in Blob, not KV.
+    time; changes take effect on the next render. _(roadmap — see §5.4)_
+12. Logos and signature images are stored in Blob, not KV. _(roadmap — requires NuxtHub Blob
+    to be enabled first; see §5.4)_
 
 ---
 

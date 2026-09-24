@@ -5,11 +5,14 @@ import { eq } from "drizzle-orm"
 import type { APiContext } from "../context"
 import { accountContract } from "../contracts/account.contract"
 import { user } from "../db/schema"
+import { requireSelf } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
 const os = implement(accountContract).$context<APiContext>()
 
-const updateAccount = os.updateInfo.handler(async ({ input, errors }) => {
+const updateAccount = os.updateInfo.handler(async ({ input, errors, context }) => {
+  requireSelf(context, input.id)
+
   const existingAccount = await db.query.user.findFirst({ where: eq(user.id, input.id) })
   if (!existingAccount) throw errors.NOT_FOUND()
 
@@ -33,6 +36,8 @@ const updateAccount = os.updateInfo.handler(async ({ input, errors }) => {
 })
 
 const updatePassword = os.updatePassword.handler(async ({ input, errors, context }) => {
+  requireSelf(context, input.id)
+
   const existingAccount = await db.query.user.findFirst({ where: eq(user.id, input.id) })
   if (!existingAccount) throw errors.NOT_FOUND()
 

@@ -9,10 +9,13 @@ import {
   fetchClassByTeacherId,
   fetchResultByTermAndClass
 } from "../queries/dashboard.query"
+import { requireAdmin } from "../utils/auth-guard"
 
 const os = implement(dashboardContract).$context<APiContext>()
 
-const getAdminSummary = os.getAdminSummary.handler(async () => {
+const getAdminSummary = os.getAdminSummary.handler(async ({ context }) => {
+  requireAdmin(context)
+
   const [counts, { activeSession, activeTerm }] = await Promise.all([
     fetchDashboardCounts(),
     fetchActiveSessionAndTerm()

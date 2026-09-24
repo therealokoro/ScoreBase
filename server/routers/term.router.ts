@@ -2,23 +2,31 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { termContract } from "../contracts/term.contract"
 import { terms, academicSessions } from "../db/schema"
 import { fetchSingleTerm, fetchTermsBySession, resolveNextTerm } from "../queries/term.query"
+import { requireAdmin } from "../utils/auth-guard"
 
-const os = implement(termContract)
+const os = implement(termContract).$context<APiContext>()
 
-const listTerms = os.list.handler(({ input }) => {
+const listTerms = os.list.handler(({ input, context }) => {
+  requireAdmin(context)
+
   return fetchTermsBySession(input.sessionId)
 })
 
-const getSingleTerm = os.getOne.handler(async ({ input, errors }) => {
+const getSingleTerm = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const term = await fetchSingleTerm(input.id)
   if (!term) throw errors.NOT_FOUND()
   return term
 })
 
-const createTerm = os.create.handler(async ({ input, errors }) => {
+const createTerm = os.create.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   // 1. Check parent session exists
   const parentSession = await db.query.academicSessions.findFirst({
     where: eq(academicSessions.id, input.sessionId)
@@ -43,7 +51,9 @@ const createTerm = os.create.handler(async ({ input, errors }) => {
   return term!
 })
 
-const updateTerm = os.update.handler(async ({ input, errors }) => {
+const updateTerm = os.update.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingTerm = await fetchSingleTerm(input.id)
   if (!existingTerm) throw errors.NOT_FOUND()
 
@@ -62,7 +72,9 @@ const updateTerm = os.update.handler(async ({ input, errors }) => {
   return updatedTerm!
 })
 
-const removeTerm = os.delete.handler(async ({ input, errors }) => {
+const removeTerm = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingTerm = await fetchSingleTerm(input.id)
   if (!existingTerm) throw errors.NOT_FOUND()
 

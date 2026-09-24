@@ -2,10 +2,12 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
 import { getSchoolSettings, getTermPreset } from "../kv/school-settings"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
+import { requireAdmin } from "../utils/auth-guard"
 
 export function generateNextSessionName(sessions: { name: string }[], suffix = ""): string {
   if (sessions.length === 0) {
@@ -27,18 +29,22 @@ export function generateNextSessionName(sessions: { name: string }[], suffix = "
   return suffix ? `${nextYear}/${nextYear + 1} ${suffix}` : `${nextYear}/${nextYear + 1}`
 }
 
-const os = implement(academicSessionContract)
+const os = implement(academicSessionContract).$context<APiContext>()
 
 const listAcademicSessions = os.list.handler(async () => await listAllAcademicSessions())
 
-const getSingleAcademicSession = os.getOne.handler(async ({ input, errors }) => {
+const getSingleAcademicSession = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const academicSesison = await fetchSingleAcademicSession(input.id)
   if (!academicSesison) throw errors.NOT_FOUND()
 
   return academicSesison
 })
 
-const createAcademicSession = os.create.handler(async () => {
+const createAcademicSession = os.create.handler(async ({ context }) => {
+  requireAdmin(context)
+
   // list sessions
   const allSessions = await listAllAcademicSessions()
   // extract existing session names
@@ -63,7 +69,9 @@ const createAcademicSession = os.create.handler(async () => {
   return academicSession!
 })
 
-const updateAcademicSession = os.update.handler(async ({ input, errors }) => {
+const updateAcademicSession = os.update.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingSession = await fetchSingleAcademicSession(input.id)
   if (!existingSession) throw errors.NOT_FOUND()
 
@@ -81,7 +89,9 @@ const updateAcademicSession = os.update.handler(async ({ input, errors }) => {
   return updatedSession!
 })
 
-const removeAcademicSession = os.delete.handler(async ({ input, errors }) => {
+const removeAcademicSession = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingSession = await fetchSingleAcademicSession(input.id)
   if (!existingSession) throw errors.NOT_FOUND()
 

@@ -31,7 +31,7 @@
 The complete CSS source and token definitions are located at:
 
 ```txt
-./app/assets/css/main.css
+./app/assets/css/tailwind.css
 ```
 
 This file is the canonical source of all design tokens.
@@ -356,62 +356,46 @@ Use these exact class combinations for result lifecycle states.
 
 ## 4.4 Forms
 
-All form components are built on top of **vee-validate** and the shared form primitives located in:
-
-```txt id="6l4m80"
-app/components/form
-```
-
-These components provide:
+All forms are built on **FormKit** (`@formkit/nuxt` with `autoImport: true`). Config lives in `app/formkit.config.ts`, custom inputs are registered there with `createInput`, and FormKit's default styling is themed to shadcn-vue in `app/assets/css/formkit-shadcn.css`. This provides:
 
 - Consistent styling
 - Validation handling
-- Accessibility support
+- Accessibility support (labels, help text, error messaging)
 - Shared layouts and spacing
 - Tight integration with shadcn-vue primitives
 
 ### Form Architecture Rules
 
-- Always initialize forms with `useForm()`
-- Prefer `initialValues` for all fields
-- Use shared `UiForm*` components instead of raw inputs
-- Validation should be handled through vee-validate schemas or field rules
-- Never manually wire labels, errors, or descriptions when a `UiForm*` component already handles them
+- Always wrap forms in `<FormKit type="form">`
+- Pass initial values with `:value` (or `v-model` for a local writable copy) — never bind `v-model` directly to TanStack Query `data`, which is wrapped in `readonly()`
+- Use FormKit input types and the registered custom inputs (`_select`, `_tags`, `<FormKitPassword />`) instead of raw inputs
+- Client-side validation should be handled through FormKit's `validation` prop and custom rules registered in `app/formkit.config.ts`
+- Derive payload types from the shared Zod schemas in `shared/validators/**` with `z.infer`; the same schemas are enforced server-side by oRPC
+- Never manually wire labels, help text, or errors — FormKit renders them from the `label` / `help` props and validation state
 - All form spacing should use `space-y-6` unless a tighter layout is explicitly needed
 - Use `gap-4` for grouped form controls
-- All submit actions should use `handleSubmit()`
+- Disable fields during submission with `<fieldset :disabled="isSubmitting">` and reflect loading on the submit `<UiButton>`
 
 ---
 
 ## Standard Form Setup
 
-Use `vee-validate` with `zod` schemas for all forms. Always check `shared/validators/**` folder to see if a zod schema is already defined for that form, or that matches the form and import it rather than creating a new one. If need be, edit the already existing one after users approval.
+Use **FormKit** for all forms and the shared Zod schemas in `shared/validators/**` as the source of truth for payload shapes. Always check that folder first: if a schema (and its `z.infer` type) already exists for the form, import the type rather than redefining it. If it needs changing, edit the existing schema after user approval.
 
 ```vue
 <script setup lang="ts">
-import * as z from "zod"
-import { toTypedSchema } from "@vee-validate/zod"
+import { type UpsertStudentInput } from "~~/shared/validators/academic"
 
-const schema = toTypedSchema(
-  z.object({
-    name: z.string().min(2, "Student name is required"),
-    studentId: z.string(),
-    class: z.string().min(1, "Class is required")
-  })
-)
+const isSubmitting = ref(false)
 
-const { handleSubmit } = useForm({
-  validationSchema: schema,
-  initialValues: {
-    name: "",
-    studentId: "",
-    class: ""
+async function onSubmit(payload: UpsertStudentInput) {
+  isSubmitting.value = true
+  try {
+    await createStudent.mutateAsync(payload)
+  } finally {
+    isSubmitting.value = false
   }
-})
-
-const onSubmit = handleSubmit((values) => {
-  console.log(values)
-})
+}
 
 const classOptions = [
   { label: "JSS1A", value: "jss1a" },
@@ -420,50 +404,58 @@ const classOptions = [
 </script>
 
 <template>
-  <form class="space-y-6" @submit.prevent="onSubmit">
-    <UiFormInput
-      name="name"
-      label="Student Name *"
-      placeholder="Ahmed Musa"
-      :icon="ICONS.student"
-    />
+  <FormKit type="form" class="space-y-6" :actions="false" @submit="onSubmit">
+    <fieldset :disabled="isSubmitting">
+      <FormKit
+        name="name"
+        label="Student Name *"
+        placeholder="Ahmed Musa"
+        :prefix-icon="ICONS.student"
+        validation="required"
+      />
 
-    <UiFormInput
-      name="studentId"
-      label="Student ID *"
-      placeholder="STU-2026-001"
-      :icon="ICONS.credentials"
-    />
+      <FormKit
+        name="studentId"
+        label="Student ID *"
+        placeholder="STU-2026-001"
+        :prefix-icon="ICONS.credentials"
+        validation="required"
+      />
 
-    <UiFormSelect
-      name="class"
-      label="Class *"
-      placeholder="Select class"
-      :options="classOptions"
-      :icon="ICONS.class"
-    />
+      <FormKit
+        type="_select"
+        name="classId"
+        label="Class *"
+        placeholder="Select class"
+        :options="classOptions"
+        :prefix-icon="ICONS.class"
+        validation="required"
+      />
 
-    <div class="flex justify-end">
-      <UiButton type="submit"> Add Student </UiButton>
-    </div>
-  </form>
+      <div class="flex justify-end">
+        <UiButton type="submit" :loading="isSubmitting"> Add Student </UiButton>
+      </div>
+    </fieldset>
+  </FormKit>
 </template>
 ```
 
 ### Supported Form Components
 
-| Component          | Purpose                               |
-| ------------------ | ------------------------------------- |
-| `UiFormInput`      | Text, email, password, URL, search    |
-| `UiFormPassword`   | Password input with visibility toggle |
-| `UiFormTextarea`   | Long-form text                        |
-| `UiFormNumber`     | Numeric values                        |
-| `UiFormSelect`     | Select dropdown                       |
-| `UiFormDatePicker` | Date selection                        |
-| `UiFormCheckbox`   | Boolean agreement/input               |
-| `UiFormSwitch`     | Toggle settings                       |
-| `UiFormRadioGroup` | Single-choice selection               |
-| `UiFormTagsInput`  | Array/tag input                       |
+FormKit ships all native input types; use the type that matches the data and the registered custom inputs for shadcn-vue controls.
+
+| Type / Component | Purpose                                             |
+| ---------------- | --------------------------------------------------- |
+| `form`           | Form wrapper; handles submit and validation         |
+| `text`           | Text                                                |
+| `email`          | Email                                               |
+| `password`       | Password (use `<FormKitPassword />` for the toggle) |
+| `number`         | Numeric values                                      |
+| `textarea`       | Long-form text                                      |
+| `checkbox`       | Boolean agreement/input                             |
+| `select`         | Native select dropdown                              |
+| `_select`        | shadcn-vue select dropdown (custom input)           |
+| `_tags`          | Array/tag input (custom input)                      |
 
 ---
 
@@ -475,7 +467,7 @@ const classOptions = [
 - Required fields should include `*`
 
 ```vue id="7v8ojv"
-<UiFormInput name="email" label="Email address *" />
+<FormKit type="email" name="email" label="Email address *" />
 ```
 
 ---
@@ -485,7 +477,11 @@ const classOptions = [
 Descriptions should provide context, constraints, or guidance.
 
 ```vue id="c1v6q5"
-<UiFormPassword name="password" description="Use a mix of letters, numbers, and symbols." />
+<FormKitPassword
+  name="password"
+  label="Password"
+  help="Use a mix of letters, numbers, and symbols."
+/>
 ```
 
 ---
@@ -508,43 +504,54 @@ All icons must come from the shared `ICONS` constant.
 Never hardcode icon names inline.
 
 ```vue id="6odbo9"
-<UiFormInput :icon="ICONS.email" name="email" />
+<FormKit type="email" name="email" :prefix-icon="ICONS.email" />
 ```
 
 ---
 
-### Textarea Slots
+### Custom Inputs
 
-`UiFormTextarea` supports toolbar and utility slots.
+Custom inputs are registered centrally in `app/formkit.config.ts` with `createInput`, so they can be used anywhere as a FormKit `type`.
 
-#### `#block-start`
+#### `_select`
 
-Useful for helper metadata or toolbars.
+`app/components/FormKit/Select.vue` wraps `UiSelect`. Accepts `options` (`{ label, value, disabled? }[]`), `placeholder`, `multiple`, and `disabled`.
 
 ```vue id="i4qqs2"
-<UiFormTextarea name="message">
-  <template #block-start="{ value }">
-    <InputGroupText class="text-xs font-mono">
-      {{ value?.split(' ').length ?? 0 }} words
-    </InputGroupText>
-  </template>
-</UiFormTextarea>
+<FormKit
+  type="_select"
+  name="classId"
+  label="Class"
+  placeholder="Select a class for the student"
+  :options="classes"
+  validation="required"
+/>
 ```
 
 ---
 
-#### `#block-end`
+#### `_tags`
 
-Useful for counters or inline actions.
+`app/components/FormKit/Tags.vue` wraps `UiTagsInput`. Accepts `addOnKeys`, `placeholder`, and `disabled`.
 
 ```vue id="m8xvv7"
-<UiFormTextarea name="bio" :maxlength="300">
-  <template #block-end="{ length, maxlength }">
-    <InputGroupText class="ml-auto text-xs text-muted-foreground">
-      {{ length }} / {{ maxlength }}
-    </InputGroupText>
-  </template>
-</UiFormTextarea>
+<FormKit
+  type="_tags"
+  name="subjectTags"
+  label="Subject Tags"
+  placeholder="Create tags for subjects"
+  help="Subject tags are used to filter and manage subjects"
+/>
+```
+
+---
+
+#### `FormKitPassword`
+
+`app/components/FormKit/Password.vue` is a thin wrapper used directly as `<FormKitPassword />`. It renders a password field with a visibility toggle.
+
+```vue id="r2kq4n"
+<FormKitPassword name="password" label="Password" validation="required" />
 ```
 
 ---
@@ -557,9 +564,11 @@ Useful for counters or inline actions.
   text-destructive text-xs
   ```
 
-- Validation should occur through vee-validate schemas or rules
+  FormKit's themed message styling in `app/assets/css/formkit-shadcn.css` (`.formkit-message`) already applies `--destructive` and `text-xs`; only add this class when building custom message markup.
 
-- Prefer schema validation (Zod/Yup/Valibot) for complex forms
+- Client-side validation should occur through FormKit's `validation` prop or custom rules registered in `app/formkit.config.ts`
+
+- Prefer the shared Zod schemas in `shared/validators/**` for complex forms — derive payload types with `z.infer` and let oRPC enforce them server-side
 
 - Async validation should show loading indicators when necessary
 
@@ -766,28 +775,23 @@ The `ICONS` constant is auto-imported by Nuxt, so explicit imports are unnecessa
 app
 ├── assets/
 │   └── css/
-│       └── main.css
+│       ├── tailwind.css          # CSS entry (imported by nuxt.config.ts)
+│       └── formkit-shadcn.css    # FormKit styling
 │
 ├── components/
-│   ├── ui/
-│   │   └── ...
-│   │
-│   ├── form/
-│   │   └── ...
-│   │
-│   ├── app/
-│   │   ├── Sidebar.vue
-│   │   ├── TopBar.vue
-│   │   └── Breadcrumb.vue
-│   │
-│   ├── result/
-│   └── student/
+│   ├── Ui/            # shadcn-vue primitives (Ui prefix)
+│   ├── FormKit/       # FormKit custom inputs
+│   ├── App/           # shared application components
+│   ├── Page/
+│   ├── Sidebar/
+│   └── ...            # domain folders: Class, Session, Subject, Student, Teacher,
+│                      # Result, Scoresheet, ReportCard, Settings, Dashboard
 ```
 
 ## Rules
 
 - Do not manually modify generated shadcn components unless necessary.
-- Shared application-level components belong in `components/app`.
+- Shared application-level components belong in `components/App`.
 - Domain-specific components belong in namespaced folders.
 
 ---

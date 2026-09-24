@@ -7,6 +7,7 @@ import { teacherContract } from "../contracts/teacher.contract"
 import { classes, user } from "../db/schema"
 import { listStudentsByClass } from "../queries/student.query"
 import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
+import { requireAdmin } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
 async function assignClassToTeacher(classId: string | undefined, userId: string) {
@@ -24,20 +25,27 @@ async function assignClassToTeacher(classId: string | undefined, userId: string)
   return selectedClass
 }
 
-// All procedures share the APiContext so `context.session` is available
-// if you need to restrict any of these to admins in the future.
-// access the logged in user via `context.session.user` and `.role` to get the role
+// All procedures share the APiContext so `context.session` is available.
+// Admin-only procedures call `requireAdmin(context)`; teacher-facing
+// procedures such as `getClass` stay ungated.
 const os = implement(teacherContract).$context<APiContext>()
 
-const listTeachers = os.list.handler(async () => await listAllTeachers())
+const listTeachers = os.list.handler(async ({ context }) => {
+  requireAdmin(context)
+  return await listAllTeachers()
+})
 
-const getSingleTeacher = os.getOne.handler(async ({ input, errors }) => {
+const getSingleTeacher = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const teacherRecord = await fetchSingleTeacher(input.id)
   if (!teacherRecord) throw errors.NOT_FOUND()
   return teacherRecord
 })
 
-const createTeacher = os.create.handler(async ({ input, errors }) => {
+const createTeacher = os.create.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   // Use the singleton — no more re-initialization on every call
   const existingTeacher = await db.query.user.findFirst({
     where: (user, { eq, or }) =>
@@ -69,7 +77,9 @@ const createTeacher = os.create.handler(async ({ input, errors }) => {
   }
 })
 
-const updateTeacher = os.update.handler(async ({ input, errors }) => {
+const updateTeacher = os.update.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingTeacher = await fetchSingleTeacher(input.id)
   if (!existingTeacher) throw errors.NOT_FOUND()
 
@@ -94,7 +104,9 @@ const updateTeacher = os.update.handler(async ({ input, errors }) => {
   await assignClassToTeacher(input.classId, input.id)
 })
 
-const removeTeacher = os.delete.handler(async ({ input, errors }) => {
+const removeTeacher = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingTeacher = await fetchSingleTeacher(input.id)
   if (!existingTeacher) throw errors.NOT_FOUND()
 

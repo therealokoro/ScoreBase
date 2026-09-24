@@ -2,21 +2,27 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import type { APiContext } from "../context"
 import { SubjectListContract } from "../contracts/subjectList.contract"
 import { subjectLists } from "../db/schema"
 import { fetchSingleSubjectList, listAllSubjectLists } from "../queries/subjectList.query"
+import { requireAdmin } from "../utils/auth-guard"
 
-const os = implement(SubjectListContract)
+const os = implement(SubjectListContract).$context<APiContext>()
 
 const listSubjectLists = os.list.handler(async () => await listAllSubjectLists())
 
-const getOneSubjectList = os.getOne.handler(async ({ input, errors }) => {
+const getOneSubjectList = os.getOne.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const preset = await fetchSingleSubjectList(input.id)
   if (!preset) throw errors.NOT_FOUND()
   return preset
 })
 
-const createSubjectList = os.create.handler(async ({ input, errors }) => {
+const createSubjectList = os.create.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   // Check for duplicate subject list preset
   const existingSubjectList = await fetchSingleSubjectList(input.name, "name")
   if (existingSubjectList) throw errors.CONFLICT()
@@ -26,7 +32,9 @@ const createSubjectList = os.create.handler(async ({ input, errors }) => {
   return newPreset!
 })
 
-const updateSubjectList = os.update.handler(async ({ input, errors }) => {
+const updateSubjectList = os.update.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingSubjectList = await fetchSingleSubjectList(input.id, "id")
   if (!existingSubjectList) throw errors.NOT_FOUND()
 
@@ -45,7 +53,9 @@ const updateSubjectList = os.update.handler(async ({ input, errors }) => {
   return updatedPreset!
 })
 
-const removeClassSubject = os.delete.handler(async ({ input, errors }) => {
+const removeClassSubject = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const existingPreset = await fetchSingleSubjectList(input.id)
   if (!existingPreset) throw errors.NOT_FOUND()
 

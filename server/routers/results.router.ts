@@ -13,6 +13,7 @@ import {
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
+import { requireAdmin } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
   draft: ["submitted"]
@@ -152,8 +153,7 @@ const createResult = os.create.handler(async ({ input, errors }) => {
 
 /** UPDATE SCORE CONFIG — unchanged from before */
 const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
-  if (user.role !== "admin") throw errors.FORBIDDEN()
+  requireAdmin(context)
 
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
@@ -249,7 +249,9 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
 })
 
 /** DELETE — unchanged from before */
-const deleteResult = os.delete.handler(async ({ input, errors }) => {
+const deleteResult = os.delete.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
   if (result.status !== "draft") throw errors.PRECONDITION_FAILED()
