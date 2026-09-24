@@ -33,7 +33,8 @@ function initUpdateAction(payload: ITeacher) {
 
 const updateTeacher = useUpdateTeacher()
 function handleUpdateAction(payload: any) {
-  useSonner.promise(updateTeacher.mutateAsync({ ...payload, id: activeTeacher.value?.id }), {
+  if (!activeTeacher.value?.id) return
+  useSonner.promise(updateTeacher.mutateAsync({ ...payload, id: activeTeacher.value.id }), {
     loading: "Updating teacher's info, please wait...",
     success: () => {
       openUpdateSheet.value = false
@@ -54,7 +55,8 @@ function initDeleteAction(payload: ITeacher) {
 const openDeleteDialog = ref(false)
 const deleteTeacher = useDeleteTeacher()
 function handleDeleteAction() {
-  useSonner.promise(deleteTeacher.mutateAsync({ id: activeTeacher.value!.id }), {
+  if (!activeTeacher.value?.id) return
+  useSonner.promise(deleteTeacher.mutateAsync({ id: activeTeacher.value.id }), {
     loading: "Deleting teacher's info, please wait...",
     success: () => {
       openDeleteDialog.value = false

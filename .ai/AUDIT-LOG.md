@@ -1105,6 +1105,40 @@ the `subject_scores` table, and `createResult`'s docblock claimed CA slots were 
 ### Verification
 `pnpm lint` — 0 errors. New subject rows now match the creation-time null convention.
 
+---
+
+## [2026-09-24] — miscellaneous robustness gaps
+
+**Severity:** Low
+**Category:** Code quality
+**Files changed:** `app/pages/dashboard/sessions/[sessionId].vue`,
+`app/pages/dashboard/teachers/index.vue`, `app/components/Class/SubjectPresetControl.vue`,
+`app/components/Student/UpsertForm.vue`, `app/pages/dashboard/results/index.vue`,
+`server/routers/student.router.ts`, `server/contracts/student.contract.ts`
+**Regression risk:** Low
+
+### Problem
+- `sessions/[sessionId].vue` awaited `refetch()` with no rejection handling and dereferenced
+  `session.updatedAt!` while loading.
+- `teachers/index.vue` built mutation IDs from possibly-undefined refs.
+- `SubjectPresetControl` had no in-flight guard on Save and a label pointing at a non-focusable
+  element.
+- `Student/UpsertForm` snapshotted `autoGenerateStudentId` before settings resolved.
+- The `autoGenerateStudentId` setting was never consulted by `createStudent`.
+- `results/index.vue` typed its create form as `Record<string, any>`.
+
+### Fix
+Added try/catch + toast around the term refetch and guarded the session description; added early
+returns in the teacher handlers; added `:loading`/`:disabled` to the preset buttons and an
+`aria-label` on the select; watched the settings for the student-ID toggle; `createStudent` now
+throws `BAD_REQUEST` when the ID is blank and auto-generation is off (declared on the contract);
+typed the results form as `Partial<CreateResultInput>`.
+
+### Verification
+`pnpm lint` — 0 errors.
+
+
+
 
 
 

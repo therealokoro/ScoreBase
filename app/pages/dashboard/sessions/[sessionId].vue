@@ -48,14 +48,18 @@ async function selectTerm(term: ITerm) {
   if (activeTerm.value?.id == term.id) return
 
   activeTerm.value = term
-  await fetchTermResult()
+  try {
+    await fetchTermResult()
+  } catch (err: any) {
+    useSonner.error(err?.message ?? "Could not load the result for this term")
+  }
 }
 </script>
 
 <template>
   <Page
     :title="session?.name"
-    :description="formatDate(session?.updatedAt!, 'Created on ')"
+    :description="session ? formatDate(session.updatedAt, 'Created on ') : undefined"
     :loading="isPending"
     :error="sessionIdError ?? error ?? undefined"
   >

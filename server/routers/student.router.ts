@@ -44,6 +44,11 @@ const createStudent = os.create.handler(async ({ input, errors, context }) => {
   let studentId: string
 
   if (!input.studentId?.trim()) {
+    const autoGenerate = await getSchoolSettings("autoGenerateStudentId")
+    if (!autoGenerate) {
+      throw errors.BAD_REQUEST({ message: "A student ID is required" })
+    }
+
     const prefix = await getSchoolSettings("studentIdPrefix")
     const year = new Date().getFullYear()
     const sequencePrefix = `${prefix}-${year}-`

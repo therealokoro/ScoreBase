@@ -17,7 +17,8 @@ const create = oc
   .input(UpsertStudentSchema)
   .output(StudentSchema.omit({ class: true }))
   .errors({
-    CONFLICT: { message: "A student with that ID already exists" }
+    CONFLICT: { message: "A student with that ID already exists" },
+    BAD_REQUEST: { message: "A student ID is required when auto-generation is disabled" }
   })
 
 const update = oc

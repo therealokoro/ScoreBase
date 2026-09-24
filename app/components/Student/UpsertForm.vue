@@ -40,7 +40,13 @@ const isCreateStudentForClass = computed(
 
 // local ref to toggle on/off studentId field, initializes with stored settings
 const { data: settings } = useGetSchoolSettings()
-const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
+const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId ?? true)
+watch(
+  () => settings.value?.autoGenerateStudentId,
+  (value) => {
+    if (value !== undefined) autoGenerateStudentId.value = value
+  }
+)
 </script>
 
 <template>

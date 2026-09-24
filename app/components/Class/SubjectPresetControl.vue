@@ -70,12 +70,13 @@ function initUnsetPreset() {
       description="Select a subjects list preset for this class"
     >
       <template #content>
-        <UiLabel for="select-preset">Select a preset</UiLabel>
+        <UiLabel>Select a preset</UiLabel>
         <UiSelect
           v-if="presets.length"
           v-model="selectedPreset"
           :options="presets"
           id="select-preset"
+          aria-label="Select a preset"
           placeholder="Pick a preset to apply to the class"
         />
       </template>
@@ -93,11 +94,19 @@ function initUnsetPreset() {
             variant="destructive"
             type="button"
             class="mt-2 sm:mt-0"
+            :disabled="setSubjectList.isPending.value"
             @click="initUnsetPreset()"
           >
             Unset Preset
           </UiButton>
-          <UiButton type="submit" @click="handleSubmit">Save</UiButton>
+          <UiButton
+            type="submit"
+            :loading="setSubjectList.isPending.value"
+            :disabled="setSubjectList.isPending.value"
+            @click="handleSubmit"
+          >
+            Save
+          </UiButton>
         </UiDialogFooter>
       </template>
     </UiDialogContent>

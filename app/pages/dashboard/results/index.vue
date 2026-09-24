@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
+import type { CreateResultInput } from "~~/shared/validators/results"
 
 const isSheetOpen = ref(false)
 const { isAdmin, user } = useAuth()
@@ -7,7 +8,7 @@ const { isAdmin, user } = useAuth()
 const { data: sessions } = useAcademicSessionList()
 const { data: schoolSettings } = useGetSchoolSettings()
 
-const formData = ref<Record<string, any>>({})
+const formData = ref<Partial<CreateResultInput>>({})
 
 watch(
   [schoolSettings, user],
