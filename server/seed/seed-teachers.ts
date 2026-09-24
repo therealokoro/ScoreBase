@@ -11,12 +11,11 @@ export async function seedTeachers(
 
   const drafts = classNames.map(() => {
     const name = nigerianName()
-    const surname = name.split(" ")[0]!
 
     return {
       name,
       email: uniqueEmail(name),
-      password: `pass-${surname.toLowerCase()}-123`,
+      password: uniquePhone(),
       phoneNumber: uniquePhone()
     }
   })

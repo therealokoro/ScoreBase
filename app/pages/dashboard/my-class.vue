@@ -70,7 +70,7 @@ function handleUpdateClass(payload: any) {
         />
 
         <!-- Show class stats -->
-        <ClassStatsCard v-for="item in classStats" v-bind="item" />
+        <!-- <ClassStatsCard v-for="item in classStats" v-bind="item" /> -->
       </div>
 
       <!-- Render students in a table -->
