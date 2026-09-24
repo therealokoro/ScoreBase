@@ -1,12 +1,11 @@
 import { db } from "@nuxthub/db"
 import { ORPCError, implement } from "@orpc/server"
-import { eq } from "drizzle-orm"
+import { count, eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { classContract } from "../contracts/class.contract"
-import { classes, results, subjectLists, user } from "../db/schema"
+import { classes, results, students, subjectLists, user } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
-import { listStudentsByClass } from "../queries/student.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const os = implement(classContract).$context<APiContext>()
@@ -50,10 +49,13 @@ const getSingleClass = os.getOne.handler(async ({ input, errors, context }) => {
   const classRecord = await fetchSingleClass(input.id)
   if (!classRecord) throw errors.NOT_FOUND()
 
-  const studentCount = (await listStudentsByClass(classRecord.id)).length
-  const count = { students: studentCount.toString() }
+  const [studentCount] = await db
+    .select({ value: count() })
+    .from(students)
+    .where(eq(students.classId, classRecord.id))
+  const countSummary = { students: (studentCount?.value ?? 0).toString() }
 
-  return { ...classRecord, count }
+  return { ...classRecord, count: countSummary }
 })
 
 const createClass = os.create.handler(async ({ input, errors, context }) => {
@@ -116,9 +118,12 @@ const removeClass = os.delete.handler(async ({ input, errors, context }) => {
   const existingClass = await fetchSingleClass(input.id)
   if (!existingClass) throw errors.NOT_FOUND()
 
-  const classStudents = await listStudentsByClass(existingClass.id)
+  const [studentCount] = await db
+    .select({ value: count() })
+    .from(students)
+    .where(eq(students.classId, existingClass.id))
 
-  if (classStudents.length > 0) {
+  if ((studentCount?.value ?? 0) > 0) {
     throw errors.PRECONDITION_FAILED({
       message:
         "Cannot delete class because it contains student(s). Please re-assign students to a new class"

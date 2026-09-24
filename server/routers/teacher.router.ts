@@ -1,11 +1,10 @@
 import { db } from "@nuxthub/db"
 import { ORPCError, implement } from "@orpc/server"
-import { eq } from "drizzle-orm"
+import { count, eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { teacherContract } from "../contracts/teacher.contract"
-import { classes, user } from "../db/schema"
-import { listStudentsByClass } from "../queries/student.query"
+import { classes, students, user } from "../db/schema"
 import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
@@ -148,10 +147,13 @@ const getTeachersClass = os.getClass.handler(async ({ input, errors, context }) 
   const teachersClass = await fetchTeachersClass(input.teacherId)
   if (!teachersClass) throw errors.NOT_FOUND()
 
-  const studentCount = (await listStudentsByClass(teachersClass.id)).length
-  const count = { students: studentCount.toString() }
+  const [studentCount] = await db
+    .select({ value: count() })
+    .from(students)
+    .where(eq(students.classId, teachersClass.id))
+  const countSummary = { students: (studentCount?.value ?? 0).toString() }
 
-  return { ...teachersClass, count }
+  return { ...teachersClass, count: countSummary }
 })
 
 export const teacherRouter = {

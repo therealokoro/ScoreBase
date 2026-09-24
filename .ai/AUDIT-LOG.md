@@ -1060,6 +1060,28 @@ Escaped LIKE wildcards and added `ESCAPE '\'`, matching both name and student ID
 ### Verification
 `pnpm lint` — 0 errors. Wildcard characters in a search are now literal.
 
+---
+
+## [2026-09-24] — student counts loaded full rows
+
+**Severity:** Low
+**Category:** Performance
+**Files changed:** `server/routers/class.router.ts`, `server/routers/teacher.router.ts`
+**Regression risk:** None
+
+### Problem
+`class.getOne`, `teacher.getClass`, and `class.delete` loaded every student row (with the class
+relation) just to read `.length`, instead of asking the database for a count.
+
+### Fix
+Replaced the three call sites with `db.select({ value: count() }).from(students).where(...)`,
+matching the pattern already used in `dashboard.query.ts`.
+
+### Verification
+`pnpm lint` — 0 errors. Response shape unchanged (`count.students` string).
+
+
+
 
 
 
