@@ -13,7 +13,7 @@ import {
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
   draft: ["submitted"]
@@ -70,9 +70,11 @@ const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context })
  * This keeps "create a result" a single atomic action from the admin's point of view — a result is
  * never left in a state with zero scoresheets.
  */
-const createResult = os.create.handler(async ({ input, errors }) => {
+const createResult = os.create.handler(async ({ input, errors, context }) => {
+  // Authorization: admins may create results for any class; teachers only for their own.
+  requireClassAccess(context, input.classId)
+
   // Guard: check the term and class actually exist
-  // (fixed — previously checked results.id instead of terms.id / classes.id)
   const [term, cls] = await Promise.all([
     db.query.terms.findFirst({
       where: eq(terms.id, input.termId),
