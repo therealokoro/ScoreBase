@@ -33,3 +33,30 @@ const createResult = os.create.handler(async ({ input, errors, context }) => {
 `pnpm lint` — no new errors (only the pre-existing `shared/validators/scoreConfig.ts` empty-file
 error, tracked separately as audit #38). Manual read confirms the guard runs before every DB read.
 
+---
+
+## [2026-09-24] — createScoresheets queried the wrong table's columns; missing class scope
+
+**Severity:** Critical
+**Category:** Logic loopholes
+**Files changed:** `server/routers/scoresheet.router.ts`
+**Regression risk:** Low (procedure was broken at runtime; only fixes the path)
+
+### Problem
+`createScoresheets` filtered the `students` table by `results.id` and the `classes` table by
+`results.id`. Those are not joins, so libSQL failed with "no such column" and the procedure 500'd
+every time. It also never verified the supplied `studentIds` belonged to `result.classId`, and used a
+hand-rolled teacher role check instead of the shared guard.
+
+### Fix
+- `inArray(students.id, input.studentIds)` and `eq(classes.id, result.classId)`.
+- Scope students to the result's class: `and(inArray(students.id, ...), eq(students.classId, result.classId))`.
+- Replaced the inline role check with `requireClassAccess(context, result.classId)`.
+- Removed the now-unused `results` import.
+
+### Verification
+`pnpm lint` — 0 warnings, only the pre-existing empty-file error. Manual read confirms all three
+queries now target the correct tables.
+
+
+

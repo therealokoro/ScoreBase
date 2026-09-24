@@ -4,10 +4,10 @@ import { inArray, and, eq } from "drizzle-orm"
 
 import { type APiContext } from "../context"
 import { scoresheetContract } from "../contracts/scoresheet.contract"
-import { results, scoresheets, subjectScores } from "../db/schema"
+import { classes, scoresheets, students, subjectScores } from "../db/schema"
 import { fetchReportCardData } from "../queries/reportCard.query"
 import { fetchSingleResult, fetchSingleScoresheet } from "../queries/result.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
 
 const os = implement(scoresheetContract).$context<APiContext>()
 
@@ -21,8 +21,6 @@ const os = implement(scoresheetContract).$context<APiContext>()
  * Only allowed on a draft result — once submitted, the student list is locked.
  */
 const createScoresheets = os.createScoresheets.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
-
   const result = await fetchSingleResult(input.resultId)
   if (!result) throw errors.NOT_FOUND()
 
@@ -30,16 +28,19 @@ const createScoresheets = os.createScoresheets.handler(async ({ input, errors, c
   if (result.status !== "draft") throw errors.PRECONDITION_FAILED()
 
   // Teachers may only add scoresheets to results for their own class
-  if (user.role === "teacher" && result.classId !== user.classId) {
-    throw errors.FORBIDDEN()
-  }
+  requireClassAccess(context, result.classId)
 
-  // Fetch the student records we need for name/ID snapshots
+  // Fetch the student records we need for name/ID snapshots.
+  // Scope to the result's class so a caller cannot attach a scoresheet for a
+  // student who is not enrolled in that class.
   const studentRecords = await db.query.students.findMany({
-    where: inArray(results.id, input.studentIds) // filters to the supplied IDs
+    where: and(
+      inArray(students.id, input.studentIds),
+      eq(students.classId, result.classId)
+    )
   })
 
-  // Verify all supplied IDs resolved to real students
+  // Verify all supplied IDs resolved to real students in this class
   if (studentRecords.length !== input.studentIds.length) throw errors.NOT_FOUND()
 
   // Guard: none of these students should already have a scoresheet in this result
@@ -54,7 +55,7 @@ const createScoresheets = os.createScoresheets.handler(async ({ input, errors, c
 
   // Fetch the class's subject list preset so we can pre-populate subject scores
   const classRecord = await db.query.classes.findFirst({
-    where: eq(results.id, result.classId),
+    where: eq(classes.id, result.classId),
     with: { subjectList: true }
   })
 
