@@ -161,12 +161,10 @@ const metaData = computed(() => [
           <UiDescriptionListTerm>{{ item.term }}</UiDescriptionListTerm>
           <UiDescriptionListDetails>{{ item.details }}</UiDescriptionListDetails>
         </template>
-        <template>
-          <UiDescriptionListTerm>Status</UiDescriptionListTerm>
-          <UiDescriptionListDetails>
-            <UiBadge variant="secondary">{{ result?.status }}</UiBadge>
-          </UiDescriptionListDetails>
-        </template>
+        <UiDescriptionListTerm>Status</UiDescriptionListTerm>
+        <UiDescriptionListDetails>
+          <UiBadge variant="secondary">{{ result?.status }}</UiBadge>
+        </UiDescriptionListDetails>
       </UiDescriptionList>
 
       <!-- Add subject -->
@@ -243,7 +241,7 @@ const metaData = computed(() => [
                   :classes="{
                     outer: 'mb-0',
                     messages: 'hidden',
-                    input: `text-xs text-center h-9 ${isOverMax(row.caScores[i], scoreConfig?.caMaxScores[i]) ? '' : ''}`
+                    input: `text-xs text-center h-9 ${isOverMax(row.caScores[i], scoreConfig?.caMaxScores[i]) ? 'text-destructive' : ''}`
                   }"
                   :validation="`between:0,${scoreConfig?.caMaxScores[i]}`"
                   :validation-messages="{ between: '' }"
