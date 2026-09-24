@@ -637,5 +637,25 @@ policy failures → `BAD_REQUEST` (declared on the contract); anything else → 
 ### Verification
 `pnpm lint` — clean. Client-visible errors are now accurate and no internal message is echoed.
 
+---
+
+## [2026-09-24] — isDirty computed object always truthy in handleSave
+
+**Severity:** Medium
+**Category:** Data-fetching correctness
+**Files changed:** `app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**Regression risk:** None
+
+### Problem
+`useScoresheetHelpers().isDirty(...)` returns a `computed`, but `handleSave` used
+`if (isDirty(scoresheet))`, which is always truthy (the template correctly used `.value`). Saving
+only a remark still POSTed the full score set, risking clobbering concurrent edits.
+
+### Fix
+`if (isDirty(scoresheet).value)`.
+
+### Verification
+`pnpm lint` — clean. Matches the save button's disabled logic.
+
 
 

@@ -111,7 +111,7 @@ const bulkUpdateScores = useBulkUpdateSubjectScores()
 const updateRemarks = useUpdateScoresheetRemarks()
 async function handleSave() {
   const promises: Promise<any>[] = []
-  if (isDirty(scoresheet)) {
+  if (isDirty(scoresheet).value) {
     promises.push(
       bulkUpdateScores.mutateAsync({
         scoresheetId,
