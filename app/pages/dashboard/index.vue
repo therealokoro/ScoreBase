@@ -116,7 +116,7 @@ const error = computed(() =>
 <template>
   <Page
     title="Overview"
-    :description="`Welcome back, ${user.name}`"
+    :description="`Welcome back, ${user?.name}`"
     :loading="isPending"
     :error="error"
   >

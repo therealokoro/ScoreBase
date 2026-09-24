@@ -902,3 +902,32 @@ the mutation object rather than only `mutateAsync`).
 
 ### Verification
 `pnpm lint` — clean. `busy` stays true until the parent mutation settles.
+
+---
+
+## [2026-09-24] — useAuth().user threw when logged out; isAdmin loosely typed
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `app/composables/useAuth.ts`, `app/composables/useDashboard.ts`,
+`app/middleware/teacher-only.ts`, `app/layouts/dashboard.vue`, `app/pages/dashboard/index.vue`,
+`app/pages/dashboard/my-class.vue`, `app/pages/dashboard/results/index.vue`,
+`app/pages/dashboard/settings/account.vue`, `app/pages/dashboard/settings/security.vue`
+**Regression risk:** Low (consumers updated with optional chaining/guards)
+
+### Problem
+`const user = computed(() => data.value!.user)` threw a `TypeError` whenever read with no session
+(consumers include early computed query keys). `isAdmin` used `== "admin"` and returned
+`null | "" | string | boolean`, forcing `Boolean(isAdmin.value)` workarounds — and in
+`useAdminDashboardSummary` that boolean was evaluated once, so the query's `enabled` state was frozen.
+
+### Fix
+- `user` is now `computed(() => currentUser.value)` (nullable, no throw); `isAdmin` is
+  `computed(() => currentUser.value?.role === "admin")`.
+- Updated consumers to guard with `?.` / `?? ""`, added a watch so the account form populates once
+  the session resolves, and made the admin dashboard query's `enabled` a `computed`.
+
+### Verification
+`pnpm lint` — clean. No remaining unguarded `user.` dereferences.
+
+

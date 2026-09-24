@@ -3,6 +3,13 @@ import { type UpdateAccountInfoInput } from "~~/shared/validators/actors"
 
 const auth = useAuth()
 const formData = ref(auth.user.value)
+watch(
+  () => auth.user.value,
+  (u) => {
+    if (u) formData.value = u
+  },
+  { immediate: true }
+)
 
 const { $orpc } = useNuxtApp()
 const updateAccount = useMutation($orpc.account.updateAccount.mutationOptions())

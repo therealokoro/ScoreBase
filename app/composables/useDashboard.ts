@@ -5,7 +5,7 @@ export const useAdminDashboardSummary = () => {
   const { isAdmin } = useAuth()
   return useQuery({
     ...$orpc.dashboard.getAdminSummary.queryOptions(),
-    enabled: Boolean(isAdmin.value)
+    enabled: computed(() => isAdmin.value)
   })
 }
 

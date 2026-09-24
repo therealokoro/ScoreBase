@@ -8,9 +8,11 @@ definePageMeta({ middleware: ["teacher-only"] })
 const { user, isPending } = useAuth()
 
 const { $orpc } = useNuxtApp()
-const queryKey = computed(() => `${user.value.id}-class-fetch`)
+const queryKey = computed(() => `${user.value?.id ?? "unknown"}-class-fetch`)
 const { data, pending, refresh } = useLazyAsyncData(queryKey, () => {
-  return $orpc.teacher.getClass.call({ teacherId: user.value!.id })
+  const teacherId = user.value?.id
+  if (!teacherId) return Promise.resolve(undefined)
+  return $orpc.teacher.getClass.call({ teacherId })
 })
 
 const currClass = computed(() => data.value)

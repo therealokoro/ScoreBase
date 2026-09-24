@@ -110,8 +110,8 @@ const sidebarContents = computed(() => {
               <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
             </div>
             <div class="grid flex-1">
-              <span class="truncate text-sm font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
+              <span class="truncate text-sm font-medium">{{ user?.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ user?.email }}</span>
             </div>
           </div>
         </div>

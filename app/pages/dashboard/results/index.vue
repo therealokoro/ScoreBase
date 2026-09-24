@@ -15,7 +15,7 @@ watch(
     formData.value = {
       sessionId: settings?.activeSession,
       termId: settings?.activeTerm,
-      classId: _user.classId
+      classId: _user?.classId
     }
   },
   { immediate: true }
