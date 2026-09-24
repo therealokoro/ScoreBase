@@ -235,6 +235,12 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
 
+  // Check scope before transition validity so a teacher cannot distinguish
+  // "invalid transition" from "not your class" when probing result IDs.
+  if (user.role === "teacher" && result.classId !== user.classId) {
+    throw errors.FORBIDDEN()
+  }
+
   const allowedTransitions = user.role === "admin" ? ADMIN_TRANSITIONS : TEACHER_TRANSITIONS
   const validNextStatuses = allowedTransitions[result.status] ?? []
 
@@ -244,10 +250,6 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
     })
   }
 
-  if (user.role === "teacher" && result.classId !== user.classId) {
-    throw errors.FORBIDDEN()
-  }
-
   const now = new Date().toISOString()
   const auditFields: Partial<typeof results.$inferInsert> = {}
 
@@ -255,9 +257,18 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
     auditFields.submittedById = user.id
     auditFields.submittedAt = now
   } else if (input.status === "reviewed" || input.status === "published") {
-    auditFields.reviewedById = user.id
-    auditFields.reviewedAt = now
+    // Only stamp review fields on the first entry into review, so re-entering
+    // "reviewed" does not overwrite the original reviewer.
+    if (result.status !== "reviewed" && result.status !== "published") {
+      auditFields.reviewedById = user.id
+      auditFields.reviewedAt = now
+    }
     if (input.status === "published") auditFields.publishedAt = now
+  }
+
+  // Reverting away from published clears the stale publication timestamp.
+  if (result.status === "published" && input.status !== "published") {
+    auditFields.publishedAt = null
   }
 
   const [updated] = await db

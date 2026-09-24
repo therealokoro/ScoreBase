@@ -446,5 +446,29 @@ AGENTS.md to state the session requirement.
 `pnpm lint` — clean. All `useSettings`/`useListClasses`/`useListSubjects`/`useListSubjectLists`
 consumers live under `/dashboard`, so no unauthenticated caller is affected.
 
+---
+
+## [2026-09-24] — result status transition ordering and stale audit fields
+
+**Severity:** Medium
+**Category:** Security / Logic loopholes
+**Files changed:** `server/routers/results.router.ts`
+**Regression risk:** None
+
+### Problem
+`updateResultStatus` validated the transition before the teacher class-scope check, letting a teacher
+probing another class's result distinguish "invalid transition" (`PRECONDITION_FAILED`) from "not
+your class" (`FORBIDDEN`). It also kept `publishedAt` populated when reverting `published → reviewed`,
+and overwrote `reviewedById`/`reviewedAt` every time `reviewed` was re-entered.
+
+### Fix
+- Moved the class-scope check ahead of transition validation.
+- Review fields are written only on first entry into review (`result.status` neither `reviewed` nor
+  `published`).
+- Leaving `published` clears `publishedAt`.
+
+### Verification
+`pnpm lint` — clean. Manual trace: `published → reviewed` now sets `publishedAt: null`.
+
 
 
