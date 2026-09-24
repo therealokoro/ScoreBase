@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { classContract } from "../contracts/class.contract"
-import { classes } from "../db/schema"
+import { classes, results } from "../db/schema"
 import { fetchSingleClass, listAllClasses } from "../queries/class.query"
 import { listStudentsByClass } from "../queries/student.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
@@ -86,12 +86,23 @@ const removeClass = os.delete.handler(async ({ input, errors, context }) => {
 
   const classStudents = await listStudentsByClass(existingClass.id)
 
-  // TODO: Check for associated students/results
-  if (classStudents.length > 0)
+  if (classStudents.length > 0) {
     throw errors.PRECONDITION_FAILED({
       message:
         "Cannot delete class because it contains student(s). Please re-assign students to a new class"
     })
+  }
+
+  // results.class_id is onDelete: restrict — reject before the raw FK error.
+  const existingResult = await db.query.results.findFirst({
+    where: eq(results.classId, input.id),
+    columns: { id: true }
+  })
+  if (existingResult) {
+    throw errors.PRECONDITION_FAILED({
+      message: "Cannot delete a class that has results. Delete the results first."
+    })
+  }
 
   await db.delete(classes).where(eq(classes.id, input.id))
   return { success: true }

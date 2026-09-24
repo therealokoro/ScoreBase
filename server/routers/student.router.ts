@@ -4,7 +4,7 @@ import { eq, or, ne, and, sql, like } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { studentContract } from "../contracts/student.contract"
-import { students } from "../db/schema"
+import { students, scoresheets } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
@@ -116,8 +116,16 @@ const removeStudent = os.delete.handler(async ({ input, errors, context }) => {
   if (!existingStudent) throw errors.NOT_FOUND()
   requireClassAccess(context, existingStudent.classId)
 
-  // TODO: Check for associated results/scoresheets
-  // if (hasResultsOrScoresheets) throw errors.PRECONDITION_FAILED()
+  // scoresheets.student_id is onDelete: restrict — reject before the raw FK error.
+  const existingScoresheet = await db.query.scoresheets.findFirst({
+    where: eq(scoresheets.studentId, input.id),
+    columns: { id: true }
+  })
+  if (existingScoresheet) {
+    throw errors.PRECONDITION_FAILED({
+      message: "Cannot delete a student with existing results. Remove their scoresheets first."
+    })
+  }
 
   await db.delete(students).where(eq(students.id, input.id))
   return { success: true }

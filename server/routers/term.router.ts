@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { termContract } from "../contracts/term.contract"
-import { terms, academicSessions } from "../db/schema"
+import { terms, academicSessions, results } from "../db/schema"
 import { fetchSingleTerm, fetchTermsBySession, resolveNextTerm } from "../queries/term.query"
 import { requireAdmin } from "../utils/auth-guard"
 
@@ -78,8 +78,16 @@ const removeTerm = os.delete.handler(async ({ input, errors, context }) => {
   const existingTerm = await fetchSingleTerm(input.id)
   if (!existingTerm) throw errors.NOT_FOUND()
 
-  // TODO: Check for associated results/scoresheets
-  // if (hasResults) throw errors.PRECONDITION_FAILED()
+  // results.term_id is onDelete: restrict — reject before the raw FK error.
+  const existingResult = await db.query.results.findFirst({
+    where: eq(results.termId, input.id),
+    columns: { id: true }
+  })
+  if (existingResult) {
+    throw errors.PRECONDITION_FAILED({
+      message: "Cannot delete a term that has a result. Delete the result first."
+    })
+  }
 
   await db.delete(terms).where(eq(terms.id, input.id))
   return { success: true }

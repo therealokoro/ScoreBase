@@ -519,5 +519,31 @@ contract). Matches the page's existing `isLocked = status === "published"` UI gu
 ### Verification
 `pnpm lint` — clean. UI and server guards now agree.
 
+---
+
+## [2026-09-24] — deletes leaked raw foreign-key errors
+
+**Severity:** Medium
+**Category:** Logic loopholes
+**Files changed:** `server/routers/student.router.ts`, `server/routers/term.router.ts`,
+`server/routers/class.router.ts`
+**Regression risk:** None (error path only)
+
+### Problem
+`student.delete` (`scoresheets.studentId` restrict), `term.delete` (`results.termId` restrict), and
+the results half of `class.delete` (`results.classId` restrict) had TODO comments where the
+existence check should be. Deleting a referenced row failed with a raw SQLite FOREIGN KEY error →
+500, although the contracts document `PRECONDITION_FAILED`.
+
+### Fix
+Added explicit existence checks before each delete, throwing typed `PRECONDITION_FAILED` with a
+helpful message (matching the existing `class.delete` student check).
+
+`subject.delete` was left unchanged: `subject_scores.subjectId` is `onDelete: set null` by design
+(the soft-FK/snapshot model), so it cannot raise an FK error.
+
+### Verification
+`pnpm lint` — clean. Each guard runs before the delete.
+
 
 
