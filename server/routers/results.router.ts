@@ -52,7 +52,9 @@ const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
 
 const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
   const user = requireSession(context)
-  if (user.role === "teacher") throw errors.NOT_FOUND()
+  if (user.role === "teacher") {
+    throw errors.FORBIDDEN({ message: "Only admins can view all results for a term" })
+  }
 
   const result = await fetchResultsByTerm(input.termId)
   if (!result) throw errors.NOT_FOUND()

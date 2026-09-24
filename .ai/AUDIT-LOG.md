@@ -1018,6 +1018,29 @@ the Status row, and wired the CA over-max style to `text-destructive` (matching 
 ### Verification
 `grep` for the component names found no references; `pnpm lint` → 0 warnings, 0 errors.
 
+---
+
+## [2026-09-24] — debug leftover and masked authorization error
+
+**Severity:** Low
+**Category:** Code quality
+**Files changed:** `server/routers/student.router.ts`, `server/routers/results.router.ts`,
+`server/contracts/result.contract.ts`
+**Regression risk:** Low (only affects a teacher calling an admin-only read)
+
+### Problem
+`student.query` logged `console.log("i am here.... not admin, no class id")` on a normal path.
+`result.getByTerm` returned `NOT_FOUND` for teachers, masking an authorization failure as "not found"
+and making it ambiguous with a genuinely missing term.
+
+### Fix
+Removed the debug log. `getByTerm` now throws `FORBIDDEN` for teachers (declared on the contract).
+
+### Verification
+`grep console server/routers/student.router.ts` — clean; `pnpm lint` 0 errors.
+
+
+
 
 
 

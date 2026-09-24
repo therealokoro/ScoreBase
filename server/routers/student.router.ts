@@ -137,7 +137,6 @@ const queryStudent = os.query.handler(async ({ input, context }) => {
 
   if (user.role !== "admin") {
     if (!user.classId) {
-      console.log("i am here.... not admin, no class id")
       return { data: [], total: 0, pageCount: 1 }
     }
     if (input.classId && input.classId !== user.classId) {
