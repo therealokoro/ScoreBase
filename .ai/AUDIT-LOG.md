@@ -58,5 +58,28 @@ hand-rolled teacher role check instead of the shared guard.
 `pnpm lint` — 0 warnings, only the pre-existing empty-file error. Manual read confirms all three
 queries now target the correct tables.
 
+---
+
+## [2026-09-24] — student.update always threw CONFLICT
+
+**Severity:** Critical
+**Category:** Logic loopholes
+**Files changed:** `server/routers/student.router.ts`
+**Regression risk:** None (updates previously never succeeded)
+
+### Problem
+`checkConflict(name, studentId)` looked up a student matching the new name OR student ID and threw
+`CONFLICT` on any hit. On update, the student's own row always matched its own name, so every
+`student.update` failed — even a no-op edit — making it impossible to edit a student's phone number
+or class.
+
+### Fix
+Added an `excludeId` parameter to `checkConflict` and included `ne(students.id, excludeId)` in the
+`where` clause (via `and`); the update handler passes `input.id`. Also replaced the inline
+`new ORPCError("FORBIDDEN", ...)` with `errors.FORBIDDEN(...)` for consistency.
+
+### Verification
+`pnpm lint` — clean. Manual read confirms the self-row is excluded from the conflict lookup.
+
 
 

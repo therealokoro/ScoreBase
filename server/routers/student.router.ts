@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { ORPCError, implement } from "@orpc/server"
-import { eq, or, sql, desc } from "drizzle-orm"
+import { eq, or, ne, and, sql, desc } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { studentContract } from "../contracts/student.contract"
@@ -9,10 +9,13 @@ import { getSchoolSettings } from "../kv/school-settings"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
 import { requireAdmin, requireClassAccess } from "../utils/auth-guard"
 
-async function checkConflict(name: string, studentId: string, errors: any) {
-  // Check for conflicts
+async function checkConflict(name: string, studentId: string, errors: any, excludeId?: string) {
+  // Check for conflicts, excluding the record being updated (if any)
   const conflict = await db.query.students.findFirst({
-    where: or(eq(students.name, name), eq(students.studentId, studentId))
+    where: and(
+      or(eq(students.name, name), eq(students.studentId, studentId)),
+      excludeId ? ne(students.id, excludeId) : undefined
+    )
   })
   if (conflict) {
     if (conflict.name === name)
@@ -74,13 +77,11 @@ const updateStudent = os.update.handler(async ({ input, errors, context }) => {
   // Only admins may move a student to another class
   const user = context.session!.user
   if (user.role !== "admin" && input.classId !== existingStudent.classId) {
-    throw new ORPCError("FORBIDDEN", {
-      message: "Only admins can move a student to another class"
-    })
+    throw errors.FORBIDDEN({ message: "Only admins can move a student to another class" })
   }
 
-  // Check for conflicts
-  await checkConflict(input.name, input.studentId!, errors)
+  // Check for conflicts (excluding this student's own row)
+  await checkConflict(input.name, input.studentId!, errors, input.id)
 
   await db
     .update(students)
