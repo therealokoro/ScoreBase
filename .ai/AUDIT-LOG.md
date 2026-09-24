@@ -953,6 +953,27 @@ Wrapped each getter's `queryOptions` in `computed(() => ...)` and widened the pa
 ### Verification
 `grep useQueryStudents` — no references; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — empty validator file failed lint
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `shared/validators/scoreConfig.ts` (deleted)
+**Regression risk:** None (no imports)
+
+### Problem
+The file contained only the comment `// we are coming`, and `unicorn/no-empty-file` made `pnpm lint`
+fail (the only lint error in the repo).
+
+### Fix
+Deleted the unused placeholder file. Verified nothing imported it.
+
+### Verification
+`pnpm lint` → **0 warnings and 0 errors** (391 files).
+
+
+
 
 
 
