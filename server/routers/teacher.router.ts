@@ -1,5 +1,5 @@
 import { db } from "@nuxthub/db"
-import { implement } from "@orpc/server"
+import { ORPCError, implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
 import type { APiContext } from "../context"
@@ -10,17 +10,37 @@ import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../quer
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
-async function assignClassToTeacher(classId: string | undefined, userId: string) {
+/**
+ * Keeps `user.classId` and `classes.teacherId` in sync for a single teacher.
+ *
+ * Clears any class previously pointing at this teacher first (the `classes.teacherId` unique index
+ * would otherwise reject a move), unassigns any previous teacher of the target class, then writes
+ * both sides. `classId === undefined` means "no class" on create; callers that mean "leave
+ * unchanged" should not call this at all.
+ */
+async function syncTeacherClass(
+  teacherId: string,
+  classId: string | undefined
+): Promise<{ id: string; name: string } | null> {
+  // Clear the class currently assigned to this teacher (if any)
+  await db.update(classes).set({ teacherId: null }).where(eq(classes.teacherId, teacherId))
+
   let selectedClass: { id: string; name: string } | null = null
   if (classId) {
-    const [assignedClass] = await db
-      .update(classes)
-      .set({ teacherId: userId })
-      .where(eq(classes.id, classId))
-      .returning()
+    const target = await db.query.classes.findFirst({ where: eq(classes.id, classId) })
+    if (!target) throw new ORPCError("NOT_FOUND", { message: "The class was not found" })
 
-    selectedClass = { name: assignedClass!.name, id: assignedClass!.id }
+    // If the target class already has a different teacher, release that teacher.
+    if (target.teacherId && target.teacherId !== teacherId) {
+      await db.update(user).set({ classId: null }).where(eq(user.id, target.teacherId))
+    }
+
+    await db.update(classes).set({ teacherId }).where(eq(classes.id, classId))
+    selectedClass = { id: target.id, name: target.name }
   }
+
+  // Write the authoritative session-scoping field
+  await db.update(user).set({ classId: classId ?? null }).where(eq(user.id, teacherId))
 
   return selectedClass
 }
@@ -64,7 +84,9 @@ const createTeacher = os.create.handler(async ({ input, errors, context }) => {
     }
   })
 
-  const selectedClass = await assignClassToTeacher(input.classId, newUser.id)
+  // `user.classId` is declared `input: false` in Better Auth, so createUser ignores
+  // data.classId. Sync both sides explicitly so a new teacher's session is class-scoped.
+  const selectedClass = await syncTeacherClass(newUser.id, input.classId)
 
   return {
     id: newUser.id,
@@ -95,13 +117,19 @@ const updateTeacher = os.update.handler(async ({ input, errors, context }) => {
     if (phoneNoExist) throw errors.CONFLICT({ message: "This phone number is already taken" })
   }
 
+  // classId is synced through syncTeacherClass (it owns both user.classId and
+  // classes.teacherId); undefined means "leave the assignment unchanged".
+  const { classId, ...rest } = input
+
   await db
     .update(user)
-    .set({ ...input })
+    .set({ ...rest })
     .where(eq(user.id, input.id))
     .returning()
 
-  await assignClassToTeacher(input.classId, input.id)
+  if (classId !== undefined) {
+    await syncTeacherClass(input.id, classId)
+  }
 })
 
 const removeTeacher = os.delete.handler(async ({ input, errors, context }) => {

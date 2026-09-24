@@ -470,5 +470,33 @@ and overwrote `reviewedById`/`reviewedAt` every time `reviewed` was re-entered.
 ### Verification
 `pnpm lint` — clean. Manual trace: `published → reviewed` now sets `publishedAt: null`.
 
+---
+
+## [2026-09-24] — teacher/class assignment drifted between two sources of truth
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/routers/teacher.router.ts`
+**Regression risk:** Medium (teacher create/update behavior; `user.classId` is now written explicitly)
+
+### Problem
+`assignClassToTeacher` set `classes.teacherId` but never cleared the class the teacher previously
+owned, so moving a teacher between classes violated the `classes.teacher_id` unique index (raw 500)
+and left the old class pointing at them. `user.classId` was a second source of truth updated only by
+the update spread. And because `user.classId` is declared `input: false` in Better Auth, `createUser`
+silently ignored `data.classId`, so newly created teachers could have `classId: null` in their
+session and be denied all scoped access.
+
+### Fix
+Replaced it with `syncTeacherClass(teacherId, classId)`: clears the teacher's previous class,
+releases any previous teacher of the target class, assigns the new class, and writes `user.classId` —
+all in one place. `createTeacher` calls it after `createUser`; `updateTeacher` excludes `classId` from
+its column update and only calls the sync when `classId` is provided. Added an existence check for
+the target class (`NOT_FOUND`).
+
+### Verification
+`pnpm lint` — clean. Manual trace: moving a teacher from A to B clears `A.teacherId = null` before
+setting `B.teacherId`, so the unique index is satisfied.
+
 
 
