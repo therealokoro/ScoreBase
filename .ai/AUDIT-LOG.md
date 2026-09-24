@@ -616,5 +616,26 @@ helpers were dead code with no callers or procedures.
 ### Verification
 `grep resetSchoolSettings|resetResultSettings` — no references; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — account.updatePassword masked every failure as "incorrect password"
+
+**Severity:** Medium
+**Category:** Code quality / Security
+**Files changed:** `server/routers/account.router.ts`, `server/contracts/account.contract.ts`
+**Regression risk:** Low (new BAD_REQUEST case; UI toast handles generic errors)
+
+### Problem
+The catch block returned `errors.INCORRECT_PASSWORD` with `error.message` for every failure —
+session expiry, weak password, rate limiting, internal errors — and console-logged the raw error.
+
+### Fix
+Classify by `error.body.code`/`status`: credential failures → `INCORRECT_PASSWORD`; 400/password
+policy failures → `BAD_REQUEST` (declared on the contract); anything else → generic
+`INTERNAL_SERVER_ERROR` with a redacted console log.
+
+### Verification
+`pnpm lint` — clean. Client-visible errors are now accurate and no internal message is echoed.
+
 
 
