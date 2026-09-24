@@ -4,6 +4,8 @@ import { type UpsertClassInput } from "~~/shared/validators/academic"
 const props = defineProps<{
   initialData?: UpsertClassInput
   mode: "Edit" | "Create"
+  /** Set true while the parent's mutation is in flight so the form stays disabled. */
+  submitting?: boolean
 }>()
 
 const initiaValue = computed(() => ({
@@ -16,6 +18,7 @@ const isSheetOpen = defineModel<boolean>("open", { required: true })
 
 // Hoist FormKit's loading state out of the slot
 const isSubmitting = ref(false)
+const busy = computed(() => isSubmitting.value || props.submitting === true)
 
 const { data } = useListTeachers()
 const teachers = computed(() => {
@@ -54,7 +57,7 @@ async function onSubmit(payload: UpsertClassInput) {
           :actions="false"
           @submit="onSubmit"
         >
-          <fieldset :disabled="isSubmitting" class="p-4 pt-0">
+          <fieldset :disabled="busy" class="p-4 pt-0">
             <FormKitMessages class="mb-4" />
 
             <FormKit
@@ -82,7 +85,7 @@ async function onSubmit(payload: UpsertClassInput) {
         <UiSheetFooter>
           <div class="w-full flex gap-1">
             <UiSheetClose as-child>
-              <UiButton class="flex-1" variant="outline" type="button" :disabled="isSubmitting">
+              <UiButton class="flex-1" variant="outline" type="button" :disabled="busy">
                 Cancel
               </UiButton>
             </UiSheetClose>
@@ -91,10 +94,10 @@ async function onSubmit(payload: UpsertClassInput) {
               class="flex-1"
               type="submit"
               form="class-form"
-              :disabled="isSubmitting"
-              :loading="isSubmitting"
+              :disabled="busy"
+              :loading="busy"
             >
-              {{ isSubmitting ? "Submitting..." : "Submit" }}
+              {{ busy ? "Submitting..." : "Submit" }}
             </UiButton>
           </div>
         </UiSheetFooter>

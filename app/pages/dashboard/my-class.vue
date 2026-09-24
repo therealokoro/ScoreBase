@@ -82,6 +82,7 @@ function handleUpdateClass(payload: any) {
       v-if="currClass && isSheetOpen"
       :key="isSheetOpen.toString()"
       mode="Edit"
+      :submitting="updateClass.isPending.value"
       @submit="handleUpdateClass"
       :initial-data="currClass"
       v-model:open="isSheetOpen"

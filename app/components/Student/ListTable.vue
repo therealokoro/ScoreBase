@@ -183,6 +183,7 @@ const columns = [
       :initial-data="createFormInitialData"
       v-model:open="openCreateSheet"
       @submit="handleCreateStudent"
+      :submitting="createStudent.isPending.value"
       @close="openCreateSheet = false"
     />
   </div>

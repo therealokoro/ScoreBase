@@ -12,9 +12,9 @@ setPageBreadcrumbLabel(computed(() => session.value?.name))
 const isSheetOpen = ref(false)
 const openDeleteDialog = ref(false)
 
-const { mutateAsync: updateSession } = useUpdateAcademicSession()
+const updateSessionMutation = useUpdateAcademicSession()
 function handleUpdateSession(payload: any) {
-  useSonner.promise(updateSession(payload), {
+  useSonner.promise(updateSessionMutation.mutateAsync(payload), {
     loading: "Updating academic session...",
     success: () => {
       isSheetOpen.value = false
@@ -95,6 +95,7 @@ async function selectTerm(term: ITerm) {
     <LazySessionCreateEditForm
       @submit="handleUpdateSession"
       :initial-data="session"
+      :submitting="updateSessionMutation.isPending.value"
       v-model:open="isSheetOpen"
       mode="Edit"
     />

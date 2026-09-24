@@ -877,3 +877,28 @@ exposed an accessible name.
 
 ### Verification
 `pnpm lint` — clean. Keyboard sort and named tables now work.
+
+---
+
+## [2026-09-24] — upsert forms re-enabled while the request was in flight
+
+**Severity:** Medium
+**Category:** UI/UX
+**Files changed:** `app/components/Student/UpsertForm.vue`,
+`app/components/Class/UpsertForm.vue`, `app/components/Session/CreateEditForm.vue` and their parents
+(`app/pages/dashboard/students/[studentId].vue`, `.../classes/[classId].vue`, `.../classes/index.vue`,
+`.../my-class.vue`, `.../sessions/[sessionId].vue`, `app/components/Student/ListTable.vue`)
+**Regression risk:** Low
+
+### Problem
+These forms set `isSubmitting = true`, emitted synchronously, then set it back to `false` in a
+`finally` — so the `fieldset :disabled` and button `:loading` only held for one tick, even though the
+parent's mutation was still in flight. Slow submits allowed double-submission and mid-flight edits.
+
+### Fix
+Added an optional `submitting` prop to each form; a `busy` computed ORs it with the local flag and
+drives the fieldset/buttons. Parents pass their mutation's `isPending` (the session page now keeps
+the mutation object rather than only `mutateAsync`).
+
+### Verification
+`pnpm lint` — clean. `busy` stays true until the parent mutation settles.

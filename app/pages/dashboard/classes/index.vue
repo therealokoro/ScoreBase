@@ -46,6 +46,11 @@ function handleCreateClass(payload: UpsertClassInput) {
       />
     </div>
 
-    <LazyClassUpsertForm v-model:open="openCreateSheet" mode="Create" @submit="handleCreateClass" />
+    <LazyClassUpsertForm
+      v-model:open="openCreateSheet"
+      mode="Create"
+      :submitting="createClass.isPending.value"
+      @submit="handleCreateClass"
+    />
   </Page>
 </template>
