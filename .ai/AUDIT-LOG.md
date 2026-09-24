@@ -972,6 +972,54 @@ Deleted the unused placeholder file. Verified nothing imported it.
 ### Verification
 `pnpm lint` → **0 warnings and 0 errors** (391 files).
 
+---
+
+## [2026-09-24] — login ignored the redirect query
+
+**Severity:** Low
+**Category:** UI/UX
+**Files changed:** `app/pages/login.vue`
+**Regression risk:** None
+
+### Problem
+All three middleware files redirect unauthenticated users to `/login?redirect=<fullPath>`, but the
+login success handler always navigated to `/dashboard`, dropping deep links (e.g. a shared scoresheet
+URL).
+
+### Fix
+Derive the post-login target from `route.query.redirect`, accepting only internal paths (starts with
+`/`, not `//`), defaulting to `/dashboard`.
+
+### Verification
+`pnpm lint` — 0 errors.
+
+---
+
+## [2026-09-24] — dead components and placeholder code
+
+**Severity:** Low
+**Category:** Code quality
+**Files changed:** `app/components/Class/StudentList.vue`,
+`app/components/Scoresheet/Remarks.vue`, `app/components/Student/StatsCard.vue` (all deleted),
+`app/pages/dashboard/my-class.vue`, `app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**Regression risk:** None (nothing referenced them)
+
+### Problem
+`Class/StudentList.vue` (a stale near-copy of `Student/ListTable.vue`), `Scoresheet/Remarks.vue`
+(an `<h1>` stub), and `Student/StatsCard.vue` were unreferenced. `my-class.vue` carried a dead
+`classStats` computed with a hardcoded `"15"` and a commented-out card. The scoresheet page had a
+bare `<template>` (rendering nothing, hiding the Status row) and a dead CA over-max ternary
+(`? '' : ''`) so out-of-range CAs never turned red.
+
+### Fix
+Deleted the three dead components, removed the dead computed/comment and redundant `v-if`, unwrapped
+the Status row, and wired the CA over-max style to `text-destructive` (matching the exam input).
+
+### Verification
+`grep` for the component names found no references; `pnpm lint` → 0 warnings, 0 errors.
+
+
+
 
 
 
