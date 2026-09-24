@@ -4,7 +4,7 @@ import type { APiContext } from "../context"
 import { settingsContract } from "../contracts/settings.contract"
 import { getResultSettings, setResultSettings } from "../kv/result-settings"
 import { getSchoolSettings, setSchoolSettings } from "../kv/school-settings"
-import { ResultSettingsSchema } from "~~/shared/validators/settings"
+import { ResultSettingsSchema, validateGradeBoundaryCoverage } from "~~/shared/validators/settings"
 import { requireAdmin } from "../utils/auth-guard"
 
 const os = implement(settingsContract).$context<APiContext>()
@@ -42,6 +42,11 @@ const updateResultSettings = os.result.setSettings.handler(async ({ input, conte
     throw errors.BAD_REQUEST({
       message: parsed.error.issues[0]?.message ?? "Invalid result settings"
     })
+  }
+
+  const boundaryError = validateGradeBoundaryCoverage(parsed.data.gradeBoundaries)
+  if (boundaryError) {
+    throw errors.BAD_REQUEST({ message: boundaryError })
   }
 
   return await setResultSettings(parsed.data)

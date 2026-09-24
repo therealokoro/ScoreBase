@@ -329,5 +329,29 @@ single computation source of truth.
 Grep for `computations`/`computeResultMetrics`/`getClassPositions`/`getSubjectGrade` returns only
 self-references before deletion and none after; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — grade-boundary gaps produced blank grades
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `shared/utils/report-card.ts`, `shared/validators/settings.ts`,
+`server/routers/settings.router.ts`
+**Regression risk:** Low (write-path validation; read path unchanged)
+
+### Problem
+`getGradeBoundary`'s docstring promised a fallback that did not exist: scores falling in an
+admin-defined gap (or a `min > max` boundary) returned `undefined`, so the report card printed a
+blank grade and remark with no error.
+
+### Fix
+- `getGradeBoundary` now falls back to the nearest boundary below the score and then the lowest
+  boundary, so a score always maps to a grade.
+- Added `validateGradeBoundaryCoverage` (min ≤ max, no gaps, full 0–100 coverage) and call it on the
+  settings write path, so admins cannot save a scale that leaves scores ungraded.
+
+### Verification
+`pnpm lint` — clean. Default boundaries cover 0–100; the fallback covers any legacy stored gaps.
+
 
 
