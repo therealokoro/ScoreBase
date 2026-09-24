@@ -189,12 +189,12 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
           <div class="flex items-center gap-2 shrink-0">
             <span
               v-if="isComplete(sheet)"
-              class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-success/10 text-success"
               >Complete</span
             >
             <span
               v-if="sort === 'rank' && rankMap.get(sheet.student.id)"
-              class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400"
+              class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-warning/10 text-warning"
               >#{{ rankMap.get(sheet.student.id) }}</span
             >
             <Icon :name="ICONS.forward" class="size-4 text-muted-foreground" />

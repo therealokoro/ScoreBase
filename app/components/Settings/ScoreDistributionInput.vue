@@ -79,7 +79,7 @@ const commonInputAttrs = {
         <!-- Live total -->
         <p
           class="text-xs font-medium"
-          :class="scoreTotalValid ? 'text-green-600' : 'text-destructive'"
+          :class="scoreTotalValid ? 'text-success' : 'text-destructive'"
         >
           Total: {{ scoreTotal }} / {{ SCORE_TOTAL }}
           <span v-if="!scoreTotalValid"> — must equal {{ SCORE_TOTAL }}</span>

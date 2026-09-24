@@ -28,7 +28,7 @@ const sidebarContents = computed(() => {
   return {
     navItems: !isPending.value && isAdmin.value ? adminNavItems : teacherNavItems,
     userIcon: isAdmin.value ? ICONS.admin : ICONS.teacher,
-    userColor: isAdmin.value ? "bg-primary" : "bg-gray-800"
+    userColor: isAdmin.value ? "bg-primary" : "bg-secondary"
   }
 })
 </script>

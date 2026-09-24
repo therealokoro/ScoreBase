@@ -94,7 +94,7 @@ async function handleCreateResult(payload: any) {
                 icon="lucide:info"
                 description="The form is pre-filled with the currently active session, term and your class. If selections are incorrect, please contact an admin. Click on
                 the submit button to create the result."
-                class="text-blue-300 mb-4 text-xs"
+                class="text-info mb-4 text-xs"
               />
 
               <FormKit

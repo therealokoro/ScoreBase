@@ -15,13 +15,13 @@
 | Theme Name        | Particle                                                |
 | CSS Framework     | Tailwind CSS v4 (`@import "tailwindcss"`)               |
 | Animation Library | `tw-animate-css`                                        |
-| Component Library | shadcn-vue (`@import "shadcn-vue/tailwind.css"`)        |
+| Component Library | shadcn-vue (CSS: `@import "tailwindcss"` / `@import "tw-animate-css"`) |
 | Dark Mode         | Class-based via `@custom-variant dark (&:is(.dark *))`  |
 | Color Model       | **OKLCH** throughout (perceptually uniform, wide gamut) |
 | Font — Sans       | `Inter, sans-serif`                                     |
 | Font — Serif      | `Source Serif 4, serif`                                 |
-| Font — Mono       | `JetBrains Mono, monospace`                             |
-| Base Radius       | `0.375rem` (6px)                                        |
+| Font — Mono       | `Fira Code, monospace`                                  |
+| Base Radius       | `0.65rem` (~10.4px)                                     |
 | Letter Spacing    | `0em` (no tracking adjustment by default)               |
 
 ---
@@ -117,31 +117,32 @@ Sidebar tokens are completely independent. Never substitute `bg-muted` or `bg-ac
 
 ## Chart Palette
 
-Blue monochromatic ramp — from light to dark.
+Multi-hue accent ramp. The canonical values live in `app/assets/css/tailwind.css`; the table below
+mirrors them.
 
 Always assign `chart-1` to the most important data series.
 
 | Token     | Light                  | Dark                   |
 | --------- | ---------------------- | ---------------------- |
-| `chart-1` | `0.6231 0.1880 259.81` | `0.7137 0.1434 254.62` |
-| `chart-2` | `0.5461 0.2152 262.88` | `0.6231 0.1880 259.81` |
-| `chart-3` | `0.4882 0.2172 264.38` | `0.5461 0.2152 262.88` |
-| `chart-4` | `0.4244 0.1809 265.64` | `0.4882 0.2172 264.38` |
-| `chart-5` | `0.3791 0.1378 265.52` | `0.4244 0.1809 265.64` |
+| `chart-1` | `0.6460 0.2220 41.12`  | `0.4880 0.2430 264.38` |
+| `chart-2` | `0.6000 0.1180 184.70` | `0.6960 0.1700 162.48` |
+| `chart-3` | `0.3980 0.0700 227.39` | `0.7690 0.1880 70.08`  |
+| `chart-4` | `0.8280 0.1890 84.43`  | `0.6270 0.2650 303.90` |
+| `chart-5` | `0.7690 0.1880 70.08`  | `0.6450 0.2460 16.44`  |
 
 ---
 
 # 3.2 Border Radius Tokens
 
-| Token       | Tailwind Class | Value    | Usage                     |
-| ----------- | -------------- | -------- | ------------------------- |
-| `radius-sm` | `rounded-sm`   | `2px`    | Small badges, inline tags |
-| `radius-md` | `rounded-md`   | `4px`    | Buttons, inputs           |
-| `radius-lg` | `rounded-lg`   | `6px`    | Cards, modals, popovers   |
-| `radius-xl` | `rounded-xl`   | `10px`   | Large overlays, sheets    |
-| Utility     | `rounded-full` | `9999px` | Pills, avatars            |
+| Token       | Tailwind Class | Value                        | Usage                     |
+| ----------- | -------------- | ---------------------------- | ------------------------- |
+| `radius-sm` | `rounded-sm`   | `calc(var(--radius) - 4px)`  | Small badges, inline tags |
+| `radius-md` | `rounded-md`   | `calc(var(--radius) - 2px)`  | Buttons, inputs           |
+| `radius-lg` | `rounded-lg`   | `var(--radius)` (0.65rem)    | Cards, modals, popovers   |
+| `radius-xl` | `rounded-xl`   | `calc(var(--radius) + 4px)`  | Large overlays, sheets    |
+| Utility     | `rounded-full` | `9999px`                     | Pills, avatars            |
 
-> The tighter base radius creates a more refined and professional aesthetic suitable for academic software.
+> All radius tokens derive from the single `--radius: 0.65rem` custom property in `tailwind.css`.
 
 ---
 
@@ -168,7 +169,7 @@ All shadows use low-opacity black and are designed to work in both light and dar
 | -------------- | --------------------------- | ------------------------ |
 | `font-sans`    | `Inter, sans-serif`         | Default UI text          |
 | `font-serif`   | `Source Serif 4, serif`     | Long-form content        |
-| `font-mono`    | `JetBrains Mono, monospace` | IDs, codes, score values |
+| `font-mono`    | `Fira Code, monospace`      | IDs, codes, score values |
 | `font-heading` | Same as `font-sans`         | Headings                 |
 
 ## Type Scale

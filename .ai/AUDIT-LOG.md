@@ -722,5 +722,38 @@ from the three URL-synced tables.
 `pnpm lint` — clean. In server mode the composable already derives `pageIndex` from the query
 string, so the table now receives it.
 
+---
+
+## [2026-09-24] — hardcoded palette colors and missing status tokens
+
+**Severity:** Medium
+**Category:** UI/UX / Best-practice deviation
+**Files changed:** `app/assets/css/tailwind.css`, `app/pages/dashboard/index.vue`,
+`app/components/Dashboard/ResultsPipeline.vue`, `app/components/Ui/Badge.vue`,
+`app/components/Ui/Alert/Alert.vue`, `app/components/Settings/ScoreDistributionInput.vue`,
+`app/pages/dashboard/results/[resultId]/report-card/index.vue`,
+`app/pages/dashboard/results/index.vue`, `app/layouts/dashboard.vue`, `DESIGN.md`
+**Regression risk:** Low (visual only; class names resolve to new tokens)
+
+### Problem
+DESIGN.md documents `success`/`warning`/`info` as defined in `:root`/`.dark`, but they were never
+added, and `@theme inline` had no `--color-chart-*` mappings either — so `bg-success`/`bg-info` were
+impossible and feature code fell back to raw palette classes (`bg-blue-500/10`, `bg-emerald-500`,
+`bg-gray-800`, `text-blue-300`, etc.). DESIGN.md's radius/font/import/chart values also disagreed
+with `tailwind.css`.
+
+### Fix
+- Added `--success/-foreground`, `--warning/-foreground`, `--info/-foreground` (and the previously
+  undefined `--destructive-foreground`) to `:root`/`.dark`, mapped them plus `--color-chart-1..5`
+  in `@theme inline`.
+- Replaced every raw palette class in feature code and the `UiBadge`/`UiAlert` variants with the
+  semantic tokens.
+- Reconciled DESIGN.md to the code (`--radius: 0.65rem`, Fira Code mono, no
+  `shadcn-vue/tailwind.css` import, updated radius/chart tables).
+
+### Verification
+`grep` for default-palette classes now only matches the decorative `Ui/AlertDialog/Overlay.vue`
+backdrop (a generated primitive with no themed overlay token); `pnpm lint` clean.
+
 
 
