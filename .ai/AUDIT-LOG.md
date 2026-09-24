@@ -81,5 +81,29 @@ Added an `excludeId` parameter to `checkConflict` and included `ne(students.id, 
 ### Verification
 `pnpm lint` — clean. Manual read confirms the self-row is excluded from the conflict lookup.
 
+---
+
+## [2026-09-24] — unauthenticated seed endpoints
+
+**Severity:** Critical
+**Category:** Security
+**Files changed:** `server/api/seed/admin.post.ts` (deleted), `nuxt.config.ts`, `AGENTS.md`
+**Regression risk:** Low (the `seed:admin` Nitro task still provides the same capability in dev)
+
+### Problem
+`POST /api/seed/admin` created an admin account with no auth, method, or host guard, was
+non-idempotent, and re-threw raw errors via `createError(error)`. Separately,
+`nitro.experimental.tasks: true` exposed Nitro's unauthenticated HTTP task endpoints in
+production, including seed tasks that create data.
+
+### Fix
+Deleted the seed route (the `seed:admin` Nitro task already covers local seeding) and gated
+`nitro.experimental.tasks` to non-production environments. Updated AGENTS.md seeding docs and the
+convention log.
+
+### Verification
+`Test-Path server/api/seed/admin.post.ts` → `False`; only `server/api/auth/[...all].ts` remains under
+`server/api`. `pnpm build` is re-run at the end of the batch.
+
 
 
