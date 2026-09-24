@@ -20,7 +20,7 @@ export const useUpdateClass = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.class.update.mutationOptions({
-      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.list.queryKey() })
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.key() })
     })
   )
 }
@@ -30,7 +30,7 @@ export const useDeleteClass = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.class.delete.mutationOptions({
-      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.list.queryKey() })
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.key() })
     })
   )
 }

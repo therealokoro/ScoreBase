@@ -37,17 +37,41 @@ export const useCreateResult = () => {
 
 export const useUpdateResultStatus = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.result.updateStatus.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.result.updateStatus.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+      }
+    })
+  )
 }
 
 export const useUpdateResultScoreConfig = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.result.updateScoreConfig.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.result.updateScoreConfig.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+      }
+    })
+  )
 }
 
 export const useDeleteResult = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.result.delete.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.result.delete.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+      }
+    })
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -67,12 +91,28 @@ export const useGetScoresheet = (id: MaybeRefOrGetter<string>) => {
 
 export const useCreateScoresheets = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.scoresheet.createScoresheets.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.scoresheet.createScoresheets.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 export const useUpdateScoresheetRemarks = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.scoresheet.updateScoresheetRemarks.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.scoresheet.updateScoresheetRemarks.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -81,22 +121,54 @@ export const useUpdateScoresheetRemarks = () => {
 
 export const useAddSubjectScore = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.subjectScore.addSubjectScore.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.subjectScore.addSubjectScore.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 export const useRemoveSubjectScore = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.subjectScore.removeSubjectScore.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.subjectScore.removeSubjectScore.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 export const useUpdateSubjectScore = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.subjectScore.updateSubjectScore.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.subjectScore.updateSubjectScore.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 export const useBulkUpdateSubjectScores = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.subjectScore.bulkUpdateSubjectScores.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.subjectScore.bulkUpdateSubjectScores.mutationOptions({
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+      }
+    })
+  )
 }
 
 export const useGetReportCard = (scoresheetId: MaybeRefOrGetter<string>) => {

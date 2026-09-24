@@ -182,5 +182,34 @@ and `setSubjectList` remained class-scoped as documented.
 ### Verification
 `pnpm lint` — clean. Affected caller `app/composables/useClasses.ts` already passes `id`.
 
+---
+
+## [2026-09-24] — scoresheet/result/settings mutations never invalidated their queries
+
+**Severity:** High
+**Category:** Data-fetching correctness
+**Files changed:** `app/composables/useResult.ts`, `app/composables/useSettings.ts`,
+`app/composables/useClasses.ts`
+**Regression risk:** Low (invalidation only; extra refetches are intended)
+
+### Problem
+`scoresheet.*` / `subjectScore.*` mutations had no `onSuccess` invalidation. The scoresheet page
+worked around this with a manual `refetchScoresheet()`, but the report card is a separate query
+(`scoresheet.getReportCard`) with a 5-minute `staleTime`, so a teacher could edit scores and then
+print a report card showing the previous totals, grades, and position. The same gap made result
+status changes, score-config changes, settings changes, and class edits stale across pages.
+
+### Fix
+Added `onSuccess` invalidation with the oRPC-generated keys:
+- All scoresheet/subjectScore mutations, plus result status/scoreConfig/delete → invalidate
+  `$orpc.scoresheet.key()` and `$orpc.result.key()`.
+- Settings set mutations → invalidate `$orpc.settings.school.key()` / `$orpc.settings.result.key()`.
+- `useUpdateClass` / `useDeleteClass` → invalidate `$orpc.class.key()` (covers `class.getOne`, not
+  just `class.list`).
+
+### Verification
+`pnpm lint` — clean. Query-key invalidation is prefix-based, so `getOne`/`getReportCard` queries
+under the same router key are covered.
+
 
 
