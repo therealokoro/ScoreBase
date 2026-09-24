@@ -9,9 +9,11 @@ export const useAcademicSessionList = () => {
   )
 }
 
-export const useGetAcademicSessionDetail = (id: MaybeRef<string>) => {
+export const useGetAcademicSessionDetail = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.academicSession.getOne.queryOptions({ input: { id: toValue(id) } }))
+  return useQuery(
+    computed(() => $orpc.academicSession.getOne.queryOptions({ input: { id: toValue(id) } }))
+  )
 }
 
 export const useCreateAcademicSession = () => {

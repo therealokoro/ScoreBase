@@ -35,9 +35,9 @@ export const useDeleteClass = () => {
   )
 }
 
-export const useGetSingleClass = (id: MaybeRef<string>) => {
+export const useGetSingleClass = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.class.getOne.queryOptions({ input: { id: toValue(id) } }))
+  return useQuery(computed(() => $orpc.class.getOne.queryOptions({ input: { id: toValue(id) } })))
 }
 
 export const useSetClassSubjectList = () => {

@@ -930,4 +930,29 @@ the mutation object rather than only `mutateAsync`).
 ### Verification
 `pnpm lint` — clean. No remaining unguarded `user.` dereferences.
 
+---
+
+## [2026-09-24] — non-reactive single-item getters and dead useQueryStudents
+
+**Severity:** Medium
+**Category:** Best-practice deviation
+**Files changed:** `app/composables/useClasses.ts`, `useStudents.ts`, `useTeachers.ts`,
+`useSubject.ts`, `useAcademicSession.ts`
+**Regression risk:** Low (all current callers pass static route params)
+
+### Problem
+Five single-item getters flattened `toValue(id)` once at setup instead of inside a `computed`, so a
+reactive caller would never refetch — a violation of the documented convention (which `useResult.ts`
+follows). `useQueryStudents` was dead code that additionally collapsed a `computed` to `.value`,
+defeating reactivity and the oRPC query key.
+
+### Fix
+Wrapped each getter's `queryOptions` in `computed(() => ...)` and widened the parameter type to
+`MaybeRefOrGetter<string>`. Deleted `useQueryStudents` (no callers).
+
+### Verification
+`grep useQueryStudents` — no references; `pnpm lint` clean.
+
+
+
 

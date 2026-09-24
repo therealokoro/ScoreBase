@@ -20,23 +20,9 @@ export const useDeleteStudent = () => {
   return useMutation($orpc.student.delete.mutationOptions())
 }
 
-export const useGetSingleStudent = (id: MaybeRef<string>) => {
-  const { $orpc } = useNuxtApp()
-  return useQuery($orpc.student.getOne.queryOptions({ input: { id: toValue(id) } }))
-}
-
-export const useQueryStudents = (
-  pagination: MaybeRef<{ pageIndex: number; pageSize: number; search?: string }>
-) => {
+export const useGetSingleStudent = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
   return useQuery(
-    $orpc.student.query.queryOptions({
-      queryKey: computed(() => ["students", toValue(pagination)]).value,
-      input: {
-        page: toValue(pagination).pageIndex,
-        pageSize: toValue(pagination).pageSize,
-        search: toValue(pagination).search || undefined
-      }
-    })
+    computed(() => $orpc.student.getOne.queryOptions({ input: { id: toValue(id) } }))
   )
 }

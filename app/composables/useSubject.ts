@@ -35,9 +35,11 @@ export const useDeleteSubject = () => {
   )
 }
 
-export const useGetSingleSubject = (id: MaybeRef<string>) => {
+export const useGetSingleSubject = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.subject.getOne.queryOptions({ input: { id: toValue(id) } }))
+  return useQuery(
+    computed(() => $orpc.subject.getOne.queryOptions({ input: { id: toValue(id) } }))
+  )
 }
 
 /* Subject List Composables */
