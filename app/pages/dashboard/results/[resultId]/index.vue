@@ -100,7 +100,7 @@ const openScoreConfigSheet = ref(false)
     <template #actions>
       <UiDropdownMenu v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')">
         <UiDropdownMenuTrigger as-child>
-          <UiButton variant="ghost" size="icon" :icon="ICONS.more" />
+          <UiButton variant="ghost" size="icon" :icon="ICONS.more" label="More actions" />
         </UiDropdownMenuTrigger>
         <UiDropdownMenuContent align="end">
           <UiDropdownMenuItem

@@ -9,7 +9,7 @@
       </div>
     </slot>
 
-    <UiTable :class="props.class">
+    <UiTable :class="props.class" :aria-label="props.ariaLabel">
       <UiTableHeader v-if="!hideHeader">
         <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <UiTableHead
@@ -30,10 +30,14 @@
                   <div
                     v-if="header.column.getCanSort()"
                     :class="[
-                      'flex items-center gap-2',
-                      header.column.getCanSort() ? 'cursor-pointer select-none' : ''
+                      'flex items-center gap-2 cursor-pointer select-none rounded-sm',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                     ]"
+                    role="button"
+                    tabindex="0"
                     @click="header.column.getToggleSortingHandler()?.($event)"
+                    @keydown.enter.prevent="header.column.getToggleSortingHandler()?.($event)"
+                    @keydown.space.prevent="header.column.getToggleSortingHandler()?.($event)"
                   >
                     <span class="text-xs md:text-sm">
                       <FlexRender :header="header" />
@@ -529,6 +533,8 @@ const props = withDefaults(
      * ref) so a hard refresh or shared link lands on the correct page.
      */
     pagination?: { pageIndex: number; pageSize: number }
+    /** Accessible name for the underlying table. */
+    ariaLabel?: string
   }>(),
   {
     data: () => [],

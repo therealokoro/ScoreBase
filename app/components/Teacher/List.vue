@@ -78,6 +78,7 @@ const columnVisibility = computed(() => ({
       :loading="loading"
       :columns
       :data="teachers"
+      aria-label="Teachers"
       :column-visibility="columnVisibility"
     >
       <template #empty>

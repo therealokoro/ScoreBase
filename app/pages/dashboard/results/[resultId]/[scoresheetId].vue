@@ -191,7 +191,7 @@ const metaData = computed(() => [
 
       <!-- Table to display subjects for scores -->
       <div class="w-full overflow-x-auto border rounded-lg pb-4">
-        <UiTable>
+        <UiTable aria-label="Student subject scores">
           <!-- Table Header -->
           <UiTableHeader>
             <UiTableRow>
@@ -289,6 +289,7 @@ const metaData = computed(() => [
                   variant="ghost"
                   size="icon-sm"
                   :icon="ICONS.delete"
+                  label="Remove subject"
                   class="text-destructive"
                   @click="handleRemoveSubject(row.id)"
                 />

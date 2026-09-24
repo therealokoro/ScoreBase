@@ -125,6 +125,7 @@ const columnVisibility = computed(() => ({ studentId: isDesktop.value }))
         :data="scoresheets"
         :loading="loading"
         :global-filter="search"
+        aria-label="Students"
         :column-visibility="columnVisibility"
         :pagination="pagination"
         :initial-page-size="pagination.pageSize"

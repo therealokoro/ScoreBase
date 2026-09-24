@@ -117,6 +117,7 @@ const columns = [
         :data="results"
         :loading="isPending"
         :global-filter="search"
+        aria-label="Results"
         :column-visibility="columnVisibility"
         :pagination="pagination"
         :initial-page-size="pagination.pageSize"

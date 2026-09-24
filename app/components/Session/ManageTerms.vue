@@ -44,7 +44,12 @@ const initOpenResult = useDebounceFn(async (term: ITerm) => {
           {{ item.name }}
         </ui-button>
 
-        <ui-button variant="outline" :icon="ICONS.delete" @click="initDeleteTerm(item)" />
+        <ui-button
+          variant="outline"
+          :icon="ICONS.delete"
+          label="Delete term"
+          @click="initDeleteTerm(item)"
+        />
       </UiButtonGroup>
 
       <UiButton

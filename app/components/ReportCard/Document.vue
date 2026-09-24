@@ -56,7 +56,7 @@ const sharedStyles = "rounded-lg border bg-card p-4 grid grid-cols-2 md:grid-col
     <!-- Subject Scores Table — horizontally scrollable on mobile -->
     <div class="rounded-lg border bg-card">
       <UiScrollArea class="grid overflow-x-auto" orientation="horizontal">
-        <UiTable class="w-full table-auto">
+        <UiTable class="w-full table-auto" aria-label="Subject scores">
           <UiTableHeader>
             <UiTableRow>
               <UiTableHead class="min-w-35">Subject</UiTableHead>

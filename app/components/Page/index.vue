@@ -110,6 +110,7 @@ const styles = tv({ base: "flex items-start gap-3 print:hidden" })
             :icon="ICONS.previous"
             variant="ghost"
             size="icon-sm"
+            label="Go back"
           />
           <ui-button
             @click="router.go(1)"
@@ -117,6 +118,7 @@ const styles = tv({ base: "flex items-start gap-3 print:hidden" })
             :icon="ICONS.next"
             variant="ghost"
             size="icon-sm"
+            label="Go forward"
           />
         </ui-button-group>
 
