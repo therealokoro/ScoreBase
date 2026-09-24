@@ -259,5 +259,30 @@ Added `index()` definitions for the four columns. Generated and applied migratio
 Migration SQL contains the four `CREATE INDEX` statements; `pnpm db:migrate` reported migrations up
 to date; `pnpm lint` clean.
 
+---
+
+## [2026-09-24] — student ID generation broke at 10+ per year and had a race
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/routers/student.router.ts`
+**Regression risk:** None
+
+### Problem
+Auto-generated student IDs used `orderBy: desc(students.studentId)` to find the latest sequence.
+That is a lexicographic sort, so `…-0009` sorts after `…-0010`; once a year had 10 students the
+generator produced an ID that already existed and the insert failed with a raw unique-constraint 500.
+The `findFirst` → insert window was also racy.
+
+### Fix
+Compute the next sequence with a numeric aggregate —
+`max(cast(substr(student_id, <prefix length + 1>) as integer))` — and wrap the insert so a unique
+violation on `students.student_id` maps to a typed `CONFLICT` instead of a 500 (the unique index is
+the concurrency backstop).
+
+### Verification
+`pnpm lint` — clean. Manual reasoning: the aggregate returns `9` for existing `…0009`, so the next
+ID is `…0010` as expected.
+
 
 

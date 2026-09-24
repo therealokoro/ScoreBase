@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { ORPCError, implement } from "@orpc/server"
-import { eq, or, ne, and, sql, desc } from "drizzle-orm"
+import { eq, or, ne, and, sql, like } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { studentContract } from "../contracts/student.contract"
@@ -46,15 +46,23 @@ const createStudent = os.create.handler(async ({ input, errors, context }) => {
   if (!input.studentId?.trim()) {
     const prefix = await getSchoolSettings("studentIdPrefix")
     const year = new Date().getFullYear()
+    const sequencePrefix = `${prefix}-${year}-`
 
-    const latest = await db.query.students.findFirst({
-      where: sql`${students.studentId} LIKE ${`${prefix}-${year}-%`}`,
-      orderBy: desc(students.studentId)
-    })
+    // Take the numeric max of the sequence suffix. A lexicographic sort of the
+    // student ID would treat "...-0009" as later than "...-0010", so the 10th
+    // student of a year would collide with an existing ID.
+    const [row] = await db
+      .select({
+        maxSequence: sql<number | null>`max(cast(substr(${students.studentId}, ${
+          sequencePrefix.length + 1
+        }) as integer))`
+      })
+      .from(students)
+      .where(like(students.studentId, `${sequencePrefix}%`))
 
-    const lastSequence = latest ? Number(latest.studentId.split("-").at(-1)) : 0
+    const lastSequence = row?.maxSequence ?? 0
     const sequence = String(lastSequence + 1).padStart(4, "0")
-    studentId = `${prefix}-${year}-${sequence}`
+    studentId = `${sequencePrefix}${sequence}`
   } else {
     studentId = input.studentId.trim()
   }
@@ -62,11 +70,19 @@ const createStudent = os.create.handler(async ({ input, errors, context }) => {
   // Check for conflicts
   await checkConflict(input.name, studentId, errors)
 
-  const [newStudent] = await db
-    .insert(students)
-    .values({ ...input, studentId })
-    .returning()
-  return newStudent!
+  try {
+    const [newStudent] = await db
+      .insert(students)
+      .values({ ...input, studentId })
+      .returning()
+    return newStudent!
+  } catch (error: any) {
+    // The unique index is the race backstop for concurrent auto-generation.
+    if (String(error?.message ?? "").includes("UNIQUE constraint failed: students.student_id")) {
+      throw errors.CONFLICT({ message: "A student exists with this student ID" })
+    }
+    throw error
+  }
 })
 
 const updateStudent = os.update.handler(async ({ input, errors, context }) => {
