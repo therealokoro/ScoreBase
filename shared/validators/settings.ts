@@ -40,6 +40,27 @@ export const GradeBoundarySchema = z.object({
 
 export type GradeBoundary = z.infer<typeof GradeBoundarySchema>
 
+/**
+ * Validates that an admin-defined grading scale is internally consistent: every boundary has
+ * `min <= max` and the scale covers 0–100 without gaps. Returns an error message, or `null` when
+ * valid. Used on the write path only — stored settings are not re-validated on read.
+ */
+export function validateGradeBoundaryCoverage(boundaries: GradeBoundary[]): string | null {
+  const sorted = [...boundaries].sort((a, b) => a.min - b.min)
+  let cursor = 0
+  for (const b of sorted) {
+    if (b.min > b.max) {
+      return `Grade "${b.label}": minimum (${b.min}) is greater than maximum (${b.max})`
+    }
+    if (b.min > cursor) {
+      return `Grade boundaries leave a gap between ${cursor} and ${b.min - 1}`
+    }
+    if (b.max >= cursor) cursor = b.max + 1
+  }
+  if (cursor <= 100) return `Grade boundaries do not cover scores ${cursor}–100`
+  return null
+}
+
 const ResultSettingsBaseSchema = z.object({
   gradeBoundaries: z.array(GradeBoundarySchema).min(1),
   positionDisplayMode: z.enum(positionDisplayMode),

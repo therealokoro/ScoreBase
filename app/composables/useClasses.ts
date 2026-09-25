@@ -20,7 +20,7 @@ export const useUpdateClass = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.class.update.mutationOptions({
-      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.list.queryKey() })
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.key() })
     })
   )
 }
@@ -30,14 +30,14 @@ export const useDeleteClass = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.class.delete.mutationOptions({
-      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.list.queryKey() })
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.class.key() })
     })
   )
 }
 
-export const useGetSingleClass = (id: MaybeRef<string>) => {
+export const useGetSingleClass = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.class.getOne.queryOptions({ input: { id: toValue(id) } }))
+  return useQuery(computed(() => $orpc.class.getOne.queryOptions({ input: { id: toValue(id) } })))
 }
 
 export const useSetClassSubjectList = () => {

@@ -1,29 +1,38 @@
 import { relations, sql } from "drizzle-orm"
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
 
 import { user } from "."
 import { dateTimeSchema } from "./common"
 
-export const academicSessions = sqliteTable("academic_sessions", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("aca").toString()),
-  name: text("name").notNull(),
-  ...dateTimeSchema
-})
+export const academicSessions = sqliteTable(
+  "academic_sessions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("aca").toString()),
+    name: text("name").notNull(),
+    ...dateTimeSchema
+  },
+  (t) => [uniqueIndex("academic_sessions_name_unique").on(t.name)]
+)
 
-export const terms = sqliteTable("terms", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("term").toString()),
-  name: text("name").notNull(),
-  position: integer("position").notNull(), // 1-based index into preset
-  sessionId: text("session_id")
-    .notNull()
-    .references(() => academicSessions.id, { onDelete: "cascade" }),
-  ...dateTimeSchema
-})
+export const terms = sqliteTable(
+  "terms",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("term").toString()),
+    name: text("name").notNull(),
+    position: integer("position").notNull(), // 1-based index into preset
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => academicSessions.id, { onDelete: "cascade" }),
+    ...dateTimeSchema
+  },
+  // A session has at most one term per ordinal position (max 3 terms overall).
+  (t) => [uniqueIndex("terms_session_position_unique").on(t.sessionId, t.position)]
+)
 
 export const classes = sqliteTable("classes", {
   id: text("id")
@@ -60,18 +69,22 @@ export const subjectLists = sqliteTable("subject_lists", {
   ...dateTimeSchema
 })
 
-export const students = sqliteTable("students", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("stu").toString()),
-  name: text("name").notNull(),
-  studentId: text("student_id").unique().notNull(),
-  classId: text("class_id")
-    .notNull()
-    .references(() => classes.id, { onDelete: "restrict" }),
-  phoneNumber: text("phone_number"),
-  ...dateTimeSchema
-})
+export const students = sqliteTable(
+  "students",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("stu").toString()),
+    name: text("name").notNull(),
+    studentId: text("student_id").unique().notNull(),
+    classId: text("class_id")
+      .notNull()
+      .references(() => classes.id, { onDelete: "restrict" }),
+    phoneNumber: text("phone_number"),
+    ...dateTimeSchema
+  },
+  (t) => [index("students_class_id_index").on(t.classId)]
+)
 
 export const academicSessionsRelations = relations(academicSessions, ({ many }) => ({
   terms: many(terms)

@@ -123,6 +123,7 @@ const closeAll = () => {
       :key="student.updatedAt.toString()"
       v-model:open="openEditSheet"
       :initial-data="student"
+      :submitting="updateStudent.isPending.value"
       @submit="handleStudentSubmit"
       @close="closeAll"
     />

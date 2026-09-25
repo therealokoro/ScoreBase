@@ -1,34 +1,22 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
 
-import type { StatsCardProps } from "~/components/App/StatsCard.vue"
-
 definePageMeta({ middleware: ["teacher-only"] })
 
 const { user, isPending } = useAuth()
 
 const { $orpc } = useNuxtApp()
-const queryKey = computed(() => `${user.value.id}-class-fetch`)
+const queryKey = computed(() => `${user.value?.id ?? "unknown"}-class-fetch`)
 const { data, pending, refresh } = useLazyAsyncData(queryKey, () => {
-  return $orpc.teacher.getClass.call({ teacherId: user.value!.id })
+  const teacherId = user.value?.id
+  if (!teacherId) return Promise.resolve(undefined)
+  return $orpc.teacher.getClass.call({ teacherId })
 })
 
 const currClass = computed(() => data.value)
 
 // Dynamically set the breadcrumb label once data is loaded
 setPageBreadcrumbLabel(computed(() => currClass.value?.name))
-
-// Placeholder class stats info
-const classStats = computed<StatsCardProps[]>(() => {
-  return [
-    {
-      label: "Total Students",
-      value: currClass.value?.count.students || "0",
-      icon: ICONS.students as string
-    },
-    { label: "Total Results", value: "15", icon: ICONS.result as string }
-  ]
-})
 
 const isSheetOpen = ref(false)
 const updateClass = useUpdateClass()
@@ -63,14 +51,7 @@ function handleUpdateClass(payload: any) {
       <!-- Class Stats and Subject List View -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <!-- Show class subject list preset -->
-        <ClassSubjectPresetControl
-          v-if="currClass"
-          :active-class="currClass"
-          @onMutation="() => refresh()"
-        />
-
-        <!-- Show class stats -->
-        <!-- <ClassStatsCard v-for="item in classStats" v-bind="item" /> -->
+        <ClassSubjectPresetControl :active-class="currClass" @onMutation="() => refresh()" />
       </div>
 
       <!-- Render students in a table -->
@@ -82,6 +63,7 @@ function handleUpdateClass(payload: any) {
       v-if="currClass && isSheetOpen"
       :key="isSheetOpen.toString()"
       mode="Edit"
+      :submitting="updateClass.isPending.value"
       @submit="handleUpdateClass"
       :initial-data="currClass"
       v-model:open="isSheetOpen"

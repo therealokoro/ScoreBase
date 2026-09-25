@@ -2,6 +2,7 @@ import { kv } from "@nuxthub/kv"
 
 import { DEFAULT_RESULT_SETTINGS, ResultSettings } from "#shared/constants/kv-settings"
 import type { ScoreConfigSnapshot } from "#shared/validators/results"
+import { ResultSettingsSchema } from "#shared/validators/settings"
 
 import { mergeSettings } from "./merge-settings"
 
@@ -14,20 +15,23 @@ export async function getResultSettings<K extends keyof ResultSettings>(
 export async function getResultSettings<K extends keyof ResultSettings>(
   key?: K
 ): Promise<ResultSettings | ResultSettings[K]> {
-  const stored = await kv.get<ResultSettings>(RESULT_SETTINGS_KV_KEY)
-  const settings = mergeSettings(stored ?? {}, DEFAULT_RESULT_SETTINGS) as ResultSettings
+  const stored = await kv.get<Partial<ResultSettings>>(RESULT_SETTINGS_KV_KEY)
+  const merged = mergeSettings(stored ?? {}, DEFAULT_RESULT_SETTINGS) as ResultSettings
+
+  // Guard against corrupted KV values: fall back to defaults rather than propagating bad data.
+  const parsed = ResultSettingsSchema.safeParse(merged)
+  const settings = (parsed.success ? parsed.data : DEFAULT_RESULT_SETTINGS) as ResultSettings
+
   return key ? settings[key] : settings
 }
 
 export const setResultSettings = async (settings: Partial<ResultSettings>) => {
   const current = await getResultSettings()
-  const newSettings = { ...current, ...settings }
+  // Deep-merge over the current value (arrays replaced wholesale) so nested objects
+  // survive partial updates.
+  const newSettings = mergeSettings(settings, current) as ResultSettings
   await kv.set(RESULT_SETTINGS_KV_KEY, newSettings)
   return newSettings
-}
-
-export const resetResultSettings = async (): Promise<void> => {
-  await kv.del(RESULT_SETTINGS_KV_KEY)
 }
 
 /**

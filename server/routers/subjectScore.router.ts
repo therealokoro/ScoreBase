@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { and, eq } from "drizzle-orm"
+import { and, count, eq, isNull } from "drizzle-orm"
 
 import { APiContext } from "../context"
 import { subjectScoreContract } from "../contracts/subjectScore.contract"
@@ -10,6 +10,7 @@ import {
   fetchSingleResult,
   fetchSingleSubjectScore
 } from "../queries/result.query"
+import { requireSession } from "../utils/auth-guard"
 
 /**
  * Validates that every CA score in the incoming array is within the ceiling defined by the result's
@@ -41,7 +42,7 @@ const os = implement(subjectScoreContract).$context<APiContext>()
  * results.
  */
 const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   const scoresheet = await fetchSingleScoresheet(input.scoresheetId)
   if (!scoresheet) throw errors.NOT_FOUND()
@@ -66,9 +67,22 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
       )
     })
     if (duplicate) throw errors.CONFLICT()
+  } else {
+    // Custom (subject-less) rows have no natural unique key, so cap them to keep a
+    // scoresheet from being spammed with rows that skew averages/positions.
+    const MAX_CUSTOM_SUBJECTS = 20
+    const [customCount] = await db
+      .select({ value: count() })
+      .from(subjectScores)
+      .where(and(eq(subjectScores.scoresheetId, input.scoresheetId), isNull(subjectScores.subjectId)))
+
+    if ((customCount?.value ?? 0) >= MAX_CUSTOM_SUBJECTS) {
+      throw errors.PRECONDITION_FAILED({ message: "This scoresheet has too many custom subjects" })
+    }
   }
 
-  // Seed caScores with one null slot per CA defined in the snapshot
+  // Seed caScores with one null slot per CA defined in the snapshot.
+  // exam is seeded as null ("not yet entered"), matching result/scoresheet creation.
   const emptyCaScores = Array<null>(result.scoreConfig.caCount).fill(null)
 
   const [newScore] = await db
@@ -77,7 +91,7 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
       scoresheetId: input.scoresheetId,
       subjectId: input.subjectId ?? null,
       caScores: emptyCaScores,
-      exam: 0
+      exam: null
     })
     .returning()
 
@@ -89,7 +103,7 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
  * published results are immutable.
  */
 const removeSubjectScore = os.removeSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   // Walk up: subjectScore → scoresheet → result
   const score = await fetchSingleSubjectScore(input.id)
@@ -120,7 +134,7 @@ const removeSubjectScore = os.removeSubjectScore.handler(async ({ input, errors,
  * change status back to draft first).
  */
 const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
 
   const score = await fetchSingleSubjectScore(input.id)
   if (!score) throw errors.NOT_FOUND()
@@ -156,9 +170,16 @@ const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors,
   }
 
   // Validate exam score against the snapshot ceiling
-  if (input.exam !== null && input.exam !== undefined && input.exam > scoreConfig.examMax) {
+  if (
+    input.exam !== null &&
+    input.exam !== undefined &&
+    (input.exam < 0 || input.exam > scoreConfig.examMax)
+  ) {
     throw errors.BAD_REQUEST({
-      message: `Exam score exceeds the maximum of ${scoreConfig.examMax}`
+      message:
+        input.exam < 0
+          ? "Exam score cannot be negative"
+          : `Exam score exceeds the maximum of ${scoreConfig.examMax}`
     })
   }
 
@@ -183,7 +204,7 @@ const updateSubjectScore = os.updateSubjectScore.handler(async ({ input, errors,
  */
 const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
   async ({ input, errors, context }) => {
-    const user = context.session!.user
+    const user = requireSession(context)
 
     // Resolve the parent result via the scoresheet
     const scoresheet = await fetchSingleScoresheet(input.scoresheetId)
@@ -215,18 +236,27 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
           })
         }
       }
-      if (entry.exam !== null && entry.exam !== undefined && entry.exam > scoreConfig.examMax) {
+      if (
+        entry.exam !== null &&
+        entry.exam !== undefined &&
+        (entry.exam < 0 || entry.exam > scoreConfig.examMax)
+      ) {
         throw errors.BAD_REQUEST({
-          message: `Exam score exceeds the maximum of ${scoreConfig.examMax} on subject score ${entry.id}`
+          message:
+            entry.exam < 0
+              ? `Exam score cannot be negative on subject score ${entry.id}`
+              : `Exam score exceeds the maximum of ${scoreConfig.examMax} on subject score ${entry.id}`
         })
       }
     }
 
     // --- All valid — write all updates in a single transaction ---
+    // Any entry whose id does not belong to this scoresheet now fails explicitly
+    // instead of returning an undefined element that breaks the output schema.
     const updated = await db.transaction(async (tx) => {
       return Promise.all(
-        input.scores.map((entry) =>
-          tx
+        input.scores.map(async (entry) => {
+          const rows = await tx
             .update(subjectScores)
             .set({
               ...(entry.caScores !== undefined && { caScores: entry.caScores }),
@@ -240,8 +270,15 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
               )
             )
             .returning()
-            .then((rows) => rows[0]!)
-        )
+
+          const row = rows[0]
+          if (!row) {
+            throw errors.NOT_FOUND({
+              message: `Subject score ${entry.id} was not found on this scoresheet`
+            })
+          }
+          return row
+        })
       )
     })
 

@@ -46,7 +46,9 @@ export default defineNuxtConfig({
     optimizeDeps: { noDiscovery: true, include: optimizeDepsArr }
   },
 
-  nitro: { experimental: { tasks: true } },
+  // Nitro's built-in task endpoints are unauthenticated; only expose them in
+  // development. Production seeding/seeding-style operations run via the CLI.
+  nitro: { experimental: { tasks: process.env.NODE_ENV !== "production" } },
 
   runtimeConfig: {
     betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET,

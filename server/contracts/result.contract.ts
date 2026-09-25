@@ -40,7 +40,10 @@ export const getResultsByTerm = oc
       submittedBy: TeacherSchema.pick({ name: true }).nullable()
     }).array()
   )
-  .errors({ NOT_FOUND: { message: "The result was not found" } })
+  .errors({
+    NOT_FOUND: { message: "The result was not found" },
+    FORBIDDEN: { message: "Only admins can view all results for a term" }
+  })
 
 /** Admin creates a result for a term + class, snapshotting the current score config */
 export const createResult = oc
@@ -58,7 +61,10 @@ export const updateResultScoreConfig = oc
   .errors({
     NOT_FOUND: { message: "The result was not found" },
     FORBIDDEN: { message: "Only admins can edit the score configuration" },
-    PRECONDITION_FAILED: { message: "Score config cannot be changed on a published result" }
+    PRECONDITION_FAILED: { message: "Score config cannot be changed on a published result" },
+    BAD_REQUEST: {
+      message: "Existing scores exceed the new maxima; lower the scores before applying this config"
+    }
   })
 
 /**

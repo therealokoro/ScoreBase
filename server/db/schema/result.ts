@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { real, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { index, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { typeid } from "typeid-js"
 import { resultStatus } from "~~/shared/constants/extras"
 
@@ -32,35 +32,44 @@ type ScoreConfigSnapshot = {
 // that were active when it was created.
 // ---------------------------------------------------------------------------
 
-export const results = sqliteTable("results", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("result").toString()),
-  name: text("name").notNull(),
-  termId: text("term_id")
-    .notNull()
-    .references(() => terms.id, { onDelete: "restrict" }),
-  classId: text("class_id")
-    .notNull()
-    .references(() => classes.id, { onDelete: "restrict" }),
+export const results = sqliteTable(
+  "results",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("result").toString()),
+    name: text("name").notNull(),
+    termId: text("term_id")
+      .notNull()
+      .references(() => terms.id, { onDelete: "restrict" }),
+    classId: text("class_id")
+      .notNull()
+      .references(() => classes.id, { onDelete: "restrict" }),
 
-  // Frozen scoring rules — never mutated after creation.
-  // Reading code must use this, not the live admin settings.
-  scoreConfig: text("score_config", { mode: "json" }).$type<ScoreConfigSnapshot>().notNull(),
+    // Frozen scoring rules — never mutated after creation.
+    // Reading code must use this, not the live admin settings.
+    scoreConfig: text("score_config", { mode: "json" }).$type<ScoreConfigSnapshot>().notNull(),
 
-  status: text("status", { enum: resultStatus }).notNull().default("draft"),
+    status: text("status", { enum: resultStatus }).notNull().default("draft"),
 
-  // Teacher who submitted
-  submittedById: text("submitted_by_id").references(() => user.id, { onDelete: "set null" }),
-  submittedAt: text("submitted_at"), // ISO-8601
+    // Teacher who submitted
+    submittedById: text("submitted_by_id").references(() => user.id, { onDelete: "set null" }),
+    submittedAt: text("submitted_at"), // ISO-8601
 
-  // Admin who reviewed / published
-  reviewedById: text("reviewed_by_id").references(() => user.id, { onDelete: "set null" }),
-  reviewedAt: text("reviewed_at"),
-  publishedAt: text("published_at"),
+    // Admin who reviewed / published
+    reviewedById: text("reviewed_by_id").references(() => user.id, { onDelete: "set null" }),
+    reviewedAt: text("reviewed_at"),
+    publishedAt: text("published_at"),
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  // Exactly one result per (term, class). The classId index also serves lookups
+  // by class (e.g. listResultsByClass); termId is covered by the composite's leftmost prefix.
+  (t) => [
+    uniqueIndex("results_term_class_unique").on(t.termId, t.classId),
+    index("results_class_id_index").on(t.classId)
+  ]
+)
 
 // ---------------------------------------------------------------------------
 // Scoresheet
@@ -69,22 +78,31 @@ export const results = sqliteTable("results", {
 // time but can be individually added/removed per student.
 // ---------------------------------------------------------------------------
 
-export const scoresheets = sqliteTable("scoresheets", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("ssheet").toString()),
-  resultId: text("result_id")
-    .notNull()
-    .references(() => results.id, { onDelete: "cascade" }),
-  studentId: text("student_id")
-    .notNull()
-    .references(() => students.id, { onDelete: "restrict" }),
+export const scoresheets = sqliteTable(
+  "scoresheets",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("ssheet").toString()),
+    resultId: text("result_id")
+      .notNull()
+      .references(() => results.id, { onDelete: "cascade" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
 
-  teacherRemark: text("teacher_remark"),
-  principalRemark: text("principal_remark"),
+    teacherRemark: text("teacher_remark"),
+    principalRemark: text("principal_remark"),
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  // Exactly one scoresheet per student per result. studentId is indexed for
+  // student-scoped lookups; resultId is covered by the composite's leftmost prefix.
+  (t) => [
+    uniqueIndex("scoresheets_result_student_unique").on(t.resultId, t.studentId),
+    index("scoresheets_student_id_index").on(t.studentId)
+  ]
+)
 
 // ---------------------------------------------------------------------------
 // SubjectScore
@@ -104,28 +122,32 @@ export const scoresheets = sqliteTable("scoresheets", {
 // computed on the fly from these raw scores and never persisted.
 // ---------------------------------------------------------------------------
 
-export const subjectScores = sqliteTable("subject_scores", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("sscore").toString()),
-  scoresheetId: text("scoresheet_id")
-    .notNull()
-    .references(() => scoresheets.id, { onDelete: "cascade" }),
+export const subjectScores = sqliteTable(
+  "subject_scores",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("sscore").toString()),
+    scoresheetId: text("scoresheet_id")
+      .notNull()
+      .references(() => scoresheets.id, { onDelete: "cascade" }),
 
-  // Soft FK — set to null if the subject is deleted; the snapshot keeps
-  // report cards accurate regardless.
-  subjectId: text("subject_id").references(() => subjects.id, { onDelete: "set null" }),
+    // Soft FK — set to null if the subject is deleted; the snapshot keeps
+    // report cards accurate regardless.
+    subjectId: text("subject_id").references(() => subjects.id, { onDelete: "set null" }),
 
-  // Variable-length CA scores — must match result.scoreConfig.caCount
-  caScores: text("ca_scores", { mode: "json" })
-    .$type<(number | null)[]>()
-    .notNull()
-    .default(sql`(json_array())`),
+    // Variable-length CA scores — must match result.scoreConfig.caCount
+    caScores: text("ca_scores", { mode: "json" })
+      .$type<(number | null)[]>()
+      .notNull()
+      .default(sql`(json_array())`),
 
-  exam: real("exam"), // null = not yet entered
+    exam: real("exam"), // null = not yet entered
 
-  ...dateTimeSchema
-})
+    ...dateTimeSchema
+  },
+  (t) => [index("subject_scores_scoresheet_id_index").on(t.scoresheetId)]
+)
 
 // ---------------------------------------------------------------------------
 // Relations

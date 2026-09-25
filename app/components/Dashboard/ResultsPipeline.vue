@@ -12,19 +12,19 @@ const STATUS_META = [
     key: "submitted",
     label: "Submitted",
     icon: ICONS.pending,
-    classes: "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+    classes: "bg-warning/10 text-warning"
   },
   {
     key: "reviewed",
     label: "Reviewed",
     icon: ICONS.approve,
-    classes: "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+    classes: "bg-info/10 text-info"
   },
   {
     key: "published",
     label: "Published",
     icon: ICONS.publish,
-    classes: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+    classes: "bg-success/10 text-success"
   }
 ] as const
 </script>

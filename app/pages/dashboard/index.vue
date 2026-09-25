@@ -54,28 +54,28 @@ const adminStats = computed<StatCardItem[]>(() => [
     label: "Students",
     value: adminCounts.value.students,
     icon: ICONS.students,
-    classes: "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+    classes: "bg-info/10 text-info"
   },
   {
     key: "classes",
     label: "Classes",
     value: adminCounts.value.classes,
     icon: ICONS.class,
-    classes: "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+    classes: "bg-primary/10 text-primary"
   },
   {
     key: "teachers",
     label: "Teachers",
     value: adminCounts.value.teachers,
     icon: ICONS.teacher,
-    classes: "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+    classes: "bg-warning/10 text-warning"
   },
   {
     key: "active",
     label: "Active Session/Term",
     value: activeTermLabel.value,
     icon: ICONS.session,
-    classes: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    classes: "bg-success/10 text-success",
     wide: true
   }
 ])
@@ -86,14 +86,14 @@ const teacherStats = computed<StatCardItem[]>(() => [
     label: "My Class",
     value: teacherClass.value?.name ?? "Not assigned",
     icon: ICONS.class,
-    classes: "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+    classes: "bg-info/10 text-info"
   },
   {
     key: "students",
     label: "Students in Class",
     value: teacherClass.value?.studentCount ?? 0,
     icon: ICONS.students,
-    classes: "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+    classes: "bg-primary/10 text-primary"
   },
   {
     key: "active",
@@ -101,7 +101,7 @@ const teacherStats = computed<StatCardItem[]>(() => [
     value: activeTermLabel.value,
     icon: ICONS.session,
     wide: true,
-    classes: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+    classes: "bg-success/10 text-success"
   }
 ])
 
@@ -116,7 +116,7 @@ const error = computed(() =>
 <template>
   <Page
     title="Overview"
-    :description="`Welcome back, ${user.name}`"
+    :description="`Welcome back, ${user?.name}`"
     :loading="isPending"
     :error="error"
   >

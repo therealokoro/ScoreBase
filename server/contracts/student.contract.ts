@@ -17,7 +17,8 @@ const create = oc
   .input(UpsertStudentSchema)
   .output(StudentSchema.omit({ class: true }))
   .errors({
-    CONFLICT: { message: "A student with that ID already exists" }
+    CONFLICT: { message: "A student with that ID already exists" },
+    BAD_REQUEST: { message: "A student ID is required when auto-generation is disabled" }
   })
 
 const update = oc
@@ -25,7 +26,8 @@ const update = oc
   // .output(StudentSchema)
   .errors({
     NOT_FOUND: { message: "The student was not found" },
-    CONFLICT: { message: "A student currently exists with this same info" }
+    CONFLICT: { message: "A student currently exists with this same info" },
+    FORBIDDEN: { message: "You are not allowed to do that" }
   })
 
 const remove = oc
@@ -39,9 +41,9 @@ const remove = oc
 const query = oc
   .input(
     z.object({
-      page: z.number().default(0),
-      pageSize: z.number().default(10),
-      search: z.string().optional(),
+      page: z.number().int().min(0).default(0),
+      pageSize: z.number().int().min(1).max(100).default(10),
+      search: z.string().trim().max(100).optional(),
       classId: z.string().optional()
     })
   )

@@ -67,7 +67,12 @@ export const UpsertSubjectListSchema = createInsertSchema(subjectLists, {
 })
 export const UpdateSubjectListSchema = createUpdateSchema(subjectLists, {
   id: z.string("Please provide the subject presets ID"),
-  name: z.string("Please provide a name for the preset")
+  name: z.string("Please provide a name for the preset"),
+  // Shape-validate the JSON column on update too, matching the create schema.
+  subjects: z
+    .array(z.object({ id: z.string(), name: z.string() }), "Please select a minimum of one subject")
+    .min(1, "Please select a minimum of one subject")
+    .optional()
 })
 export type UpdateSubjectListInput = z.infer<typeof UpdateSubjectListSchema>
 export type UpsertSubjectListInput = z.infer<typeof UpsertSubjectListSchema>

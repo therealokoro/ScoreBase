@@ -22,14 +22,18 @@ export const getOne = oc
 export const create = oc
   .input(UpsertClassSchema)
   .output(ClassSchema)
-  .errors({ CONFLICT: { message: "A class already exists with that name" } })
+  .errors({
+    CONFLICT: { message: "A class already exists with that name" },
+    BAD_REQUEST: { message: "The selected teacher or subject list was not found" }
+  })
 
 export const update = oc
-  .input(UpsertClassSchema)
+  .input(UpsertClassSchema.extend({ id: z.string().min(1, "Please provide the class id") }))
   .output(ClassSchema)
   .errors({
     NOT_FOUND: { message: "The class was not found" },
-    CONFLICT: { message: "A class already exists with that name" }
+    CONFLICT: { message: "A class already exists with that name" },
+    BAD_REQUEST: { message: "The selected teacher or subject list was not found" }
   })
 
 export const remove = oc
@@ -43,7 +47,8 @@ export const remove = oc
 export const subjectList = oc
   .input(z.object({ id: z.string(), subjectListId: z.string().nullable() }))
   .errors({
-    NOT_FOUND: { message: "The class was not found" }
+    NOT_FOUND: { message: "The class was not found" },
+    BAD_REQUEST: { message: "The selected subject list was not found" }
   })
 
 export const classContract = {

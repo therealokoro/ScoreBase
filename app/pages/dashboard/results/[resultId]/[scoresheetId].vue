@@ -24,7 +24,7 @@ const pageTitle = computed(() => {
 setPageBreadcrumbLabel(computed(() => student.value?.name))
 setPageBreadcrumbLabels({
   [route.params.resultId as string]: computed(() => result.value?.name),
-  [route.params.sheetId as string]: computed(() => pageTitle.value)
+  [route.params.scoresheetId as string]: computed(() => pageTitle.value)
 })
 
 // create a snapshot of the scoresheet to work with locally, this is what will be submitted
@@ -111,7 +111,7 @@ const bulkUpdateScores = useBulkUpdateSubjectScores()
 const updateRemarks = useUpdateScoresheetRemarks()
 async function handleSave() {
   const promises: Promise<any>[] = []
-  if (isDirty(scoresheet)) {
+  if (isDirty(scoresheet).value) {
     promises.push(
       bulkUpdateScores.mutateAsync({
         scoresheetId,
@@ -161,12 +161,10 @@ const metaData = computed(() => [
           <UiDescriptionListTerm>{{ item.term }}</UiDescriptionListTerm>
           <UiDescriptionListDetails>{{ item.details }}</UiDescriptionListDetails>
         </template>
-        <template>
-          <UiDescriptionListTerm>Status</UiDescriptionListTerm>
-          <UiDescriptionListDetails>
-            <UiBadge variant="secondary">{{ result?.status }}</UiBadge>
-          </UiDescriptionListDetails>
-        </template>
+        <UiDescriptionListTerm>Status</UiDescriptionListTerm>
+        <UiDescriptionListDetails>
+          <UiBadge variant="secondary">{{ result?.status }}</UiBadge>
+        </UiDescriptionListDetails>
       </UiDescriptionList>
 
       <!-- Add subject -->
@@ -191,7 +189,7 @@ const metaData = computed(() => [
 
       <!-- Table to display subjects for scores -->
       <div class="w-full overflow-x-auto border rounded-lg pb-4">
-        <UiTable>
+        <UiTable aria-label="Student subject scores">
           <!-- Table Header -->
           <UiTableHeader>
             <UiTableRow>
@@ -243,7 +241,7 @@ const metaData = computed(() => [
                   :classes="{
                     outer: 'mb-0',
                     messages: 'hidden',
-                    input: `text-xs text-center h-9 ${isOverMax(row.caScores[i], scoreConfig?.caMaxScores[i]) ? '' : ''}`
+                    input: `text-xs text-center h-9 ${isOverMax(row.caScores[i], scoreConfig?.caMaxScores[i]) ? 'text-destructive' : ''}`
                   }"
                   :validation="`between:0,${scoreConfig?.caMaxScores[i]}`"
                   :validation-messages="{ between: '' }"
@@ -289,6 +287,7 @@ const metaData = computed(() => [
                   variant="ghost"
                   size="icon-sm"
                   :icon="ICONS.delete"
+                  label="Remove subject"
                   class="text-destructive"
                   @click="handleRemoveSubject(row.id)"
                 />

@@ -28,7 +28,7 @@ const sidebarContents = computed(() => {
   return {
     navItems: !isPending.value && isAdmin.value ? adminNavItems : teacherNavItems,
     userIcon: isAdmin.value ? ICONS.admin : ICONS.teacher,
-    userColor: isAdmin.value ? "bg-primary" : "bg-gray-800"
+    userColor: isAdmin.value ? "bg-primary" : "bg-secondary"
   }
 })
 </script>
@@ -110,8 +110,8 @@ const sidebarContents = computed(() => {
               <Icon :name="sidebarContents.userIcon" class="text-primary-foreground" />
             </div>
             <div class="grid flex-1">
-              <span class="truncate text-sm font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
+              <span class="truncate text-sm font-medium">{{ user?.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">{{ user?.email }}</span>
             </div>
           </div>
         </div>

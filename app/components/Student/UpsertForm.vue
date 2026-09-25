@@ -4,6 +4,8 @@ import { type UpsertStudentInput } from "~~/shared/validators/academic"
 const props = defineProps<{
   initialData?: Partial<UpsertStudentInput>
   mode: "Edit" | "Create"
+  /** Set true while the parent's mutation is in flight so the form stays disabled. */
+  submitting?: boolean
 }>()
 
 const emit = defineEmits<{ submit: [payload: UpsertStudentInput]; close: [] }>()
@@ -18,9 +20,12 @@ const classes = computed(
 )
 
 const isSubmitting = ref(false)
+const busy = computed(() => isSubmitting.value || props.submitting === true)
+
 async function onSubmit(payload: UpsertStudentInput) {
   isSubmitting.value = true
   try {
+    // The emit is synchronous; `busy` stays true until the parent clears `submitting`.
     emit("submit", payload)
   } finally {
     isSubmitting.value = false
@@ -35,7 +40,13 @@ const isCreateStudentForClass = computed(
 
 // local ref to toggle on/off studentId field, initializes with stored settings
 const { data: settings } = useGetSchoolSettings()
-const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
+const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId ?? true)
+watch(
+  () => settings.value?.autoGenerateStudentId,
+  (value) => {
+    if (value !== undefined) autoGenerateStudentId.value = value
+  }
+)
 </script>
 
 <template>
@@ -65,7 +76,7 @@ const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
           :value="initialData"
           @submit="onSubmit"
         >
-          <fieldset :disabled="isSubmitting" class="p-4 pt-0">
+          <fieldset :disabled="busy" class="p-4 pt-0">
             <FormKitMessages class="mb-4" />
 
             <FormKit
@@ -128,7 +139,7 @@ const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
                 class="flex-1"
                 variant="outline"
                 type="button"
-                :disabled="isSubmitting"
+                :disabled="busy"
                 @click="$emit('close')"
               >
                 Cancel
@@ -138,10 +149,10 @@ const autoGenerateStudentId = ref(settings.value?.autoGenerateStudentId)
               class="flex-1"
               type="submit"
               form="student-form"
-              :loading="isSubmitting"
-              :disabled="isSubmitting"
+              :loading="busy"
+              :disabled="busy"
             >
-              {{ isSubmitting ? "Submitting..." : "Submit" }}
+              {{ busy ? "Submitting..." : "Submit" }}
             </UiButton>
           </div>
         </UiSheetFooter>

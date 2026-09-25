@@ -1,6 +1,6 @@
 /* This file contains reusable queries for student operations */
 import { db } from "@nuxthub/db"
-import { and, count, eq, like, sql, SQL } from "drizzle-orm"
+import { and, count, eq, sql, SQL } from "drizzle-orm"
 
 import { students } from "../db/schema"
 
@@ -55,7 +55,12 @@ export const listStudentsPaginated = async ({
   }
 
   if (search) {
-    conditions.push(like(sql`lower(${students.name})`, `%${search.toLowerCase()}%`))
+    // Escape LIKE wildcards so a search for "%" or "_" is treated literally.
+    const escaped = search.toLowerCase().replace(/[\\%_]/g, (char) => `\\${char}`)
+    const pattern = `%${escaped}%`
+    conditions.push(
+      sql`(lower(${students.name}) LIKE ${pattern} ESCAPE '\\' OR lower(${students.studentId}) LIKE ${pattern} ESCAPE '\\')`
+    )
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined

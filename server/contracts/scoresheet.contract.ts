@@ -29,7 +29,8 @@ export const getOneScoresheet = oc
 
 export const updateScoresheetRemarks = oc.input(UpdateScoresheetRemarksSchema).errors({
   NOT_FOUND: { message: "The scoresheet was not found" },
-  FORBIDDEN: { message: "You do not have permission to edit remarks on this scoresheet" }
+  FORBIDDEN: { message: "You do not have permission to edit remarks on this scoresheet" },
+  PRECONDITION_FAILED: { message: "Remarks cannot be edited on a published result" }
 })
 
 // ---------------------------------------------------------------------------

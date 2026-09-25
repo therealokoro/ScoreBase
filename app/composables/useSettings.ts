@@ -11,7 +11,12 @@ export const useGetSchoolSettings = () => {
 
 export const useUpdateSchoolSettings = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.settings.school.setSettings.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.settings.school.setSettings.mutationOptions({
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.settings.school.key() })
+    })
+  )
 }
 
 /* -----------------------------------  Result Settings  ------------------------------------------ */
@@ -26,5 +31,10 @@ export const useGetResultSettings = () => {
 
 export const useUpdateResultSettings = () => {
   const { $orpc } = useNuxtApp()
-  return useMutation($orpc.settings.result.setSettings.mutationOptions())
+  const qc = useQueryClient()
+  return useMutation(
+    $orpc.settings.result.setSettings.mutationOptions({
+      onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.settings.result.key() })
+    })
+  )
 }

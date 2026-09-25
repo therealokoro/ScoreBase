@@ -10,11 +10,47 @@ import { apiRouter } from "~~/server/routers"
 import { loggingInterceptor } from "~~/server/utils/logger"
 import { serverAuth } from "~~/server/utils/server-auth"
 
+/**
+ * Builds the allowlist of origins permitted to call the RPC surface.
+ *
+ * The surface is credentialed, so it must never reflect arbitrary origins. We allow the configured
+ * app origin (`BETTER_AUTH_URL`), the incoming request's own origin (same-origin callers), and —
+ * in development only — the common localhost ports.
+ */
+function getAllowedOrigins(): Set<string> {
+  const origins = new Set<string>()
+
+  const configured = useRuntimeConfig().public.betterAuthUrl as string | undefined
+  if (configured) {
+    try {
+      origins.add(new URL(configured).origin)
+    } catch {
+      // ignore malformed config
+    }
+  }
+
+  try {
+    const event = useRequestEvent()
+    if (event) origins.add(getRequestURL(event).origin)
+  } catch {
+    // no active request context (e.g. module init)
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    origins.add("http://localhost:3000")
+    origins.add("http://127.0.0.1:3000")
+  }
+
+  return origins
+}
+
 const handler = new RPCHandler(apiRouter, {
   clientInterceptors: [loggingInterceptor],
   plugins: [
     new CORSPlugin({
-      origin: (origin) => origin, // reflect origin — tighten this in production
+      // Only echo origins on the allowlist; anything else gets no CORS header,
+      // so the browser blocks the credentialed cross-origin call.
+      origin: (origin) => (origin && getAllowedOrigins().has(origin) ? origin : undefined),
       allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
       credentials: true // required since client sends credentials: 'include'
     }),

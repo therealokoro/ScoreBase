@@ -6,11 +6,14 @@ import type { APiContext } from "../context"
 import { SubjectListContract } from "../contracts/subjectList.contract"
 import { subjectLists } from "../db/schema"
 import { fetchSingleSubjectList, listAllSubjectLists } from "../queries/subjectList.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 const os = implement(SubjectListContract).$context<APiContext>()
 
-const listSubjectLists = os.list.handler(async () => await listAllSubjectLists())
+const listSubjectLists = os.list.handler(async ({ context }) => {
+  requireSession(context)
+  return await listAllSubjectLists()
+})
 
 const getOneSubjectList = os.getOne.handler(async ({ input, errors, context }) => {
   requireAdmin(context)
@@ -38,8 +41,10 @@ const updateSubjectList = os.update.handler(async ({ input, errors, context }) =
   const existingSubjectList = await fetchSingleSubjectList(input.id, "id")
   if (!existingSubjectList) throw errors.NOT_FOUND()
 
-  if (input.name !== existingSubjectList.name) {
-    const nameConflict = await fetchSingleSubjectList(input.name, "name")
+  const nextName = input.name ?? existingSubjectList.name
+
+  if (nextName !== existingSubjectList.name) {
+    const nameConflict = await fetchSingleSubjectList(nextName, "name")
     if (nameConflict) throw errors.CONFLICT()
   }
 

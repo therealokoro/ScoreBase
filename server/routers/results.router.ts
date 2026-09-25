@@ -13,7 +13,7 @@ import {
   listResultsByClass,
   listAllResults
 } from "../queries/result.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
   draft: ["submitted"]
@@ -33,7 +33,7 @@ const os = implement(resultContract).$context<APiContext>()
 // ---------------------------------------------------------------------------
 
 const listResults = os.list.handler(async ({ context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   if (user.role === "teacher") {
     return user.classId ? await listResultsByClass(user.classId) : []
   }
@@ -41,7 +41,7 @@ const listResults = os.list.handler(async ({ context }) => {
 })
 
 const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   const result = await fetchResultWithScoresheets(input.id, "id")
   if (!result) throw errors.NOT_FOUND()
   if (user.role === "teacher" && result.classId !== user.classId) {
@@ -51,8 +51,10 @@ const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
 })
 
 const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
-  if (user.role === "teacher") throw errors.NOT_FOUND()
+  const user = requireSession(context)
+  if (user.role === "teacher") {
+    throw errors.FORBIDDEN({ message: "Only admins can view all results for a term" })
+  }
 
   const result = await fetchResultsByTerm(input.termId)
   if (!result) throw errors.NOT_FOUND()
@@ -64,15 +66,17 @@ const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context })
  * CREATE — admin/teacher creates a result for a given term + class, and in the same transaction: 1.
  * Snapshots the current ResultSettings into scoreConfig 2. Creates the result row (status: draft)
  * 3. Bulk-creates a scoresheet for every student currently enrolled in the class 4. Pre-populates
- * each scoresheet's subject scores from the class's subject list preset, seeding caScores as an
- * array of 0 (length = caCount)
+ * each scoresheet's subject scores from the class's subject list preset, seeding caScores with null
+ * slots (length = caCount) and exam as null.
  *
  * This keeps "create a result" a single atomic action from the admin's point of view — a result is
  * never left in a state with zero scoresheets.
  */
-const createResult = os.create.handler(async ({ input, errors }) => {
+const createResult = os.create.handler(async ({ input, errors, context }) => {
+  // Authorization: admins may create results for any class; teachers only for their own.
+  requireClassAccess(context, input.classId)
+
   // Guard: check the term and class actually exist
-  // (fixed — previously checked results.id instead of terms.id / classes.id)
   const [term, cls] = await Promise.all([
     db.query.terms.findFirst({
       where: eq(terms.id, input.termId),
@@ -169,25 +173,38 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
   const caCountChanged = newCaCount !== oldCaCount
 
   const [updatedResult] = await db.transaction(async (tx) => {
-    const updated = await tx
-      .update(results)
-      .set({ scoreConfig: input.scoreConfig })
-      .where(eq(results.id, input.id))
-      .returning()
+    const resultScoresheets = await tx.query.scoresheets.findMany({
+      where: eq(scoresheets.resultId, input.id),
+      columns: { id: true }
+    })
+    const scoresheetIds = resultScoresheets.map((s) => s.id)
 
-    if (caCountChanged) {
-      const resultScoresheets = await tx.query.scoresheets.findMany({
-        where: eq(scoresheets.resultId, input.id),
-        columns: { id: true }
+    if (scoresheetIds.length > 0) {
+      const existingScores = await tx.query.subjectScores.findMany({
+        where: inArray(subjectScores.scoresheetId, scoresheetIds),
+        columns: { id: true, caScores: true, exam: true }
       })
-      const scoresheetIds = resultScoresheets.map((s) => s.id)
 
-      if (scoresheetIds.length > 0) {
-        const existingScores = await tx.query.subjectScores.findMany({
-          where: inArray(subjectScores.scoresheetId, scoresheetIds),
-          columns: { id: true, caScores: true }
-        })
+      // Reject (rather than silently keep) any stored score that would exceed the
+      // new ceilings — otherwise totals can exceed the configured maxima.
+      for (const row of existingScores) {
+        const badCaSlot = row.caScores.findIndex(
+          (value, i) => value !== null && value > input.scoreConfig.caMaxScores[i]!
+        )
+        if (badCaSlot !== -1) {
+          throw errors.BAD_REQUEST({
+            message: `Cannot apply this score config: existing CA${badCaSlot + 1} scores exceed the new maximum of ${input.scoreConfig.caMaxScores[badCaSlot]}`
+          })
+        }
+        if (row.exam !== null && row.exam > input.scoreConfig.examMax) {
+          throw errors.BAD_REQUEST({
+            message: `Cannot apply this score config: existing exam scores exceed the new maximum of ${input.scoreConfig.examMax}`
+          })
+        }
+      }
 
+      // Only resize the CA array when its length changes.
+      if (caCountChanged) {
         await Promise.all(
           existingScores.map((row) => {
             const resized = Array.from({ length: newCaCount }, (_, i) =>
@@ -202,6 +219,12 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
       }
     }
 
+    const updated = await tx
+      .update(results)
+      .set({ scoreConfig: input.scoreConfig })
+      .where(eq(results.id, input.id))
+      .returning()
+
     return updated
   })
 
@@ -210,9 +233,15 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
 
 /** UPDATE STATUS — unchanged from before */
 const updateResultStatus = os.updateStatus.handler(async ({ input, errors, context }) => {
-  const user = context.session!.user
+  const user = requireSession(context)
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
+
+  // Check scope before transition validity so a teacher cannot distinguish
+  // "invalid transition" from "not your class" when probing result IDs.
+  if (user.role === "teacher" && result.classId !== user.classId) {
+    throw errors.FORBIDDEN()
+  }
 
   const allowedTransitions = user.role === "admin" ? ADMIN_TRANSITIONS : TEACHER_TRANSITIONS
   const validNextStatuses = allowedTransitions[result.status] ?? []
@@ -223,10 +252,6 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
     })
   }
 
-  if (user.role === "teacher" && result.classId !== user.classId) {
-    throw errors.FORBIDDEN()
-  }
-
   const now = new Date().toISOString()
   const auditFields: Partial<typeof results.$inferInsert> = {}
 
@@ -234,9 +259,18 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
     auditFields.submittedById = user.id
     auditFields.submittedAt = now
   } else if (input.status === "reviewed" || input.status === "published") {
-    auditFields.reviewedById = user.id
-    auditFields.reviewedAt = now
+    // Only stamp review fields on the first entry into review, so re-entering
+    // "reviewed" does not overwrite the original reviewer.
+    if (result.status !== "reviewed" && result.status !== "published") {
+      auditFields.reviewedById = user.id
+      auditFields.reviewedAt = now
+    }
     if (input.status === "published") auditFields.publishedAt = now
+  }
+
+  // Reverting away from published clears the stale publication timestamp.
+  if (result.status === "published" && input.status !== "published") {
+    auditFields.publishedAt = null
   }
 
   const [updated] = await db

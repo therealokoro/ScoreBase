@@ -8,7 +8,8 @@ const updateInfo = oc.input(UpdateAccountInfoSchema).errors({
 
 const updatePassword = oc.input(UpdateAccountPasswordSchema).errors({
   NOT_FOUND: { message: "Couldn't find an account with matching info" },
-  INCORRECT_PASSWORD: { message: "Incorrect password entered" }
+  INCORRECT_PASSWORD: { message: "Incorrect password entered" },
+  BAD_REQUEST: { message: "The new password was rejected" }
 })
 
 export const accountContract = {

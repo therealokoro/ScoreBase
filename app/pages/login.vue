@@ -7,6 +7,14 @@ useSeoMeta({
 })
 
 const auth = useAuth()
+const route = useRoute()
+
+// Honor the `?redirect=` set by the auth middleware, but only for internal paths.
+const redirectTo = computed(() => {
+  const target = route.query.redirect
+  const path = typeof target === "string" ? target : ""
+  return path.startsWith("/") && !path.startsWith("//") ? path : "/dashboard"
+})
 
 const isSubmitting = ref(false)
 async function onSubmit(payload: LoginInputType) {
@@ -16,7 +24,7 @@ async function onSubmit(payload: LoginInputType) {
       await auth.refresh()
       isSubmitting.value = false
       useSonner.success("Login successful, redirecting you....")
-      await navigateTo("/dashboard", { replace: true })
+      await navigateTo(redirectTo.value, { replace: true })
     },
     onError(e: any) {
       useSonner.error(e.error.message)

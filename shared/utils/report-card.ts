@@ -48,15 +48,20 @@ export type ComputedReportCard = {
 
 /**
  * Returns the grade boundary that covers `score`, scanning boundaries in descending order of `min`
- * so the first match is the tightest fit. Falls back to the boundary with the lowest min if nothing
- * matches (handles edge cases like score=0 with a boundary starting at min=0).
+ * so the first match is the tightest fit. If no boundary contains the score (e.g. an admin-defined
+ * gap), falls back to the nearest boundary below the score, then to the lowest boundary — so a
+ * score never maps to a blank grade.
  */
 export function getGradeBoundary(
   score: number,
   boundaries: GradeBoundary[]
 ): GradeBoundary | undefined {
+  if (boundaries.length === 0) return undefined
   const sorted = [...boundaries].sort((a, b) => b.min - a.min)
-  return sorted.find((b) => score >= b.min && score <= b.max)
+  const exact = sorted.find((b) => score >= b.min && score <= b.max)
+  if (exact) return exact
+  const below = sorted.find((b) => score >= b.min)
+  return below ?? sorted[sorted.length - 1]
 }
 
 /**

@@ -208,7 +208,9 @@ const getStudent = os.getOne.handler(async ({ input, context }) => {
   record. When a teacher may not change a field (for example reassigning a class teacher or
   moving a student to another class), throw `FORBIDDEN` explicitly. Procedures teachers use
   (settings reads, class/student/subject list reads, result and scoresheet flows,
-  `teacher.getClass`) must not be admin-gated.
+  `teacher.getClass`) must not be admin-gated, but they still require a logged-in user via
+  `requireSession(context)`. Use `requireSession` instead of `context.session!.user` — the
+  assertion turns anonymous calls into 500s.
 
 ### KV settings pattern
 
@@ -223,8 +225,9 @@ Settings are typed config objects stored in NuxtHub KV.
   The merger replaces arrays wholesale, because plain `defu` concatenates arrays and would
   duplicate `gradeBoundaries` / `caMaxScores`. Pass a key to read one field:
   `getSchoolSettings("termPreset")`.
-- Write pattern merges the partial into the current value and calls `kv.set`. Reset calls
-  `kv.del`.
+- Write pattern deep-merges the partial over the current value (`mergeSettings(settings,
+  current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
+  back to defaults if the stored value is corrupt.
 - `getResultScoreConfig()` snapshots only `{ caCount, caMaxScores, examMax }` onto a Result
   at creation time. Grading and position settings are read fresh at render time.
 
@@ -299,9 +302,10 @@ FormKit is the only form library.
 
 - IDs use `typeid-js` with prefixes: `aca`, `term`, `class`, `subject`, `subprst`, `stu`,
   `result`, `ssheet`, `sscore`. Better Auth generates its own IDs. Do not use `nanoid`.
-- Two seeding mechanisms: Nitro tasks in `server/tasks/seed/*` (enabled by
-  `nitro.experimental.tasks`) and standalone scripts in `server/seed/*`, plus an admin
-  seed route at `server/api/seed/admin.post.ts`.
+- Two seeding mechanisms: Nitro tasks in `server/tasks/seed/*` (exposed over HTTP only in
+  development — `nitro.experimental.tasks` is gated to non-production) and standalone
+  scripts in `server/seed/*`. There is no public admin seed route; use the
+  `seed:admin` task or run `server/seed/*` locally.
 - Auth env vars: `NUXT_BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (exposed as
   `public.betterAuthUrl`), and `NUXT_DEFAULT_ADMIN_{EMAIL,PASS,NAME,PHONE}`.
 
@@ -346,3 +350,9 @@ _Convention changes logged here:_
   `account.*` is now self-scoped; `class.update` / `class.setSubjectList` are class-scoped
   (teachers cannot reassign a class teacher); `student.getOne` / `create` / `update` /
   `delete` / `query` are class-scoped (teachers cannot move a student to another class).
+- 2026-09-24 — Removed the unauthenticated `server/api/seed/admin.post.ts` route; Nitro task
+  endpoints are gated to development (`nitro.experimental.tasks` = non-production).
+- 2026-09-24 — Added `requireSession(context)` to `server/utils/auth-guard.ts`; anonymous RPC
+  calls now get `UNAUTHORIZED` instead of 500s, and previously ungated read procedures
+  (`class.list`, `subject.list`, `subject.getTags`, `subjectList.list`, both settings reads,
+  `teacher.getClass`) require a logged-in user (still not admin-gated).

@@ -160,7 +160,9 @@ const columns = [
         :page-count="pageCount"
         :manual-filtering="true"
         :manual-pagination="true"
+        aria-label="Students"
         :column-visibility="columnVisibility"
+        :pagination="pagination"
         :initial-page-size="pagination.pageSize"
         @update:pagination="onPaginationChange"
       >
@@ -181,6 +183,7 @@ const columns = [
       :initial-data="createFormInitialData"
       v-model:open="openCreateSheet"
       @submit="handleCreateStudent"
+      :submitting="createStudent.isPending.value"
       @close="openCreateSheet = false"
     />
   </div>
