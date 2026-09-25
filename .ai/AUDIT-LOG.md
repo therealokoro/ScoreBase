@@ -1222,3 +1222,31 @@ Reconsider if the product moves to an invite/one-time-password flow.*
 ### Verification
 
 n/a — documented decision retained.
+
+---
+
+## [2026-09-25] — added Vitest + vue-tsc toolchain
+
+**Severity:** n/a (tooling)
+**Category:** Code quality
+**Files changed:** `package.json`, `pnpm-lock.yaml`, `AGENTS.md`,
+`shared/utils/report-card.test.ts`, `shared/validators/settings.test.ts`,
+`server/kv/merge-settings.test.ts`
+**Regression risk:** None (dev-only: no runtime dependencies added)
+
+### Problem
+The repo had no test suite and no typecheck. `pnpm build` uses esbuild, which strips types
+without checking them, so type errors and business-rule regressions could reach main
+undetected — the audit's own fixes were only lint/build-verified.
+
+### Fix
+Added `vitest` (`pnpm test`) and `vue-tsc` (`pnpm typecheck`), plus type-only devDeps
+`@iconify/vue` / `@iconify/utils` for the generated `Ui/Icon.vue`. Wrote 19 pure unit tests
+covering the business rules fixed by the audit: grade-boundary matching incl. gap fallback,
+ordinal/position formatting, report-card totals + dense tie ranking + incomplete-unranked,
+the result-settings sum-to-100 invariant, grade-boundary coverage validation, and the KV
+array-replacement merge. Documented the conventions in AGENTS.md.
+
+### Verification
+`pnpm test` → 19 passed; `pnpm typecheck` → 0 errors (was 13, see next entry); `pnpm lint` →
+0/0; `pnpm build` → success (10.4 MB / 2.38 MB gzip).

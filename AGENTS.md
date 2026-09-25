@@ -26,7 +26,8 @@ and this file (or `.ai/PROJECT.md`) is out of date.
 - Use premium models for complex work and mid-tier models for simpler work such as docs.
 - Match the coding style, file naming, and conventions already in the project.
 - Use the available skills and MCP tools whenever they apply.
-- After completing a feature, run `pnpm lint`, `pnpm fmt:check`, and `pnpm build`.
+- After completing a feature, run `pnpm lint`, `pnpm fmt:check`, `pnpm typecheck`,
+  `pnpm test`, and `pnpm build`.
 
 ### Database schema changes
 
@@ -71,6 +72,7 @@ Versions come from `package.json`.
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
 | Package manager | pnpm `11.5.2`                                                                                           |
 | Lint / format   | Oxlint, Oxfmt                                                                                           |
+| Testing         | Vitest `^5.0.1`; typecheck with `vue-tsc` `^3.3.11`                                                     |
 
 Non-obvious choices:
 
@@ -100,14 +102,17 @@ Run all commands with pnpm from the repo root.
 | `pnpm lint:fix`    | Run Oxlint with `--fix`                                         |
 | `pnpm fmt`         | Format with Oxfmt                                               |
 | `pnpm fmt:check`   | Check formatting with Oxfmt                                     |
+| `pnpm test`        | Run the Vitest unit suite (`vitest run`)                        |
+| `pnpm typecheck`   | Type-check the app project with `vue-tsc`                       |
 | `pnpm db:generate` | `nuxt db generate` — create a Drizzle migration. **Ask first.** |
 | `pnpm db:migrate`  | `nuxt db migrate` — apply migrations. **Ask first.**            |
 | `pnpm clean-deps`  | Delete `node_modules` and lockfiles (destructive)               |
 
 Notes:
 
-- There is no `typecheck` script and `vue-tsc` is not installed. Use editor/Volar
-  diagnostics and `pnpm build` as the closest check.
+- `pnpm typecheck` runs `vue-tsc --noEmit -p .nuxt/tsconfig.app.json`. Run `pnpm postinstall`
+  (or `pnpm dev`) first so `.nuxt` exists.
+- `pnpm test` runs the Vitest unit suite. Keep new tests pure (no DB/server) where possible.
 - `nuxt db generate` and `nuxt db migrate` are provided by NuxtHub through the `nuxt-db`
   binary. There is no root `drizzle.config.ts`; NuxtHub generates one at
   `.nuxt/hub/db/drizzle.config.ts` during `nuxt prepare`. Leave that generation to NuxtHub.
@@ -277,6 +282,15 @@ Configured in `nuxt.config.ts` under `imports`:
 Nuxt also auto-imports components (`Ui*`, `Page`, `App*`) and supports lazy `Lazy<Name>`
 forms. Some `Ui/*` files still import `tv` / `VariantProps` manually; both styles exist.
 
+### Testing
+
+- Unit tests use Vitest and live next to the code as `*.test.ts` (currently `shared/`,
+  `server/kv/`). Run with `pnpm test` or `pnpm test:watch`.
+- Prefer pure tests over ones needing a database or server. Cover business rules first
+  (grade/position math, score-config invariants, settings merging).
+- `pnpm typecheck` is the type gate. `pnpm build` does not type-check (esbuild strips types),
+  so run typecheck before claiming a change is clean.
+
 ### FormKit custom inputs
 
 FormKit is the only form library.
@@ -356,3 +370,7 @@ _Convention changes logged here:_
   calls now get `UNAUTHORIZED` instead of 500s, and previously ungated read procedures
   (`class.list`, `subject.list`, `subject.getTags`, `subjectList.list`, both settings reads,
   `teacher.getClass`) require a logged-in user (still not admin-gated).
+- 2026-09-25 — Added the test/type toolchain: `vitest` (`pnpm test`, tests as `*.test.ts`),
+  `vue-tsc` (`pnpm typecheck`), and the type-only `@iconify/vue` / `@iconify/utils` devDeps
+  that the generated `Ui/Icon.vue` imports. `pnpm build` does not type-check; use
+  `pnpm typecheck`.
