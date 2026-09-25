@@ -40,6 +40,10 @@ the installed `lucide`/`tabler` sets), and replaced the two bad names with `luci
 `lucide:circle`.
 **Expected impact:** Removes the per-icon request waterfall on every page and two third-party API
 calls.
+**Build follow-up (Fix 3a):** the first build after this change failed — `Object.values(ICONS)`
+exposed an invalid entry, `tabler:verified` (not in the installed Tabler collection), which threw
+during client-bundle generation. Remapped `verified` to `lucide:badge-check` (the name was unused in
+the app). This also removes a latent runtime 404 for that icon.
 
 ## Fix 4 — Remove redundant manual refetch after mutations
 
