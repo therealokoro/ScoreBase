@@ -864,11 +864,13 @@ backdrop (a generated primitive with no themed overlay token); `pnpm lint` clean
 **Regression risk:** Low
 
 ### Problem
+
 Icon-only buttons had no accessible name (page nav, the result "more" menu, term/subject delete
 buttons); sortable table headers were click-only `div`s with no keyboard support; and no data table
 exposed an accessible name.
 
 ### Fix
+
 - Added `label` props (mapped to `aria-label` by `UiButton`) to every icon-only button.
 - Sort headers are now `role="button"` + `tabindex="0"` with Enter/Space handlers and a
   `focus-visible:ring` (kept as a div because the tooltip trigger already renders a button).
@@ -876,6 +878,7 @@ exposed an accessible name.
   names from all four table consumers plus the two raw `UiTable`s.
 
 ### Verification
+
 `pnpm lint` — clean. Keyboard sort and named tables now work.
 
 ---
@@ -891,16 +894,19 @@ exposed an accessible name.
 **Regression risk:** Low
 
 ### Problem
+
 These forms set `isSubmitting = true`, emitted synchronously, then set it back to `false` in a
 `finally` — so the `fieldset :disabled` and button `:loading` only held for one tick, even though the
 parent's mutation was still in flight. Slow submits allowed double-submission and mid-flight edits.
 
 ### Fix
+
 Added an optional `submitting` prop to each form; a `busy` computed ORs it with the local flag and
 drives the fieldset/buttons. Parents pass their mutation's `isPending` (the session page now keeps
 the mutation object rather than only `mutateAsync`).
 
 ### Verification
+
 `pnpm lint` — clean. `busy` stays true until the parent mutation settles.
 
 ---
@@ -916,18 +922,21 @@ the mutation object rather than only `mutateAsync`).
 **Regression risk:** Low (consumers updated with optional chaining/guards)
 
 ### Problem
+
 `const user = computed(() => data.value!.user)` threw a `TypeError` whenever read with no session
 (consumers include early computed query keys). `isAdmin` used `== "admin"` and returned
 `null | "" | string | boolean`, forcing `Boolean(isAdmin.value)` workarounds — and in
 `useAdminDashboardSummary` that boolean was evaluated once, so the query's `enabled` state was frozen.
 
 ### Fix
+
 - `user` is now `computed(() => currentUser.value)` (nullable, no throw); `isAdmin` is
   `computed(() => currentUser.value?.role === "admin")`.
 - Updated consumers to guard with `?.` / `?? ""`, added a watch so the account form populates once
   the session resolves, and made the admin dashboard query's `enabled` a `computed`.
 
 ### Verification
+
 `pnpm lint` — clean. No remaining unguarded `user.` dereferences.
 
 ---
@@ -941,16 +950,19 @@ the mutation object rather than only `mutateAsync`).
 **Regression risk:** Low (all current callers pass static route params)
 
 ### Problem
+
 Five single-item getters flattened `toValue(id)` once at setup instead of inside a `computed`, so a
 reactive caller would never refetch — a violation of the documented convention (which `useResult.ts`
 follows). `useQueryStudents` was dead code that additionally collapsed a `computed` to `.value`,
 defeating reactivity and the oRPC query key.
 
 ### Fix
+
 Wrapped each getter's `queryOptions` in `computed(() => ...)` and widened the parameter type to
 `MaybeRefOrGetter<string>`. Deleted `useQueryStudents` (no callers).
 
 ### Verification
+
 `grep useQueryStudents` — no references; `pnpm lint` clean.
 
 ---
@@ -963,13 +975,16 @@ Wrapped each getter's `queryOptions` in `computed(() => ...)` and widened the pa
 **Regression risk:** None (no imports)
 
 ### Problem
+
 The file contained only the comment `// we are coming`, and `unicorn/no-empty-file` made `pnpm lint`
 fail (the only lint error in the repo).
 
 ### Fix
+
 Deleted the unused placeholder file. Verified nothing imported it.
 
 ### Verification
+
 `pnpm lint` → **0 warnings and 0 errors** (391 files).
 
 ---
@@ -982,15 +997,18 @@ Deleted the unused placeholder file. Verified nothing imported it.
 **Regression risk:** None
 
 ### Problem
+
 All three middleware files redirect unauthenticated users to `/login?redirect=<fullPath>`, but the
 login success handler always navigated to `/dashboard`, dropping deep links (e.g. a shared scoresheet
 URL).
 
 ### Fix
+
 Derive the post-login target from `route.query.redirect`, accepting only internal paths (starts with
 `/`, not `//`), defaulting to `/dashboard`.
 
 ### Verification
+
 `pnpm lint` — 0 errors.
 
 ---
@@ -1005,6 +1023,7 @@ Derive the post-login target from `route.query.redirect`, accepting only interna
 **Regression risk:** None (nothing referenced them)
 
 ### Problem
+
 `Class/StudentList.vue` (a stale near-copy of `Student/ListTable.vue`), `Scoresheet/Remarks.vue`
 (an `<h1>` stub), and `Student/StatsCard.vue` were unreferenced. `my-class.vue` carried a dead
 `classStats` computed with a hardcoded `"15"` and a commented-out card. The scoresheet page had a
@@ -1012,10 +1031,12 @@ bare `<template>` (rendering nothing, hiding the Status row) and a dead CA over-
 (`? '' : ''`) so out-of-range CAs never turned red.
 
 ### Fix
+
 Deleted the three dead components, removed the dead computed/comment and redundant `v-if`, unwrapped
 the Status row, and wired the CA over-max style to `text-destructive` (matching the exam input).
 
 ### Verification
+
 `grep` for the component names found no references; `pnpm lint` → 0 warnings, 0 errors.
 
 ---
@@ -1029,14 +1050,17 @@ the Status row, and wired the CA over-max style to `text-destructive` (matching 
 **Regression risk:** Low (only affects a teacher calling an admin-only read)
 
 ### Problem
+
 `student.query` logged `console.log("i am here.... not admin, no class id")` on a normal path.
 `result.getByTerm` returned `NOT_FOUND` for teachers, masking an authorization failure as "not found"
 and making it ambiguous with a genuinely missing term.
 
 ### Fix
+
 Removed the debug log. `getByTerm` now throws `FORBIDDEN` for teachers (declared on the contract).
 
 ### Verification
+
 `grep console server/routers/student.router.ts` — clean; `pnpm lint` 0 errors.
 
 ---
@@ -1049,15 +1073,18 @@ Removed the debug log. `getByTerm` now throws `FORBIDDEN` for teachers (declared
 **Regression risk:** Low (input now bounded; existing callers send valid values)
 
 ### Problem
+
 `student.query` accepted any `page`/`pageSize` (a caller could request 100 000 rows with nested class
 relations, or a negative page → negative offset), and the search string was interpolated into a
 `LIKE` without escaping `%`/`_` (and only matched name).
 
 ### Fix
+
 Bounded the contract input (`page >= 0`, `1 <= pageSize <= 100`, `search` ≤ 100 chars, trimmed).
 Escaped LIKE wildcards and added `ESCAPE '\'`, matching both name and student ID.
 
 ### Verification
+
 `pnpm lint` — 0 errors. Wildcard characters in a search are now literal.
 
 ---
@@ -1070,14 +1097,17 @@ Escaped LIKE wildcards and added `ESCAPE '\'`, matching both name and student ID
 **Regression risk:** None
 
 ### Problem
+
 `class.getOne`, `teacher.getClass`, and `class.delete` loaded every student row (with the class
 relation) just to read `.length`, instead of asking the database for a count.
 
 ### Fix
+
 Replaced the three call sites with `db.select({ value: count() }).from(students).where(...)`,
 matching the pattern already used in `dashboard.query.ts`.
 
 ### Verification
+
 `pnpm lint` — 0 errors. Response shape unchanged (`count.students` string).
 
 ---
@@ -1091,6 +1121,7 @@ matching the pattern already used in `dashboard.query.ts`.
 **Regression risk:** Low (new subjects start "not entered", matching creation)
 
 ### Problem
+
 `addSubjectScore` seeded `exam: 0` while `createResult`/`createScoresheets` seeded `null`, so the
 same score had different "complete/incomplete" semantics depending on how the row was created. It
 also let a caller add unlimited subject-less ("custom") rows, each of which counts toward
@@ -1098,11 +1129,13 @@ averages/positions. `createScoresheets` wrote a `subjectNameSnapshot` field that
 the `subject_scores` table, and `createResult`'s docblock claimed CA slots were seeded as `0`.
 
 ### Fix
+
 - Seed `exam: null` in `addSubjectScore`.
 - Cap custom (null-`subjectId`) rows per scoresheet at 20 with a typed `PRECONDITION_FAILED`.
 - Removed the non-existent `subjectNameSnapshot` write and corrected the `createResult` docblock.
 
 ### Verification
+
 `pnpm lint` — 0 errors. New subject rows now match the creation-time null convention.
 
 ---
@@ -1118,6 +1151,7 @@ the `subject_scores` table, and `createResult`'s docblock claimed CA slots were 
 **Regression risk:** Low
 
 ### Problem
+
 - `sessions/[sessionId].vue` awaited `refetch()` with no rejection handling and dereferenced
   `session.updatedAt!` while loading.
 - `teachers/index.vue` built mutation IDs from possibly-undefined refs.
@@ -1128,6 +1162,7 @@ the `subject_scores` table, and `createResult`'s docblock claimed CA slots were 
 - `results/index.vue` typed its create form as `Record<string, any>`.
 
 ### Fix
+
 Added try/catch + toast around the term refetch and guarded the session description; added early
 returns in the teacher handlers; added `:loading`/`:disabled` to the preset buttons and an
 `aria-label` on the select; watched the settings for the student-ID toggle; `createStudent` now
@@ -1135,6 +1170,7 @@ throws `BAD_REQUEST` when the ID is blank and auto-generation is off (declared o
 typed the results form as `Partial<CreateResultInput>`.
 
 ### Verification
+
 `pnpm lint` — 0 errors.
 
 ---
@@ -1147,16 +1183,19 @@ typed the results form as `Partial<CreateResultInput>`.
 **Regression risk:** n/a
 
 ### Problem
+
 The audit suspected `createResult`'s `{ ...input }` spread let a client-supplied `scoreConfig`
 override the server snapshot.
 
 ### Fix
+
 **Won't fix — false positive.** `CreateResultSchema` is `createInsertSchema(results).pick({ termId:
 true, classId: true })`, so `scoreConfig` is not part of the accepted input and oRPC validation
 rejects it before the handler runs. The server snapshot is authoritative. (The related docblock /
 `exam` seeding drift was fixed under audit #44.)
 
 ### Verification
+
 Read of `shared/validators/results.ts` (`CreateResultSchema`) and the contract input confirms only
 `termId`/`classId` reach the handler.
 
@@ -1170,31 +1209,16 @@ Read of `shared/validators/results.ts` (`CreateResultSchema`) and the contract i
 **Regression risk:** n/a
 
 ### Problem
+
 `teacher.create` sets the initial password to the teacher's phone number — guessable and effectively
 the password policy.
 
 ### Fix
+
 **Won't fix — deliberate trade-off.** PROJECT.md §4.6/§12.9 explicitly specify auto-generated
 credentials derived from the phone number. Changing it alters the documented onboarding UX. *
 Reconsider if the product moves to an invite/one-time-password flow.*
 
 ### Verification
+
 n/a — documented decision retained.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
