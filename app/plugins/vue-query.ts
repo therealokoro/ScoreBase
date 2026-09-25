@@ -8,7 +8,14 @@ export default defineNuxtPlugin((nuxtApp) => {
   const vueQueryState = useState<DehydratedState | null>("vue-query", () => null)
 
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 1000 * 60 * 5 } }
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5,
+        // oRPC errors (4xx/5xx) are deterministic — retrying only delays the error UI.
+        retry: false,
+        retryDelay: 500
+      }
+    }
   })
 
   nuxtApp.vueApp.use(VueQueryPlugin, { queryClient })
