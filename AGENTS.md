@@ -72,7 +72,7 @@ Versions come from `package.json`.
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
 | Package manager | pnpm `11.5.2`                                                                                           |
 | Lint / format   | Oxlint, Oxfmt                                                                                           |
-| Testing         | Vitest `^5.0.1`; typecheck with `vue-tsc` `^3.3.11`                                                     |
+| Testing         | Vitest `^5` + `@vue/test-utils` / `happy-dom`; typecheck with `vue-tsc`                               |
 
 Non-obvious choices:
 
@@ -284,10 +284,15 @@ forms. Some `Ui/*` files still import `tv` / `VariantProps` manually; both style
 
 ### Testing
 
-- Unit tests use Vitest and live next to the code as `*.test.ts` (currently `shared/`,
-  `server/kv/`). Run with `pnpm test` or `pnpm test:watch`.
-- Prefer pure tests over ones needing a database or server. Cover business rules first
-  (grade/position math, score-config invariants, settings merging).
+- Unit tests use Vitest and live next to the code as `*.test.ts` / `*.test.vue` (across
+  `shared/`, `server/`, and `app/components/`). Run with `pnpm test` or `pnpm test:watch`.
+- Config is `vitest.config.ts`: it mirrors the Nuxt path aliases and registers
+  `@vitejs/plugin-vue` for SFC tests.
+- Prefer pure tests. Mock `@nuxthub/kv` (see `server/kv/*.test.ts`) rather than touching real KV.
+- Component tests: add `// @vitest-environment happy-dom` as the first line, pass
+  `global: { stubs: { ... } }` to `mount`, and — because Vitest has no Nuxt/unimport
+  transform — expose Nuxt auto-imports (`tv`, `computed`, `resolveComponent`, `useSlots`) on
+  `globalThis` before dynamically importing the SFC (see `app/components/Ui/Button.test.ts`).
 - `pnpm typecheck` is the type gate. `pnpm build` does not type-check (esbuild strips types),
   so run typecheck before claiming a change is clean.
 
@@ -374,3 +379,6 @@ _Convention changes logged here:_
   `vue-tsc` (`pnpm typecheck`), and the type-only `@iconify/vue` / `@iconify/utils` devDeps
   that the generated `Ui/Icon.vue` imports. `pnpm build` does not type-check; use
   `pnpm typecheck`.
+- 2026-09-25 — Expanded tests across `shared/`, `server/`, and `app/components/`; added
+  `vitest.config.ts` (alias mirror + `@vitejs/plugin-vue`) and the `@vue/test-utils` /
+  `happy-dom` devDeps for component tests.
