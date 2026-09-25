@@ -91,3 +91,20 @@ a second `getTermPreset()` read. (No module-level cache — per the Cloudflare W
 creation.
 **Not done (raised for review):** `settings.router.setResultSettings` still reads the current value
 and then `setResultSettings` reads it again; collapsing that needs a KV setter signature change.
+
+## Fix 7 — Index `createdAt` for list ordering
+
+**Date:** 2026-09-25
+**Files changed:** `server/db/schema/academic.ts`, `server/db/schema/result.ts`,
+`server/db/schema/auth.ts`, `server/db/migrations/sqlite/0007_productive_marvel_boy.sql`
+**What:** List queries `ORDER BY createdAt DESC`, but no table had an index on that column.
+**Why it was slow:** SQLite did a full scan + temp-B-tree sort for every list (worst for
+`students` pagination, which sorts the whole filtered set before `limit/offset`).
+**What changed:** Added indexes on the tables that actually sort by `createdAt`:
+`results(createdAt)`, `students(createdAt)`, `students(class_id, createdAt)` (paginated class list),
+`user(created_at)`, `subjects(createdAt)`, `subject_lists(createdAt)`. Generated and applied
+migration `0007_productive_marvel_boy.sql`.
+**Divergence from the original instruction (approved):** the requested `classes` and `scoresheets`
+indexes were dropped because no query orders those tables by `createdAt` (they would be unused);
+`subjects` and `subject_lists`, which do sort by `createdAt`, were added instead.
+**Expected impact:** Turns per-list full scans + sorts into index scans.
