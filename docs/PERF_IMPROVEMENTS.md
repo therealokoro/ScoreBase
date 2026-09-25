@@ -14,3 +14,13 @@ including `retry: 3` with exponential backoff.
 `defaultOptions.queries`.
 **Expected impact:** Removes the ~7s worst-case loading cliff on failed queries; errors surface
 immediately.
+
+## Fix 2 — Lower student search debounce
+
+**Date:** 2026-09-25
+**Files changed:** `app/components/Student/ListTable.vue`
+**What:** `useUrlTableState` for the student list debounced search input by 1000 ms.
+**Why it was slow:** Each keystroke waited a full second before the request fired, making
+search-as-you-type feel unresponsive.
+**What changed:** Debounce reduced from `1000` to `300` ms (the app's standard).
+**Expected impact:** Search results feel ~700ms snappier on every keystroke.
