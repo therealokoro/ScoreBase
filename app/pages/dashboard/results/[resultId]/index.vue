@@ -4,7 +4,7 @@ import { ICONS } from "~~/shared/constants/icons"
 const route = useRoute()
 const resultId = route.params.resultId as string
 
-const { data, isPending, error, refetch } = useGetResult(resultId)
+const { data, isPending, error } = useGetResult(resultId)
 const result = computed(() => data.value)
 
 const { isAdmin } = useAuth()
@@ -42,7 +42,6 @@ function handleStatusChange(status: any) {
   useSonner.promise(updateStatus.mutateAsync({ id: resultId, status }), {
     loading: "Updating result status...",
     success: () => {
-      refetch()
       return `Result moved to ${capitalize(status)}`
     },
     error: (e: any) => e.message
@@ -182,7 +181,6 @@ const openScoreConfigSheet = ref(false)
       v-model:open="openScoreConfigSheet"
       :result-id="resultId"
       :score-config="result.scoreConfig"
-      @submit="() => refetch()"
     />
   </Page>
 </template>

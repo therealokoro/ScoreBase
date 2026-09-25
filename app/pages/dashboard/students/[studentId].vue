@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const route = useRoute()
 const studentId = route.params.studentId as string
-const { data, isPending, error, refetch } = useGetSingleStudent(studentId)
+const { data, isPending, error } = useGetSingleStudent(studentId)
 const student = computed(() => data.value)
 
 const { isAdmin } = useAuth()
@@ -22,7 +22,6 @@ const handleStudentSubmit = async (studentData: any) => {
   useSonner.promise(updateStudent.mutateAsync({ ...studentData }), {
     loading: "Updating student, please wait...",
     success: () => {
-      refetch()
       openEditSheet.value = false
       return "Student updated successfully"
     },

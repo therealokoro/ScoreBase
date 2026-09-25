@@ -5,7 +5,7 @@ import type { PositionDisplayOption } from "~~/shared/validators/settings"
 
 definePageMeta({ middleware: ["admin-only"] })
 
-const { data: settings, refetch } = useGetResultSettings()
+const { data: settings } = useGetResultSettings()
 const setSettings = useUpdateResultSettings()
 
 function toFormShape(s: typeof DEFAULT_RESULT_SETTINGS) {
@@ -59,7 +59,6 @@ function handleSubmit(payload: any) {
     {
       loading: "Updating result settings, please wait...",
       success: () => {
-        refetch()
         return "Result settings updated successfully"
       },
       error: (e: any) => e.message

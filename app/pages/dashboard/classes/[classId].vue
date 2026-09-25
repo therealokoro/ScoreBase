@@ -6,7 +6,7 @@ import type { StatsCardProps } from "~/components/App/StatsCard.vue"
 const classId = useRoute().params.classId?.toString()
 const classIdError = !classId ? new Error("Class was not found") : undefined
 
-const { data, isPending, error, refetch } = useGetSingleClass(classId || "")
+const { data, isPending, error } = useGetSingleClass(classId || "")
 
 const currClass = computed(() => data.value)
 const classTeacher = computed(() => data.value?.teacher || null)
@@ -69,11 +69,7 @@ function handleDeleteAction() {
     <!-- Class Stats -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" v-else>
       <!-- Show class subject list preset -->
-      <ClassSubjectPresetControl
-        v-if="currClass"
-        :active-class="currClass"
-        @onMutation="() => refetch()"
-      />
+      <ClassSubjectPresetControl v-if="currClass" :active-class="currClass" />
 
       <!-- Show class stats -->
       <AppStatsCard v-for="item in classStats" v-bind="item" />

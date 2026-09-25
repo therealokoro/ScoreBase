@@ -40,3 +40,25 @@ the installed `lucide`/`tabler` sets), and replaced the two bad names with `luci
 `lucide:circle`.
 **Expected impact:** Removes the per-icon request waterfall on every page and two third-party API
 calls.
+
+## Fix 4 — Remove redundant manual refetch after mutations
+
+**Date:** 2026-09-25
+**Files changed:** `app/pages/dashboard/students/[studentId].vue`,
+`app/pages/dashboard/settings/school.vue`, `app/pages/dashboard/sessions/index.vue`,
+`app/pages/dashboard/results/[resultId]/index.vue`, `app/pages/dashboard/results/settings.vue`,
+`app/pages/dashboard/classes/[classId].vue`,
+`app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**What:** Several mutation `onSuccess` handlers called `refetch()`/`refresh()`/`refetchScoresheet()`
+on a query that the mutation already invalidates.
+**Why it was slow:** Invalidation triggers its own refetch, so the same (often heavy nested) payload
+could be requested twice; the manual refetch also races the invalidated one.
+**What changed:** Removed the manual refetch calls where `invalidateQueries` covers the same query
+(7 pages). Kept them where the data is **not** in the Query cache: `my-class.vue` and
+`Student/ListTable.vue` use `useLazyAsyncData`/`$orpc.*.call` (and `useCreateStudent` has no
+invalidation), so their `refresh()` is still required.
+**Not done (raised for review):** `queryClient.setQueryData` for mutation-returned rows and further
+narrowing of the broad `$orpc.result.key()` / `$orpc.scoresheet.key()` invalidation. Both risk stale
+list/detail views and need a product decision on exactly which queries depend on each mutation.
+**Expected impact:** Removes a duplicate request per mutation on the heaviest result/scoresheet
+payloads.
