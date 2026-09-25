@@ -24,3 +24,19 @@ immediately.
 search-as-you-type feel unresponsive.
 **What changed:** Debounce reduced from `1000` to `300` ms (the app's standard).
 **Expected impact:** Search results feel ~700ms snappier on every keystroke.
+
+## Fix 3 — Bundle icons client-side and drop two remote-collection names
+
+**Date:** 2026-09-25
+**Files changed:** `nuxt.config.ts`, `app/pages/dashboard/results/[resultId]/report-card/index.vue`,
+`app/components/Ui/DropdownMenu/RadioItem.vue`
+**What:** Icons are bound dynamically via the `ICONS` map, which the `@nuxt/icon` scanner cannot
+see, so almost none were bundled client-side; two names also referenced uninstalled collections.
+**Why it was slow:** Every dynamic icon became a separate `/api/_nuxt_icon` request after render
+(blank-first pop-in), and `heroicons:magnifying-glass` / `ph:circle-fill` fell back to the public
+Iconify API (an extra internet round trip).
+**What changed:** Added `clientBundle.icons: Object.values(ICONS)` (and confirmed `ICONS` only uses
+the installed `lucide`/`tabler` sets), and replaced the two bad names with `lucide:search` /
+`lucide:circle`.
+**Expected impact:** Removes the per-icon request waterfall on every page and two third-party API
+calls.

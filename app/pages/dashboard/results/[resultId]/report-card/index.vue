@@ -124,7 +124,7 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
           type="text"
           placeholder="Search by name or student ID..."
           outer-class="!mb-0 w-full sm:max-w-xs"
-          prefix-icon="heroicons:magnifying-glass"
+          prefix-icon="lucide:search"
           @input="onFilterChange"
         />
 
