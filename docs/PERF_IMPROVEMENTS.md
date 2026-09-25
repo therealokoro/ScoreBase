@@ -73,3 +73,21 @@ payloads.
 **What changed:** Sort the unique totals once, build a `Map<total, rank>`, then assign in one pass
 (O(n log n) + O(n)).
 **Expected impact:** Removes the quadratic rank pass; scales cleanly to large classes.
+
+## Fix 6 — Read settings once per function instead of per field
+
+**Date:** 2026-09-25
+**Files changed:** `server/queries/dashboard.query.ts`, `server/routers/student.router.ts`,
+`server/routers/session.router.ts`
+**What:** Several functions called `getSchoolSettings(field)` multiple times, each doing a full KV
+read + `defu` merge + Zod parse of the same object.
+**Why it was slow:** Each call is a separate KV round trip (remote in production) plus a redundant
+parse — the dashboard read the key twice, `createStudent` twice, `createSession` twice (including
+via `getTermPreset`).
+**What changed:** Read the full settings object once with the existing `getSchoolSettings()`
+no-arg overload, then index it; `createSession` uses `TERMS_PRESET[settings.termPreset]` instead of
+a second `getTermPreset()` read. (No module-level cache — per the Cloudflare Workers constraint.)
+**Expected impact:** One fewer KV round trip on the dashboard, student creation, and session
+creation.
+**Not done (raised for review):** `settings.router.setResultSettings` still reads the current value
+and then `setResultSettings` reads it again; collapsing that needs a KV setter signature change.

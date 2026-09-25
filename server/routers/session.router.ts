@@ -5,7 +5,8 @@ import { eq } from "drizzle-orm"
 import type { APiContext } from "../context"
 import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
-import { getSchoolSettings, getTermPreset } from "../kv/school-settings"
+import { getSchoolSettings } from "../kv/school-settings"
+import { TERMS_PRESET } from "#shared/constants/kv-settings"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
 import { requireAdmin } from "../utils/auth-guard"
 
@@ -49,9 +50,9 @@ const createAcademicSession = os.create.handler(async ({ context }) => {
   const allSessions = await listAllAcademicSessions()
   // extract existing session names
   const sessionNames = allSessions.map((curr: IAcademicSession) => ({ name: curr.name }))
-  // get session suffix and generate next session name
-  const sessionSuffix = await getSchoolSettings("sessionSuffix")
-  const nextSession = generateNextSessionName(sessionNames, sessionSuffix)
+  // One KV read for the suffix and the term preset.
+  const settings = await getSchoolSettings()
+  const nextSession = generateNextSessionName(sessionNames, settings.sessionSuffix)
 
   // store session
   const [academicSession] = await db
@@ -59,7 +60,7 @@ const createAcademicSession = os.create.handler(async ({ context }) => {
     .values({ name: nextSession })
     .returning()
 
-  const termPreset = await getTermPreset()
+  const termPreset = TERMS_PRESET[settings.termPreset] ?? TERMS_PRESET.ordinals
 
   // Auto-create 1st term for this session
   await db
