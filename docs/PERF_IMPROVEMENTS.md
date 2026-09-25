@@ -108,3 +108,27 @@ migration `0007_productive_marvel_boy.sql`.
 indexes were dropped because no query orders those tables by `createdAt` (they would be unused);
 `subjects` and `subject_lists`, which do sort by `createdAt`, were added instead.
 **Expected impact:** Turns per-list full scans + sorts into index scans.
+
+## Fix 10 — Replace `motion-v` and inline `lodash-es`
+
+**Date:** 2026-09-25
+**Files changed:** `app/components/Ui/Loader.vue`, `app/components/Ui/TanStackTable.vue`
+**What:** `motion-v` was used only for two `Loader` fade/scale animations; `lodash-es` was imported
+only for `startCase` in the table's auto-column fallback.
+**Why it was slow:** Both pulled sizable libraries into the client bundle — and `Loader` sits on the
+critical path of many pages.
+**What changed:** Replaced the motion wrappers with Vue's built-in `<Transition>` plus a small scoped
+CSS transition; inlined a ~6-line `startCase` helper and dropped the import.
+**Expected impact:** Smaller client bundle / faster parse; no runtime behaviour change.
+
+## Fix 11 — Remove unused dependencies
+
+**Date:** 2026-09-25
+**Files changed:** `package.json`, `pnpm-lock.yaml`
+**What:** Several direct dependencies had zero imports in the codebase.
+**Why it was slow:** They inflated install/CI time and risked future accidental imports of a
+duplicate icon/animation system (no runtime bundle cost, since unimported and tree-shaken).
+**What changed:** Removed `@tabler/icons-vue`, `vaul-vue`, `@internationalized/number`,
+`@types/lodash-es`, plus `motion-v` and `lodash-es` (both made unused by Fix 10). Verified with a
+repo-wide grep that only `package.json`/`pnpm-lock.yaml` referenced them.
+**Expected impact:** Leaner dependency tree; no user-visible change.
