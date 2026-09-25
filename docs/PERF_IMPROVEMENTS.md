@@ -62,3 +62,14 @@ narrowing of the broad `$orpc.result.key()` / `$orpc.scoresheet.key()` invalidat
 list/detail views and need a product decision on exactly which queries depend on each mutation.
 **Expected impact:** Removes a duplicate request per mutation on the heaviest result/scoresheet
 payloads.
+
+## Fix 5 — O(n²) rank computation on the report-card roster
+
+**Date:** 2026-09-25
+**Files changed:** `app/pages/dashboard/results/[resultId]/report-card/index.vue`
+**What:** `rankMap` called `unique.indexOf(total)` once per student to derive each rank.
+**Why it was slow:** `Array.indexOf` is O(n), so rank building was O(n²) — ~2,500 comparisons for a
+50-student class on every render.
+**What changed:** Sort the unique totals once, build a `Map<total, rank>`, then assign in one pass
+(O(n log n) + O(n)).
+**Expected impact:** Removes the quadratic rank pass; scales cleanly to large classes.

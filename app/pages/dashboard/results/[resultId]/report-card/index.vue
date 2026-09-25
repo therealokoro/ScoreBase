@@ -56,10 +56,14 @@ const rankMap = computed(() => {
     .map((s) => ({ id: s.student.id, total: getStudentTotal(s) }))
     .filter((s): s is { id: string; total: number } => s.total !== null)
 
-  const unique = [...new Set(totals.map((t) => t.total))].sort((a, b) => b - a)
+  // One sort, then a total→rank map (was `unique.indexOf(total)` inside a loop → O(n²)).
+  const sorted = [...new Set(totals.map((t) => t.total))].sort((a, b) => b - a)
+  const rankByTotal = new Map(sorted.map((total, i) => [total, i + 1]))
 
   const map = new Map<string, number>()
-  for (const { id, total } of totals) map.set(id, unique.indexOf(total) + 1)
+  for (const { id, total } of totals) {
+    map.set(id, rankByTotal.get(total)!)
+  }
   return map
 })
 
