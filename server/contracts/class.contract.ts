@@ -33,7 +33,8 @@ export const update = oc
   .errors({
     NOT_FOUND: { message: "The class was not found" },
     CONFLICT: { message: "A class already exists with that name" },
-    BAD_REQUEST: { message: "The selected teacher or subject list was not found" }
+    BAD_REQUEST: { message: "The selected teacher or subject list was not found" },
+    FORBIDDEN: { message: "Only admins can reassign a class teacher or rename a class" }
   })
 
 export const remove = oc

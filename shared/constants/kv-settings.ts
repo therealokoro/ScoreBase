@@ -68,4 +68,4 @@ export const DEFAULT_RESULT_SETTINGS: ResultSettings = {
   examMax: 70
 }
 
-export { SchoolSettings }
+export type { SchoolSettings }

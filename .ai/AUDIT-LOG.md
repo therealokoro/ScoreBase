@@ -1250,3 +1250,38 @@ array-replacement merge. Documented the conventions in AGENTS.md.
 ### Verification
 `pnpm test` → 19 passed; `pnpm typecheck` → 0 errors (was 13, see next entry); `pnpm lint` →
 0/0; `pnpm build` → success (10.4 MB / 2.38 MB gzip).
+
+---
+
+## [2026-09-25] — typecheck surfaced regressions from audit #8 and #45
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `server/contracts/class.contract.ts`,
+`app/pages/dashboard/results/index.vue`, `app/plugins/orpc.server.ts`,
+`server/kv/result-settings.ts`, `server/routers/subjectScore.router.ts`,
+`server/utils/orpc.ts`, `shared/constants/kv-settings.ts`
+**Regression risk:** Low
+
+### Problem
+The new `pnpm typecheck` reported 13 errors. Two were regressions from the merged audit PR:
+- `class.update` throws `errors.FORBIDDEN` (audit #8) but the contract never declared
+  `FORBIDDEN`, so those calls did not type-check.
+- Typing the create-result form as `Partial<CreateResultInput>` (audit #45) was wrong: that
+  schema has no `sessionId` (a UI-only filter field) and the settings/user values are nullable.
+
+The remaining 11 were pre-existing: `verbatimModuleSyntax` violations (value-imported types),
+missing type declarations for the generated `Ui/Icon.vue` (`@iconify/vue` / `@iconify/utils`),
+and the dead `orpc.server.ts` router client missing a required `context`.
+
+### Fix
+- Declared `FORBIDDEN` on the class `update` contract.
+- Gave the results form an explicit `CreateResultForm` type and typed the submit payload
+  (also removed the `payload: any`).
+- Switched four imports to `import type` / `export type`.
+- Added `@iconify/vue` / `@iconify/utils` as devDependencies.
+- Passed a typed `context` to the (dead under `ssr: false`) server router client.
+
+### Verification
+`pnpm typecheck` → 0 errors; `pnpm lint` → 0/0; `pnpm test` → 19 passed;
+`pnpm build` → success.

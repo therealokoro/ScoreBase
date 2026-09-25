@@ -1,6 +1,6 @@
 import { kv } from "@nuxthub/kv"
 
-import { DEFAULT_RESULT_SETTINGS, ResultSettings } from "#shared/constants/kv-settings"
+import { DEFAULT_RESULT_SETTINGS, type ResultSettings } from "#shared/constants/kv-settings"
 import type { ScoreConfigSnapshot } from "#shared/validators/results"
 import { ResultSettingsSchema } from "#shared/validators/settings"
 

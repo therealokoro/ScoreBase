@@ -2,7 +2,7 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { and, count, eq, isNull } from "drizzle-orm"
 
-import { APiContext } from "../context"
+import type { APiContext } from "../context"
 import { subjectScoreContract } from "../contracts/subjectScore.contract"
 import { subjectScores } from "../db/schema"
 import {
