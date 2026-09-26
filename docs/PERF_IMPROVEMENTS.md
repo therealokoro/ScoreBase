@@ -286,3 +286,37 @@ next wave.
 read overlaps the DB query. (The scoresheet→result dependency remains — inherent.) No module-level
 cache, per the Cloudflare Workers constraint.
 **Expected impact:** One fewer serial round trip per report-card view.
+
+## Fix 19 — Debounce client-mode search URL writes (final-audit #10)
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useURLTableState.ts`
+**What:** client-mode search was a computed that called `router.replace` on every keystroke.
+**Why it was slow:** each keypress triggered a route update + re-render of route-dependent state
+(no network, since filtering is client-side, but still churn).
+**What changed:** the input value is now a local ref (instant), with the URL write debounced 300ms and
+a watcher reflecting back/forward into the input. Server mode already debounced.
+**Expected impact:** Removes per-keystroke route churn on client-mode tables.
+
+## Fix 20 — Remove dead queries and procedures (final-audit #11)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/student.query.ts`, `server/queries/subject.query.ts`,
+`server/contracts/student.contract.ts`, `server/routers/student.router.ts`, `AGENTS.md`
+**What:** `listStudentsByClass`, `listSubjectsByTags`, and the admin-only `student.list`
+(`listAllStudents`) had no callers.
+**Why it matters:** dead surface area, and one of them (`listSubjectsByTags`) filtered a JSON column
+with an unindexable `LIKE`.
+**What changed:** removed the three; updated the AGENTS.md query-name example.
+
+## Fix 21 — Composite and foreign-key indexes (final-audit #9)
+
+**Date:** 2026-09-26
+**Files changed:** `server/db/schema/result.ts`,
+`server/db/migrations/sqlite/0009_redundant_clint_barton.sql`
+**What:** the class-scoped results list filters `class_id = ?` and orders by `createdAt`, but no
+composite existed (and the standalone `class_id` index was redundant); `subject_scores.subject_id`
+had no index for the `onDelete: set null` scan.
+**What changed:** added `results(class_id, createdAt)` (dropping the now-redundant `results_class_id_index`)
+and `subject_scores(subject_id)`; migration `0009` generated and applied.
+**Expected impact:** Near-zero at current sizes (as the audit noted), but correct at scale.
