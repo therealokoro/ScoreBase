@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data, isPending, refetch } = useAcademicSessionList()
+const { data, isPending } = useAcademicSessionList()
 const sessions = computed(() => data.value ?? [])
 
 const { data: schoolSettings } = useGetSchoolSettings()
@@ -37,7 +37,6 @@ const handleCreateSession = useDebounceFn(() => {
   useSonner.promise(createSession.mutateAsync({}), {
     loading: "Creating academic session...",
     success: () => {
-      refetch()
       return "Academic session created successfully"
     },
     error: (err: any) => err.message

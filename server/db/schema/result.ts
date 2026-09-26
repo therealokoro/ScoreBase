@@ -67,7 +67,8 @@ export const results = sqliteTable(
   // by class (e.g. listResultsByClass); termId is covered by the composite's leftmost prefix.
   (t) => [
     uniqueIndex("results_term_class_unique").on(t.termId, t.classId),
-    index("results_class_id_index").on(t.classId)
+    index("results_class_id_index").on(t.classId),
+    index("results_created_at_idx").on(t.createdAt)
   ]
 )
 

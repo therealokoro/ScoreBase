@@ -1,6 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from "@tailwindcss/vite"
 
+import { ICONS } from "./shared/constants/icons"
+
 const optimizeDepsArr = [
   "@libsql/client",
   "@nuxthub/db",
@@ -91,6 +93,9 @@ export default defineNuxtConfig({
     fetchTimeout: 2000,
     provider: "server",
     serverBundle: "local",
-    clientBundle: { scan: true, sizeLimitKb: 0 }
+    // `scan` picks up icons used as literals; the explicit list adds the dynamically bound
+    // `ICONS` map values, which the scanner cannot see. Together they keep icon requests out
+    // of the runtime (no per-icon fetch / blank-first pop-in).
+    clientBundle: { scan: true, icons: Object.values(ICONS), sizeLimitKb: 0 }
   }
 })

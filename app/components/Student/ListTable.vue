@@ -27,7 +27,7 @@ const { search, debouncedSearch, pagination, onPaginationChange } = useUrlTableS
   pageKey: "page",
   sizeKey: "pageSize",
   defaultPageSize: 10,
-  debounce: 1000
+  debounce: 300
 })
 
 const { $orpc } = useNuxtApp()
