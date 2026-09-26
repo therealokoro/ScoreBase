@@ -256,3 +256,33 @@ new computed that `JSON.stringify`s every row.
 **Why it was slow:** the render path re-stringified all rows on every re-render (each keystroke).
 **What changed:** hoist a single `const dirty = isDirty(scoresheet)` and reuse it.
 **Expected impact:** Removes per-render stringify/allocation on the score-entry page.
+
+## Fix 17 — Narrow mutation invalidation (final-audit #3)
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useResult.ts`
+**What:** score/remark mutations invalidated `$orpc.result.key()`, which includes the heavy
+`result.getOne` (all scoresheets × subjectScores) plus the list and `getByTerm` queries.
+**Why it was slow:** remark saves refetched the entire nested result even though the result detail
+renders neither remark; and every score mutation refetched the list/`getByTerm` shapes, which don't
+render scores either.
+**What changed:**
+- Remarks: invalidate only `scoresheet.key()` (scoresheet + report card, which do render remarks).
+- Subject-score mutations + create-scoresheets + score-config: invalidate `scoresheet.key()` +
+  `result.getOne.key()` (procedure base key) instead of the whole `result` tree.
+- `delete` still invalidates `result.key()` (the list must drop the row); status already used
+  `setQueryData` + `result.list.key()` (Fix 4b).
+**Expected impact:** Subject/remark/score-config mutations no longer invalidate the results list or
+the entire result tree; remarks no longer refetch the nested result at all.
+
+## Fix 18 — Overlap report-card settings read with the lookup (final-audit #6)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/reportCard.query.ts`
+**What:** `fetchReportCardData` awaited the scoresheet→resultId lookup, then read KV settings in the
+next wave.
+**Why it was slow:** the KV round trip was serial behind the first DB query.
+**What changed:** run the scoresheet lookup and `getResultSettings()` in one `Promise.all` so the KV
+read overlaps the DB query. (The scoresheet→result dependency remains — inherent.) No module-level
+cache, per the Cloudflare Workers constraint.
+**Expected impact:** One fewer serial round trip per report-card view.
