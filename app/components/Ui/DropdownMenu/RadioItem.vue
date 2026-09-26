@@ -7,7 +7,7 @@
     <span class="text-primary absolute left-2 flex size-3.5 items-center justify-center">
       <UiDropdownMenuItemIndicator>
         <Icon v-if="icon" :name="icon" class="size-4" />
-        <Icon v-else name="ph:circle-fill" class="size-2" />
+        <Icon v-else name="lucide:circle" class="size-2" />
       </UiDropdownMenuItemIndicator>
     </span>
     <slot>{{ title }}</slot>

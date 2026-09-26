@@ -1,10 +1,7 @@
 <template>
-  <AnimatePresence>
-    <motion.div
+  <Transition name="loader-backdrop">
+    <div
       v-if="fullPage && open"
-      :initial="{ opacity: 0 }"
-      :animate="{ opacity: 1 }"
-      :exit="{ opacity: 0, scale: 0.95 }"
       :class="
         loaderStyles().backdrop({ class: normalizeClass(backdropClass) || undefined, fullPage })
       "
@@ -14,13 +11,11 @@
         :name="props.icon"
       />
       <slot :open>{{ text }}</slot>
-    </motion.div>
-    <motion.div
+    </div>
+  </Transition>
+  <Transition name="loader-backdrop">
+    <div
       v-if="!fullPage && open"
-      :initial="{ opacity: 0 }"
-      :exit="{ opacity: 0 }"
-      :animate="{ opacity: 1 }"
-      :transition="{ duration: 0.5 }"
       :class="
         loaderStyles().backdrop({
           class: normalizeClass(props.backdropClass) || undefined,
@@ -33,13 +28,12 @@
         :name="props.icon"
       />
       <slot :open>{{ text }}</slot>
-    </motion.div>
-  </AnimatePresence>
+    </div>
+  </Transition>
 </template>
 
 <script lang="ts">
 import { useMagicKeys } from "@vueuse/core"
-import { AnimatePresence, motion } from "motion-v"
 import { useBodyScrollLock } from "reka-ui"
 import type { PrimitiveProps } from "reka-ui"
 import { normalizeClass } from "vue"
@@ -133,3 +127,18 @@ watchEffect(() => {
   }
 })
 </script>
+
+<style scoped>
+.loader-backdrop-enter-active,
+.loader-backdrop-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.loader-backdrop-enter-from,
+.loader-backdrop-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>

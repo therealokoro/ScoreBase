@@ -76,7 +76,7 @@ export const ICONS = {
   password: "tabler:password",
   security: "lucide:shield",
   permissions: "lucide:shield-check",
-  verified: "tabler:verified",
+  verified: "lucide:badge-check",
 
   userRole: "tabler:user-shield",
 

@@ -3,7 +3,7 @@ import { TERMS_PRESET } from "~~/shared/constants/kv-settings"
 
 definePageMeta({ middleware: ["admin-only"] })
 
-const { data: settings, refetch } = useGetSchoolSettings()
+const { data: settings } = useGetSchoolSettings()
 
 const termPresetOptions = Object.entries(TERMS_PRESET).map(([value, terms]) => ({
   value,
@@ -27,7 +27,6 @@ function handleSubmit(payload: any) {
   useSonner.promise(setSettings.mutateAsync(payload), {
     loading: "Updating school settings, please wait....",
     success: () => {
-      refetch()
       return "School settings updated successfully"
     },
     error: (e: any) => e.message

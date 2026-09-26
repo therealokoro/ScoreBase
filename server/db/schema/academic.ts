@@ -48,26 +48,34 @@ export const classes = sqliteTable("classes", {
   ...dateTimeSchema
 })
 
-export const subjects = sqliteTable("subjects", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("subject").toString()),
-  name: text("name").notNull(),
-  tags: text("tags", { mode: "json" })
-    .$type<string[]>()
-    .notNull()
-    .default(sql`(json_array())`),
-  ...dateTimeSchema
-})
+export const subjects = sqliteTable(
+  "subjects",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("subject").toString()),
+    name: text("name").notNull(),
+    tags: text("tags", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`(json_array())`),
+    ...dateTimeSchema
+  },
+  (t) => [index("subjects_created_at_idx").on(t.createdAt)]
+)
 
-export const subjectLists = sqliteTable("subject_lists", {
-  id: text("id")
-    .primaryKey()
-    .$default(() => typeid("subprst").toString()),
-  name: text("name").notNull(),
-  subjects: text("subjects", { mode: "json" }).$type<{ name: string; id: string }[]>().notNull(),
-  ...dateTimeSchema
-})
+export const subjectLists = sqliteTable(
+  "subject_lists",
+  {
+    id: text("id")
+      .primaryKey()
+      .$default(() => typeid("subprst").toString()),
+    name: text("name").notNull(),
+    subjects: text("subjects", { mode: "json" }).$type<{ name: string; id: string }[]>().notNull(),
+    ...dateTimeSchema
+  },
+  (t) => [index("subject_lists_created_at_idx").on(t.createdAt)]
+)
 
 export const students = sqliteTable(
   "students",
@@ -83,7 +91,12 @@ export const students = sqliteTable(
     phoneNumber: text("phone_number"),
     ...dateTimeSchema
   },
-  (t) => [index("students_class_id_index").on(t.classId)]
+  (t) => [
+    index("students_class_id_index").on(t.classId),
+    index("students_created_at_idx").on(t.createdAt),
+    // Serves the paginated class list (filter classId + order by createdAt).
+    index("students_class_id_created_at_idx").on(t.classId, t.createdAt)
+  ]
 )
 
 export const academicSessionsRelations = relations(academicSessions, ({ many }) => ({

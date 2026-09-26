@@ -5,28 +5,33 @@ import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core"
 import { classes } from "."
 
 // --- CORE TABLES ---
-export const user = sqliteTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
-  image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  role: text("role").notNull().default("teacher"),
-  banned: integer("banned", { mode: "boolean" }).default(false),
-  banReason: text("ban_reason"),
-  banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
-  phoneNumber: text("phone_number").notNull().unique(),
-  classId: text("class_id")
-    .unique()
-    .references((): AnySQLiteColumn => classes.id, { onDelete: "set null" })
-})
+export const user = sqliteTable(
+  "user",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+    image: text("image"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    role: text("role").notNull().default("teacher"),
+    banned: integer("banned", { mode: "boolean" }).default(false),
+    banReason: text("ban_reason"),
+    banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
+    phoneNumber: text("phone_number").notNull().unique(),
+    classId: text("class_id")
+      .unique()
+      .references((): AnySQLiteColumn => classes.id, { onDelete: "set null" })
+  },
+  // Teachers list orders by createdAt (listAllTeachers).
+  (table) => [index("user_created_at_idx").on(table.createdAt)]
+)
 
 export const user_session = sqliteTable(
   "user_session",

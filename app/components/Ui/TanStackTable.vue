@@ -381,8 +381,17 @@ import type {
   TableFeatures,
   TableOptions
 } from "@tanstack/vue-table"
-import { startCase } from "lodash-es"
 import type { HTMLAttributes } from "vue"
+
+/** Minimal `startCase` replacement (was the only use of `lodash-es`). */
+function startCase(input: string): string {
+  return input
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
 
 /**
  * Explicit v9 feature registration for this table. Only the features this component actually

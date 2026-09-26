@@ -5,12 +5,7 @@ const route = useRoute()
 const resultId = route.params.resultId as string
 const scoresheetId = route.params.scoresheetId as string
 
-const {
-  data: scoresheet,
-  isPending,
-  error,
-  refetch: refetchScoresheet
-} = useGetScoresheet(scoresheetId)
+const { data: scoresheet, isPending, error } = useGetScoresheet(scoresheetId)
 
 // get the scoresheet, result, student aand scoreConfig
 const result = computed(() => scoresheet.value?.result)
@@ -70,7 +65,6 @@ function handleAddSubject() {
   useSonner.promise(addSubjectScore.mutateAsync({ scoresheetId, subjectId: subject.id }), {
     loading: "Adding subject...",
     success: () => {
-      refetchScoresheet()
       selectedSubjectToAdd.value = null
       return `${subject.name} added to scoresheet`
     },
@@ -83,7 +77,6 @@ function handleRemoveSubject(rowId: string) {
   useSonner.promise(removeSubjectScore.mutateAsync({ id: rowId }), {
     loading: "Removing subject...",
     success: () => {
-      refetchScoresheet()
       return "Subject removed"
     },
     error: (e: any) => e.message
@@ -135,7 +128,6 @@ async function handleSave() {
   useSonner.promise(Promise.all(promises), {
     loading: "Saving student's scores...",
     success: () => {
-      refetchScoresheet()
       useRouter().go(-1)
       return "Scores saved successfully"
     },

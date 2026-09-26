@@ -33,10 +33,10 @@ export const fetchDashboardCounts = async () => {
  * longer points to a real row (e.g. the session was deleted after being set active).
  */
 export const fetchActiveSessionAndTerm = async () => {
-  const [activeSessionId, activeTermId] = await Promise.all([
-    getSchoolSettings("activeSession"),
-    getSchoolSettings("activeTerm")
-  ])
+  // One KV read (getSchoolSettings parses the whole object) instead of one per field.
+  const settings = await getSchoolSettings()
+  const activeSessionId = settings.activeSession
+  const activeTermId = settings.activeTerm
 
   if (!activeSessionId) {
     return { activeSession: null, activeTerm: null }
