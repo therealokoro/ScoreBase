@@ -7,6 +7,7 @@ import { studentContract } from "../contracts/student.contract"
 import { students, scoresheets } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
+import { fetchTeachersClass } from "../queries/teacher.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 async function checkConflict(name: string, studentId: string, errors: any, excludeId?: string) {
@@ -142,13 +143,16 @@ const queryStudent = os.query.handler(async ({ input, context }) => {
   if (!user) throw new ORPCError("UNAUTHORIZED")
 
   if (user.role !== "admin") {
-    if (!user.classId) {
+    // Prefer the session's classId, but fall back to the authoritative class record so
+    // legacy/drifted data (user.classId never set) doesn't silently hide the class's students.
+    const teacherClassId = user.classId ?? (await fetchTeachersClass(user.id))?.id ?? null
+    if (!teacherClassId) {
       return { data: [], total: 0, pageCount: 1 }
     }
-    if (input.classId && input.classId !== user.classId) {
+    if (input.classId && input.classId !== teacherClassId) {
       throw new ORPCError("FORBIDDEN", { message: "You do not have access to this class" })
     }
-    return listStudentsPaginated({ ...input, classId: user.classId })
+    return listStudentsPaginated({ ...input, classId: teacherClassId })
   }
 
   return listStudentsPaginated({ ...input })
