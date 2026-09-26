@@ -200,3 +200,59 @@ with each session/term/class over time.
 **Expected impact:** Lists fetch only the visible page instead of the entire table.
 **Note:** `teacher.list` remains unbounded by design (select options); it is a small set for a
 single school. Tests could not be added on this branch (the Vitest harness lives in PR #5).
+
+## Fix 12 — Batch the score-config CA resize (final-audit #1)
+
+**Date:** 2026-09-26
+**Files changed:** `server/routers/results.router.ts`
+**What:** `updateResultScoreConfig` resized `caScores` with one `UPDATE` per subject-score row.
+**Why it was slow:** for a large result that is thousands of statements in one transaction (each a
+round trip to remote libSQL) — the same pattern batched for `bulkUpdateSubjectScores` in Fix 9.
+**What changed:** one `CASE` update resizes every row's `ca_scores` in a single statement, keeping
+the existing pre-write ceiling validation. (Uses the same construct validated for Fix 9.)
+**Expected impact:** Score-config change: N round trips → 1.
+
+## Fix 13 — De-duplicate server-mode table pagination updates (final-audit #2)
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useURLTableState.ts`
+**What:** server-mode `pagination` was reassigned to a new object in `onPaginationChange` and again
+from the route-query watcher, with no equality guard.
+**Why it was slow:** `useLazyAsyncData`'s `watch` is shallow, so each reassignment triggered a
+fetch — one page click fired 2 requests (plus a third on search) on `/dashboard/students`,
+`/classes/[classId]`, and `/my-class`.
+**What changed:** only replace `pagination`/`search` when the values actually differ (and only reset
+the page when it isn't already 0).
+**Expected impact:** Removes duplicate list requests per interaction.
+
+## Fix 14 — Narrow the nested result payload (final-audit #4)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/result.query.ts`, `shared/validators/results.ts`,
+`shared/validators/scoresheet.ts`
+**What:** `fetchResultWithScoresheets` / `fetchSingleScoresheet` selected `student.class` (never read
+by any consumer) and full `subject` rows (tags + timestamps) where only the name is used.
+**Why it was slow:** Drizzle's relational API runs a separate query per relation — `student.class`
+was a wasted query per fetch, on the two hottest detail pages.
+**What changed:** dropped `student.class` (and its `ScoresheetWithDetailsSchema` extension) and
+narrowed `subject` to `{ id, name }` in the queries and `SubjectScoreSchema`.
+**Expected impact:** One fewer DB round trip + smaller payloads on the result and scoresheet pages.
+
+## Fix 15 — Count students instead of loading ids (final-audit #5)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/dashboard.query.ts`, `server/routers/dashboard.router.ts`
+**What:** `fetchClassByTeacherId` loaded every student id just to read `.length`.
+**Why it was slow:** a large class fetched hundreds of id rows for one integer.
+**What changed:** a `count()` aggregate; the function returns `{ ...class, studentCount }`.
+**Expected impact:** Teacher dashboard summary no longer loads student rows.
+
+## Fix 16 — Reuse one `isDirty` computed on the scoresheet page (final-audit #7)
+
+**Date:** 2026-09-26
+**Files changed:** `app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**What:** `isDirty(scoresheet)` was called in the template and the save handler; each call built a
+new computed that `JSON.stringify`s every row.
+**Why it was slow:** the render path re-stringified all rows on every re-render (each keystroke).
+**What changed:** hoist a single `const dirty = isDirty(scoresheet)` and reuse it.
+**Expected impact:** Removes per-render stringify/allocation on the score-entry page.
