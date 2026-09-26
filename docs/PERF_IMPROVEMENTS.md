@@ -147,3 +147,19 @@ read them again internally.
 **What changed:** `setResultSettings` accepts an optional already-read `current`; the router passes
 the value it already fetched for validation.
 **Expected impact:** One fewer KV round trip per result-settings save.
+
+## Fix 4b — Status change merges into cache instead of refetching the detail
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useResult.ts`
+**What:** `useUpdateResultStatus` invalidated `$orpc.result.key()` + `$orpc.scoresheet.key()`, so a
+status toggle re-downloaded the full nested result (and every report card).
+**Why it was slow:** the `result.getOne` payload is O(students × subjects); a status change doesn't
+touch scores, so refetching it is wasted work.
+**What changed:** `onSuccess` merges the mutation's returned row into the cached `result.getOne`
+entry (`setQueryData`) and invalidates only the cheap results list (which renders the status badge).
+Report-card invalidation was dropped because report cards don't render `resultStatus`.
+**Expected impact:** A status change no longer refetches the heavy nested result.
+**Trade-off:** the scoresheet page's `isLocked` derives from `result.status`; if an admin changes
+status while a teacher has that scoresheet cached, it refreshes after the 5-min `staleTime`/next
+mount rather than immediately. Considered acceptable (different route, admin-only action).

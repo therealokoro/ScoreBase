@@ -40,9 +40,18 @@ export const useUpdateResultStatus = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.result.updateStatus.mutationOptions({
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
-        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+      onSuccess: (updated, variables) => {
+        // Merge the returned row into the cached detail instead of invalidating it, so the
+        // heavy nested result payload isn't refetched for a status-only change. Report cards
+        // don't render `resultStatus`, so no scoresheet invalidation is needed here.
+        const detailKey = $orpc.result.getOne.queryOptions({
+          input: { id: variables.id }
+        }).queryKey
+        qc.setQueryData(detailKey, (old: unknown) =>
+          old ? { ...(old as Record<string, unknown>), ...updated } : old
+        )
+        // The results list renders the status badge, so keep it fresh (cheap, no nesting).
+        qc.invalidateQueries({ queryKey: $orpc.result.list.queryKey() })
       }
     })
   )
