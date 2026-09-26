@@ -139,21 +139,35 @@ function useServerState(opts: Required<BaseOptions> & { debounce: number }) {
   watch(
     () => route.query,
     (query) => {
-      pagination.value = {
+      const next = {
         pageIndex: Number(query[pageKey] ?? 0),
         pageSize: Number(query[sizeKey] ?? defaultPageSize)
       }
-      search.value = (query[searchKey] as string) ?? ""
+      // Consumers watch `pagination` shallowly, so only replace it when the values actually
+      // change — otherwise the URL round-trip would trigger a duplicate fetch.
+      if (
+        next.pageIndex !== pagination.value.pageIndex ||
+        next.pageSize !== pagination.value.pageSize
+      ) {
+        pagination.value = next
+      }
+
+      const nextSearch = (query[searchKey] as string) ?? ""
+      if (nextSearch !== search.value) search.value = nextSearch
     }
   )
 
   // Reset to first page when search changes — results count changes so
   // current page may be out of range
   watch(debouncedSearch, () => {
-    pagination.value = { ...pagination.value, pageIndex: 0 }
+    if (pagination.value.pageIndex !== 0) {
+      pagination.value = { ...pagination.value, pageIndex: 0 }
+    }
   })
 
   function onPaginationChange(p: { pageIndex: number; pageSize: number }) {
+    // Guard against no-op updates (e.g. the URL watcher echoing the same page back).
+    if (p.pageIndex === pagination.value.pageIndex && p.pageSize === pagination.value.pageSize) return
     pagination.value = p
   }
 
