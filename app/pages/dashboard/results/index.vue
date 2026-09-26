@@ -2,21 +2,28 @@
 import { ICONS } from "~~/shared/constants/icons"
 import type { CreateResultInput } from "~~/shared/validators/results"
 
+/** Shape of the create-result form: termId/classId plus a UI-only sessionId filter. */
+type CreateResultForm = {
+  sessionId?: string | null
+  termId?: string | null
+  classId?: string | null
+}
+
 const isSheetOpen = ref(false)
 const { isAdmin, user } = useAuth()
 
 const { data: sessions } = useAcademicSessionList()
 const { data: schoolSettings } = useGetSchoolSettings()
 
-const formData = ref<Partial<CreateResultInput>>({})
+const formData = ref<CreateResultForm>({})
 
 watch(
   [schoolSettings, user],
   ([settings, _user]) => {
     formData.value = {
-      sessionId: settings?.activeSession,
-      termId: settings?.activeTerm,
-      classId: _user?.classId
+      sessionId: settings?.activeSession ?? null,
+      termId: settings?.activeTerm ?? null,
+      classId: _user?.classId ?? null
     }
   },
   { immediate: true }
@@ -41,9 +48,12 @@ const classOptions = computed(() => {
 })
 
 const createResult = useCreateResult()
-async function handleCreateResult(payload: any) {
-  // Strip sessionId — it's UI-only for filtering terms, not part of CreateResultSchema
-  const { sessionId, ...input } = payload
+async function handleCreateResult(payload: CreateResultForm) {
+  const { termId, classId } = payload
+  // Form validation guarantees these, but keep the types honest.
+  if (!termId || !classId) return
+
+  const input: CreateResultInput = { termId, classId }
 
   useSonner.promise(createResult.mutateAsync(input), {
     loading: "Creating result, please wait...",

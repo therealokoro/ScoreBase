@@ -1222,3 +1222,119 @@ Reconsider if the product moves to an invite/one-time-password flow.*
 ### Verification
 
 n/a — documented decision retained.
+
+---
+
+## [2026-09-25] — added Vitest + vue-tsc toolchain
+
+**Severity:** n/a (tooling)
+**Category:** Code quality
+**Files changed:** `package.json`, `pnpm-lock.yaml`, `AGENTS.md`,
+`shared/utils/report-card.test.ts`, `shared/validators/settings.test.ts`,
+`server/kv/merge-settings.test.ts`
+**Regression risk:** None (dev-only: no runtime dependencies added)
+
+### Problem
+The repo had no test suite and no typecheck. `pnpm build` uses esbuild, which strips types
+without checking them, so type errors and business-rule regressions could reach main
+undetected — the audit's own fixes were only lint/build-verified.
+
+### Fix
+Added `vitest` (`pnpm test`) and `vue-tsc` (`pnpm typecheck`), plus type-only devDeps
+`@iconify/vue` / `@iconify/utils` for the generated `Ui/Icon.vue`. Wrote 19 pure unit tests
+covering the business rules fixed by the audit: grade-boundary matching incl. gap fallback,
+ordinal/position formatting, report-card totals + dense tie ranking + incomplete-unranked,
+the result-settings sum-to-100 invariant, grade-boundary coverage validation, and the KV
+array-replacement merge. Documented the conventions in AGENTS.md.
+
+### Verification
+`pnpm test` → 19 passed; `pnpm typecheck` → 0 errors (was 13, see next entry); `pnpm lint` →
+0/0; `pnpm build` → success (10.4 MB / 2.38 MB gzip).
+
+---
+
+## [2026-09-25] — typecheck surfaced regressions from audit #8 and #45
+
+**Severity:** Medium
+**Category:** Code quality
+**Files changed:** `server/contracts/class.contract.ts`,
+`app/pages/dashboard/results/index.vue`, `app/plugins/orpc.server.ts`,
+`server/kv/result-settings.ts`, `server/routers/subjectScore.router.ts`,
+`server/utils/orpc.ts`, `shared/constants/kv-settings.ts`
+**Regression risk:** Low
+
+### Problem
+The new `pnpm typecheck` reported 13 errors. Two were regressions from the merged audit PR:
+- `class.update` throws `errors.FORBIDDEN` (audit #8) but the contract never declared
+  `FORBIDDEN`, so those calls did not type-check.
+- Typing the create-result form as `Partial<CreateResultInput>` (audit #45) was wrong: that
+  schema has no `sessionId` (a UI-only filter field) and the settings/user values are nullable.
+
+The remaining 11 were pre-existing: `verbatimModuleSyntax` violations (value-imported types),
+missing type declarations for the generated `Ui/Icon.vue` (`@iconify/vue` / `@iconify/utils`),
+and the dead `orpc.server.ts` router client missing a required `context`.
+
+### Fix
+- Declared `FORBIDDEN` on the class `update` contract.
+- Gave the results form an explicit `CreateResultForm` type and typed the submit payload
+  (also removed the `payload: any`).
+- Switched four imports to `import type` / `export type`.
+- Added `@iconify/vue` / `@iconify/utils` as devDependencies.
+- Passed a typed `context` to the (dead under `ssr: false`) server router client.
+
+### Verification
+`pnpm typecheck` → 0 errors; `pnpm lint` → 0/0; `pnpm test` → 19 passed;
+`pnpm build` → success.
+
+---
+
+## [2026-09-25] — unit tests proved the audit #17 schema fix was ineffective
+
+**Severity:** Medium
+**Category:** Logic loopholes
+**Files changed:** `shared/validators/results.ts`, `shared/validators/results.test.ts`
+**Regression risk:** Low (relaxes a schema; existing callers already send full rows)
+
+### Problem
+New unit tests proved the audit #17 fix did not work. In `drizzle-zod`,
+`createUpdateSchema(schema, { caScores, exam })` applies a non-function column override
+verbatim and returns early, so the update-`optional()` condition was never applied — both
+`caScores` **and** `exam` remained required despite `.required({ id: true })` and the
+"at least one of" refine. The router's partial branches were still dead code that the tests
+could not reach.
+
+### Fix
+Replaced both schemas with explicit `z.object({...})` definitions that mark `caScores`/`exam`
+`.optional()` (with `exam` also `.nullable()`), keeping the negative-exam guard and the
+"at least one field" refine. Updated the two tests that asserted the old (buggy) requirement
+to assert partial acceptance plus rejection when neither field is present.
+
+### Verification
+`pnpm test` → 151 passed (the partial-entry cases now pass); `pnpm typecheck` → 0 errors.
+
+---
+
+## [2026-09-25] — expanded unit + component test coverage
+
+**Severity:** n/a (tooling)
+**Category:** Code quality
+**Files changed:** `vitest.config.ts`, `package.json`, `pnpm-lock.yaml`, `AGENTS.md`, and
+new tests: `shared/validators/{results,academic,actors,auth,scoresheet}.test.ts`,
+`shared/utils/format.test.ts`, `server/utils/auth-guard.test.ts`,
+`server/kv/{school-settings,result-settings}.test.ts`, `app/components/Ui/{Button,Badge}.test.ts`
+**Regression risk:** None (dev-only; no runtime deps)
+
+### Problem
+Coverage was limited to three pure files; auth guards, the remaining validators, KV settings
+behaviour, formatting helpers, and the components changed by the audit had no tests.
+
+### Fix
+Added Vitest alias mirroring + `@vitejs/plugin-vue` in `vitest.config.ts`, plus
+`@vue/test-utils` / `happy-dom` for SFC tests. Wrote coverage for every remaining validator,
+the access-control guards (exact `ORPCError` codes), KV settings read/merge/validate/write with
+`@nuxthub/kv` mocked, date/format helpers, and the `UiButton` accessible-name + `UiBadge`
+token-variant behaviour. Documented the component-test pattern in AGENTS.md.
+
+### Verification
+`pnpm test` → 14 files / **151 passed**; `pnpm lint` → 0/0; `pnpm typecheck` → 0 errors;
+`pnpm build` → success.

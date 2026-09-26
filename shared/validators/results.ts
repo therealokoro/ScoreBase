@@ -114,33 +114,36 @@ export type RemoveSubjectScoreInput = z.infer<typeof RemoveSubjectScoreSchema>
 /**
  * Partial score update — upper-bound checks against scoreConfig happen in the router once the
  * snapshot is loaded.
+ *
+ * Declared explicitly rather than via `createUpdateSchema`: drizzle-zod applies a column override
+ * verbatim and skips the update-`optional()` condition, which previously made both fields required
+ * and left the router's partial branches dead (caught by unit tests — see audit #17/#R1).
  */
-export const UpdateSubjectScoreSchema = createUpdateSchema(subjectScores, {
-  caScores: CaScoresArraySchema,
-  exam: z.number().min(0, "Exam score cannot be negative").nullable()
-})
-  .pick({ id: true, caScores: true, exam: true })
-  .required({ id: true })
+export const UpdateSubjectScoreSchema = z
+  .object({
+    id: z.string().min(1),
+    caScores: CaScoresArraySchema.optional(),
+    exam: z.number().min(0, "Exam score cannot be negative").nullable().optional()
+  })
   .refine((val) => val.caScores !== undefined || val.exam !== undefined, {
     message: "At least one of caScores or exam must be provided"
   })
 export type UpdateSubjectScoreInput = z.infer<typeof UpdateSubjectScoreSchema>
 
+/** A single entry in a bulk save: id plus caScores and/or exam. */
+const BulkUpdateSubjectScoreEntrySchema = z
+  .object({
+    id: z.string().min(1),
+    caScores: CaScoresArraySchema.optional(),
+    exam: z.number().min(0, "Exam score cannot be negative").nullable().optional()
+  })
+  .refine((val) => val.caScores !== undefined || val.exam !== undefined, {
+    message: "Each score entry must provide caScores and/or exam"
+  })
+
 /** Save all subject scores on a scoresheet in one round-trip. */
 export const BulkUpdateSubjectScoresSchema = z.object({
   scoresheetId: z.string().min(1),
-  scores: z
-    .array(
-      createUpdateSchema(subjectScores, {
-        caScores: CaScoresArraySchema,
-        exam: z.number().min(0, "Exam score cannot be negative").nullable()
-      })
-        .pick({ id: true, caScores: true, exam: true })
-        .required({ id: true })
-        .refine((val) => val.caScores !== undefined || val.exam !== undefined, {
-          message: "Each score entry must provide caScores and/or exam"
-        })
-    )
-    .min(1, "At least one score entry is required")
+  scores: z.array(BulkUpdateSubjectScoreEntrySchema).min(1, "At least one score entry is required")
 })
 export type BulkUpdateSubjectScoresInput = z.infer<typeof BulkUpdateSubjectScoresSchema>
