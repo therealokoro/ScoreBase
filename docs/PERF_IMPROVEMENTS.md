@@ -163,3 +163,17 @@ Report-card invalidation was dropped because report cards don't render `resultSt
 **Trade-off:** the scoresheet page's `isLocked` derives from `result.status`; if an admin changes
 status while a teacher has that scoresheet cached, it refreshes after the 5-min `staleTime`/next
 mount rather than immediately. Considered acceptable (different route, admin-only action).
+
+## Fix 9 — Batch bulk score saves
+
+**Date:** 2026-09-26
+**Files changed:** `server/routers/subjectScore.router.ts`
+**What:** `bulkUpdateSubjectScores` ran one `UPDATE … RETURNING` per score row inside a transaction.
+**Why it was slow:** on remote libSQL each statement is its own round trip, so saving a scoresheet
+with ~10 subjects cost ~10 sequential round trips.
+**What changed:** collapse the writes into at most two `CASE` updates (one for `ca_scores`, one for
+`exam`, only for the fields each entry provides), then read the rows back in a single query. A
+length check still throws `NOT_FOUND` when an id doesn't belong to the scoresheet.
+**Verification:** exercised the exact `CASE` SQL against the dev DB and confirmed only the targeted
+column/rows change (then restored the data); `pnpm lint` clean.
+**Expected impact:** Reduces the score-save path from N round trips to 2–3.
