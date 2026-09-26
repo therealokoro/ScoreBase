@@ -136,3 +136,123 @@ duplicate icon/animation system (no runtime bundle cost, since unimported and tr
 `@types/lodash-es`, plus `motion-v` and `lodash-es` (both made unused by Fix 10). Verified with a
 repo-wide grep that only `package.json`/`pnpm-lock.yaml` referenced them.
 **Expected impact:** Leaner dependency tree; no user-visible change.
+
+## Fix 6b — Avoid the second KV read in `setResultSettings`
+
+**Date:** 2026-09-26
+**Files changed:** `server/kv/result-settings.ts`, `server/routers/settings.router.ts`
+**What:** `result.setSettings` read the current settings for validation and then `setResultSettings`
+read them again internally.
+**Why it was slow:** Two KV reads (remote in production) + two Zod parses per settings update.
+**What changed:** `setResultSettings` accepts an optional already-read `current`; the router passes
+the value it already fetched for validation.
+**Expected impact:** One fewer KV round trip per result-settings save.
+
+## Fix 4b — Status change merges into cache instead of refetching the detail
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useResult.ts`
+**What:** `useUpdateResultStatus` invalidated `$orpc.result.key()` + `$orpc.scoresheet.key()`, so a
+status toggle re-downloaded the full nested result (and every report card).
+**Why it was slow:** the `result.getOne` payload is O(students × subjects); a status change doesn't
+touch scores, so refetching it is wasted work.
+**What changed:** `onSuccess` merges the mutation's returned row into the cached `result.getOne`
+entry (`setQueryData`) and invalidates only the cheap results list (which renders the status badge).
+Report-card invalidation was dropped because report cards don't render `resultStatus`.
+**Expected impact:** A status change no longer refetches the heavy nested result.
+**Trade-off:** the scoresheet page's `isLocked` derives from `result.status`; if an admin changes
+status while a teacher has that scoresheet cached, it refreshes after the 5-min `staleTime`/next
+mount rather than immediately. Considered acceptable (different route, admin-only action).
+
+## Fix 9 — Batch bulk score saves
+
+**Date:** 2026-09-26
+**Files changed:** `server/routers/subjectScore.router.ts`
+**What:** `bulkUpdateSubjectScores` ran one `UPDATE … RETURNING` per score row inside a transaction.
+**Why it was slow:** on remote libSQL each statement is its own round trip, so saving a scoresheet
+with ~10 subjects cost ~10 sequential round trips.
+**What changed:** collapse the writes into at most two `CASE` updates (one for `ca_scores`, one for
+`exam`, only for the fields each entry provides), then read the rows back in a single query. A
+length check still throws `NOT_FOUND` when an id doesn't belong to the scoresheet.
+**Verification:** exercised the exact `CASE` SQL against the dev DB and confirmed only the targeted
+column/rows change (then restored the data); `pnpm lint` clean.
+**Expected impact:** Reduces the score-save path from N round trips to 2–3.
+
+## Fix 8 — Server-side pagination for results and teachers
+
+**Date:** 2026-09-26
+**Files changed:** `server/contracts/result.contract.ts`, `server/contracts/teacher.contract.ts`,
+`server/queries/result.query.ts`, `server/queries/teacher.query.ts`,
+`server/routers/results.router.ts`, `server/routers/teacher.router.ts`,
+`app/composables/useResult.ts`, `app/composables/useTeachers.ts`,
+`app/components/Result/ListTable.vue`, `app/components/Teacher/List.vue`,
+`app/pages/dashboard/teachers/index.vue`
+**What:** `result.list` returned every result (with term/session/class) and the table paginated
+client-side; teacher lists were unbounded too.
+**Why it was slow:** the whole result set was downloaded and held in memory to show page 1, growing
+with each session/term/class over time.
+**What changed:**
+- `result.list` is now paginated (`{ page, pageSize, search }` → `{ data, total, pageCount }`) with
+  an indexed `createdAt` order and a name search; `Result/ListTable.vue` uses server-mode URL state.
+- Added a paginated `teacher.query` (+ search) used by `Teacher/List.vue`; `teacher.list` is kept for
+  the class-form select, which legitimately needs all teachers.
+- Teacher mutations now invalidate `$orpc.teacher.key()` so both list flavours refresh.
+**Expected impact:** Lists fetch only the visible page instead of the entire table.
+**Note:** `teacher.list` remains unbounded by design (select options); it is a small set for a
+single school. Tests could not be added on this branch (the Vitest harness lives in PR #5).
+
+## Fix 12 — Batch the score-config CA resize (final-audit #1)
+
+**Date:** 2026-09-26
+**Files changed:** `server/routers/results.router.ts`
+**What:** `updateResultScoreConfig` resized `caScores` with one `UPDATE` per subject-score row.
+**Why it was slow:** for a large result that is thousands of statements in one transaction (each a
+round trip to remote libSQL) — the same pattern batched for `bulkUpdateSubjectScores` in Fix 9.
+**What changed:** one `CASE` update resizes every row's `ca_scores` in a single statement, keeping
+the existing pre-write ceiling validation. (Uses the same construct validated for Fix 9.)
+**Expected impact:** Score-config change: N round trips → 1.
+
+## Fix 13 — De-duplicate server-mode table pagination updates (final-audit #2)
+
+**Date:** 2026-09-26
+**Files changed:** `app/composables/useURLTableState.ts`
+**What:** server-mode `pagination` was reassigned to a new object in `onPaginationChange` and again
+from the route-query watcher, with no equality guard.
+**Why it was slow:** `useLazyAsyncData`'s `watch` is shallow, so each reassignment triggered a
+fetch — one page click fired 2 requests (plus a third on search) on `/dashboard/students`,
+`/classes/[classId]`, and `/my-class`.
+**What changed:** only replace `pagination`/`search` when the values actually differ (and only reset
+the page when it isn't already 0).
+**Expected impact:** Removes duplicate list requests per interaction.
+
+## Fix 14 — Narrow the nested result payload (final-audit #4)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/result.query.ts`, `shared/validators/results.ts`,
+`shared/validators/scoresheet.ts`
+**What:** `fetchResultWithScoresheets` / `fetchSingleScoresheet` selected `student.class` (never read
+by any consumer) and full `subject` rows (tags + timestamps) where only the name is used.
+**Why it was slow:** Drizzle's relational API runs a separate query per relation — `student.class`
+was a wasted query per fetch, on the two hottest detail pages.
+**What changed:** dropped `student.class` (and its `ScoresheetWithDetailsSchema` extension) and
+narrowed `subject` to `{ id, name }` in the queries and `SubjectScoreSchema`.
+**Expected impact:** One fewer DB round trip + smaller payloads on the result and scoresheet pages.
+
+## Fix 15 — Count students instead of loading ids (final-audit #5)
+
+**Date:** 2026-09-26
+**Files changed:** `server/queries/dashboard.query.ts`, `server/routers/dashboard.router.ts`
+**What:** `fetchClassByTeacherId` loaded every student id just to read `.length`.
+**Why it was slow:** a large class fetched hundreds of id rows for one integer.
+**What changed:** a `count()` aggregate; the function returns `{ ...class, studentCount }`.
+**Expected impact:** Teacher dashboard summary no longer loads student rows.
+
+## Fix 16 — Reuse one `isDirty` computed on the scoresheet page (final-audit #7)
+
+**Date:** 2026-09-26
+**Files changed:** `app/pages/dashboard/results/[resultId]/[scoresheetId].vue`
+**What:** `isDirty(scoresheet)` was called in the template and the save handler; each call built a
+new computed that `JSON.stringify`s every row.
+**Why it was slow:** the render path re-stringified all rows on every re-render (each keystroke).
+**What changed:** hoist a single `const dirty = isDirty(scoresheet)` and reuse it.
+**Expected impact:** Removes per-render stringify/allocation on the score-entry page.

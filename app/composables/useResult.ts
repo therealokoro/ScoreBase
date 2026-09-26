@@ -2,9 +2,11 @@
 // Results
 // ---------------------------------------------------------------------------
 
-export const useListResults = () => {
+export const useListResults = (
+  params: MaybeRefOrGetter<{ page: number; pageSize: number; search?: string }>
+) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.result.list.queryOptions())
+  return useQuery(computed(() => $orpc.result.list.queryOptions({ input: toValue(params) })))
 }
 
 export const useGetResultByTerm = (termId: MaybeRefOrGetter<string | null>) => {
@@ -40,9 +42,20 @@ export const useUpdateResultStatus = () => {
   const qc = useQueryClient()
   return useMutation(
     $orpc.result.updateStatus.mutationOptions({
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
-        qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+      onSuccess: (updated, variables) => {
+        // Merge the returned row into the cached detail instead of invalidating it, so the
+        // heavy nested result payload isn't refetched for a status-only change. Report cards
+        // don't render `resultStatus`, so no scoresheet invalidation is needed here.
+        const detailKey = $orpc.result.getOne.queryOptions({
+          input: { id: variables.id }
+        }).queryKey
+        const cached = qc.getQueryData(detailKey)
+        if (cached) {
+          // Merge the returned result row over the cached detail (scoresheets are preserved).
+          qc.setQueryData(detailKey, { ...cached, ...updated })
+        }
+        // The results list renders the status badge, so keep it fresh (cheap, no nesting).
+        qc.invalidateQueries({ queryKey: $orpc.result.list.key() })
       }
     })
   )

@@ -74,12 +74,17 @@ export const fetchResultStatusCountsByTerm = async (termId: string) => {
   return counts
 }
 
-/** Finds the single class a teacher owns (classes.teacherId is unique). */
+/** Finds the single class a teacher owns and counts its students (classes.teacherId is unique). */
 export const fetchClassByTeacherId = async (teacherId: string) => {
-  return await db.query.classes.findFirst({
-    where: eq(classes.teacherId, teacherId),
-    with: { students: { columns: { id: true } } }
-  })
+  const klass = await db.query.classes.findFirst({ where: eq(classes.teacherId, teacherId) })
+  if (!klass) return null
+
+  const [studentCount] = await db
+    .select({ value: count() })
+    .from(students)
+    .where(eq(students.classId, klass.id))
+
+  return { ...klass, studentCount: studentCount?.value ?? 0 }
 }
 
 /** Finds the result row for a given (termId, classId) pair, if one exists yet. */

@@ -1,5 +1,7 @@
 import { db } from "@nuxthub/db"
-import { eq } from "drizzle-orm"
+import { and, count, eq, sql, type SQL } from "drizzle-orm"
+
+import { escapeLike } from "#shared/utils/sql"
 
 import { results, scoresheets, subjectScores } from "../db/schema"
 
@@ -14,28 +16,50 @@ const termWithRelation = {
 // Result queries
 // ---------------------------------------------------------------------------
 
-/** Fetches every result row. Used by admins who have visibility across all classes. */
-export async function listAllResults() {
-  return await db.query.results.findMany({
-    with: { ...termWithRelation },
-    orderBy(fields, operators) {
-      return operators.desc(fields.createdAt)
-    }
-  })
+export type ResultListParams = {
+  page?: number
+  pageSize?: number
+  search?: string
+  classId?: string
 }
 
 /**
- * Fetches all results that belong to a specific class. Used to scope the list view for teachers
- * (who can only see their class).
+ * Paginated results list. Admins see all results; a `classId` scopes it to one class (teachers).
+ * Ordered by `createdAt` (indexed) with an optional case-insensitive name search.
  */
-export async function listResultsByClass(classId: string) {
-  return await db.query.results.findMany({
-    where: eq(results.classId, classId),
-    with: { ...termWithRelation },
-    orderBy(fields, operators) {
-      return operators.desc(fields.createdAt)
-    }
-  })
+export async function listResultsPaginated({
+  page = 0,
+  pageSize = 10,
+  search,
+  classId
+}: ResultListParams) {
+  const conditions: SQL[] = []
+  if (classId) conditions.push(eq(results.classId, classId))
+  if (search) {
+    conditions.push(sql`lower(${results.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`)
+  }
+  const where = conditions.length > 0 ? and(...conditions) : undefined
+
+  const [data, countResult] = await Promise.all([
+    db.query.results.findMany({
+      where,
+      with: { ...termWithRelation },
+      limit: pageSize,
+      offset: page * pageSize,
+      orderBy(fields, operators) {
+        return operators.desc(fields.createdAt)
+      }
+    }),
+    db.select({ total: count() }).from(results).where(where)
+  ])
+
+  const total = countResult[0]?.total ?? 0
+
+  return {
+    data,
+    total,
+    pageCount: total > 0 ? Math.ceil(total / pageSize) : 1
+  }
 }
 
 /** Fetches a single result row by its ID */
@@ -54,12 +78,8 @@ export async function fetchResultWithScoresheets(payload: string, column: "id" |
     with: {
       scoresheets: {
         with: {
-          subjectScores: { with: { subject: true } },
-          // Needed so the scoresheet list on the result page can display each student's name
-          student: {
-            columns: { id: true, name: true, studentId: true },
-            with: { class: { columns: { id: true, name: true } } }
-          }
+          subjectScores: { with: { subject: { columns: { id: true, name: true } } } },
+          student: { columns: { id: true, name: true, studentId: true } }
         }
       }
     }
@@ -90,11 +110,8 @@ export async function fetchSingleScoresheet(id: string) {
     where: eq(scoresheets.id, id),
     with: {
       result: true,
-      subjectScores: { with: { subject: true } },
-      student: {
-        columns: { id: true, name: true, studentId: true },
-        with: { class: { columns: { id: true, name: true } } }
-      }
+      subjectScores: { with: { subject: { columns: { id: true, name: true } } } },
+      student: { columns: { id: true, name: true, studentId: true } }
     }
   })
 }

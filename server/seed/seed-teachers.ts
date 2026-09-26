@@ -15,7 +15,7 @@ export async function seedTeachers(
     return {
       name,
       email: uniqueEmail(name),
-      password: uniquePhone(),
+      password: `pass-${name.split(" ")[0]}-123`,
       phoneNumber: uniquePhone()
     }
   })

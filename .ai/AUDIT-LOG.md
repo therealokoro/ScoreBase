@@ -1338,3 +1338,32 @@ token-variant behaviour. Documented the component-test pattern in AGENTS.md.
 ### Verification
 `pnpm test` → 14 files / **151 passed**; `pnpm lint` → 0/0; `pnpm typecheck` → 0 errors;
 `pnpm build` → success.
+
+---
+
+## [2026-09-26] — teacher's My Class student list was empty (class_id drift)
+
+**Severity:** High
+**Category:** Logic loopholes
+**Files changed:** `server/seed/seed-classes.ts`, `server/routers/student.router.ts`,
+`server/db/migrations/sqlite/0008_backfill_teacher_class.sql`
+**Regression risk:** Low (data backfill + a read-path fallback)
+
+### Problem
+`seedClasses` set `classes.teacherId` but never wrote `user.classId`, so every seeded teacher had
+`class_id = NULL`. `student.query` returned `{ data: [], total: 0, pageCount: 1 }` whenever
+`user.classId` was missing, so a teacher's My Class table was empty even though the class had
+students. The same drift also broke the other `requireClassAccess`-scoped teacher flows
+(student get/update/delete, result/scoresheet edits). Audit #21 fixed the `createTeacher` router
+path but not the seed path, so fresh seeds reproduced it.
+
+### Fix
+- `seedClasses` now writes `user.classId` for each teacher it assigns.
+- `student.query` falls back to the authoritative class record (`classes.teacherId`) when
+  `user.classId` is missing, instead of silently returning an empty page.
+- Custom data migration `0008_backfill_teacher_class.sql` backfills existing rows from
+  `classes.teacher_id`.
+
+### Verification
+DB inspection before: 6/6 teachers `class_id = NULL`. After `pnpm db:migrate`: every teacher maps to
+their class (10 students each), 0 teachers left with NULL. `pnpm lint` clean.
