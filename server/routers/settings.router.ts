@@ -51,7 +51,7 @@ const updateResultSettings = os.result.setSettings.handler(async ({ input, conte
     throw errors.BAD_REQUEST({ message: boundaryError })
   }
 
-  return await setResultSettings(parsed.data)
+  return await setResultSettings(parsed.data, current)
 })
 
 // ---------------------------------------------------------------------------

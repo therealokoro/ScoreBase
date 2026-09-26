@@ -136,3 +136,14 @@ duplicate icon/animation system (no runtime bundle cost, since unimported and tr
 `@types/lodash-es`, plus `motion-v` and `lodash-es` (both made unused by Fix 10). Verified with a
 repo-wide grep that only `package.json`/`pnpm-lock.yaml` referenced them.
 **Expected impact:** Leaner dependency tree; no user-visible change.
+
+## Fix 6b — Avoid the second KV read in `setResultSettings`
+
+**Date:** 2026-09-26
+**Files changed:** `server/kv/result-settings.ts`, `server/routers/settings.router.ts`
+**What:** `result.setSettings` read the current settings for validation and then `setResultSettings`
+read them again internally.
+**Why it was slow:** Two KV reads (remote in production) + two Zod parses per settings update.
+**What changed:** `setResultSettings` accepts an optional already-read `current`; the router passes
+the value it already fetched for validation.
+**Expected impact:** One fewer KV round trip per result-settings save.
