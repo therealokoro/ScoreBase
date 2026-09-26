@@ -67,8 +67,9 @@ export const useUpdateResultScoreConfig = () => {
   return useMutation(
     $orpc.result.updateScoreConfig.mutationOptions({
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
+        // Score config changes resize stored scores → the detail (nested scoresheets) is affected.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
@@ -109,7 +110,8 @@ export const useCreateScoresheets = () => {
     $orpc.scoresheet.createScoresheets.mutationOptions({
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        // Only the result detail renders scoresheets; the list/getByTerm shapes don't.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
@@ -121,8 +123,9 @@ export const useUpdateScoresheetRemarks = () => {
   return useMutation(
     $orpc.scoresheet.updateScoresheetRemarks.mutationOptions({
       onSuccess: () => {
+        // Remarks live on the scoresheet / report card only — the result detail (and its heavy
+        // nested payload) doesn't render them, so don't invalidate it.
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
       }
     })
   )
@@ -139,7 +142,8 @@ export const useAddSubjectScore = () => {
     $orpc.subjectScore.addSubjectScore.mutationOptions({
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        // Only the result detail renders scores; the list / getByTerm shapes don't.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
@@ -152,7 +156,8 @@ export const useRemoveSubjectScore = () => {
     $orpc.subjectScore.removeSubjectScore.mutationOptions({
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        // Only the result detail renders scores; the list / getByTerm shapes don't.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
@@ -165,7 +170,8 @@ export const useUpdateSubjectScore = () => {
     $orpc.subjectScore.updateSubjectScore.mutationOptions({
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        // Only the result detail renders scores; the list / getByTerm shapes don't.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
@@ -178,7 +184,8 @@ export const useBulkUpdateSubjectScores = () => {
     $orpc.subjectScore.bulkUpdateSubjectScores.mutationOptions({
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: $orpc.scoresheet.key() })
-        qc.invalidateQueries({ queryKey: $orpc.result.key() })
+        // Only the result detail renders scores; the list / getByTerm shapes don't.
+        qc.invalidateQueries({ queryKey: $orpc.result.getOne.key() })
       }
     })
   )
