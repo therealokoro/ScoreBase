@@ -31,9 +31,11 @@ function useClientState(opts: Required<BaseOptions>) {
 
   const { searchKey, pageKey, sizeKey, defaultPageSize } = opts
 
-  const search = computed({
-    get: () => (route.query[searchKey] as string) || "",
-    set: (val) =>
+  // The input value is local so typing stays instant; only the URL write is debounced
+  // (previously every keystroke called router.replace, re-rendering route-dependent state).
+  const searchValue = ref((route.query[searchKey] as string) || "")
+  const writeSearch = useDebounceFn(
+    (val: string) =>
       router.replace({
         query: {
           ...route.query,
@@ -41,8 +43,26 @@ function useClientState(opts: Required<BaseOptions>) {
           // Reset page whenever search changes so user lands on first page
           [pageKey]: undefined
         }
-      })
+      }),
+    300
+  )
+
+  const search = computed({
+    get: () => searchValue.value,
+    set: (val) => {
+      searchValue.value = val
+      writeSearch(val)
+    }
   })
+
+  // Reflect browser back/forward (URL → input)
+  watch(
+    () => route.query[searchKey],
+    (val) => {
+      const next = (val as string) || ""
+      if (next !== searchValue.value) searchValue.value = next
+    }
+  )
 
   // Page is 1-based in the URL, 0-based for TanStack Table internally
   const _page = computed({
