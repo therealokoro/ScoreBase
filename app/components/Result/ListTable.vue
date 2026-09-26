@@ -19,19 +19,26 @@ type Result = {
 
 const props = defineProps<{ classId?: string }>()
 
-const { search, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
-  mode: "client",
+const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
+  mode: "server",
   searchKey: "search",
   pageKey: "page",
   sizeKey: "pageSize",
-  defaultPageSize: 10
+  defaultPageSize: 10,
+  debounce: 300
 })
 
-const { data, isPending } = useListResults()
+const { data, isPending } = useListResults(
+  computed(() => ({
+    page: pagination.value.pageIndex,
+    pageSize: pagination.value.pageSize,
+    search: debouncedSearch.value || undefined
+  }))
+)
 
 const results = computed(() => {
   return (
-    data.value?.map((c) => ({
+    data.value?.data.map((c) => ({
       id: c.id,
       name: c.name,
       status: c.status,
@@ -42,6 +49,8 @@ const results = computed(() => {
     })) ?? []
   )
 })
+
+const pageCount = computed(() => data.value?.pageCount ?? 1)
 
 const columnHelper = createColumnHelper<TanStackTableFeatures, Result>()
 const isDesktop = useBreakpoints(breakpointsTailwind).greaterOrEqual("lg")
@@ -116,16 +125,14 @@ const columns = [
         :columns
         :data="results"
         :loading="isPending"
-        :global-filter="search"
+        :page-count="pageCount"
         aria-label="Results"
         :column-visibility="columnVisibility"
         :pagination="pagination"
-        :initial-page-size="pagination.pageSize"
-        :manual-pagination="false"
-        :manual-filtering="false"
+        :manual-pagination="true"
+        :manual-filtering="true"
         :manual-sorting="false"
         @update:pagination="onPaginationChange"
-        @update:global-filter="onFilterChange"
       >
         <template #empty>
           <span v-if="search">

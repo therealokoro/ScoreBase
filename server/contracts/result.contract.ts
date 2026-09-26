@@ -23,8 +23,22 @@ const ExtendedResultSchema = ResultSchema.extend({
 // Result procedures
 // ---------------------------------------------------------------------------
 
-/** Admin sees all results; teacher sees only their assigned class's results */
-export const listResults = oc.output(z.array(ExtendedResultSchema))
+/** Paginated. Admin sees all results; a teacher is scoped to their own class. */
+export const listResults = oc
+  .input(
+    z.object({
+      page: z.number().int().min(0).default(0),
+      pageSize: z.number().int().min(1).max(100).default(10),
+      search: z.string().trim().max(100).optional()
+    })
+  )
+  .output(
+    z.object({
+      data: z.array(ExtendedResultSchema),
+      total: z.number(),
+      pageCount: z.number()
+    })
+  )
 
 /** Single result with all scoresheets and subject scores nested */
 export const getOneResult = oc

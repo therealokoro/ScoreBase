@@ -2,9 +2,11 @@
 // Results
 // ---------------------------------------------------------------------------
 
-export const useListResults = () => {
+export const useListResults = (
+  params: MaybeRefOrGetter<{ page: number; pageSize: number; search?: string }>
+) => {
   const { $orpc } = useNuxtApp()
-  return useQuery($orpc.result.list.queryOptions())
+  return useQuery(computed(() => $orpc.result.list.queryOptions({ input: toValue(params) })))
 }
 
 export const useGetResultByTerm = (termId: MaybeRefOrGetter<string | null>) => {

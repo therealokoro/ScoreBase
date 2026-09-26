@@ -177,3 +177,26 @@ length check still throws `NOT_FOUND` when an id doesn't belong to the scoreshee
 **Verification:** exercised the exact `CASE` SQL against the dev DB and confirmed only the targeted
 column/rows change (then restored the data); `pnpm lint` clean.
 **Expected impact:** Reduces the score-save path from N round trips to 2–3.
+
+## Fix 8 — Server-side pagination for results and teachers
+
+**Date:** 2026-09-26
+**Files changed:** `server/contracts/result.contract.ts`, `server/contracts/teacher.contract.ts`,
+`server/queries/result.query.ts`, `server/queries/teacher.query.ts`,
+`server/routers/results.router.ts`, `server/routers/teacher.router.ts`,
+`app/composables/useResult.ts`, `app/composables/useTeachers.ts`,
+`app/components/Result/ListTable.vue`, `app/components/Teacher/List.vue`,
+`app/pages/dashboard/teachers/index.vue`
+**What:** `result.list` returned every result (with term/session/class) and the table paginated
+client-side; teacher lists were unbounded too.
+**Why it was slow:** the whole result set was downloaded and held in memory to show page 1, growing
+with each session/term/class over time.
+**What changed:**
+- `result.list` is now paginated (`{ page, pageSize, search }` → `{ data, total, pageCount }`) with
+  an indexed `createdAt` order and a name search; `Result/ListTable.vue` uses server-mode URL state.
+- Added a paginated `teacher.query` (+ search) used by `Teacher/List.vue`; `teacher.list` is kept for
+  the class-form select, which legitimately needs all teachers.
+- Teacher mutations now invalidate `$orpc.teacher.key()` so both list flavours refresh.
+**Expected impact:** Lists fetch only the visible page instead of the entire table.
+**Note:** `teacher.list` remains unbounded by design (select options); it is a small set for a
+single school. Tests could not be added on this branch (the Vitest harness lives in PR #5).

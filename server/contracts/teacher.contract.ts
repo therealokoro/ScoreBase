@@ -9,6 +9,23 @@ import {
 
 const list = oc.output(z.array(z.any()))
 
+/** Paginated teacher list for the teachers page (admins only). */
+const query = oc
+  .input(
+    z.object({
+      page: z.number().int().min(0).default(0),
+      pageSize: z.number().int().min(1).max(100).default(10),
+      search: z.string().trim().max(100).optional()
+    })
+  )
+  .output(
+    z.object({
+      data: z.array(z.any()),
+      total: z.number(),
+      pageCount: z.number()
+    })
+  )
+
 const getOne = oc
   .input(TeacherSchema.pick({ id: true }))
   .output(TeacherSchema)
@@ -46,6 +63,7 @@ const getClass = oc
 
 export const teacherContract = {
   list,
+  query,
   getOne,
   create,
   update,

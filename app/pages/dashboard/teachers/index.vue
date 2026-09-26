@@ -2,8 +2,6 @@
 import { ICONS } from "~~/shared/constants/icons"
 import type { UpsertTeacherInput } from "~~/shared/validators/actors"
 
-const { data, isPending, error } = useListTeachers()
-const teachers = computed(() => data.value || [])
 const activeTeacher = ref<ITeacher | null>(null)
 
 const openCreateSheet = ref(false)
@@ -69,7 +67,6 @@ function handleDeleteAction() {
 
 <template>
   <Page
-    :error
     title="Class teachers"
     description="This is a list of all teachers. Create, edit and delete Teachers"
     class="justify-between flex-wrap"
@@ -81,12 +78,7 @@ function handleDeleteAction() {
     </template>
 
     <!-- Teachers List -->
-    <TeacherList
-      :loading="isPending"
-      :teachers
-      @edit="initUpdateAction"
-      @delete="initDeleteAction"
-    />
+    <TeacherList @edit="initUpdateAction" @delete="initDeleteAction" />
 
     <!-- Form for create -->
     <LazyTeacherUpsertForm

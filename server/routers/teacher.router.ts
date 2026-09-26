@@ -5,7 +5,7 @@ import { count, eq } from "drizzle-orm"
 import type { APiContext } from "../context"
 import { teacherContract } from "../contracts/teacher.contract"
 import { classes, students, user } from "../db/schema"
-import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers } from "../queries/teacher.query"
+import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers, listTeachersPaginated } from "../queries/teacher.query"
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
@@ -52,6 +52,12 @@ const os = implement(teacherContract).$context<APiContext>()
 const listTeachers = os.list.handler(async ({ context }) => {
   requireAdmin(context)
   return await listAllTeachers()
+})
+
+/** Paginated list for the teachers page. `list` remains for select options (all teachers). */
+const queryTeachers = os.query.handler(async ({ input, context }) => {
+  requireAdmin(context)
+  return await listTeachersPaginated(input)
 })
 
 const getSingleTeacher = os.getOne.handler(async ({ input, errors, context }) => {
@@ -158,6 +164,7 @@ const getTeachersClass = os.getClass.handler(async ({ input, errors, context }) 
 
 export const teacherRouter = {
   list: listTeachers,
+  query: queryTeachers,
   getOne: getSingleTeacher,
   create: createTeacher,
   update: updateTeacher,

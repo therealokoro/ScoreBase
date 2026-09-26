@@ -10,9 +10,9 @@ import {
   fetchResultWithScoresheets,
   fetchSingleResult,
   fetchResultsByTerm,
-  listResultsByClass,
-  listAllResults
+  listResultsPaginated
 } from "../queries/result.query"
+import { fetchTeachersClass } from "../queries/teacher.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
@@ -32,12 +32,16 @@ const os = implement(resultContract).$context<APiContext>()
 // Result handlers
 // ---------------------------------------------------------------------------
 
-const listResults = os.list.handler(async ({ context }) => {
+const listResults = os.list.handler(async ({ input, context }) => {
   const user = requireSession(context)
+
+  let classId: string | undefined
   if (user.role === "teacher") {
-    return user.classId ? await listResultsByClass(user.classId) : []
+    classId = user.classId ?? (await fetchTeachersClass(user.id))?.id ?? undefined
+    if (!classId) return { data: [], total: 0, pageCount: 1 }
   }
-  return await listAllResults()
+
+  return await listResultsPaginated({ ...input, classId })
 })
 
 const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {

@@ -7,8 +7,27 @@ import UiBadge from "~/components/Ui/Badge.vue"
 import UiButton from "~/components/Ui/Button.vue"
 import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
-const props = defineProps<{ teachers: ITeacher[]; loading?: boolean }>()
 const emit = defineEmits(["edit", "delete"])
+
+const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
+  mode: "server",
+  searchKey: "search",
+  pageKey: "page",
+  sizeKey: "pageSize",
+  defaultPageSize: 10,
+  debounce: 300
+})
+
+const { data, isPending } = useQueryTeachers(
+  computed(() => ({
+    page: pagination.value.pageIndex,
+    pageSize: pagination.value.pageSize,
+    search: debouncedSearch.value || undefined
+  }))
+)
+
+const teachers = computed(() => data.value?.data ?? [])
+const pageCount = computed(() => data.value?.pageCount ?? 1)
 
 const columnHelper = createColumnHelper<TanStackTableFeatures, ITeacher>()
 const columns = [
@@ -73,17 +92,36 @@ const columnVisibility = computed(() => ({
 </script>
 
 <template>
-  <div class="w-full rounded-lg border">
-    <UiTanStackTable
-      :loading="loading"
-      :columns
-      :data="teachers"
-      aria-label="Teachers"
-      :column-visibility="columnVisibility"
-    >
-      <template #empty>
-        <span>No teachers yet to display.</span>
-      </template>
-    </UiTanStackTable>
+  <div class="space-y-4">
+    <div class="w-1/2">
+      <FormKit
+        :model-value="search"
+        type="search"
+        prefix-icon="lucide:search"
+        :classes="{ outer: 'mb-0' }"
+        placeholder="Search for a teacher"
+        @input="onFilterChange"
+      />
+    </div>
+
+    <div class="w-full rounded-lg border">
+      <UiTanStackTable
+        :loading="isPending"
+        :columns
+        :data="teachers"
+        :page-count="pageCount"
+        aria-label="Teachers"
+        :column-visibility="columnVisibility"
+        :pagination="pagination"
+        :manual-pagination="true"
+        :manual-filtering="true"
+        :manual-sorting="false"
+        @update:pagination="onPaginationChange"
+      >
+        <template #empty>
+          <span>No teachers yet to display.</span>
+        </template>
+      </UiTanStackTable>
+    </div>
   </div>
 </template>
