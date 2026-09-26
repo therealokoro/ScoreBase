@@ -78,12 +78,8 @@ export async function fetchResultWithScoresheets(payload: string, column: "id" |
     with: {
       scoresheets: {
         with: {
-          subjectScores: { with: { subject: true } },
-          // Needed so the scoresheet list on the result page can display each student's name
-          student: {
-            columns: { id: true, name: true, studentId: true },
-            with: { class: { columns: { id: true, name: true } } }
-          }
+          subjectScores: { with: { subject: { columns: { id: true, name: true } } } },
+          student: { columns: { id: true, name: true, studentId: true } }
         }
       }
     }
@@ -114,11 +110,8 @@ export async function fetchSingleScoresheet(id: string) {
     where: eq(scoresheets.id, id),
     with: {
       result: true,
-      subjectScores: { with: { subject: true } },
-      student: {
-        columns: { id: true, name: true, studentId: true },
-        with: { class: { columns: { id: true, name: true } } }
-      }
+      subjectScores: { with: { subject: { columns: { id: true, name: true } } } },
+      student: { columns: { id: true, name: true, studentId: true } }
     }
   })
 }
