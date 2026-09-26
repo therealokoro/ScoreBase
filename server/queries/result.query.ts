@@ -1,6 +1,8 @@
 import { db } from "@nuxthub/db"
 import { and, count, eq, sql, type SQL } from "drizzle-orm"
 
+import { escapeLike } from "#shared/utils/sql"
+
 import { results, scoresheets, subjectScores } from "../db/schema"
 
 // Shared relation presets
@@ -34,8 +36,7 @@ export async function listResultsPaginated({
   const conditions: SQL[] = []
   if (classId) conditions.push(eq(results.classId, classId))
   if (search) {
-    const escaped = search.toLowerCase().replace(/[\\%_]/g, (char) => `\\${char}`)
-    conditions.push(sql`lower(${results.name}) LIKE ${`%${escaped}%`} ESCAPE '\\'`)
+    conditions.push(sql`lower(${results.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`)
   }
   const where = conditions.length > 0 ? and(...conditions) : undefined
 

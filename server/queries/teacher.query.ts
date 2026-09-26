@@ -2,6 +2,8 @@
 import { db } from "@nuxthub/db"
 import { and, count, eq, not, sql } from "drizzle-orm"
 
+import { escapeLike } from "#shared/utils/sql"
+
 import { user } from "../db/schema"
 
 const classInclude = { class: { columns: { id: true, name: true } } } as const
@@ -47,9 +49,7 @@ export const listTeachersPaginated = async ({
   const where = search
     ? and(
         roleFilter,
-        sql`lower(${user.name}) LIKE ${`%${search
-          .toLowerCase()
-          .replace(/[\\%_]/g, (char) => `\\${char}`)}%`} ESCAPE '\\'`
+        sql`lower(${user.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`
       )
     : roleFilter
 
