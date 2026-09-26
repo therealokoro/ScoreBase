@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { and, eq, inArray } from "drizzle-orm"
+import { and, eq, inArray, sql } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { resultContract } from "../contracts/result.contract"
@@ -10,9 +10,9 @@ import {
   fetchResultWithScoresheets,
   fetchSingleResult,
   fetchResultsByTerm,
-  listResultsByClass,
-  listAllResults
+  listResultsPaginated
 } from "../queries/result.query"
+import { fetchTeachersClass } from "../queries/teacher.query"
 import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
 
 const TEACHER_TRANSITIONS: Record<string, string[]> = {
@@ -32,12 +32,16 @@ const os = implement(resultContract).$context<APiContext>()
 // Result handlers
 // ---------------------------------------------------------------------------
 
-const listResults = os.list.handler(async ({ context }) => {
+const listResults = os.list.handler(async ({ input, context }) => {
   const user = requireSession(context)
+
+  let classId: string | undefined
   if (user.role === "teacher") {
-    return user.classId ? await listResultsByClass(user.classId) : []
+    classId = user.classId ?? (await fetchTeachersClass(user.id))?.id ?? undefined
+    if (!classId) return { data: [], total: 0, pageCount: 1 }
   }
-  return await listAllResults()
+
+  return await listResultsPaginated({ ...input, classId })
 })
 
 const getOneResult = os.getOne.handler(async ({ input, errors, context }) => {
@@ -203,18 +207,22 @@ const updateResultScoreConfig = os.updateScoreConfig.handler(async ({ input, err
         }
       }
 
-      // Only resize the CA array when its length changes.
-      if (caCountChanged) {
-        await Promise.all(
+      // Only resize the CA array when its length changes. One CASE statement instead of one
+      // UPDATE per row — a large result can hold thousands of subject scores.
+      if (caCountChanged && existingScores.length > 0) {
+        const cases = sql.join(
           existingScores.map((row) => {
             const resized = Array.from({ length: newCaCount }, (_, i) =>
               i < row.caScores.length ? row.caScores[i]! : null
             )
-            return tx
-              .update(subjectScores)
-              .set({ caScores: resized })
-              .where(eq(subjectScores.id, row.id))
-          })
+            return sql`when ${subjectScores.id} = ${row.id} then ${JSON.stringify(resized)}`
+          }),
+          sql` `
+        )
+        await tx.run(
+          sql`update ${subjectScores}
+              set ca_scores = case ${cases} else ca_scores end
+              where ${inArray(subjectScores.scoresheetId, scoresheetIds)}`
         )
       }
     }

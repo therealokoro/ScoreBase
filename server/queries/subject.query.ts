@@ -19,13 +19,3 @@ export const listAllSubjects = async () => {
     }
   })
 }
-
-/** List subjects by tags (contains any of the provided tags) */
-export const listSubjectsByTags = async (tags: string[]) => {
-  return await db.query.subjects.findMany({
-    where: (subjects, { sql }) => sql`${subjects.tags} LIKE '%' || ${tags[0]} || '%'`,
-    orderBy(fields, operators) {
-      return operators.desc(fields.createdAt)
-    }
-  })
-}

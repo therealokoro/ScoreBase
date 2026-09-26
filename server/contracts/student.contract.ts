@@ -6,8 +6,6 @@ import {
   UpdateStudentSchema
 } from "~~/shared/validators/academic"
 
-const list = oc.output(z.array(StudentSchema))
-
 const getOne = oc
   .input(StudentSchema.pick({ id: true }))
   .output(StudentSchema)
@@ -56,7 +54,6 @@ const query = oc
   )
 
 export const studentContract = {
-  list,
   getOne,
   create,
   update,

@@ -41,6 +41,9 @@ watch(
   { immediate: true }
 )
 
+// Reuse a single dirty computed (previously rebuilt on every call/render).
+const dirty = isDirty(scoresheet)
+
 // get result settings and boundaries
 const { data: resultSettings } = useGetResultSettings()
 const gradeBoundaries = computed(() => resultSettings.value?.gradeBoundaries ?? [])
@@ -104,7 +107,7 @@ const bulkUpdateScores = useBulkUpdateSubjectScores()
 const updateRemarks = useUpdateScoresheetRemarks()
 async function handleSave() {
   const promises: Promise<any>[] = []
-  if (isDirty(scoresheet).value) {
+  if (dirty.value) {
     promises.push(
       bulkUpdateScores.mutateAsync({
         scoresheetId,
@@ -307,7 +310,7 @@ const metaData = computed(() => [
 
       <!-- Submit Button -->
       <UiButton
-        :disabled="!isDirty(scoresheet).value && !remarkIsDirty"
+        :disabled="!dirty && !remarkIsDirty"
         :loading="bulkUpdateScores.isPending.value || updateRemarks.isPending.value"
         :icon="ICONS.save"
         text="Commit Changes"

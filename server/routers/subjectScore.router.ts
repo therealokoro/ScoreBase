@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
-import { and, count, eq, isNull } from "drizzle-orm"
+import { and, count, eq, inArray, isNull, sql } from "drizzle-orm"
 
 import type { APiContext } from "../context"
 import { subjectScoreContract } from "../contracts/subjectScore.contract"
@@ -250,36 +250,59 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
       }
     }
 
-    // --- All valid — write all updates in a single transaction ---
-    // Any entry whose id does not belong to this scoresheet now fails explicitly
-    // instead of returning an undefined element that breaks the output schema.
-    const updated = await db.transaction(async (tx) => {
-      return Promise.all(
-        input.scores.map(async (entry) => {
-          const rows = await tx
-            .update(subjectScores)
-            .set({
-              ...(entry.caScores !== undefined && { caScores: entry.caScores }),
-              ...(entry.exam !== undefined && { exam: entry.exam })
-            })
-            .where(
-              and(
-                eq(subjectScores.id, entry.id),
-                // Extra safety: ensure the row actually belongs to this scoresheet
-                eq(subjectScores.scoresheetId, input.scoresheetId)
-              )
-            )
-            .returning()
+    // --- All valid — apply the updates with one statement per column, then read back. ---
+    // Previously this issued one UPDATE per row (N sequential round trips on the connection);
+    // a CASE update collapses that to at most two, and the read-back restores the returned rows.
+    const ids = input.scores.map((entry) => entry.id)
+    const caEntries = input.scores.filter((entry) => entry.caScores !== undefined)
+    const examEntries = input.scores.filter((entry) => entry.exam !== undefined)
 
-          const row = rows[0]
-          if (!row) {
-            throw errors.NOT_FOUND({
-              message: `Subject score ${entry.id} was not found on this scoresheet`
-            })
-          }
-          return row
+    const updated = await db.transaction(async (tx) => {
+      if (caEntries.length > 0) {
+        const cases = sql.join(
+          caEntries.map(
+            (entry) =>
+              sql`when ${subjectScores.id} = ${entry.id} then ${JSON.stringify(entry.caScores)}`
+          ),
+          sql` `
+        )
+        await tx.run(
+          sql`update ${subjectScores}
+              set ca_scores = case ${cases} else ca_scores end
+              where ${subjectScores.scoresheetId} = ${input.scoresheetId}
+                and ${inArray(subjectScores.id, ids)}`
+        )
+      }
+
+      if (examEntries.length > 0) {
+        const cases = sql.join(
+          examEntries.map((entry) => sql`when ${subjectScores.id} = ${entry.id} then ${entry.exam}`),
+          sql` `
+        )
+        await tx.run(
+          sql`update ${subjectScores}
+              set exam = case ${cases} else exam end
+              where ${subjectScores.scoresheetId} = ${input.scoresheetId}
+                and ${inArray(subjectScores.id, ids)}`
+        )
+      }
+
+      const rows = await tx.query.subjectScores.findMany({
+        where: and(
+          eq(subjectScores.scoresheetId, input.scoresheetId),
+          inArray(subjectScores.id, ids)
+        )
+      })
+
+      // Any id that does not belong to this scoresheet fails explicitly rather than
+      // returning an undefined element that breaks the output schema.
+      if (rows.length !== ids.length) {
+        throw errors.NOT_FOUND({
+          message: "One or more subject scores were not found on this scoresheet"
         })
-      )
+      }
+
+      return rows
     })
 
     return updated

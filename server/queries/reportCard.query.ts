@@ -18,17 +18,18 @@ import { fetchResultForReportCard } from "./result.query"
  * settings screen is built.
  */
 export async function fetchReportCardData(scoresheetId: string) {
-  // Resolve the scoresheet → its resultId without loading the full result yet
-  const targetSheet = await db.query.scoresheets.findFirst({
-    where: eq(scoresheets.id, scoresheetId),
-    columns: { resultId: true }
-  })
-  if (!targetSheet) return null
-
-  const [result, resultSettings] = await Promise.all([
-    fetchResultForReportCard(targetSheet.resultId),
+  // The scoresheet lookup and the settings read are independent — run them together so the KV
+  // round trip overlaps the first DB query instead of adding a serial step.
+  const [targetSheet, resultSettings] = await Promise.all([
+    db.query.scoresheets.findFirst({
+      where: eq(scoresheets.id, scoresheetId),
+      columns: { resultId: true }
+    }),
     getResultSettings()
   ])
+  if (!targetSheet) return null
+
+  const result = await fetchResultForReportCard(targetSheet.resultId)
   if (!result) return null
 
   // Shape all scoresheets into ScoresheetInput[] for the computation function.

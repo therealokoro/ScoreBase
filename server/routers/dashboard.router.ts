@@ -56,7 +56,7 @@ const getTeacherSummary = os.getTeacherSummary.handler(async ({ context }) => {
     }
   }
 
-  const classSummary = { id: klass.id, name: klass.name, studentCount: klass.students.length }
+  const classSummary = { id: klass.id, name: klass.name, studentCount: klass.studentCount }
 
   // No active term configured at all — nothing further to resolve.
   if (!activeTerm) {

@@ -90,7 +90,8 @@ const CaScoresArraySchema = z.array(z.number().min(0).nullable()).min(1).max(5)
 export const SubjectScoreSchema = createSelectSchema(subjectScores, {
   caScores: CaScoresArraySchema
 }).extend({
-  subject: SubjectSchema.nullable()
+  // Only the fields consumers read; avoids shipping the subject's tags/timestamps per score row.
+  subject: SubjectSchema.pick({ id: true, name: true }).nullable()
 })
 
 export type SubjectScore = z.infer<typeof SubjectScoreSchema>

@@ -63,11 +63,12 @@ export const results = sqliteTable(
 
     ...dateTimeSchema
   },
-  // Exactly one result per (term, class). The classId index also serves lookups
-  // by class (e.g. listResultsByClass); termId is covered by the composite's leftmost prefix.
+  // Exactly one result per (term, class). The composite (class, createdAt) serves both
+  // class-scoped lookups and the class-scoped list ordering; termId is covered by the
+  // unique index's leftmost prefix.
   (t) => [
     uniqueIndex("results_term_class_unique").on(t.termId, t.classId),
-    index("results_class_id_index").on(t.classId),
+    index("results_class_id_created_at_idx").on(t.classId, t.createdAt),
     index("results_created_at_idx").on(t.createdAt)
   ]
 )
@@ -147,7 +148,11 @@ export const subjectScores = sqliteTable(
 
     ...dateTimeSchema
   },
-  (t) => [index("subject_scores_scoresheet_id_index").on(t.scoresheetId)]
+  (t) => [
+    index("subject_scores_scoresheet_id_index").on(t.scoresheetId),
+    // Supports the `onDelete: set null` scan when a subject is removed.
+    index("subject_scores_subject_id_index").on(t.subjectId)
+  ]
 )
 
 // ---------------------------------------------------------------------------

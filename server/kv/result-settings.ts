@@ -25,11 +25,15 @@ export async function getResultSettings<K extends keyof ResultSettings>(
   return key ? settings[key] : settings
 }
 
-export const setResultSettings = async (settings: Partial<ResultSettings>) => {
-  const current = await getResultSettings()
+export const setResultSettings = async (
+  settings: Partial<ResultSettings>,
+  /** Pass the already-read current value to avoid a second KV read. */
+  current?: ResultSettings
+) => {
+  const base = current ?? (await getResultSettings())
   // Deep-merge over the current value (arrays replaced wholesale) so nested objects
   // survive partial updates.
-  const newSettings = mergeSettings(settings, current) as ResultSettings
+  const newSettings = mergeSettings(settings, base) as ResultSettings
   await kv.set(RESULT_SETTINGS_KV_KEY, newSettings)
   return newSettings
 }

@@ -1,6 +1,8 @@
 /* This file contains reusable queries for teacher operations */
 import { db } from "@nuxthub/db"
-import { eq, not } from "drizzle-orm"
+import { and, count, eq, not, sql } from "drizzle-orm"
+
+import { escapeLike } from "#shared/utils/sql"
 
 import { user } from "../db/schema"
 
@@ -33,6 +35,45 @@ export const listAllTeachers = async () => {
       return operators.desc(fields.createdAt)
     }
   })
+}
+
+export type TeacherListParams = { page?: number; pageSize?: number; search?: string }
+
+/** Paginated teacher list ordered by `createdAt` (indexed), with an optional name search. */
+export const listTeachersPaginated = async ({
+  page = 0,
+  pageSize = 10,
+  search
+}: TeacherListParams) => {
+  const roleFilter = not(eq(user.role, "admin"))
+  const where = search
+    ? and(
+        roleFilter,
+        sql`lower(${user.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`
+      )
+    : roleFilter
+
+  const [data, countResult] = await Promise.all([
+    db.query.user.findMany({
+      where,
+      columns: { ...columnPicks },
+      with: { ...classInclude },
+      limit: pageSize,
+      offset: page * pageSize,
+      orderBy(fields, operators) {
+        return operators.desc(fields.createdAt)
+      }
+    }),
+    db.select({ total: count() }).from(user).where(where)
+  ])
+
+  const total = countResult[0]?.total ?? 0
+
+  return {
+    data,
+    total,
+    pageCount: total > 0 ? Math.ceil(total / pageSize) : 1
+  }
 }
 
 /** Fetch a teachers class */

@@ -165,7 +165,7 @@ configs. Do not edit it to add paths.
    `server/routers/index.ts` under its public key (the key is the API path).
 3. **Query** — `server/queries/<name>.query.ts`. Reusable DB access using `db` from
    `@nuxthub/db` and the Drizzle relational API. Name them descriptively
-   (`fetchSingleClass`, `listAllClasses`, `listStudentsByClass`).
+   (`fetchSingleClass`, `listAllClasses`, `listStudentsPaginated`).
 4. **Composable** — `app/composables/use<Thing>.ts`. Wrap the procedure in `useQuery` /
    `useMutation` via `$orpc.<router>.<procedure>.queryOptions()` /
    `.mutationOptions()`, and invalidate with `$orpc.<router>.<procedure>.queryKey()`.
