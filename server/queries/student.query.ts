@@ -16,27 +16,6 @@ export const fetchStudentById = async (id: string) => {
   })
 }
 
-/** List all students and include their class information */
-export const listAllStudents = async () => {
-  return await db.query.students.findMany({
-    with: { ...includeClass },
-    orderBy(fields, operators) {
-      return operators.desc(fields.createdAt)
-    }
-  })
-}
-
-/** List students by class ID */
-export const listStudentsByClass = async (classId: string) => {
-  return await db.query.students.findMany({
-    where: eq(students.classId, classId),
-    with: { ...includeClass },
-    orderBy(fields, operators) {
-      return operators.desc(fields.createdAt)
-    }
-  })
-}
-
 export type StudentListParams = {
   page?: number
   pageSize?: number

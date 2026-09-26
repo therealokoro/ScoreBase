@@ -6,9 +6,9 @@ import type { APiContext } from "../context"
 import { studentContract } from "../contracts/student.contract"
 import { students, scoresheets } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
-import { fetchStudentById, listAllStudents, listStudentsPaginated } from "../queries/student.query"
+import { fetchStudentById, listStudentsPaginated } from "../queries/student.query"
 import { fetchTeachersClass } from "../queries/teacher.query"
-import { requireAdmin, requireClassAccess, requireSession } from "../utils/auth-guard"
+import { requireClassAccess, requireSession } from "../utils/auth-guard"
 
 async function checkConflict(name: string, studentId: string, errors: any, excludeId?: string) {
   // Check for conflicts, excluding the record being updated (if any)
@@ -26,11 +26,6 @@ async function checkConflict(name: string, studentId: string, errors: any, exclu
 }
 
 const os = implement(studentContract).$context<APiContext>()
-
-const listStudents = os.list.handler(async ({ context }) => {
-  requireAdmin(context)
-  return await listAllStudents()
-})
 
 const getSingleStudent = os.getOne.handler(async ({ input, errors, context }) => {
   const studentRecord = await fetchStudentById(input.id)
@@ -159,7 +154,6 @@ const queryStudent = os.query.handler(async ({ input, context }) => {
 })
 
 export const studentRouter = {
-  list: listStudents,
   getOne: getSingleStudent,
   create: createStudent,
   update: updateStudent,
