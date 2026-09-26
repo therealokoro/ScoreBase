@@ -49,11 +49,13 @@ export const useUpdateResultStatus = () => {
         const detailKey = $orpc.result.getOne.queryOptions({
           input: { id: variables.id }
         }).queryKey
-        qc.setQueryData(detailKey, (old: unknown) =>
-          old ? { ...(old as Record<string, unknown>), ...updated } : old
-        )
+        const cached = qc.getQueryData(detailKey)
+        if (cached) {
+          // Merge the returned result row over the cached detail (scoresheets are preserved).
+          qc.setQueryData(detailKey, { ...cached, ...updated })
+        }
         // The results list renders the status badge, so keep it fresh (cheap, no nesting).
-        qc.invalidateQueries({ queryKey: $orpc.result.list.queryKey() })
+        qc.invalidateQueries({ queryKey: $orpc.result.list.key() })
       }
     })
   )
