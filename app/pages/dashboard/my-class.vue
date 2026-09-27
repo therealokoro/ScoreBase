@@ -37,11 +37,12 @@ function handleUpdateClass(payload: any) {
 <template>
   <Page
     :title="currClass?.name || 'No Class'"
-    :loading="isPending || pending"
     :badge="currClass ? `Teacher: ${currClass.teacher?.name}` : undefined"
   >
+    <AppEntitySkeleton v-if="isPending || pending" :count="3" />
+
     <AppContentPlaceholder
-      v-if="!currClass"
+      v-else-if="!currClass"
       title="Oops, No Class"
       text="Looks like you haven't been assigned to any class. Contact your admin to assign a class to you"
     />
