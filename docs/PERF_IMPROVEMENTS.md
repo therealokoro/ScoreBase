@@ -343,3 +343,18 @@ skeleton that mirrors the final shape; it also hid chrome that was already avail
   this is a cosmetic design decision rather than a perf fix.
 - Remaining `Page :loading` usages (`sessions/[sessionId]`, `results/[resultId]/[scoresheetId]`,
   `my-class`) were left for a follow-up to keep this change reviewable.
+
+## Fix 23 — Finish loading-skeleton consistency (final-audit #12c follow-up)
+
+**Date:** 2026-09-27
+**Files changed:** `app/pages/dashboard/sessions/[sessionId].vue`,
+`app/pages/dashboard/results/[resultId]/[scoresheetId].vue`,
+`app/pages/dashboard/my-class.vue`
+**What:** the last three pages still passed `:loading` to `Page`, replacing the whole body with a
+full-screen spinner. The scoresheet page additionally rendered its own `AppEntitySkeleton` that was
+never visible while `Page` hid the body.
+**What changed:** dropped `Page`'s `loading` on all three and let each page render its
+shape-matched skeleton inside the visible chrome (`AppEntitySkeleton` for session/class;
+the existing skeleton now shows for the scoresheet page).
+**Expected impact:** No full-page spinners remain; the page header/breadcrumbs/actions stay visible
+during loads.

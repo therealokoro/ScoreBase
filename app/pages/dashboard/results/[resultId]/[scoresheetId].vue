@@ -146,7 +146,7 @@ const metaData = computed(() => [
 </script>
 
 <template>
-  <Page :title="pageTitle" :loading="isPending" :error="error ?? undefined">
+  <Page :title="pageTitle" :error="error ?? undefined">
     <AppEntitySkeleton v-if="isPending" :count="3" />
 
     <template v-else-if="scoresheet && result">

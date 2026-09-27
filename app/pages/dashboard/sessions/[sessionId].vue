@@ -60,40 +60,52 @@ async function selectTerm(term: ITerm) {
   <Page
     :title="session?.name"
     :description="session ? formatDate(session.updatedAt, 'Created on ') : undefined"
-    :loading="isPending"
     :error="sessionIdError ?? error ?? undefined"
   >
     <template #actions>
       <AppEntityActionDropdown @edit="isSheetOpen = true" @delete="openDeleteDialog = true" />
     </template>
 
-    <!-- Manage Sesison Terms -->
-    <SessionManageTerms :terms="sessionTerms" :session-id="sessionId!" @select-term="selectTerm" />
+    <!-- Keep the chrome visible; show a shape-matched skeleton while the session loads. -->
+    <AppEntitySkeleton v-if="isPending" :count="3" />
 
-    <!-- Session/Term Result Table -->
-    <div v-if="activeTerm" class="w-full">
-      <h3 class="text-sm font-semibold mb-3">{{ activeTerm.name }} Results</h3>
+    <template v-else>
+      <!-- Manage Sesison Terms -->
+      <SessionManageTerms
+        :terms="sessionTerms"
+        :session-id="sessionId!"
+        @select-term="selectTerm"
+      />
 
-      <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- loading skeleton -->
-        <AppEntitySkeleton v-if="isFetchingResult" :count="2" />
+      <!-- Session/Term Result Table -->
+      <div v-if="activeTerm" class="w-full">
+        <h3 class="text-sm font-semibold mb-3">{{ activeTerm.name }} Results</h3>
 
-        <!-- show results for selected term -->
-        <template v-else-if="!isFetchingResult && results.length">
-          <AppEntityCard
-            v-for="item in results"
-            :title="item.name"
-            :link="`/dashboard/results/${item.id}`"
-            :description="item.submittedBy ? `Submitted By ${item.submittedBy.name}` : undefined"
+        <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- loading skeleton -->
+          <AppEntitySkeleton v-if="isFetchingResult" :count="2" />
+
+          <!-- show results for selected term -->
+          <template v-else-if="!isFetchingResult && results.length">
+            <AppEntityCard
+              v-for="item in results"
+              :title="item.name"
+              :link="`/dashboard/results/${item.id}`"
+              :description="item.submittedBy ? `Submitted By ${item.submittedBy.name}` : undefined"
+            />
+          </template>
+          <!-- When term doesn't have a result -->
+          <AppContentPlaceholder
+            v-else
+            text="No result for the selected term"
+            :icon="ICONS.result"
           />
-        </template>
-        <!-- When term doesn't have a result -->
-        <AppContentPlaceholder v-else text="No result for the selected term" :icon="ICONS.result" />
+        </div>
       </div>
-    </div>
 
-    <!-- When no term is selected -->
-    <AppContentPlaceholder v-else :icon="ICONS.empty" text="Select a term to view its results" />
+      <!-- When no term is selected -->
+      <AppContentPlaceholder v-else :icon="ICONS.empty" text="Select a term to view its results" />
+    </template>
 
     <!-- Session Edit Form -->
     <LazySessionCreateEditForm
