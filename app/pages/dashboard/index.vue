@@ -114,13 +114,11 @@ const error = computed(() =>
 </script>
 
 <template>
-  <Page
-    title="Overview"
-    :description="`Welcome back, ${user?.name}`"
-    :loading="isPending"
-    :error="error"
-  >
-    <div class="grid w-full gap-6">
+  <Page title="Overview" :description="`Welcome back, ${user?.name}`" :error="error">
+    <!-- Keep the page chrome visible; show shape-matched skeletons instead of a full-screen spinner. -->
+    <AppEntitySkeleton v-if="isPending" :count="4" />
+
+    <div v-else class="grid w-full gap-6">
       <!-- Admin-only summary -->
       <template v-if="isAdmin">
         <DashboardStatCards :stats="adminStats" />

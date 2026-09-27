@@ -118,10 +118,13 @@ const SORT_OPTIONS: { value: SortMode; label: string; icon: string }[] = [
   <Page
     :title="`Report Cards | ${result?.name ?? ''}`"
     description="Select a student to view and print their report card"
-    :loading="isPending"
     :error="error"
   >
-    <div v-if="result" class="space-y-4">
+    <div v-if="isPending" class="space-y-2">
+      <UiSkeleton v-for="n in 6" :key="n" class="h-16 w-full" />
+    </div>
+
+    <div v-else-if="result" class="space-y-4">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
         <FormKit
           :model-value="search"
