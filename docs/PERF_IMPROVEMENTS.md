@@ -320,3 +320,26 @@ had no index for the `onDelete: set null` scan.
 **What changed:** added `results(class_id, createdAt)` (dropping the now-redundant `results_class_id_index`)
 and `subject_scores(subject_id)`; migration `0009` generated and applied.
 **Expected impact:** Near-zero at current sizes (as the audit noted), but correct at scale.
+
+## Fix 22 — Skeleton loading consistency (final-audit #12c)
+
+**Date:** 2026-09-27
+**Files changed:** `app/pages/dashboard/index.vue`,
+`app/pages/dashboard/results/[resultId]/report-card/index.vue`,
+`app/pages/dashboard/results/[resultId]/report-card/[scoresheetId].vue`
+**What:** these pages passed `:loading` to `Page`, which replaced the whole body (including the
+already-known title/breadcrumbs/actions) with a full-screen spinner.
+**Why it matters:** a spinner with no layout gives no sense of progress and feels slower than a
+skeleton that mirrors the final shape; it also hid chrome that was already available.
+**What changed:** render the page chrome immediately and show shape-matched skeletons while pending
+(`AppEntitySkeleton` for the dashboard grid; `UiSkeleton` rows for the report-card roster;
+`UiSkeleton` block for the report-card document).
+**Not done from #12 (deliberate):**
+- (a) Per-RPC `getSession` (`server/routes/rpc/[...].ts`): inherent to stateless auth; the only way
+  to remove it is to batch RPCs, and no page has a clear batchable multi-call that wouldn't hurt
+  pagination/caching. Left as-is.
+- (b) Page transitions / `keepalive`: DESIGN.md defines no page-transition pattern (only
+  `transition-colors`), and `staleTime: 5 min` + payload caching already cover the data side, so
+  this is a cosmetic design decision rather than a perf fix.
+- Remaining `Page :loading` usages (`sessions/[sessionId]`, `results/[resultId]/[scoresheetId]`,
+  `my-class`) were left for a follow-up to keep this change reviewable.

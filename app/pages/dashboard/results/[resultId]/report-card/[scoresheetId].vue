@@ -23,7 +23,6 @@ function initPrintAction() {
 <template>
   <Page
     :title="card ? `${card.computed.studentName} — Report Card` : 'Report Card'"
-    :loading="isPending"
     :error="error"
   >
     <div class="flex items-center justify-between gap-2 print:hidden">
@@ -43,6 +42,7 @@ function initPrintAction() {
       </div>
     </div>
 
-    <ReportCardDocument v-if="card" :data="card" />
+    <UiSkeleton v-if="isPending" class="h-[70vh] w-full" />
+    <ReportCardDocument v-else-if="card" :data="card" />
   </Page>
 </template>
