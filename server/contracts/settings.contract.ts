@@ -61,5 +61,8 @@ export const settingsContract = {
         })
       )
       .output(z.object({ url: z.string() }))
+      .errors({
+        BAD_REQUEST: { message: "The file must be an image no larger than 2MB" }
+      })
   }
 }

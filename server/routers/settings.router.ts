@@ -1,3 +1,4 @@
+import { ensureBlob } from "@nuxthub/blob"
 import { implement } from "@orpc/server"
 import { ResultSettingsSchema, validateGradeBoundaryCoverage } from "~~/shared/validators/settings"
 
@@ -85,8 +86,17 @@ const resetReportCardTemplateHandler = os.reportCardTemplate.resetTemplate.handl
 )
 
 const uploadReportCardAssetHandler = os.reportCardTemplate.uploadAsset.handler(
-  async ({ input, context }) => {
+  async ({ input, context, errors }) => {
     requireAdmin(context)
+
+    // The client checks the same limits, but only the server check is trustworthy.
+    // ensureBlob throws an H3 400, which oRPC would surface as a 500, so map it.
+    try {
+      ensureBlob(input.file, { maxSize: "2MB", types: ["image"] })
+    } catch {
+      throw errors.BAD_REQUEST()
+    }
+
     const url = await uploadReportCardAsset(input.file, input.assetKey)
     return { url }
   }
