@@ -1,6 +1,6 @@
 import { db } from "@nuxthub/db"
 import { eq } from "drizzle-orm"
-import { computeReportCard } from "~~/shared/utils/report-card"
+import { computeReportCard, computeStudentTotals } from "~~/shared/utils/report-card"
 import type { ScoresheetInput } from "~~/shared/utils/report-card"
 
 import { scoresheets } from "../db/schema"
@@ -72,7 +72,9 @@ export async function fetchReportCardData(scoresheetId: string) {
     computed,
     teacherRemark: targetSheetRaw.teacherRemark ?? null,
     principalRemark: targetSheetRaw.principalRemark ?? null,
-    totalStudents: result.scoresheets.length
+    totalStudents: result.scoresheets.length,
+    // Class-wide total pool (fully-scored students only) for the footer class summary.
+    allStudentTotals: computeStudentTotals(allScoresheets)
   }
 }
 

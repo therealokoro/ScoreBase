@@ -1,7 +1,9 @@
 import { oc } from "@orpc/contract"
+import { z } from "zod"
 import {
   ResultSettingsSchema,
   PartialResultSettingsSchema,
+  ReportCardTemplateSchema,
   SchoolSettingsSchema
 } from "~~/shared/validators/settings"
 
@@ -26,7 +28,8 @@ export const setResultSettings = oc
   .output(ResultSettingsSchema)
   .errors({
     BAD_REQUEST: {
-      message: "The resulting settings are invalid (CA maxima must match caCount and sum with examMax to 100)"
+      message:
+        "The resulting settings are invalid (CA maxima must match caCount and sum with examMax to 100)"
     }
   })
 
@@ -42,5 +45,21 @@ export const settingsContract = {
   result: {
     getSettings: getResultSettings,
     setSettings: setResultSettings
+  },
+  reportCardTemplate: {
+    getTemplate: oc.output(ReportCardTemplateSchema),
+
+    setTemplate: oc.input(ReportCardTemplateSchema).output(ReportCardTemplateSchema),
+
+    resetTemplate: oc.output(ReportCardTemplateSchema),
+
+    uploadAsset: oc
+      .input(
+        z.object({
+          assetKey: z.enum(["logo-primary", "logo-secondary", "sig-teacher", "sig-principal"]),
+          file: z.instanceof(File)
+        })
+      )
+      .output(z.object({ url: z.string() }))
   }
 }

@@ -72,7 +72,8 @@ export const ReportCardOutputSchema = z.object({
   computed: ComputedReportCardSchema,
   teacherRemark: z.string().nullable(),
   principalRemark: z.string().nullable(),
-  totalStudents: z.number()
+  totalStudents: z.number(),
+  allStudentTotals: z.array(z.number())
 })
 
 export const getReportCard = oc

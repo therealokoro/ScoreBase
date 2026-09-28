@@ -1,10 +1,16 @@
 import { implement } from "@orpc/server"
+import { ResultSettingsSchema, validateGradeBoundaryCoverage } from "~~/shared/validators/settings"
 
 import type { APiContext } from "../context"
 import { settingsContract } from "../contracts/settings.contract"
+import {
+  getReportCardTemplate,
+  resetReportCardTemplate,
+  setReportCardTemplate,
+  uploadReportCardAsset
+} from "../kv/report-card-template"
 import { getResultSettings, setResultSettings } from "../kv/result-settings"
 import { getSchoolSettings, setSchoolSettings } from "../kv/school-settings"
-import { ResultSettingsSchema, validateGradeBoundaryCoverage } from "~~/shared/validators/settings"
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 const os = implement(settingsContract).$context<APiContext>()
@@ -55,6 +61,38 @@ const updateResultSettings = os.result.setSettings.handler(async ({ input, conte
 })
 
 // ---------------------------------------------------------------------------
+// Report card template
+// ---------------------------------------------------------------------------
+
+const fetchReportCardTemplate = os.reportCardTemplate.getTemplate.handler(async ({ context }) => {
+  // Teachers need the template to render report cards, so this is not admin-gated.
+  requireSession(context)
+  return await getReportCardTemplate()
+})
+
+const updateReportCardTemplate = os.reportCardTemplate.setTemplate.handler(
+  async ({ input, context }) => {
+    requireAdmin(context)
+    return await setReportCardTemplate(input)
+  }
+)
+
+const resetReportCardTemplateHandler = os.reportCardTemplate.resetTemplate.handler(
+  async ({ context }) => {
+    requireAdmin(context)
+    return await resetReportCardTemplate()
+  }
+)
+
+const uploadReportCardAssetHandler = os.reportCardTemplate.uploadAsset.handler(
+  async ({ input, context }) => {
+    requireAdmin(context)
+    const url = await uploadReportCardAsset(input.file, input.assetKey)
+    return { url }
+  }
+)
+
+// ---------------------------------------------------------------------------
 // Export
 // ---------------------------------------------------------------------------
 
@@ -66,5 +104,11 @@ export const settingsRouter = {
   result: {
     getSettings: fetchResultSettings,
     setSettings: updateResultSettings
+  },
+  reportCardTemplate: {
+    getTemplate: fetchReportCardTemplate,
+    setTemplate: updateReportCardTemplate,
+    resetTemplate: resetReportCardTemplateHandler,
+    uploadAsset: uploadReportCardAssetHandler
   }
 }

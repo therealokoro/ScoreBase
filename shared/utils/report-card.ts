@@ -94,6 +94,39 @@ export function formatPosition(
 }
 
 // ---------------------------------------------------------------------------
+// Grand totals (shared with the class-wide summary)
+// ---------------------------------------------------------------------------
+
+/**
+ * Grand total of a single scoresheet: the sum of each subject's `caTotal + exam`. Returns `null`
+ * when any subject still has an incomplete CA slot or exam, matching the "incomplete = unranked"
+ * rule used for position.
+ */
+function computeScoresheetTotal(scoresheet: ScoresheetInput): number | null {
+  const rows = scoresheet.subjectScores.map((score) => {
+    const caTotal = score.caScores.every((s) => s !== null)
+      ? score.caScores.reduce<number>((sum, s) => sum + (s ?? 0), 0)
+      : null
+    return caTotal !== null && score.exam !== null ? caTotal + score.exam : null
+  })
+  return rows.every((r) => r !== null) ? rows.reduce<number>((sum, r) => sum + (r ?? 0), 0) : null
+}
+
+/**
+ * Grand totals of every fully-scored scoresheet, in input order. Students with any incomplete
+ * subject are omitted (they are unranked), so this is the class-wide total pool used for the class
+ * summary statistics (highest, lowest, average).
+ */
+export function computeStudentTotals(allScoresheets: ScoresheetInput[]): number[] {
+  const totals: number[] = []
+  for (const sheet of allScoresheets) {
+    const total = computeScoresheetTotal(sheet)
+    if (total !== null) totals.push(total)
+  }
+  return totals
+}
+
+// ---------------------------------------------------------------------------
 // Core computation
 // ---------------------------------------------------------------------------
 
@@ -150,17 +183,10 @@ export function computeReportCard(
   // -- Position — rank all students by grandTotal, descending --
   // Students with any incomplete subject score are treated as unranked (null total).
   // Ties share the same rank (dense ranking: 1, 2, 2, 3 not 1, 2, 2, 4).
-  const studentTotals = allScoresheets.map((s) => {
-    const rows = s.subjectScores.map((sc) => {
-      const caTotal = sc.caScores.every((v) => v !== null)
-        ? sc.caScores.reduce<number>((sum, v) => sum + (v ?? 0), 0)
-        : null
-      return caTotal !== null && sc.exam !== null ? caTotal + sc.exam : null
-    })
-    const complete = rows.every((r) => r !== null)
-    const total = complete ? rows.reduce<number>((sum, r) => sum + (r ?? 0), 0) : null
-    return { studentId: s.studentId, total }
-  })
+  const studentTotals = allScoresheets.map((s) => ({
+    studentId: s.studentId,
+    total: computeScoresheetTotal(s)
+  }))
 
   const uniqueSortedTotals = [
     ...new Set(

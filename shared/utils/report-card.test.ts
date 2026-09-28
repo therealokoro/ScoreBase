@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest"
 
-import { computeReportCard, formatPosition, getGradeBoundary, toOrdinal } from "./report-card"
-import type { ScoresheetInput } from "./report-card"
 import type { GradeBoundary } from "../validators/settings"
+import {
+  computeReportCard,
+  computeStudentTotals,
+  formatPosition,
+  getGradeBoundary,
+  toOrdinal
+} from "./report-card"
+import type { ScoresheetInput } from "./report-card"
 
 const BOUNDARIES: GradeBoundary[] = [
   { label: "A", min: 70, max: 100, remark: "Excellent" },
@@ -115,5 +121,28 @@ describe("computeReportCard", () => {
     const result = computeReportCard(a, [a], SCORE_CONFIG, BOUNDARIES, "all", 3)
     expect(result.subjectRows[0]?.total).toBe(100)
     expect(result.subjectRows[0]?.grade).toBe("A")
+  })
+})
+
+describe("computeStudentTotals", () => {
+  it("returns every fully-scored total in input order", () => {
+    const a = sheet("a", "A", [20, 20], 60) // 100
+    const b = sheet("b", "B", [10, 10], 30) // 50
+    const c = sheet("c", "C", [10, 10], 30) // 50
+
+    expect(computeStudentTotals([a, b, c])).toEqual([100, 50, 50])
+  })
+
+  it("omits students with an incomplete CA or exam", () => {
+    const complete = sheet("a", "A", [20, 20], 60) // 100
+    const partialCa = sheet("b", "B", [20, null], 40)
+    const partialExam = sheet("c", "C", [10, 10], null)
+
+    expect(computeStudentTotals([complete, partialCa, partialExam])).toEqual([100])
+  })
+
+  it("returns an empty array when nobody is fully scored", () => {
+    expect(computeStudentTotals([])).toEqual([])
+    expect(computeStudentTotals([sheet("a", "A", [null, null], null)])).toEqual([])
   })
 })
