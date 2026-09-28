@@ -1,4 +1,8 @@
-import { DEFAULT_SCHOOL_SETTINGS, DEFAULT_RESULT_SETTINGS } from "#shared/constants/kv-settings"
+import {
+  DEFAULT_REPORT_CARD_TEMPLATE,
+  DEFAULT_SCHOOL_SETTINGS,
+  DEFAULT_RESULT_SETTINGS
+} from "#shared/constants/kv-settings"
 
 export const useGetSchoolSettings = () => {
   const { $orpc } = useNuxtApp()
@@ -37,4 +41,31 @@ export const useUpdateResultSettings = () => {
       onSuccess: () => qc.invalidateQueries({ queryKey: $orpc.settings.result.key() })
     })
   )
+}
+
+/* -------------------------------  Report Card Template  --------------------------------- */
+
+export const useGetReportCardTemplate = () => {
+  const { $orpc } = useNuxtApp()
+  return useQuery({
+    ...$orpc.settings.reportCardTemplate.getTemplate.queryOptions(),
+    // A function (not the value) stops TanStack treating the placeholder as a cached result;
+    // the builder preview renders immediately from defaults while the real template loads.
+    placeholderData: () => DEFAULT_REPORT_CARD_TEMPLATE
+  })
+}
+
+export const useUpdateReportCardTemplate = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.settings.reportCardTemplate.setTemplate.mutationOptions())
+}
+
+export const useResetReportCardTemplate = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.settings.reportCardTemplate.resetTemplate.mutationOptions())
+}
+
+export const useUploadReportCardAsset = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.settings.reportCardTemplate.uploadAsset.mutationOptions())
 }
