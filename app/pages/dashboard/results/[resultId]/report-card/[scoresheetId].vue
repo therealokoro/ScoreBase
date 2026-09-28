@@ -1,12 +1,19 @@
 <script lang="ts" setup>
+import { DEFAULT_REPORT_CARD_TEMPLATE } from "~~/shared/constants/kv-settings"
+
 import { ICONS } from "#shared/constants/icons"
 
 const route = useRoute()
 const resultId = route.params.resultId as string
 const scoresheetId = route.params.scoresheetId as string
 
+const { isAdmin } = useAuth()
+
 const { data, isPending, error } = useGetReportCard(scoresheetId)
 const card = computed(() => data.value)
+
+const { data: templateData } = useGetReportCardTemplate()
+const template = computed(() => templateData.value ?? DEFAULT_REPORT_CARD_TEMPLATE)
 
 setPageBreadcrumbLabels({
   [route.params.resultId as string]: computed(() => data.value?.resultName),
@@ -21,10 +28,7 @@ function initPrintAction() {
 </script>
 
 <template>
-  <Page
-    :title="card ? `${card.computed.studentName} — Report Card` : 'Report Card'"
-    :error="error"
-  >
+  <Page :title="card ? `${card.computed.studentName} — Report Card` : 'Report Card'" :error="error">
     <div class="flex items-center justify-between gap-2 print:hidden">
       <UiButton :icon="ICONS.scoresheet" :to="`/dashboard/results/${resultId}/${scoresheetId}`">
         Edit {{ card?.computed.studentName }}'s Scores
@@ -38,11 +42,19 @@ function initPrintAction() {
         >
           All Students
         </UiButton>
+        <UiButton
+          v-if="isAdmin"
+          variant="outline"
+          :icon="ICONS.settings"
+          to="/dashboard/settings/report-card"
+        >
+          Customize template
+        </UiButton>
         <UiButton :icon="ICONS.print" @click="initPrintAction()">Print</UiButton>
       </div>
     </div>
 
     <UiSkeleton v-if="isPending" class="h-[70vh] w-full" />
-    <ReportCardDocument v-else-if="card" :data="card" />
+    <ReportCardTemplatePreview v-else-if="card" :template="template" :data="card" />
   </Page>
 </template>

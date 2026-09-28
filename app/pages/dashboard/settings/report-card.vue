@@ -106,11 +106,7 @@ async function handleReset() {
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
       <!-- Preview (left on desktop, second on mobile) -->
       <div class="order-2 min-w-0 lg:order-1">
-        <div
-          class="bg-muted text-muted-foreground flex min-h-96 flex-1 items-center justify-center rounded-lg text-sm"
-        >
-          Preview coming in Phase 5
-        </div>
+        <ReportCardTemplatePreview :template="template" />
       </div>
 
       <!-- Controls (right on desktop, first on mobile) -->

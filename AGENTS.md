@@ -273,7 +273,9 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
   is hidden with Tailwind `print:hidden`.
 - The report card wrapper is tagged `report-card-print-root`, and
   `app/assets/css/tailwind.css` sets `@page { size: A4 }`.
-- The renderer is `app/components/ReportCard/Document.vue`.
+- The renderer is `app/components/ReportCard/TemplatePreview.vue`. It scales the A4 canvas to
+  the container with a CSS `--rc-scale` variable and `print:transform-none`, and normalises
+  the builder's placeholder data and the viewer's real `ReportCardData` into one view model.
 
 ### Auto-imports
 
@@ -389,4 +391,6 @@ _Convention changes logged here:_
 - 2026-09-28 — Enabled NuxtHub Blob (`hub.blob: true`) for report card logo/signature
   uploads. `@nuxthub/core` generates `@nuxthub/blob`, so no package was added. Added the
   `settings:report-card-template` KV helper (`server/kv/report-card-template.ts`) and the
-  `ReportCardTemplate` type/schema/defaults in `shared/`.
+  `ReportCardTemplate` type/schema/defaults in `shared/`. The report-card renderer is now
+  template-driven (`ReportCard/TemplatePreview.vue` replaces `ReportCard/Document.vue`), with
+  assets served from Blob through `server/routes/images/[...pathname].get.ts`.
