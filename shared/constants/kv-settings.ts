@@ -75,6 +75,7 @@ export const DEFAULT_RESULT_SETTINGS: ResultSettings = {
 export type LogoPlacement = "left" | "center" | "right" | "left-right"
 export type TextAlign = "left" | "center" | "right"
 export type InfoField = "student" | "class" | "session" | "term"
+export type ReportCardAssetKey = "logo-primary" | "logo-secondary" | "sig-teacher" | "sig-principal"
 
 export interface ReportCardParagraph {
   id: string

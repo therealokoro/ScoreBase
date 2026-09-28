@@ -3,6 +3,7 @@ import { kv } from "@nuxthub/kv"
 
 import {
   DEFAULT_REPORT_CARD_TEMPLATE,
+  type ReportCardAssetKey,
   type ReportCardTemplate
 } from "#shared/constants/kv-settings"
 import { ReportCardTemplateSchema } from "#shared/validators/settings"
@@ -31,7 +32,7 @@ export const resetReportCardTemplate = async (): Promise<ReportCardTemplate> => 
   return await getReportCardTemplate()
 }
 
-export type ReportCardAssetKey = "logo-primary" | "logo-secondary" | "sig-teacher" | "sig-principal"
+export type { ReportCardAssetKey }
 
 export const uploadReportCardAsset = async (
   file: File,

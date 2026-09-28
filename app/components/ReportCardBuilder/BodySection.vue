@@ -1,0 +1,81 @@
+<script lang="ts" setup>
+import { ICONS } from "~~/shared/constants/icons"
+import type { ReportCardTemplate } from "~~/shared/constants/kv-settings"
+
+const model = defineModel<ReportCardTemplate>("template", { required: true })
+
+type ColumnKey = keyof ReportCardTemplate["body"]["columns"]
+type ToggleKey = Exclude<ColumnKey, "subject">
+
+const toggles: { key: ToggleKey; label: string; description: string }[] = [
+  {
+    key: "caBreakdown",
+    label: "CA Breakdown",
+    description: "Show individual CA1, CA2... columns"
+  },
+  { key: "caTotal", label: "CA Total", description: "Show a merged total CA column" },
+  { key: "exam", label: "Exam score", description: "Show the exam score column" },
+  { key: "total", label: "Total score", description: "Show the subject total column" },
+  { key: "grade", label: "Grade", description: "Show the grade column" },
+  { key: "remark", label: "Remark", description: "Show the remark column" }
+]
+
+function setColumn(key: ToggleKey, value: boolean) {
+  model.value.body.columns[key] = value
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    <div class="space-y-1">
+      <UiHeading :level="6" class="font-semibold">Score table columns</UiHeading>
+      <p class="text-xs text-muted-foreground">
+        Choose which columns appear in the subject score table.
+      </p>
+    </div>
+
+    <div class="space-y-2">
+      <!-- Subject is always shown -->
+      <div class="flex items-start justify-between gap-3 rounded-md border border-border px-3 py-2">
+        <div class="space-y-0.5">
+          <p class="text-sm font-medium">Subject</p>
+          <p class="text-xs text-muted-foreground">Always visible — cannot be hidden</p>
+        </div>
+
+        <UiTooltip>
+          <UiTooltipTrigger as-child>
+            <span class="inline-flex">
+              <UiSwitch :model-value="true" disabled aria-label="Subject column is always shown" />
+            </span>
+          </UiTooltipTrigger>
+          <UiTooltipContent>Subject column is always shown.</UiTooltipContent>
+        </UiTooltip>
+      </div>
+
+      <div
+        v-for="row in toggles"
+        :key="row.key"
+        class="flex items-start justify-between gap-3 rounded-md border border-border px-3 py-2"
+      >
+        <div class="space-y-0.5">
+          <p class="text-sm font-medium">{{ row.label }}</p>
+          <p class="text-xs text-muted-foreground">{{ row.description }}</p>
+        </div>
+
+        <UiSwitch
+          :model-value="model.body.columns[row.key]"
+          :aria-label="`Show ${row.label}`"
+          @update:model-value="(value) => setColumn(row.key, value)"
+        />
+      </div>
+    </div>
+
+    <div class="bg-muted text-muted-foreground flex gap-2 rounded p-3 text-xs">
+      <Icon :name="ICONS.info" class="mt-0.5 size-3.5 shrink-0" />
+      <p>
+        CA Breakdown and CA Total are independent. You can show both, either, or neither. When both
+        are off, all CA columns are hidden.
+      </p>
+    </div>
+  </div>
+</template>

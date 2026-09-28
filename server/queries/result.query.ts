@@ -36,7 +36,9 @@ export async function listResultsPaginated({
   const conditions: SQL[] = []
   if (classId) conditions.push(eq(results.classId, classId))
   if (search) {
-    conditions.push(sql`lower(${results.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`)
+    conditions.push(
+      sql`lower(${results.name}) LIKE ${`%${escapeLike(search.toLowerCase())}%`} ESCAPE '\\'`
+    )
   }
   const where = conditions.length > 0 ? and(...conditions) : undefined
 

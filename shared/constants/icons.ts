@@ -149,9 +149,18 @@ export const ICONS = {
   history: "lucide:history",
 
   // =========================
+  // Text Formatting
+  // =========================
+  alignLeft: "lucide:align-left",
+  alignCenter: "lucide:align-center",
+  alignRight: "lucide:align-right",
+
+  // =========================
   // Files & Export
   // =========================
   print: "lucide:printer",
+
+  image: "lucide:image",
 
   pdf: "tabler:file-type-pdf",
 
