@@ -41,9 +41,9 @@ export const GradeBoundarySchema = z.object({
 export type GradeBoundary = z.infer<typeof GradeBoundarySchema>
 
 /**
- * Validates that an admin-defined grading scale is internally consistent: every boundary has
- * `min <= max` and the scale covers 0–100 without gaps. Returns an error message, or `null` when
- * valid. Used on the write path only — stored settings are not re-validated on read.
+ * Validates that an admin-defined grading scale is internally consistent: every boundary has `min
+ * <= max` and the scale covers 0–100 without gaps. Returns an error message, or `null` when valid.
+ * Used on the write path only — stored settings are not re-validated on read.
  */
 export function validateGradeBoundaryCoverage(boundaries: GradeBoundary[]): string | null {
   const sorted = [...boundaries].sort((a, b) => a.min - b.min)
@@ -83,3 +83,90 @@ export const ResultSettingsSchema = ResultSettingsBaseSchema.refine(
 export const PartialResultSettingsSchema = ResultSettingsBaseSchema.partial()
 
 export type ResultSettingsType = z.infer<typeof ResultSettingsSchema>
+
+// ---------------------------------------------------------------------------
+// Report Card Template
+// ---------------------------------------------------------------------------
+
+const LogoPlacementSchema = z.enum(["left", "center", "right", "left-right"])
+const TextAlignSchema = z.enum(["left", "center", "right"])
+const InfoFieldSchema = z.enum(["student", "class", "session", "term"])
+
+const ReportCardParagraphSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  fontSize: z.number().int().min(10).max(24),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color"),
+  bold: z.boolean(),
+  align: TextAlignSchema
+})
+
+export const ReportCardTemplateSchema = z.object({
+  header: z.object({
+    logoPlacement: LogoPlacementSchema,
+    logoPrimary: z.string().nullable(),
+    logoSecondary: z.string().nullable(),
+    showWatermark: z.boolean(),
+    watermarkOpacity: z.number().min(0).max(1),
+    heading: z.string(),
+    subheading: z.string(),
+    paragraphs: z.array(ReportCardParagraphSchema),
+    info: z.object({
+      student: z.boolean(),
+      class: z.boolean(),
+      session: z.boolean(),
+      term: z.boolean(),
+      order: z.array(InfoFieldSchema).length(4)
+    })
+  }),
+  body: z.object({
+    columns: z.object({
+      subject: z.literal(true),
+      caBreakdown: z.boolean(),
+      caTotal: z.boolean(),
+      exam: z.boolean(),
+      total: z.boolean(),
+      grade: z.boolean(),
+      remark: z.boolean()
+    })
+  }),
+  summary: z.object({
+    placement: z.enum(["header", "footer"]),
+    total: z.boolean(),
+    average: z.boolean(),
+    position: z.boolean(),
+    outOf: z.boolean()
+  }),
+  footer: z.object({
+    remarks: z.object({
+      show: z.boolean(),
+      teacher: z.object({
+        show: z.boolean(),
+        label: z.string().min(1),
+        signature: z.boolean(),
+        signatureImage: z.string().nullable()
+      }),
+      principal: z.object({
+        show: z.boolean(),
+        label: z.string().min(1),
+        signature: z.boolean(),
+        signatureImage: z.string().nullable()
+      })
+    }),
+    classSummary: z.object({
+      show: z.boolean(),
+      highest: z.boolean(),
+      lowest: z.boolean(),
+      average: z.boolean()
+    }),
+    customBlocks: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        content: z.string()
+      })
+    )
+  })
+})
+
+export type ReportCardTemplateType = z.infer<typeof ReportCardTemplateSchema>

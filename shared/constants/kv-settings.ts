@@ -68,4 +68,138 @@ export const DEFAULT_RESULT_SETTINGS: ResultSettings = {
   examMax: 70
 }
 
+// ---------------------------------------------------------------------------
+// Report Card Template
+// ---------------------------------------------------------------------------
+
+export type LogoPlacement = "left" | "center" | "right" | "left-right"
+export type TextAlign = "left" | "center" | "right"
+export type InfoField = "student" | "class" | "session" | "term"
+
+export interface ReportCardParagraph {
+  id: string
+  text: string
+  fontSize: number // px, range 10–24
+  color: string // hex e.g. "#000000"
+  bold: boolean
+  align: TextAlign
+}
+
+export interface ReportCardTemplate {
+  header: {
+    logoPlacement: LogoPlacement
+    logoPrimary: string | null // NuxtHub Blob pathname
+    logoSecondary: string | null // Only used in "left-right" and "center"
+    // When logoPlacement is "left" or "right", only logoPrimary is used.
+    // When "center" or "left-right", both logos can be set; if logoSecondary
+    // is null, logoPrimary is used for both slots.
+    showWatermark: boolean // render logoPrimary as a centered background watermark
+    watermarkOpacity: number // 0–1, default 0.08
+    heading: string
+    subheading: string
+    paragraphs: ReportCardParagraph[]
+    info: {
+      student: boolean
+      class: boolean
+      session: boolean
+      term: boolean
+      order: InfoField[] // display order; always contains all four fields
+    }
+  }
+  body: {
+    columns: {
+      subject: true // always shown; never allow hiding in the UI
+      caBreakdown: boolean // show CA1, CA2... individually
+      caTotal: boolean // show a merged CA Total column
+      // caBreakdown and caTotal are independent — both, either, or neither can be on
+      exam: boolean
+      total: boolean
+      grade: boolean
+      remark: boolean
+    }
+  }
+  summary: {
+    placement: "header" | "footer" // where the summary row renders
+    total: boolean
+    average: boolean
+    position: boolean
+    outOf: boolean
+  }
+  footer: {
+    remarks: {
+      show: boolean
+      teacher: {
+        show: boolean
+        label: string // e.g. "Class Teacher"
+        signature: boolean // show a blank signature line when printing
+        signatureImage: string | null // NuxtHub Blob pathname; takes priority over blank line
+      }
+      principal: {
+        show: boolean
+        label: string
+        signature: boolean
+        signatureImage: string | null
+      }
+    }
+    classSummary: {
+      show: boolean
+      highest: boolean
+      lowest: boolean
+      average: boolean
+    }
+    customBlocks: {
+      id: string
+      label: string // e.g. "Next term begins"
+      content: string
+    }[]
+  }
+}
+
+export const DEFAULT_REPORT_CARD_TEMPLATE: ReportCardTemplate = {
+  header: {
+    logoPlacement: "left",
+    logoPrimary: null,
+    logoSecondary: null,
+    showWatermark: false,
+    watermarkOpacity: 0.08,
+    heading: "",
+    subheading: "",
+    paragraphs: [],
+    info: {
+      student: true,
+      class: true,
+      session: true,
+      term: true,
+      order: ["student", "class", "session", "term"]
+    }
+  },
+  body: {
+    columns: {
+      subject: true,
+      caBreakdown: false,
+      caTotal: true,
+      exam: true,
+      total: true,
+      grade: true,
+      remark: true
+    }
+  },
+  summary: {
+    placement: "footer",
+    total: true,
+    average: true,
+    position: true,
+    outOf: true
+  },
+  footer: {
+    remarks: {
+      show: true,
+      teacher: { show: true, label: "Class Teacher", signature: true, signatureImage: null },
+      principal: { show: true, label: "Principal", signature: true, signatureImage: null }
+    },
+    classSummary: { show: false, highest: true, lowest: true, average: true },
+    customBlocks: []
+  }
+}
+
 export type { SchoolSettings }

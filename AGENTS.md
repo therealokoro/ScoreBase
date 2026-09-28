@@ -72,7 +72,7 @@ Versions come from `package.json`.
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
 | Package manager | pnpm `11.5.2`                                                                                           |
 | Lint / format   | Oxlint, Oxfmt                                                                                           |
-| Testing         | Vitest `^5` + `@vue/test-utils` / `happy-dom`; typecheck with `vue-tsc`                               |
+| Testing         | Vitest `^5` + `@vue/test-utils` / `happy-dom`; typecheck with `vue-tsc`                                 |
 
 Non-obvious choices:
 
@@ -81,9 +81,13 @@ Non-obvious choices:
 - **TanStack Query is wired manually** in `app/plugins/vue-query.ts`. There is no TanStack
   Query Nuxt module; do not replace the manual setup.
 - **TanStack Table v9 API**, not v8. See "TanStack Table v9" under Conventions.
-- **NuxtHub Blob is not installed or configured.** There is no `@nuxthub/blob` dependency
-  and `hub` only enables `kv` and `db`. There are no file uploads. Add the blob dependency
-  and enable `hub.blob` before implementing uploads.
+- **NuxtHub Blob is enabled** (`hub.blob: true`). `@nuxthub/core` generates the
+  `@nuxthub/blob` package and the `hub:blob` alias itself, so there is no separate dependency
+  to install. Report card logos/signatures upload through `server/kv/report-card-template.ts`
+  (`uploadReportCardAsset`) under the deterministic key `report-card/<assetKey>`; only the
+  returned pathname is stored in KV. Serve a blob from a server route that returns
+  `blob.serve(event, pathname)` (for example `server/routes/images/[...pathname].get.ts`),
+  then reference it as `/images/<pathname>`.
 - **NuxtHub imports are package imports**, not v0.9 composables. Use `import { kv } from
 "@nuxthub/kv"` and `import { db } from "@nuxthub/db"`, never `hubKv()` / `hubBlob()`.
 
@@ -231,7 +235,7 @@ Settings are typed config objects stored in NuxtHub KV.
   duplicate `gradeBoundaries` / `caMaxScores`. Pass a key to read one field:
   `getSchoolSettings("termPreset")`.
 - Write pattern deep-merges the partial over the current value (`mergeSettings(settings,
-  current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
+current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
   back to defaults if the stored value is corrupt.
 - `getResultScoreConfig()` snapshots only `{ caCount, caMaxScores, examMax }` onto a Result
   at creation time. Grading and position settings are read fresh at render time.
@@ -382,3 +386,7 @@ _Convention changes logged here:_
 - 2026-09-25 — Expanded tests across `shared/`, `server/`, and `app/components/`; added
   `vitest.config.ts` (alias mirror + `@vitejs/plugin-vue`) and the `@vue/test-utils` /
   `happy-dom` devDeps for component tests.
+- 2026-09-28 — Enabled NuxtHub Blob (`hub.blob: true`) for report card logo/signature
+  uploads. `@nuxthub/core` generates `@nuxthub/blob`, so no package was added. Added the
+  `settings:report-card-template` KV helper (`server/kv/report-card-template.ts`) and the
+  `ReportCardTemplate` type/schema/defaults in `shared/`.

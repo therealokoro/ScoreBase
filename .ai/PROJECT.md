@@ -227,11 +227,9 @@ Calculated on the fly and cached until dependencies change:
 
 ### 5.4 Report Card Template Builder
 
-> **Status: roadmap (post-MVP).** The template builder in this section is not implemented
-> yet. The current report card renderer is `app/components/ReportCard/Document.vue` with a
-> fixed layout. Implementing this section requires enabling NuxtHub Blob first — add the
-> `@nuxthub/blob` dependency and `hub.blob` in `nuxt.config.ts` — because logo and signature
-> images are uploaded there.
+> **Status: in progress.** NuxtHub Blob is enabled (`hub.blob: true`; `@nuxthub/core`
+> generates the `@nuxthub/blob` package, so there is no separate dependency). The template
+> config is being moved off the fixed-layout renderer into `TemplatePreview.vue`.
 
 The report card template is a first-class feature: admins can fully customise how printed
 report cards look, and the config is persisted in NuxtHub KV under the key
@@ -284,15 +282,15 @@ The template is a deeply nested config object with four sections:
 
 ## 6. System Configuration (Admin)
 
-| Setting              | Description                                                     |
-| -------------------- | --------------------------------------------------------------- |
-| Grading System       | Define grade boundaries and labels                              |
-| Score Distribution   | Set CA and Exam weights per term                                |
-| Student ID Pattern   | Configurable format (e.g. `STU/YYYY/###`)                       |
-| Position Display     | Set which positions to show on report cards                     |
-| Report Card Template | Full template builder for layout, logos, and content (see §5.4) — roadmap |
-| School Info          | Name, logo, motto, address                                      |
-| Subject Tags         | Manage available subject category tags                          |
+| Setting              | Description                                                                   |
+| -------------------- | ----------------------------------------------------------------------------- |
+| Grading System       | Define grade boundaries and labels                                            |
+| Score Distribution   | Set CA and Exam weights per term                                              |
+| Student ID Pattern   | Configurable format (e.g. `STU/YYYY/###`)                                     |
+| Position Display     | Set which positions to show on report cards                                   |
+| Report Card Template | Full template builder for layout, logos, and content (see §5.4) — in progress |
+| School Info          | Name, logo, motto, address                                                    |
+| Subject Tags         | Manage available subject category tags                                        |
 
 ---
 
@@ -305,7 +303,7 @@ The template is a deeply nested config object with four sections:
 - Teachers log in with auto-generated or self-updated credentials
 - Server-side gating: use the helpers in `server/utils/auth-guard.ts` instead of inline role
   checks — `requireAdmin(context)` for admin-only handlers, `requireClassAccess(context,
-  classId)` for class-scoped records, and `requireSelf(context, id)` for actions on the
+classId)` for class-scoped records, and `requireSelf(context, id)` for actions on the
   caller's own account. They throw `UNAUTHORIZED` when there is no session and `FORBIDDEN`
   when access is denied.
 - Page-level gating: `definePageMeta({ middleware: ["admin-only"] })`
@@ -314,25 +312,25 @@ The template is a deeply nested config object with four sections:
 
 ## 8. Tech Stack
 
-| Layer                | Technology                                                           |
-| -------------------- | -------------------------------------------------------------------- |
-| Frontend Framework   | Vue 3, Nuxt 4, TypeScript (SPA, `ssr: false`)                        |
-| Styling              | Tailwind CSS v4 (CSS-first config via `@theme`)                      |
-| UI Components        | Shadcn Vue (Reka UI) via UI Thing, `Ui` prefix                       |
-| Forms                | FormKit (with custom shadcn-styled inputs)                           |
-| Data Fetching        | TanStack Vue Query, set up manually via Nuxt plugin                  |
-| Tables               | TanStack Table v9                                                    |
-| Backend              | Nitro (via Nuxt 4 `/server` directory)                               |
-| ORM                  | Drizzle ORM (0.x)                                                    |
-| API Layer            | oRPC (v1)                                                            |
-| Database             | SQLite via NuxtHub v0.10 (libSQL/Turso)                              |
-| KV Storage           | NuxtHub KV (`import { kv } from '@nuxthub/kv'`)                      |
-| Blob Storage         | NuxtHub Blob (`import { blob } from '@nuxthub/blob'`) — roadmap, not installed |
-| Authentication       | Better Auth (email/password + username + admin plugin)               |
-| Icons                | `@nuxt/icon` with an `ICONS` map from `~~/shared/constants/icons.ts` |
-| Dev Seeding          | Faker.js                                                             |
-| Package Manager      | PNPM                                                                 |
-| Linting & Formatting | Oxlint, Oxfmt                                                        |
+| Layer                | Technology                                                                    |
+| -------------------- | ----------------------------------------------------------------------------- |
+| Frontend Framework   | Vue 3, Nuxt 4, TypeScript (SPA, `ssr: false`)                                 |
+| Styling              | Tailwind CSS v4 (CSS-first config via `@theme`)                               |
+| UI Components        | Shadcn Vue (Reka UI) via UI Thing, `Ui` prefix                                |
+| Forms                | FormKit (with custom shadcn-styled inputs)                                    |
+| Data Fetching        | TanStack Vue Query, set up manually via Nuxt plugin                           |
+| Tables               | TanStack Table v9                                                             |
+| Backend              | Nitro (via Nuxt 4 `/server` directory)                                        |
+| ORM                  | Drizzle ORM (0.x)                                                             |
+| API Layer            | oRPC (v1)                                                                     |
+| Database             | SQLite via NuxtHub v0.10 (libSQL/Turso)                                       |
+| KV Storage           | NuxtHub KV (`import { kv } from '@nuxthub/kv'`)                               |
+| Blob Storage         | NuxtHub Blob (`import { blob } from '@nuxthub/blob'`; enabled via `hub.blob`) |
+| Authentication       | Better Auth (email/password + username + admin plugin)                        |
+| Icons                | `@nuxt/icon` with an `ICONS` map from `~~/shared/constants/icons.ts`          |
+| Dev Seeding          | Faker.js                                                                      |
+| Package Manager      | PNPM                                                                          |
+| Linting & Formatting | Oxlint, Oxfmt                                                                 |
 
 ### 8.1 Notes on Key Choices
 
@@ -344,7 +342,7 @@ The template is a deeply nested config object with four sections:
   `FlexRender` with `:header`/`:cell`/`:footer` props.
 - **oRPC is intentionally pinned to v1.** v2 is still in beta with a changed wire format;
   migration is deferred until a stable release.
-- **NuxtHub** uses v0.10 and above, so no use of composables such as `hubBlob()`, `hubKv()` e.t.c, all imports come from `@nuxthub/**`, e.g (`import { kv } from "@nuxthub/kv"`), not accessed via a composable. Blob storage (`import { blob } from "@nuxthub/blob"`) is roadmap and not installed yet — enable `hub.blob` before using it.
+- **NuxtHub** uses v0.10 and above, so no use of composables such as `hubBlob()`, `hubKv()` e.t.c, all imports come from `@nuxthub/**`, e.g (`import { kv } from "@nuxthub/kv"`), not accessed via a composable. Blob storage is enabled (`hub.blob: true`); `@nuxthub/core` generates `@nuxthub/blob`, so import it as `import { blob } from "@nuxthub/blob"` (or the `hub:blob` alias).
 - **Tailwind v4** uses the Vite plugin (`@tailwindcss/vite`) and a CSS-based configuration.
   There is no `tailwind.config.js`.
 
@@ -612,9 +610,9 @@ Reference these inputs in templates as follows:
 9. Auto-generated teacher credentials follow deterministic rules based on **name and phone number**.
 10. Derived metrics are **never stored** — always computed from raw scores and cached.
 11. Report card templates are stored per-installation in KV and are admin-configurable at any
-    time; changes take effect on the next render. _(roadmap — see §5.4)_
-12. Logos and signature images are stored in Blob, not KV. _(roadmap — requires NuxtHub Blob
-    to be enabled first; see §5.4)_
+    time; changes take effect on the next render. _(in progress — see §5.4)_
+12. Logos and signature images are stored in Blob, not KV (_only the returned pathname is
+    kept in KV_; see §5.4).
 
 ---
 

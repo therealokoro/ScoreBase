@@ -38,6 +38,7 @@ export default defineNuxtConfig({
 
   hub: {
     kv: true,
+    blob: true,
     db: { dialect: "sqlite", casing: "snake_case" }
   },
 
