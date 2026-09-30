@@ -275,12 +275,18 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
 #### Renderer
 
 - A single `TemplatePreview.vue` component renders the template against either placeholder
-  data (in the builder) or real student data (in the viewer).
+  data (in the builder) or real student data (in the viewer). Since the Phase 7–8 refactor it
+  mounts blocks through the registry in `ReportCard/blocks/` in fixed slot order
+  (`REPORT_CARD_SLOTS`), skipping `hidden` blocks; block data is normalised by
+  `blocks/placeholder.ts` and `StyledText` values render via `blocks/text.ts`.
 - The viewer page at
   `/dashboard/results/[resultId]/report-card/[scoresheetId].vue` uses this component and
   exposes a print button that calls `window.print()`.
 - Print styles use `@page { size: A4 }` with all dashboard chrome hidden via `print:hidden`,
   and the report card wrapper tagged with `report-card-print-root`.
+- Manual-entry content (custom-table manual rows, remark comments via `manualValues`) lands
+  with Phase 12; remark comments currently fall back to the scoresheet's stored
+  `teacherRemark` / `principalRemark`.
 
 ---
 

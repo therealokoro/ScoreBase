@@ -31,6 +31,7 @@ const scale = computed(() => Math.min(1, (containerWidth.value || A4_WIDTH_PX) /
               v-if="!block.hidden"
               :config="block.config"
               :data="data ?? null"
+              :block-id="block.id"
             />
           </template>
         </template>

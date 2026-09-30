@@ -402,3 +402,9 @@ _Convention changes logged here:_
   `"watermark"`. During the refactor, the stale builder sections/preview compile against a
   documented per-component `legacy` cast instead of `@ts-expect-error` (vue-tsc 3.3 does not
   honour that directive inside template expressions — verified by probe).
+- 2026-09-30 — Block registry + real renderers (Phases 7–8): blocks are defined in
+  `app/components/ReportCard/blocks/registry.ts` (`getBlockDefinition` throws on unknown
+  types); the renderer mounts them per slot and skips `hidden` blocks. Block data is
+  normalised through `blocks/placeholder.ts` (`resolveView(data)` returns placeholder data
+  when none), and `StyledText` renders via `blocks/text.ts` (`textStyle`). `GradingKeyBlock`
+  reads grade boundaries live from `useGetResultSettings()` inside the component.
