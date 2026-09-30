@@ -53,6 +53,7 @@ const primaryAction = computed(() => {
   const status = result.value?.status
   if (!status) return null
 
+  // TODO: If logged in user is an admin, skip submit, and review actions to publish
   if (status === "draft") {
     return { label: "Submit for Review", nextStatus: "submitted", icon: ICONS.send }
   }

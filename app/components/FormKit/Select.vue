@@ -31,9 +31,18 @@ const isInvalid = computed(
         <UiSelectValue :placeholder="context.placeholder" />
       </UiSelectTrigger>
       <UiSelectContent>
-        <UiSelectItem v-for="option in options" :key="option.value" v-bind="option">
+        <UiSelectItem
+          v-if="options.length"
+          v-for="option in options"
+          :key="option.value"
+          v-bind="option"
+        >
           {{ option.label }}
         </UiSelectItem>
+
+        <div v-else class="flex-center p-3">
+          <p class="text-muted-foreground text-xs">No options to select from</p>
+        </div>
       </UiSelectContent>
     </template>
   </UiSelect>

@@ -91,6 +91,7 @@ function initUnsetPreset() {
             Cancel
           </UiButton>
           <UiButton
+            v-if="activeClass.subjectList"
             variant="destructive"
             type="button"
             class="mt-2 sm:mt-0"
