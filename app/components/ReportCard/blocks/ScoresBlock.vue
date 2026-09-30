@@ -111,7 +111,11 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
                 v-for="column in columns"
                 :key="column.key"
                 class="whitespace-nowrap"
-                :class="column.key === 'subject' ? 'min-w-35' : 'text-center min-w-15'"
+                :class="
+                  column.key === 'subject'
+                    ? 'border-border sticky left-0 z-10 min-w-35 border-r bg-card'
+                    : 'text-center min-w-15'
+                "
               >
                 {{ column.label }}
               </UiTableHead>
@@ -124,7 +128,9 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
                 v-for="column in columns"
                 :key="column.key"
                 :class="[
-                  column.key === 'subject' ? 'font-medium' : 'text-center',
+                  column.key === 'subject'
+                    ? 'border-border sticky left-0 z-10 border-r bg-card font-medium'
+                    : 'text-center',
                   isBlank(row, column.key) ? 'text-muted-foreground' : ''
                 ]"
               >

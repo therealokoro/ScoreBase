@@ -163,7 +163,7 @@ const openScoreConfigSheet = ref(false)
             v-if="result?.status === 'published' || result?.status === 'reviewed'"
             :icon="ICONS.result"
             :to="`/dashboard/results/${resultId}/report-card`"
-            text="Open Report Card"
+            text="View Report Cards"
           />
         </template>
       </ResultScoresheetTable>

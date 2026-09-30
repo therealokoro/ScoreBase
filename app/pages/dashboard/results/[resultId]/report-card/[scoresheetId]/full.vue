@@ -68,7 +68,7 @@ function initPrintAction() {
           v-if="isAdmin"
           variant="outline"
           :icon="ICONS.settings"
-          to="/dashboard/report-card/builder"
+          to="/dashboard/report-cards/builder"
         >
           Customize template
         </UiButton>
@@ -84,7 +84,7 @@ function initPrintAction() {
           v-else-if="card"
           :template="template"
           :data="card"
-          :max-scale="null"
+          :max-scale="1.25"
         />
       </div>
     </div>

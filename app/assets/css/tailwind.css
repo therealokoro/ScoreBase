@@ -223,5 +223,7 @@
   .report-card-print-root {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    /* Reset the on-screen preview zoom so print output is at natural A4 size */
+    zoom: 1 !important;
   }
 }

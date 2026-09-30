@@ -408,10 +408,12 @@ _Convention changes logged here:_
   normalised through `blocks/placeholder.ts` (`resolveView(data)` returns placeholder data
   when none), and `StyledText` renders via `blocks/text.ts` (`textStyle`). `GradingKeyBlock`
   reads grade boundaries live from `useGetResultSettings()` inside the component.
-- 2026-09-30 — Report card routing restructured (Phase 9, amended after review): the builder
-  lives at `/dashboard/report-card/builder`, a child of the admin-only Report Card hub at
-  `/dashboard/report-card` (sidebar + `ADMIN_ONLY_PAGES` cover the whole prefix). The report
-  card's minimal view merges the student info and result summary into one full-width bordered
-  grid (no separate footer) and shows dynamic CA breakdown columns alongside CA Total; the
-  full view widens the document (`TemplatePreview maxScale` prop, `null` = fill the container)
-  and carries a markup-only post-MVP "Export As" dropdown (Excel/PDF).
+- 2026-09-30 — Report card routing restructured (Phase 9, amended after review): the hub is
+  `/dashboard/report-cards` (plural, admin sidebar + `ADMIN_ONLY_PAGES` prefix) with the
+  builder as its child at `/dashboard/report-cards/builder`. The minimal view merges student
+  info + result summary into one full-width bordered grid (no separate footer) and shows
+  dynamic CA breakdown columns; both scores tables pin the Subject column with
+  `sticky left-0` + background. The full view widens via `TemplatePreview`'s `maxScale` prop
+  (default cap 1; full view 1.25) — on-screen zoom uses layout-aware CSS `zoom` (never clips;
+  `tailwind.css` resets it to 1 in print), and the page carries a markup-only post-MVP
+  "Export As" dropdown (Excel/PDF).

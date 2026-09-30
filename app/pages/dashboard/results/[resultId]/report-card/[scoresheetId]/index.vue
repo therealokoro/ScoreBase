@@ -87,7 +87,11 @@ const examMax = computed(() => card.value?.scoreConfig.examMax ?? null)
           <UiTable class="w-full table-auto" aria-label="Subject scores">
             <UiTableHeader>
               <UiTableRow>
-                <UiTableHead class="min-w-35">Subject</UiTableHead>
+                <UiTableHead
+                  class="border-border sticky left-0 z-10 min-w-35 border-r bg-background"
+                >
+                  Subject
+                </UiTableHead>
                 <UiTableHead
                   v-for="column in caColumns"
                   :key="column.slot"
@@ -106,7 +110,11 @@ const examMax = computed(() => card.value?.scoreConfig.examMax ?? null)
 
             <UiTableBody>
               <UiTableRow v-for="row in card.computed.subjectRows" :key="row.id">
-                <UiTableCell class="font-medium">{{ row.subjectName }}</UiTableCell>
+                <UiTableCell
+                  class="border-border sticky left-0 z-10 border-r bg-background font-medium"
+                >
+                  {{ row.subjectName }}
+                </UiTableCell>
                 <UiTableCell v-for="column in caColumns" :key="column.slot" class="text-center">
                   <span v-if="row.caScores[column.slot - 1] != null">
                     {{ row.caScores[column.slot - 1] }}
