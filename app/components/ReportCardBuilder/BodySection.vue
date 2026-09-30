@@ -39,7 +39,35 @@ type LegacyTemplate = {
   }
 }
 
-const legacy = computed(() => model.value as unknown as LegacyTemplate)
+// Phase 6→10 bridge: the template is now the slot + block shape, so this legacy fixed-shape
+// view is a frozen empty skeleton. The controls below are inert until Phase 10 replaces them
+// with the block editor; the live preview is handled by TemplatePreview.vue.
+const EMPTY_LEGACY_TEMPLATE: LegacyTemplate = {
+  header: {
+    logoPlacement: "left",
+    logoPrimary: null,
+    logoSecondary: null,
+    showWatermark: false,
+    watermarkOpacity: 0.08,
+    heading: "",
+    subheading: "",
+    paragraphs: [],
+    info: { student: true, class: true, session: true, term: true, order: [] }
+  },
+  body: {
+    columns: {
+      subject: true,
+      caBreakdown: false,
+      caTotal: true,
+      exam: true,
+      total: true,
+      grade: true,
+      remark: true
+    }
+  }
+}
+
+const legacy = computed(() => structuredClone(EMPTY_LEGACY_TEMPLATE))
 
 type ColumnKey = keyof LegacyTemplate["body"]["columns"]
 type ToggleKey = Exclude<ColumnKey, "subject">

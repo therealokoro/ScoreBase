@@ -27,7 +27,23 @@ type LegacyTemplate = {
   }
 }
 
-const legacy = computed(() => model.value as unknown as LegacyTemplate)
+// Phase 6→10 bridge: the template is now the slot + block shape, so this legacy fixed-shape
+// view is a frozen empty skeleton. The controls below are inert until Phase 10 replaces them
+// with the block editor; the live preview is handled by TemplatePreview.vue.
+const EMPTY_LEGACY_TEMPLATE: LegacyTemplate = {
+  summary: { placement: "footer", total: true, average: true, position: true, outOf: true },
+  footer: {
+    remarks: {
+      show: true,
+      teacher: { show: true, label: "Class Teacher", signature: true, signatureImage: null },
+      principal: { show: true, label: "Principal", signature: true, signatureImage: null }
+    },
+    classSummary: { show: false, highest: true, lowest: true, average: true },
+    customBlocks: []
+  }
+}
+
+const legacy = computed(() => structuredClone(EMPTY_LEGACY_TEMPLATE))
 
 const summaryFields: {
   key: "total" | "average" | "position" | "outOf"

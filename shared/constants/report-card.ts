@@ -43,14 +43,20 @@ export const DEFAULT_TEXT_STYLE: TextStyle = {
 
 export type Slot = "header" | "studentInfo" | "main" | "sidebar" | "footer"
 
-export type BlockType =
-  | "school-info"
-  | "student-info"
-  | "scores"
-  | "custom-table"
-  | "grading-key"
-  | "summary"
-  | "remarks"
+/** The five slots in their fixed render order on the A4 canvas. */
+export const REPORT_CARD_SLOTS = ["header", "studentInfo", "main", "sidebar", "footer"] as const
+
+export const REPORT_CARD_BLOCK_TYPES = [
+  "school-info",
+  "student-info",
+  "scores",
+  "custom-table",
+  "grading-key",
+  "summary",
+  "remarks"
+] as const
+
+export type BlockType = (typeof REPORT_CARD_BLOCK_TYPES)[number]
 
 export interface ReportCardBlockBase {
   id: string // typeid("block")
@@ -284,6 +290,89 @@ export type ReportCardAssetKey =
   | "watermark"
 
 // ---------------------------------------------------------------------------
+// Default block configs
+//
+// One factory per block type so the default template and the builder's block palette
+// (Phase 10) share a single source of truth. Styles are always spread so callers never
+// mutate the shared DEFAULT_TEXT_STYLE object.
+// ---------------------------------------------------------------------------
+
+export function createDefaultSchoolInfoConfig(): SchoolInfoConfig {
+  return {
+    logoPlacement: "left",
+    logoPrimary: null,
+    logoSecondary: null,
+    schoolName: {
+      value: "",
+      style: { ...DEFAULT_TEXT_STYLE, fontSize: 18, fontWeight: "bold", align: "center" }
+    },
+    address: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, align: "center" } },
+    motto: {
+      value: "",
+      style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, fontWeight: "bold", align: "center" }
+    },
+    extraText: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, align: "center" } }
+  }
+}
+
+export function createDefaultStudentInfoConfig(): StudentInfoConfig {
+  return {
+    columns: 3,
+    borderStyle: "outlined",
+    fields: [
+      { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
+      { id: typeid("field").toString(), field: "student.id", label: "Student ID" },
+      { id: typeid("field").toString(), field: "student.class", label: "Class" },
+      { id: typeid("field").toString(), field: "session.name", label: "Session" },
+      { id: typeid("field").toString(), field: "term.name", label: "Term" }
+    ]
+  }
+}
+
+export function createDefaultScoresConfig(): ScoresConfig {
+  return { caMode: "summed", columns: ["subject", "caTotal", "exam", "total", "grade", "remark"] }
+}
+
+export function createDefaultCustomTableConfig(): CustomTableConfig {
+  return {
+    variant: "static",
+    title: { value: "Custom Table", style: { ...DEFAULT_TEXT_STYLE } },
+    rows: [{ id: typeid("row").toString(), label: "Label", value: "" }]
+  }
+}
+
+export function createDefaultGradingKeyConfig(): GradingKeyConfig {
+  return { title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE } } }
+}
+
+export function createDefaultSummaryConfig(): SummaryConfig {
+  return { metrics: ["marksObtained", "average", "position", "positionOutOf"], style: "inline" }
+}
+
+export function createDefaultRemarksConfig(): RemarksConfig {
+  return {
+    teacher: {
+      visible: true,
+      label: { value: "Class Teacher's Remark", style: { ...DEFAULT_TEXT_STYLE } },
+      showComment: true,
+      showSignature: true,
+      signatureMode: "blank",
+      signatureImage: null,
+      signatureLabel: { value: "Class Teacher", style: { ...DEFAULT_TEXT_STYLE } }
+    },
+    principal: {
+      visible: true,
+      label: { value: "Principal's Remark", style: { ...DEFAULT_TEXT_STYLE } },
+      showComment: true,
+      showSignature: true,
+      signatureMode: "blank",
+      signatureImage: null,
+      signatureLabel: { value: "Principal", style: { ...DEFAULT_TEXT_STYLE } }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Default template
 // ---------------------------------------------------------------------------
 
@@ -304,21 +393,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "school-info",
         hidden: false,
-        config: {
-          logoPlacement: "left",
-          logoPrimary: null,
-          logoSecondary: null,
-          schoolName: {
-            value: "",
-            style: { ...DEFAULT_TEXT_STYLE, fontSize: 18, fontWeight: "bold", align: "center" }
-          },
-          address: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, align: "center" } },
-          motto: {
-            value: "",
-            style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, fontWeight: "bold", align: "center" }
-          },
-          extraText: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, align: "center" } }
-        } satisfies SchoolInfoConfig
+        config: createDefaultSchoolInfoConfig()
       }
     ],
     studentInfo: [
@@ -326,17 +401,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "student-info",
         hidden: false,
-        config: {
-          columns: 3,
-          borderStyle: "outlined",
-          fields: [
-            { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
-            { id: typeid("field").toString(), field: "student.id", label: "Student ID" },
-            { id: typeid("field").toString(), field: "student.class", label: "Class" },
-            { id: typeid("field").toString(), field: "session.name", label: "Session" },
-            { id: typeid("field").toString(), field: "term.name", label: "Term" }
-          ]
-        } satisfies StudentInfoConfig
+        config: createDefaultStudentInfoConfig()
       }
     ],
     main: [
@@ -344,10 +409,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "scores",
         hidden: false,
-        config: {
-          caMode: "summed",
-          columns: ["subject", "caTotal", "exam", "total", "grade", "remark"]
-        } satisfies ScoresConfig
+        config: createDefaultScoresConfig()
       }
     ],
     sidebar: [],
@@ -356,35 +418,13 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "summary",
         hidden: false,
-        config: {
-          metrics: ["marksObtained", "average", "position", "positionOutOf"],
-          style: "inline"
-        } satisfies SummaryConfig
+        config: createDefaultSummaryConfig()
       },
       {
         id: typeid("block").toString(),
         type: "remarks",
         hidden: false,
-        config: {
-          teacher: {
-            visible: true,
-            label: { value: "Class Teacher's Remark", style: DEFAULT_TEXT_STYLE },
-            showComment: true,
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: { value: "Class Teacher", style: DEFAULT_TEXT_STYLE }
-          },
-          principal: {
-            visible: true,
-            label: { value: "Principal's Remark", style: DEFAULT_TEXT_STYLE },
-            showComment: true,
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: { value: "Principal", style: DEFAULT_TEXT_STYLE }
-          }
-        } satisfies RemarksConfig
+        config: createDefaultRemarksConfig()
       }
     ]
   }
