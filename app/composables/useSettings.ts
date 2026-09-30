@@ -1,8 +1,5 @@
-import {
-  DEFAULT_REPORT_CARD_TEMPLATE,
-  DEFAULT_SCHOOL_SETTINGS,
-  DEFAULT_RESULT_SETTINGS
-} from "#shared/constants/kv-settings"
+import { DEFAULT_SCHOOL_SETTINGS, DEFAULT_RESULT_SETTINGS } from "#shared/constants/kv-settings"
+import { createDefaultReportCardTemplate } from "#shared/constants/report-card"
 
 export const useGetSchoolSettings = () => {
   const { $orpc } = useNuxtApp()
@@ -51,7 +48,8 @@ export const useGetReportCardTemplate = () => {
     ...$orpc.settings.reportCardTemplate.getTemplate.queryOptions(),
     // A function (not the value) stops TanStack treating the placeholder as a cached result;
     // the builder preview renders immediately from defaults while the real template loads.
-    placeholderData: () => DEFAULT_REPORT_CARD_TEMPLATE
+    // Fresh IDs on every call — the template is a slot + block shape (Phase 6).
+    placeholderData: () => createDefaultReportCardTemplate()
   })
 }
 

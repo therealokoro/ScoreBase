@@ -1,23 +1,36 @@
 <script lang="ts" setup>
-import type { ReportCardTemplate } from "~~/shared/constants/kv-settings"
+import type { ReportCardTemplate } from "~~/shared/constants/report-card"
 
 const props = defineProps<{
-  summary: ReportCardTemplate["summary"]
+  summary: ReportCardTemplate["main"]
   total: number | null
   average: number | null
   position: string
   totalStudents: number
 }>()
 
+// Phase 6: the template became a slot + block shape; this legacy summary prop is kept ONLY
+// until Phase 7 deletes this component (its role moves to SummaryBlock.vue). Every reference
+// to `legacy` below is a known-stale code path.
+type LegacySummary = {
+  placement: "header" | "footer"
+  total: boolean
+  average: boolean
+  position: boolean
+  outOf: boolean
+}
+
+const legacy = computed(() => props.summary as unknown as LegacySummary)
+
 const stats = computed(() =>
   [
-    props.summary.total && { label: "Total Score", value: props.total ?? "—" },
-    props.summary.average && {
+    legacy.value.total && { label: "Total Score", value: props.total ?? "—" },
+    legacy.value.average && {
       label: "Average",
       value: props.average !== null ? `${props.average}%` : "—"
     },
-    props.summary.position && { label: "Position", value: props.position || "—" },
-    props.summary.outOf && { label: "Out of", value: `${props.totalStudents} students` }
+    legacy.value.position && { label: "Position", value: props.position || "—" },
+    legacy.value.outOf && { label: "Out of", value: `${props.totalStudents} students` }
   ].filter((stat): stat is { label: string; value: string | number } => Boolean(stat))
 )
 </script>

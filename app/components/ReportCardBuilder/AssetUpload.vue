@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
-import type { ReportCardAssetKey } from "~~/shared/constants/kv-settings"
+import type { ReportCardAssetKey } from "~~/shared/constants/report-card"
 
 const props = defineProps<{
   assetKey: ReportCardAssetKey
@@ -35,7 +35,16 @@ async function onFileChange(event: Event) {
 
   isUploading.value = true
   try {
-    const { url } = await upload.mutateAsync({ assetKey: props.assetKey, file })
+    // Phase 6 widened ReportCardAssetKey with a "watermark" key; the contract enum gains that
+    // value in Phase 10 (watermark uploads), so this stays a no-op cast until then.
+    const { url } = await upload.mutateAsync({
+      assetKey: props.assetKey as
+        | "logo-primary"
+        | "logo-secondary"
+        | "sig-teacher"
+        | "sig-principal",
+      file
+    })
     model.value = url
   } catch (error) {
     useSonner.error((error as Error).message || "Upload failed. Please try again.")

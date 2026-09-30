@@ -6,9 +6,47 @@ import type {
   LogoPlacement,
   ReportCardTemplate,
   TextAlign
-} from "~~/shared/constants/kv-settings"
+} from "~~/shared/constants/report-card"
 
 const model = defineModel<ReportCardTemplate>("template", { required: true })
+
+// Phase 6: the template became a slot + block shape; this legacy fixed-shape view is kept
+// ONLY so the old section UI keeps compiling until Phase 10 replaces it. Every reference to
+// `legacy` below is a known-stale code path.
+type LegacyParagraph = {
+  id: string
+  text: string
+  fontSize: number
+  color: string
+  bold: boolean
+  align: TextAlign
+}
+
+type LegacyInfo = {
+  student: boolean
+  class: boolean
+  session: boolean
+  term: boolean
+  order: InfoField[]
+} & {
+  [key in InfoField]: boolean
+}
+
+type LegacyTemplate = {
+  header: {
+    logoPlacement: LogoPlacement
+    logoPrimary: string | null
+    logoSecondary: string | null
+    showWatermark: boolean
+    watermarkOpacity: number
+    heading: string
+    subheading: string
+    paragraphs: LegacyParagraph[]
+    info: LegacyInfo
+  }
+}
+
+const legacy = computed(() => model.value as unknown as LegacyTemplate)
 
 const placements: { value: LogoPlacement; label: string }[] = [
   { value: "left", label: "Left" },
@@ -31,25 +69,27 @@ const infoLabels: Record<InfoField, string> = {
 }
 
 const showSecondaryLogo = computed(() =>
-  ["center", "left-right"].includes(model.value.header.logoPlacement)
+  ["center", "left-right"].includes(legacy.value.header.logoPlacement)
 )
 
 const sameLogo = ref(false)
-watch([sameLogo, () => model.value.header.logoPrimary], () => {
-  if (sameLogo.value) model.value.header.logoSecondary = model.value.header.logoPrimary
+watch([sameLogo, () => legacy.value.header.logoPrimary], () => {
+  if (sameLogo.value) {
+    legacy.value.header.logoSecondary = legacy.value.header.logoPrimary
+  }
 })
 
 const watermarkPercent = computed({
-  get: () => Math.round(model.value.header.watermarkOpacity * 100),
+  get: () => Math.round(legacy.value.header.watermarkOpacity * 100),
   set: (value: number) => {
-    model.value.header.watermarkOpacity = value / 100
+    legacy.value.header.watermarkOpacity = value / 100
   }
 })
 
 const openColorId = ref<string | null>(null)
 
 function addParagraph() {
-  model.value.header.paragraphs.push({
+  legacy.value.header.paragraphs.push({
     id: typeid("para").toString(),
     text: "",
     fontSize: 14,
@@ -60,19 +100,19 @@ function addParagraph() {
 }
 
 function removeParagraph(index: number) {
-  model.value.header.paragraphs.splice(index, 1)
+  legacy.value.header.paragraphs.splice(index, 1)
 }
 
 function moveParagraph(index: number, direction: -1 | 1) {
   const target = index + direction
-  const list = model.value.header.paragraphs
+  const list = legacy.value.header.paragraphs
   if (target < 0 || target >= list.length) return
   const [item] = list.splice(index, 1)
   if (item) list.splice(target, 0, item)
 }
 
 function moveInfo(index: number, direction: -1 | 1) {
-  const order = model.value.header.info.order
+  const order = legacy.value.header.info.order
   const target = index + direction
   if (target < 0 || target >= order.length) return
   const [item] = order.splice(index, 1)
@@ -98,11 +138,11 @@ function moveInfo(index: number, direction: -1 | 1) {
           type="button"
           class="focus-visible:ring-ring flex flex-col gap-2 rounded-lg border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
           :class="
-            model.header.logoPlacement === placement.value
+            legacy.header.logoPlacement === placement.value
               ? 'border-primary ring-primary/40 ring-1'
               : 'border-border hover:bg-muted'
           "
-          @click="model.header.logoPlacement = placement.value"
+          @click="legacy.header.logoPlacement = placement.value"
         >
           <!-- Tiny diagram -->
           <span class="flex h-10 items-center" aria-hidden="true">
@@ -165,7 +205,7 @@ function moveInfo(index: number, direction: -1 | 1) {
 
       <div class="space-y-3">
         <ReportCardBuilderAssetUpload
-          v-model="model.header.logoPrimary"
+          v-model="legacy.header.logoPrimary"
           asset-key="logo-primary"
           label="Primary logo"
         />
@@ -178,7 +218,7 @@ function moveInfo(index: number, direction: -1 | 1) {
 
           <ReportCardBuilderAssetUpload
             v-if="!sameLogo"
-            v-model="model.header.logoSecondary"
+            v-model="legacy.header.logoSecondary"
             asset-key="logo-secondary"
             label="Secondary logo"
           />
@@ -186,13 +226,13 @@ function moveInfo(index: number, direction: -1 | 1) {
       </div>
 
       <!-- Watermark -->
-      <div v-if="model.header.logoPrimary" class="space-y-4 rounded-lg border border-border p-3">
+      <div v-if="legacy.header.logoPrimary" class="space-y-4 rounded-lg border border-border p-3">
         <label class="flex items-center justify-between gap-3">
           <span class="text-sm font-medium">Watermark</span>
-          <UiSwitch v-model="model.header.showWatermark" aria-label="Show logo watermark" />
+          <UiSwitch v-model="legacy.header.showWatermark" aria-label="Show logo watermark" />
         </label>
 
-        <div v-if="model.header.showWatermark" class="flex items-center gap-3">
+        <div v-if="legacy.header.showWatermark" class="flex items-center gap-3">
           <span class="w-20 text-xs text-muted-foreground">Opacity</span>
           <UiSlider
             :model-value="[watermarkPercent]"
@@ -219,7 +259,7 @@ function moveInfo(index: number, direction: -1 | 1) {
         <UiLabel for="rc-heading">Main heading</UiLabel>
         <UiInput
           id="rc-heading"
-          v-model="model.header.heading"
+          v-model="legacy.header.heading"
           placeholder="e.g. Springfield Secondary School"
         />
       </div>
@@ -228,7 +268,7 @@ function moveInfo(index: number, direction: -1 | 1) {
         <UiLabel for="rc-subheading">Sub-heading</UiLabel>
         <UiInput
           id="rc-subheading"
-          v-model="model.header.subheading"
+          v-model="legacy.header.subheading"
           placeholder="e.g. Terminal Report Sheet"
         />
       </div>
@@ -244,7 +284,7 @@ function moveInfo(index: number, direction: -1 | 1) {
       </div>
 
       <UiEmpty
-        v-if="model.header.paragraphs.length === 0"
+        v-if="legacy.header.paragraphs.length === 0"
         :icon="ICONS.document"
         title="No paragraphs yet"
         description="Add a paragraph for extra header text such as a motto or address."
@@ -254,7 +294,7 @@ function moveInfo(index: number, direction: -1 | 1) {
 
       <div v-else class="space-y-3">
         <div
-          v-for="(paragraph, index) in model.header.paragraphs"
+          v-for="(paragraph, index) in legacy.header.paragraphs"
           :key="paragraph.id"
           class="space-y-3 rounded-lg border border-border p-3"
         >
@@ -281,7 +321,7 @@ function moveInfo(index: number, direction: -1 | 1) {
                 size="icon-sm"
                 :icon="ICONS.down"
                 :label="`Move paragraph ${index + 1} down`"
-                :disabled="index === model.header.paragraphs.length - 1"
+                :disabled="index === legacy.header.paragraphs.length - 1"
                 @click="moveParagraph(index, 1)"
               />
               <UiButton
@@ -371,13 +411,13 @@ function moveInfo(index: number, direction: -1 | 1) {
 
       <div class="space-y-2">
         <div
-          v-for="(field, index) in model.header.info.order"
+          v-for="(field, index) in legacy.header.info.order"
           :key="field"
           class="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
         >
           <label class="flex items-center gap-3">
             <UiSwitch
-              v-model="model.header.info[field]"
+              v-model="legacy.header.info[field]"
               :aria-label="`Show ${infoLabels[field]}`"
             />
             <span class="text-sm">{{ infoLabels[field] }}</span>
@@ -399,7 +439,7 @@ function moveInfo(index: number, direction: -1 | 1) {
               size="icon-sm"
               :icon="ICONS.down"
               :label="`Move ${infoLabels[field]} down`"
-              :disabled="index === model.header.info.order.length - 1"
+              :disabled="index === legacy.header.info.order.length - 1"
               @click="moveInfo(index, 1)"
             />
           </div>

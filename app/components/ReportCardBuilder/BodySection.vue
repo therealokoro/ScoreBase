@@ -1,10 +1,47 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
-import type { ReportCardTemplate } from "~~/shared/constants/kv-settings"
+import type { ReportCardTemplate } from "~~/shared/constants/report-card"
 
 const model = defineModel<ReportCardTemplate>("template", { required: true })
 
-type ColumnKey = keyof ReportCardTemplate["body"]["columns"]
+// Phase 6: the template became a slot + block shape; this legacy fixed-shape view is kept
+// ONLY so the old section UI keeps compiling until Phase 10 replaces it. Every reference to
+// `legacy` below is a known-stale code path.
+type LegacyTemplate = {
+  header: {
+    logoPlacement: "left" | "center" | "right" | "left-right"
+    logoPrimary: string | null
+    logoSecondary: string | null
+    showWatermark: boolean
+    watermarkOpacity: number
+    heading: string
+    subheading: string
+    paragraphs: {
+      id: string
+      text: string
+      fontSize: number
+      color: string
+      bold: boolean
+      align: "left" | "center" | "right"
+    }[]
+    info: { student: boolean; class: boolean; session: boolean; term: boolean; order: string[] }
+  }
+  body: {
+    columns: {
+      subject: true
+      caBreakdown: boolean
+      caTotal: boolean
+      exam: boolean
+      total: boolean
+      grade: boolean
+      remark: boolean
+    }
+  }
+}
+
+const legacy = computed(() => model.value as unknown as LegacyTemplate)
+
+type ColumnKey = keyof LegacyTemplate["body"]["columns"]
 type ToggleKey = Exclude<ColumnKey, "subject">
 
 const toggles: { key: ToggleKey; label: string; description: string }[] = [
@@ -21,7 +58,7 @@ const toggles: { key: ToggleKey; label: string; description: string }[] = [
 ]
 
 function setColumn(key: ToggleKey, value: boolean) {
-  model.value.body.columns[key] = value
+  legacy.value.body.columns[key] = value
 }
 </script>
 
@@ -63,7 +100,7 @@ function setColumn(key: ToggleKey, value: boolean) {
         </div>
 
         <UiSwitch
-          :model-value="model.body.columns[row.key]"
+          :model-value="legacy.body.columns[row.key]"
           :aria-label="`Show ${row.label}`"
           @update:model-value="(value) => setColumn(row.key, value)"
         />

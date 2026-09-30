@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DEFAULT_REPORT_CARD_TEMPLATE } from "~~/shared/constants/kv-settings"
+import { createDefaultReportCardTemplate } from "~~/shared/constants/report-card"
 
 import { ICONS } from "#shared/constants/icons"
 
@@ -13,7 +13,7 @@ const { data, isPending, error } = useGetReportCard(scoresheetId)
 const card = computed(() => data.value)
 
 const { data: templateData } = useGetReportCardTemplate()
-const template = computed(() => templateData.value ?? DEFAULT_REPORT_CARD_TEMPLATE)
+const template = computed(() => templateData.value ?? createDefaultReportCardTemplate())
 
 setPageBreadcrumbLabels({
   [route.params.resultId as string]: computed(() => data.value?.resultName),

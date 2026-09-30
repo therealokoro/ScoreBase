@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
-import type { ReportCardTemplate } from "~~/shared/constants/kv-settings"
+import type { ReportCardTemplate } from "~~/shared/constants/report-card"
 import type { ComputedSubjectRow } from "~~/shared/utils/report-card"
 import type { ScoreConfigSnapshot } from "~~/shared/validators/results"
 
@@ -8,6 +8,59 @@ const props = defineProps<{
   template: ReportCardTemplate
   data?: ReportCardData | null
 }>()
+
+// Phase 6: the template became a slot + block shape; this legacy fixed-shape view is kept
+// ONLY so the old renderer keeps compiling until Phase 7 replaces it with the block
+// registry. Every reference to `legacy` below is a known-stale code path.
+type LegacyTemplate = {
+  header: {
+    logoPlacement: "left" | "center" | "right" | "left-right"
+    logoPrimary: string | null
+    logoSecondary: string | null
+    showWatermark: boolean
+    watermarkOpacity: number
+    heading: string
+    subheading: string
+    paragraphs: {
+      id: string
+      text: string
+      fontSize: number
+      color: string
+      bold: boolean
+      align: "left" | "center" | "right"
+    }[]
+    info: { student: boolean; class: boolean; session: boolean; term: boolean; order: string[] }
+  }
+  body: {
+    columns: {
+      subject: true
+      caBreakdown: boolean
+      caTotal: boolean
+      exam: boolean
+      total: boolean
+      grade: boolean
+      remark: boolean
+    }
+  }
+  summary: {
+    placement: "header" | "footer"
+    total: boolean
+    average: boolean
+    position: boolean
+    outOf: boolean
+  }
+  footer: {
+    remarks: {
+      show: boolean
+      teacher: { show: boolean; label: string; signature: boolean; signatureImage: string | null }
+      principal: { show: boolean; label: string; signature: boolean; signatureImage: string | null }
+    }
+    classSummary: { show: boolean; highest: boolean; lowest: boolean; average: boolean }
+    customBlocks: { id: string; label: string; content: string }[]
+  }
+}
+
+const legacy = computed(() => props.template as unknown as LegacyTemplate)
 
 /**
  * Normalised view of the report card. Real data (from the viewer) and the placeholder data (from
@@ -109,13 +162,19 @@ function assetUrl(pathname: string | null): string | null {
   return pathname ? `/images/${pathname}` : null
 }
 
-const logoPrimaryUrl = computed(() => assetUrl(props.template.header.logoPrimary))
+const logoPrimaryUrl = computed(() => assetUrl(legacy.value.header.logoPrimary))
 const logoSecondaryUrl = computed(
-  () => assetUrl(props.template.header.logoSecondary) ?? logoPrimaryUrl.value
+  () => assetUrl(legacy.value.header.logoSecondary) ?? logoPrimaryUrl.value
 )
 
 const infoItems = computed(() => {
-  const info = props.template.header.info
+  const info = legacy.value.header.info as Record<string, unknown> & {
+    order: string[]
+    student: boolean
+    class: boolean
+    session: boolean
+    term: boolean
+  }
   const items: { label: string; value: string }[] = []
   for (const field of info.order) {
     if (!info[field]) continue
@@ -134,7 +193,7 @@ const infoItems = computed(() => {
 })
 
 const visibleColumns = computed(() => {
-  const columns = props.template.body.columns
+  const columns = legacy.value.body.columns
   const config = view.value.scoreConfig
   return [
     { key: "subject", label: "Subject" },
@@ -192,10 +251,10 @@ const classStats = computed(() => {
     >
       <!-- Watermark -->
       <img
-        v-if="template.header.showWatermark && logoPrimaryUrl"
+        v-if="legacy.header.showWatermark && logoPrimaryUrl"
         :src="logoPrimaryUrl"
         class="pointer-events-none absolute inset-0 h-full w-full object-contain select-none"
-        :style="{ opacity: template.header.watermarkOpacity }"
+        :style="{ opacity: legacy.header.watermarkOpacity }"
         alt=""
         aria-hidden="true"
       />
@@ -204,7 +263,7 @@ const classStats = computed(() => {
         <!-- Header -->
         <header class="space-y-6">
           <!-- Left -->
-          <div v-if="template.header.logoPlacement === 'left'" class="flex items-start gap-4">
+          <div v-if="legacy.header.logoPlacement === 'left'" class="flex items-start gap-4">
             <img
               v-if="logoPrimaryUrl"
               :src="logoPrimaryUrl"
@@ -212,17 +271,14 @@ const classStats = computed(() => {
               class="h-20 w-20 shrink-0 object-contain"
             />
             <div class="min-w-0 flex-1 space-y-1">
-              <h1 v-if="template.header.heading" class="text-2xl font-bold tracking-tight">
-                {{ template.header.heading }}
+              <h1 v-if="legacy.header.heading" class="text-2xl font-bold tracking-tight">
+                {{ legacy.header.heading }}
               </h1>
-              <p
-                v-if="template.header.subheading"
-                class="text-muted-foreground text-sm font-medium"
-              >
-                {{ template.header.subheading }}
+              <p v-if="legacy.header.subheading" class="text-muted-foreground text-sm font-medium">
+                {{ legacy.header.subheading }}
               </p>
               <p
-                v-for="paragraph in template.header.paragraphs"
+                v-for="paragraph in legacy.header.paragraphs"
                 :key="paragraph.id"
                 :style="{
                   fontSize: `${paragraph.fontSize}px`,
@@ -238,7 +294,7 @@ const classStats = computed(() => {
 
           <!-- Right -->
           <div
-            v-else-if="template.header.logoPlacement === 'right'"
+            v-else-if="legacy.header.logoPlacement === 'right'"
             class="flex flex-row-reverse items-start gap-4"
           >
             <img
@@ -248,17 +304,14 @@ const classStats = computed(() => {
               class="h-20 w-20 shrink-0 object-contain"
             />
             <div class="min-w-0 flex-1 space-y-1 text-right">
-              <h1 v-if="template.header.heading" class="text-2xl font-bold tracking-tight">
-                {{ template.header.heading }}
+              <h1 v-if="legacy.header.heading" class="text-2xl font-bold tracking-tight">
+                {{ legacy.header.heading }}
               </h1>
-              <p
-                v-if="template.header.subheading"
-                class="text-muted-foreground text-sm font-medium"
-              >
-                {{ template.header.subheading }}
+              <p v-if="legacy.header.subheading" class="text-muted-foreground text-sm font-medium">
+                {{ legacy.header.subheading }}
               </p>
               <p
-                v-for="paragraph in template.header.paragraphs"
+                v-for="paragraph in legacy.header.paragraphs"
                 :key="paragraph.id"
                 :style="{
                   fontSize: `${paragraph.fontSize}px`,
@@ -274,7 +327,7 @@ const classStats = computed(() => {
 
           <!-- Center -->
           <div
-            v-else-if="template.header.logoPlacement === 'center'"
+            v-else-if="legacy.header.logoPlacement === 'center'"
             class="flex flex-col items-center space-y-2 text-center"
           >
             <div v-if="logoPrimaryUrl" class="flex items-center justify-center gap-4">
@@ -286,14 +339,14 @@ const classStats = computed(() => {
                 class="h-20 w-20 object-contain"
               />
             </div>
-            <h1 v-if="template.header.heading" class="text-2xl font-bold tracking-tight">
-              {{ template.header.heading }}
+            <h1 v-if="legacy.header.heading" class="text-2xl font-bold tracking-tight">
+              {{ legacy.header.heading }}
             </h1>
-            <p v-if="template.header.subheading" class="text-muted-foreground text-sm font-medium">
-              {{ template.header.subheading }}
+            <p v-if="legacy.header.subheading" class="text-muted-foreground text-sm font-medium">
+              {{ legacy.header.subheading }}
             </p>
             <p
-              v-for="paragraph in template.header.paragraphs"
+              v-for="paragraph in legacy.header.paragraphs"
               :key="paragraph.id"
               :style="{
                 fontSize: `${paragraph.fontSize}px`,
@@ -321,17 +374,14 @@ const classStats = computed(() => {
               class="h-20 w-20 shrink-0 object-contain"
             />
             <div class="absolute inset-x-0 top-0 mx-auto max-w-[60%] space-y-1 text-center">
-              <h1 v-if="template.header.heading" class="text-2xl font-bold tracking-tight">
-                {{ template.header.heading }}
+              <h1 v-if="legacy.header.heading" class="text-2xl font-bold tracking-tight">
+                {{ legacy.header.heading }}
               </h1>
-              <p
-                v-if="template.header.subheading"
-                class="text-muted-foreground text-sm font-medium"
-              >
-                {{ template.header.subheading }}
+              <p v-if="legacy.header.subheading" class="text-muted-foreground text-sm font-medium">
+                {{ legacy.header.subheading }}
               </p>
               <p
-                v-for="paragraph in template.header.paragraphs"
+                v-for="paragraph in legacy.header.paragraphs"
                 :key="paragraph.id"
                 :style="{
                   fontSize: `${paragraph.fontSize}px`,
@@ -346,8 +396,8 @@ const classStats = computed(() => {
           </div>
 
           <ReportCardSummaryRow
-            v-if="template.summary.placement === 'header'"
-            :summary="template.summary"
+            v-if="legacy.summary.placement === 'header'"
+            :summary="legacy.summary as unknown as ReportCardTemplate['main']"
             :total="view.grandTotal"
             :average="view.average"
             :position="view.position"
@@ -405,8 +455,8 @@ const classStats = computed(() => {
         </div>
 
         <ReportCardSummaryRow
-          v-if="template.summary.placement === 'footer'"
-          :summary="template.summary"
+          v-if="legacy.summary.placement === 'footer'"
+          :summary="legacy.summary as unknown as ReportCardTemplate['main']"
           :total="view.grandTotal"
           :average="view.average"
           :position="view.position"
@@ -414,39 +464,39 @@ const classStats = computed(() => {
         />
 
         <!-- Remarks -->
-        <div v-if="template.footer.remarks.show" class="grid gap-6 sm:grid-cols-2">
-          <div v-if="template.footer.remarks.teacher.show" class="space-y-1">
-            <p class="text-muted-foreground text-xs">{{ template.footer.remarks.teacher.label }}</p>
+        <div v-if="legacy.footer.remarks.show" class="grid gap-6 sm:grid-cols-2">
+          <div v-if="legacy.footer.remarks.teacher.show" class="space-y-1">
+            <p class="text-muted-foreground text-xs">{{ legacy.footer.remarks.teacher.label }}</p>
             <p class="min-h-8 text-sm font-medium">{{ view.teacherRemark || "—" }}</p>
-            <template v-if="template.footer.remarks.teacher.signature">
+            <template v-if="legacy.footer.remarks.teacher.signature">
               <img
-                v-if="template.footer.remarks.teacher.signatureImage"
-                :src="assetUrl(template.footer.remarks.teacher.signatureImage) ?? undefined"
+                v-if="legacy.footer.remarks.teacher.signatureImage"
+                :src="assetUrl(legacy.footer.remarks.teacher.signatureImage) ?? undefined"
                 alt="Teacher signature"
                 class="h-10 object-contain"
               />
               <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
               <p class="text-muted-foreground text-xs">
-                {{ template.footer.remarks.teacher.label }}
+                {{ legacy.footer.remarks.teacher.label }}
               </p>
             </template>
           </div>
 
-          <div v-if="template.footer.remarks.principal.show" class="space-y-1">
+          <div v-if="legacy.footer.remarks.principal.show" class="space-y-1">
             <p class="text-muted-foreground text-xs">
-              {{ template.footer.remarks.principal.label }}
+              {{ legacy.footer.remarks.principal.label }}
             </p>
             <p class="min-h-8 text-sm font-medium">{{ view.principalRemark || "—" }}</p>
-            <template v-if="template.footer.remarks.principal.signature">
+            <template v-if="legacy.footer.remarks.principal.signature">
               <img
-                v-if="template.footer.remarks.principal.signatureImage"
-                :src="assetUrl(template.footer.remarks.principal.signatureImage) ?? undefined"
+                v-if="legacy.footer.remarks.principal.signatureImage"
+                :src="assetUrl(legacy.footer.remarks.principal.signatureImage) ?? undefined"
                 alt="Principal signature"
                 class="h-10 object-contain"
               />
               <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
               <p class="text-muted-foreground text-xs">
-                {{ template.footer.remarks.principal.label }}
+                {{ legacy.footer.remarks.principal.label }}
               </p>
             </template>
           </div>
@@ -454,18 +504,18 @@ const classStats = computed(() => {
 
         <!-- Class summary -->
         <div
-          v-if="template.footer.classSummary.show"
+          v-if="legacy.footer.classSummary.show"
           class="border-border bg-muted/40 flex flex-wrap gap-x-8 gap-y-3 rounded-lg border p-3 text-sm"
         >
-          <div v-if="template.footer.classSummary.highest">
+          <div v-if="legacy.footer.classSummary.highest">
             <p class="text-muted-foreground text-[10px] tracking-wide uppercase">Highest</p>
             <p class="font-semibold">{{ classStats?.highest ?? "—" }}</p>
           </div>
-          <div v-if="template.footer.classSummary.lowest">
+          <div v-if="legacy.footer.classSummary.lowest">
             <p class="text-muted-foreground text-[10px] tracking-wide uppercase">Lowest</p>
             <p class="font-semibold">{{ classStats?.lowest ?? "—" }}</p>
           </div>
-          <div v-if="template.footer.classSummary.average">
+          <div v-if="legacy.footer.classSummary.average">
             <p class="text-muted-foreground text-[10px] tracking-wide uppercase">Class Average</p>
             <p class="font-semibold">
               {{ classStats ? `${classStats.average}%` : "—" }}
@@ -474,9 +524,9 @@ const classStats = computed(() => {
         </div>
 
         <!-- Custom blocks -->
-        <div v-if="template.footer.customBlocks.length" class="grid gap-3 sm:grid-cols-2">
+        <div v-if="legacy.footer.customBlocks.length" class="grid gap-3 sm:grid-cols-2">
           <div
-            v-for="block in template.footer.customBlocks"
+            v-for="block in legacy.footer.customBlocks"
             :key="block.id"
             class="border-border rounded-lg border p-3 text-sm"
           >

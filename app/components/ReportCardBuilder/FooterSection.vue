@@ -1,9 +1,33 @@
 <script lang="ts" setup>
 import { typeid } from "typeid-js"
 import { ICONS } from "~~/shared/constants/icons"
-import type { ReportCardTemplate } from "~~/shared/constants/kv-settings"
+import type { ReportCardTemplate } from "~~/shared/constants/report-card"
 
 const model = defineModel<ReportCardTemplate>("template", { required: true })
+
+// Phase 6: the template became a slot + block shape; this legacy fixed-shape view is kept
+// ONLY so the old section UI keeps compiling until Phase 10 replaces it. Every reference to
+// `legacy` below is a known-stale code path.
+type LegacyTemplate = {
+  summary: {
+    placement: "header" | "footer"
+    total: boolean
+    average: boolean
+    position: boolean
+    outOf: boolean
+  }
+  footer: {
+    remarks: {
+      show: boolean
+      teacher: { show: boolean; label: string; signature: boolean; signatureImage: string | null }
+      principal: { show: boolean; label: string; signature: boolean; signatureImage: string | null }
+    }
+    classSummary: { show: boolean; highest: boolean; lowest: boolean; average: boolean }
+    customBlocks: { id: string; label: string; content: string }[]
+  }
+}
+
+const legacy = computed(() => model.value as unknown as LegacyTemplate)
 
 const summaryFields: {
   key: "total" | "average" | "position" | "outOf"
@@ -25,11 +49,11 @@ const classSummaryFields: {
 ]
 
 function addBlock() {
-  model.value.footer.customBlocks.push({ id: typeid("block").toString(), label: "", content: "" })
+  legacy.value.footer.customBlocks.push({ id: typeid("block").toString(), label: "", content: "" })
 }
 
 function removeBlock(index: number) {
-  model.value.footer.customBlocks.splice(index, 1)
+  legacy.value.footer.customBlocks.splice(index, 1)
 }
 </script>
 
@@ -44,7 +68,7 @@ function removeBlock(index: number) {
         </p>
       </div>
 
-      <UiRadioGroup v-model="model.summary.placement" class="flex items-center gap-4">
+      <UiRadioGroup v-model="legacy.summary.placement" class="flex items-center gap-4">
         <label class="flex items-center gap-2 text-sm">
           <UiRadioGroupItem value="header" />
           Show in header
@@ -62,7 +86,7 @@ function removeBlock(index: number) {
           class="flex items-center justify-between rounded-md border border-border px-3 py-2"
         >
           <span class="text-sm">{{ field.label }}</span>
-          <UiSwitch v-model="model.summary[field.key]" :aria-label="`Show ${field.label}`" />
+          <UiSwitch v-model="legacy.summary[field.key]" :aria-label="`Show ${field.label}`" />
         </div>
       </div>
     </section>
@@ -78,29 +102,29 @@ function removeBlock(index: number) {
             Teacher and principal comments with signatures.
           </p>
         </div>
-        <UiSwitch v-model="model.footer.remarks.show" aria-label="Show remarks" />
+        <UiSwitch v-model="legacy.footer.remarks.show" aria-label="Show remarks" />
       </div>
 
       <div
         class="space-y-6"
-        :class="!model.footer.remarks.show && 'pointer-events-none opacity-50'"
+        :class="!legacy.footer.remarks.show && 'pointer-events-none opacity-50'"
       >
         <!-- Teacher -->
         <div class="space-y-3 rounded-lg border border-border p-3">
           <label class="flex items-center justify-between gap-3">
             <span class="text-sm font-medium">Class teacher</span>
             <UiSwitch
-              v-model="model.footer.remarks.teacher.show"
+              v-model="legacy.footer.remarks.teacher.show"
               aria-label="Show teacher remark"
             />
           </label>
 
-          <div v-if="model.footer.remarks.teacher.show" class="space-y-3">
+          <div v-if="legacy.footer.remarks.teacher.show" class="space-y-3">
             <div class="space-y-2">
               <UiLabel for="rc-teacher-label">Label</UiLabel>
               <UiInput
                 id="rc-teacher-label"
-                v-model="model.footer.remarks.teacher.label"
+                v-model="legacy.footer.remarks.teacher.label"
                 placeholder="e.g. Class Teacher"
               />
             </div>
@@ -108,20 +132,20 @@ function removeBlock(index: number) {
             <label class="flex items-center justify-between gap-3">
               <span class="text-sm">Include signature</span>
               <UiSwitch
-                v-model="model.footer.remarks.teacher.signature"
+                v-model="legacy.footer.remarks.teacher.signature"
                 aria-label="Include teacher signature"
               />
             </label>
 
-            <template v-if="model.footer.remarks.teacher.signature">
+            <template v-if="legacy.footer.remarks.teacher.signature">
               <p
-                v-if="!model.footer.remarks.teacher.signatureImage"
+                v-if="!legacy.footer.remarks.teacher.signatureImage"
                 class="text-xs text-muted-foreground"
               >
                 A blank signature line will be printed.
               </p>
               <ReportCardBuilderAssetUpload
-                v-model="model.footer.remarks.teacher.signatureImage"
+                v-model="legacy.footer.remarks.teacher.signatureImage"
                 asset-key="sig-teacher"
                 label="Teacher signature"
               />
@@ -134,17 +158,17 @@ function removeBlock(index: number) {
           <label class="flex items-center justify-between gap-3">
             <span class="text-sm font-medium">Principal</span>
             <UiSwitch
-              v-model="model.footer.remarks.principal.show"
+              v-model="legacy.footer.remarks.principal.show"
               aria-label="Show principal remark"
             />
           </label>
 
-          <div v-if="model.footer.remarks.principal.show" class="space-y-3">
+          <div v-if="legacy.footer.remarks.principal.show" class="space-y-3">
             <div class="space-y-2">
               <UiLabel for="rc-principal-label">Label</UiLabel>
               <UiInput
                 id="rc-principal-label"
-                v-model="model.footer.remarks.principal.label"
+                v-model="legacy.footer.remarks.principal.label"
                 placeholder="e.g. Principal"
               />
             </div>
@@ -152,20 +176,20 @@ function removeBlock(index: number) {
             <label class="flex items-center justify-between gap-3">
               <span class="text-sm">Include signature</span>
               <UiSwitch
-                v-model="model.footer.remarks.principal.signature"
+                v-model="legacy.footer.remarks.principal.signature"
                 aria-label="Include principal signature"
               />
             </label>
 
-            <template v-if="model.footer.remarks.principal.signature">
+            <template v-if="legacy.footer.remarks.principal.signature">
               <p
-                v-if="!model.footer.remarks.principal.signatureImage"
+                v-if="!legacy.footer.remarks.principal.signatureImage"
                 class="text-xs text-muted-foreground"
               >
                 A blank signature line will be printed.
               </p>
               <ReportCardBuilderAssetUpload
-                v-model="model.footer.remarks.principal.signatureImage"
+                v-model="legacy.footer.remarks.principal.signatureImage"
                 asset-key="sig-principal"
                 label="Principal signature"
               />
@@ -186,12 +210,12 @@ function removeBlock(index: number) {
             Class-wide statistics shown on the report card.
           </p>
         </div>
-        <UiSwitch v-model="model.footer.classSummary.show" aria-label="Show class summary" />
+        <UiSwitch v-model="legacy.footer.classSummary.show" aria-label="Show class summary" />
       </div>
 
       <div
         class="space-y-2"
-        :class="!model.footer.classSummary.show && 'pointer-events-none opacity-50'"
+        :class="!legacy.footer.classSummary.show && 'pointer-events-none opacity-50'"
       >
         <div
           v-for="field in classSummaryFields"
@@ -200,7 +224,7 @@ function removeBlock(index: number) {
         >
           <span class="text-sm">{{ field.label }}</span>
           <UiSwitch
-            v-model="model.footer.classSummary[field.key]"
+            v-model="legacy.footer.classSummary[field.key]"
             :aria-label="`Show ${field.label}`"
           />
         </div>
@@ -219,7 +243,7 @@ function removeBlock(index: number) {
       </div>
 
       <UiEmpty
-        v-if="model.footer.customBlocks.length === 0"
+        v-if="legacy.footer.customBlocks.length === 0"
         :icon="ICONS.document"
         title="No custom blocks"
         description="Add a block for extra information at the bottom of the report card."
@@ -229,7 +253,7 @@ function removeBlock(index: number) {
 
       <div v-else class="space-y-3">
         <div
-          v-for="(block, index) in model.footer.customBlocks"
+          v-for="(block, index) in legacy.footer.customBlocks"
           :key="block.id"
           class="space-y-3 rounded-lg border border-border p-3"
         >

@@ -145,6 +145,10 @@ export interface SchoolInfoConfig {
 
 // -- student-info -----------------------------------------------------------
 
+// The four fields every report card historically showed, in their canonical display order.
+// The template's student-info block also uses these as toggle keys (Phase 6 legacy UI).
+export type InfoField = "student" | "class" | "session" | "term"
+
 export type StudentInfoField =
   | "student.name"
   | "student.id"

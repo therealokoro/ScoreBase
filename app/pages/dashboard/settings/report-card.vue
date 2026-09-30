@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
 import {
-  DEFAULT_REPORT_CARD_TEMPLATE,
+  createDefaultReportCardTemplate,
   type ReportCardTemplate
-} from "~~/shared/constants/kv-settings"
+} from "~~/shared/constants/report-card"
 
 definePageMeta({ middleware: ["admin-only"] })
 
@@ -12,7 +12,7 @@ const updateTemplate = useUpdateReportCardTemplate()
 const resetTemplate = useResetReportCardTemplate()
 
 // Local working copy — the admin edits this; it syncs to the server via auto-save.
-const template = ref<ReportCardTemplate>(DEFAULT_REPORT_CARD_TEMPLATE)
+const template = ref<ReportCardTemplate>(createDefaultReportCardTemplate())
 
 // Suppresses the auto-save watcher while we apply a server value, so loading the
 // page (or resetting) never writes the template straight back.
