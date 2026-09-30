@@ -123,23 +123,7 @@ async function handleReset() {
             </UiBadge>
           </div>
 
-          <UiTabs default-value="header" class="w-full">
-            <UiTabsList class="grid w-full grid-cols-3">
-              <UiTabsTrigger value="header">Header</UiTabsTrigger>
-              <UiTabsTrigger value="body">Body</UiTabsTrigger>
-              <UiTabsTrigger value="footer">Footer</UiTabsTrigger>
-            </UiTabsList>
-
-            <UiTabsContent value="header" class="mt-4">
-              <ReportCardBuilderHeaderSection v-model:template="template" />
-            </UiTabsContent>
-            <UiTabsContent value="body" class="mt-4">
-              <ReportCardBuilderBodySection v-model:template="template" />
-            </UiTabsContent>
-            <UiTabsContent value="footer" class="mt-4">
-              <ReportCardBuilderFooterSection v-model:template="template" />
-            </UiTabsContent>
-          </UiTabs>
+          <ReportCardBuilderBlockEditor v-model:template="template" />
 
           <UiSeparator />
 

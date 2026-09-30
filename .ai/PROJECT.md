@@ -266,10 +266,15 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
 
 #### Builder UI
 
-- Admin-only Report Cards hub at `/dashboard/report-cards` (plural; linked from the admin
-  sidebar), with the builder as its child page at `/dashboard/report-cards/builder`.
-- Two-panel layout: live A4 preview on the left, tabbed settings (Header / Body / Footer) on
-  the right.
+- Admin-only builder page at `/dashboard/report-cards/builder` (child of the Report Cards hub
+  at `/dashboard/report-cards`, linked from the admin sidebar).
+- Two-panel layout: live A4 preview on the left, block editor on the right.
+- The editor (Phase 10) works per slot — Header, Student Info, Main, Sidebar, Footer (the
+  Sidebar tab is disabled unless the layout is "With sidebar"). Each slot lists its blocks
+  with hide, duplicate, reorder, and delete controls plus an "Add block" palette filtered by
+  each block's `allowedSlots`. Selecting a block opens its config panel; editing a block
+  writes straight into the template. Template-level controls cover the name, layout,
+  sidebar side, and watermark.
 - Auto-save with a debounced mutation — admins never need to click "save" after a change.
 - Reset-to-default action with a confirmation dialog.
 

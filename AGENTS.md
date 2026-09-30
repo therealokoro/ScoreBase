@@ -417,3 +417,13 @@ _Convention changes logged here:_
   (default cap 1; full view 1.25) — on-screen zoom uses layout-aware CSS `zoom` (never clips;
   `tailwind.css` resets it to 1 in print), and the page carries a markup-only post-MVP
   "Export As" dropdown (Excel/PDF).
+- 2026-09-30 — Block editor UI (Phase 10): the builder is a real block editor —
+  `ReportCardBuilder/BlockEditor.vue` (template name, layout + sidebar side, watermark,
+  slot tabs) and `BlockSlotList.vue` (per-slot add/hide/duplicate/reorder/delete with
+  registry-driven palette), plus one config panel per block type in
+  `ReportCardBuilder/blocks/config/` and the reusable `ReportCardBuilder/StyledTextInput.vue`.
+  The three legacy section components are deleted. The editor relies on reka `UiTabs`
+  (`default-value`, uncontrolled) driving `UiTabsContent` per slot, and `caMode` is derived
+  from the scores column checklist so it never contradicts what renders. The `uploadAsset`
+  contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
+  sig-teacher, sig-principal, watermark).

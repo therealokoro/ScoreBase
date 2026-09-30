@@ -56,7 +56,13 @@ export const settingsContract = {
     uploadAsset: oc
       .input(
         z.object({
-          assetKey: z.enum(["logo-primary", "logo-secondary", "sig-teacher", "sig-principal"]),
+          assetKey: z.enum([
+            "logo-primary",
+            "logo-secondary",
+            "sig-teacher",
+            "sig-principal",
+            "watermark"
+          ]),
           file: z.instanceof(File)
         })
       )
