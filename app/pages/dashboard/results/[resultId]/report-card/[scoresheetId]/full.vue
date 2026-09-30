@@ -47,11 +47,28 @@ function initPrintAction() {
         >
           Edit {{ card?.computed.studentName }}'s Scores
         </UiButton>
+
+        <!-- Export options are post-MVP: markup only for now. -->
+        <UiDropdownMenu>
+          <UiDropdownMenuTrigger as-child>
+            <UiButton
+              variant="outline"
+              :icon="ICONS.export"
+              text="Export As"
+              :icon-right="ICONS.down"
+            />
+          </UiDropdownMenuTrigger>
+          <UiDropdownMenuContent align="end">
+            <UiDropdownMenuItem :icon="ICONS.spreadsheet" title="Excel spreadsheet" />
+            <UiDropdownMenuItem :icon="ICONS.document" title="PDF document" />
+          </UiDropdownMenuContent>
+        </UiDropdownMenu>
+
         <UiButton
           v-if="isAdmin"
           variant="outline"
           :icon="ICONS.settings"
-          to="/dashboard/report-card-builder"
+          to="/dashboard/report-card/builder"
         >
           Customize template
         </UiButton>
@@ -61,9 +78,14 @@ function initPrintAction() {
 
     <!-- Full report card -->
     <div class="bg-muted/40 flex justify-center p-6 print:p-0">
-      <div class="w-fit bg-card shadow-sm">
-        <UiSkeleton v-if="isPending" class="h-[70vh] w-[60vw]" />
-        <ReportCardTemplatePreview v-else-if="card" :template="template" :data="card" />
+      <div class="w-full max-w-6xl bg-card shadow-sm">
+        <UiSkeleton v-if="isPending" class="h-[70vh] w-full" />
+        <ReportCardTemplatePreview
+          v-else-if="card"
+          :template="template"
+          :data="card"
+          :max-scale="null"
+        />
       </div>
     </div>
   </div>

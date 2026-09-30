@@ -13,6 +13,7 @@ setPageBreadcrumbLabels({
   [scoresheetId]: computed(() => card.value?.computed.studentName ?? "Scores")
 })
 
+/** One bordered grid carries the student info and the result summary together. */
 const infoItems = computed(() => {
   if (!card.value) return []
   return [
@@ -20,13 +21,7 @@ const infoItems = computed(() => {
     { label: "Student ID", value: card.value.computed.studentSchoolId },
     { label: "Class", value: card.value.class.name },
     { label: "Session", value: card.value.term.session.name },
-    { label: "Term", value: card.value.term.name }
-  ]
-})
-
-const summaryItems = computed(() => {
-  if (!card.value) return []
-  return [
+    { label: "Term", value: card.value.term.name },
     { label: "Total Score", value: card.value.computed.grandTotal ?? "—" },
     {
       label: "Average",
@@ -36,6 +31,18 @@ const summaryItems = computed(() => {
     { label: "Out of", value: `${card.value.totalStudents} students` }
   ]
 })
+
+/** CA breakdown columns are dynamic — one per slot in the result's frozen score config. */
+const caColumns = computed(() => {
+  const config = card.value?.scoreConfig
+  if (!config) return []
+  return Array.from({ length: config.caCount }, (_, index) => ({
+    slot: index + 1,
+    label: `CA ${index + 1} (${config.caMaxScores[index] ?? "?"})`
+  }))
+})
+
+const examMax = computed(() => card.value?.scoreConfig.examMax ?? null)
 </script>
 
 <template>
@@ -64,23 +71,34 @@ const summaryItems = computed(() => {
 
     <UiSkeleton v-if="isPending" class="h-[60vh] w-full" />
     <template v-else-if="card">
-      <!-- Compact info strip -->
-      <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
+      <!-- Bordered info + summary grid -->
+      <div
+        class="border-border grid grid-cols-2 gap-4 rounded-lg border p-4 text-sm sm:grid-cols-3 lg:grid-cols-5"
+      >
         <div v-for="item in infoItems" :key="item.label">
           <p class="text-muted-foreground text-xs">{{ item.label }}</p>
-          <p class="font-medium">{{ item.value }}</p>
+          <p class="font-semibold">{{ item.value }}</p>
         </div>
       </div>
 
-      <!-- Quick-verify score table -->
+      <!-- Quick-verify score table (CA breakdown + CA total) -->
       <div class="border-border overflow-hidden rounded-lg border">
         <UiScrollArea class="grid overflow-x-auto" orientation="horizontal">
           <UiTable class="w-full table-auto" aria-label="Subject scores">
             <UiTableHeader>
               <UiTableRow>
                 <UiTableHead class="min-w-35">Subject</UiTableHead>
+                <UiTableHead
+                  v-for="column in caColumns"
+                  :key="column.slot"
+                  class="text-center min-w-15 whitespace-nowrap"
+                >
+                  {{ column.label }}
+                </UiTableHead>
                 <UiTableHead class="text-center min-w-15">CA Total</UiTableHead>
-                <UiTableHead class="text-center min-w-15">Exam</UiTableHead>
+                <UiTableHead class="text-center min-w-15 whitespace-nowrap">
+                  Exam<template v-if="examMax !== null"> ({{ examMax }})</template>
+                </UiTableHead>
                 <UiTableHead class="text-center min-w-15">Total</UiTableHead>
                 <UiTableHead class="text-center min-w-15">Grade</UiTableHead>
               </UiTableRow>
@@ -89,6 +107,12 @@ const summaryItems = computed(() => {
             <UiTableBody>
               <UiTableRow v-for="row in card.computed.subjectRows" :key="row.id">
                 <UiTableCell class="font-medium">{{ row.subjectName }}</UiTableCell>
+                <UiTableCell v-for="column in caColumns" :key="column.slot" class="text-center">
+                  <span v-if="row.caScores[column.slot - 1] != null">
+                    {{ row.caScores[column.slot - 1] }}
+                  </span>
+                  <span v-else class="text-muted-foreground">—</span>
+                </UiTableCell>
                 <UiTableCell class="text-center">
                   <span v-if="row.caTotal !== null">{{ row.caTotal }}</span>
                   <span v-else class="text-muted-foreground">—</span>
@@ -112,14 +136,6 @@ const summaryItems = computed(() => {
             </UiTableBody>
           </UiTable>
         </UiScrollArea>
-      </div>
-
-      <!-- Compact summary footer -->
-      <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
-        <div v-for="item in summaryItems" :key="item.label">
-          <p class="text-muted-foreground text-xs">{{ item.label }}</p>
-          <p class="font-semibold">{{ item.value }}</p>
-        </div>
       </div>
     </template>
   </Page>

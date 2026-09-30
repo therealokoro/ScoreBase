@@ -266,8 +266,8 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
 
 #### Builder UI
 
-- Admin-only builder page at `/dashboard/report-card-builder` (top-level dashboard route,
-  linked from the admin sidebar).
+- Admin-only Report Card hub at `/dashboard/report-card` (linked from the admin sidebar),
+  with the builder as its child page at `/dashboard/report-card/builder`.
 - Two-panel layout: live A4 preview on the left, tabbed settings (Header / Body / Footer) on
   the right.
 - Auto-save with a debounced mutation — admins never need to click "save" after a change.

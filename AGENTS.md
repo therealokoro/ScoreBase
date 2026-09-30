@@ -408,11 +408,10 @@ _Convention changes logged here:_
   normalised through `blocks/placeholder.ts` (`resolveView(data)` returns placeholder data
   when none), and `StyledText` renders via `blocks/text.ts` (`textStyle`). `GradingKeyBlock`
   reads grade boundaries live from `useGetResultSettings()` inside the component.
-- 2026-09-30 — Report card routing restructured (Phase 9): the builder lives at
-  `/dashboard/report-card-builder` (top-level, admin sidebar + `ADMIN_ONLY_PAGES`), no longer
-  under `/dashboard/settings/`. The report card has two views — minimal
-  (`.../report-card/[scoresheetId]/index.vue`, quick-verify: info strip + fixed
-  Subject/CA Total/Exam/Total/Grade table + summary footer) and full
-  (`.../report-card/[scoresheetId]/full.vue`, `fullscreen` layout with an inline `print:hidden`
-  top bar). Sibling `index.vue`/`full.vue` under the param dir avoid Nuxt parent-page nesting;
-  `app/layouts/fullscreen.vue` uses `min-h-screen` so print output is never clipped.
+- 2026-09-30 — Report card routing restructured (Phase 9, amended after review): the builder
+  lives at `/dashboard/report-card/builder`, a child of the admin-only Report Card hub at
+  `/dashboard/report-card` (sidebar + `ADMIN_ONLY_PAGES` cover the whole prefix). The report
+  card's minimal view merges the student info and result summary into one full-width bordered
+  grid (no separate footer) and shows dynamic CA breakdown columns alongside CA Total; the
+  full view widens the document (`TemplatePreview maxScale` prop, `null` = fill the container)
+  and carries a markup-only post-MVP "Export As" dropdown (Excel/PDF).
