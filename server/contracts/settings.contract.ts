@@ -1,9 +1,9 @@
 import { oc } from "@orpc/contract"
 import { z } from "zod"
+import { ReportCardTemplateSchema } from "~~/shared/validators/report-card"
 import {
-  ResultSettingsSchema,
   PartialResultSettingsSchema,
-  ReportCardTemplateSchema,
+  ResultSettingsSchema,
   SchoolSettingsSchema
 } from "~~/shared/validators/settings"
 

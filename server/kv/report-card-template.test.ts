@@ -2,7 +2,10 @@ import { blob } from "@nuxthub/blob"
 import { kv } from "@nuxthub/kv"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DEFAULT_REPORT_CARD_TEMPLATE } from "#shared/constants/kv-settings"
+import {
+  createDefaultReportCardTemplate,
+  type ReportCardTemplate
+} from "#shared/constants/report-card"
 
 import {
   getReportCardTemplate,
@@ -19,6 +22,19 @@ vi.mock("@nuxthub/blob", () => ({
   blob: { put: vi.fn() }
 }))
 
+/** Deep clone without any `id` keys, so per-call typeid values never break equality. */
+function stripIds(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripIds)
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== "id")
+        .map(([key, val]) => [key, stripIds(val)])
+    )
+  }
+  return value
+}
+
 describe("getReportCardTemplate", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -27,45 +43,69 @@ describe("getReportCardTemplate", () => {
   it("returns the defaults when KV has nothing stored", async () => {
     vi.mocked(kv.get).mockResolvedValue(null)
 
-    await expect(getReportCardTemplate()).resolves.toEqual(DEFAULT_REPORT_CARD_TEMPLATE)
+    const template = await getReportCardTemplate()
+
+    // IDs differ per call, so compare with all ids stripped.
+    expect(stripIds(template)).toEqual(stripIds(createDefaultReportCardTemplate()))
     expect(kv.get).toHaveBeenCalledWith("settings:report-card-template")
   })
 
   it("deep-merges the stored value over the defaults", async () => {
-    vi.mocked(kv.get).mockResolvedValue({ header: { heading: "Springfield High" } })
+    vi.mocked(kv.get).mockResolvedValue({ name: "Springfield Template" })
 
     const template = await getReportCardTemplate()
 
-    expect(template.header.heading).toBe("Springfield High")
-    // Sibling nested fields survive the merge.
-    expect(template.header.logoPlacement).toBe(DEFAULT_REPORT_CARD_TEMPLATE.header.logoPlacement)
-    expect(template.footer.remarks.principal).toEqual(
-      DEFAULT_REPORT_CARD_TEMPLATE.footer.remarks.principal
-    )
+    expect(template.name).toBe("Springfield Template")
+    // Sibling fields survive the merge.
+    expect(template.layout).toBe("full")
+    expect(template.footer[1]?.type).toBe("remarks")
   })
 
-  it("replaces arrays wholesale instead of concatenating them", async () => {
+  it("replaces slot arrays wholesale instead of concatenating them", async () => {
     vi.mocked(kv.get).mockResolvedValue({
-      header: {
-        paragraphs: [
-          { id: "p1", text: "Hello", fontSize: 14, color: "#000000", bold: false, align: "left" }
-        ]
-      }
+      main: [scoresBlock()]
     })
 
     const template = await getReportCardTemplate()
 
-    expect(template.header.paragraphs).toHaveLength(1)
-    expect(template.header.paragraphs[0]?.id).toBe("p1")
+    expect(template.main).toHaveLength(1)
+    expect(template.main[0]?.type).toBe("scores")
   })
 
   it("falls back to the defaults when the merged value is corrupt", async () => {
-    // `subject` must always be `true`, so this stored value fails validation.
-    vi.mocked(kv.get).mockResolvedValue({ body: { columns: { subject: false } } })
+    // A sidebar block is not allowed while layout is "full", so this fails validation.
+    vi.mocked(kv.get).mockResolvedValue({
+      sidebar: [
+        {
+          id: "block_abcdefghjkmnpqrstvwxyz0001",
+          type: "grading-key",
+          hidden: false,
+          config: { title: styled("") }
+        }
+      ]
+    })
 
-    await expect(getReportCardTemplate()).resolves.toEqual(DEFAULT_REPORT_CARD_TEMPLATE)
+    const template = await getReportCardTemplate()
+
+    expect(stripIds(template)).toEqual(stripIds(createDefaultReportCardTemplate()))
   })
 })
+
+function scoresBlock() {
+  return {
+    id: "block_abcdefghjkmnpqrstvwxyz0000",
+    type: "scores",
+    hidden: false,
+    config: {
+      caMode: "summed",
+      columns: ["subject", "caTotal", "exam", "total", "grade", "remark"]
+    }
+  }
+}
+
+function styled(value: string) {
+  return { value, style: { fontSize: 14, fontWeight: "normal", color: "#000000", align: "left" } }
+}
 
 describe("setReportCardTemplate", () => {
   beforeEach(() => {
@@ -73,8 +113,8 @@ describe("setReportCardTemplate", () => {
   })
 
   it("writes the full template back to KV and returns it", async () => {
-    const template = structuredClone(DEFAULT_REPORT_CARD_TEMPLATE)
-    template.header.heading = "Updated"
+    const template: ReportCardTemplate = structuredClone(createDefaultReportCardTemplate())
+    template.name = "Updated"
 
     await expect(setReportCardTemplate(template)).resolves.toBe(template)
     expect(kv.set).toHaveBeenCalledWith("settings:report-card-template", template)
@@ -89,7 +129,9 @@ describe("resetReportCardTemplate", () => {
   it("deletes the key and returns the defaults", async () => {
     vi.mocked(kv.get).mockResolvedValue(null)
 
-    await expect(resetReportCardTemplate()).resolves.toEqual(DEFAULT_REPORT_CARD_TEMPLATE)
+    const template = await resetReportCardTemplate()
+
+    expect(stripIds(template)).toEqual(stripIds(createDefaultReportCardTemplate()))
     expect(kv.del).toHaveBeenCalledWith("settings:report-card-template")
   })
 })

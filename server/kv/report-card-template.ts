@@ -2,11 +2,11 @@ import { blob } from "@nuxthub/blob"
 import { kv } from "@nuxthub/kv"
 
 import {
-  DEFAULT_REPORT_CARD_TEMPLATE,
+  createDefaultReportCardTemplate,
   type ReportCardAssetKey,
   type ReportCardTemplate
-} from "#shared/constants/kv-settings"
-import { ReportCardTemplateSchema } from "#shared/validators/settings"
+} from "#shared/constants/report-card"
+import { ReportCardTemplateSchema } from "#shared/validators/report-card"
 
 import { mergeSettings } from "./merge-settings"
 
@@ -14,11 +14,13 @@ const REPORT_CARD_TEMPLATE_KV_KEY = "settings:report-card-template"
 
 export async function getReportCardTemplate(): Promise<ReportCardTemplate> {
   const stored = await kv.get<Partial<ReportCardTemplate>>(REPORT_CARD_TEMPLATE_KV_KEY)
-  const merged = mergeSettings(stored ?? {}, DEFAULT_REPORT_CARD_TEMPLATE) as ReportCardTemplate
+  // Fresh defaults every call — block IDs must never be shared between templates.
+  const defaults = createDefaultReportCardTemplate()
+  const merged = mergeSettings(stored ?? {}, defaults) as ReportCardTemplate
 
   // Guard against corrupted KV values: fall back to defaults rather than propagating bad data.
   const parsed = ReportCardTemplateSchema.safeParse(merged)
-  return (parsed.success ? parsed.data : DEFAULT_REPORT_CARD_TEMPLATE) as ReportCardTemplate
+  return parsed.success ? parsed.data : defaults
 }
 
 export const setReportCardTemplate = async (template: ReportCardTemplate) => {
