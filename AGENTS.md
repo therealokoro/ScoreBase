@@ -394,3 +394,11 @@ _Convention changes logged here:_
   `ReportCardTemplate` type/schema/defaults in `shared/`. The report-card renderer is now
   template-driven (`ReportCard/TemplatePreview.vue` replaces `ReportCard/Document.vue`), with
   assets served from Blob through `server/routes/images/[...pathname].get.ts`.
+- 2026-09-30 — Report card template refactored to a slot + block shape (Phases 6+ of
+  `.ai/REPORT-CARD-BUILDER-CONTD.md`): types in `shared/constants/report-card.ts`
+  (`createDefaultReportCardTemplate()` factory — a function, not a constant, because ids are
+  fresh per call), Zod schemas in `shared/validators/report-card.ts` (discriminated union on
+  block `type`; no `z.any()`). `ReportCardAssetKey` also lives there and now includes
+  `"watermark"`. During the refactor, the stale builder sections/preview compile against a
+  documented per-component `legacy` cast instead of `@ts-expect-error` (vue-tsc 3.3 does not
+  honour that directive inside template expressions — verified by probe).

@@ -228,33 +228,37 @@ Calculated on the fly and cached until dependencies change:
 ### 5.4 Report Card Template Builder
 
 > **Status: in progress.** NuxtHub Blob is enabled (`hub.blob: true`; `@nuxthub/core`
-> generates the `@nuxthub/blob` package, so there is no separate dependency). The template
-> config is being moved off the fixed-layout renderer into `TemplatePreview.vue`.
+> generates the `@nuxthub/blob` package, so there is no separate dependency). As of
+> 2026-09-30 the template is a slot + block shape (Phases 6+ of
+> `.ai/REPORT-CARD-BUILDER-CONTD.md`): the fixed four-section config is being replaced by
+> five slots holding ordered lists of typed blocks, while the old builder sections and
+> renderer survive temporarily through a documented `legacy` cast until Phases 7–10 replace
+> them.
 
 The report card template is a first-class feature: admins can fully customise how printed
 report cards look, and the config is persisted in NuxtHub KV under the key
 `settings:report-card-template`. The renderer component reads this config and combines it
 with real student data to produce the printed output.
 
-#### Template structure
+#### Template structure (Phase 6 — slot + block model)
 
-The template is a deeply nested config object with four sections:
-
-- **Header** — logo placement (left, center, right, or left-right pair), optional uploaded
-  logos for primary and secondary slots, heading and subheading text, a list of configurable
-  paragraphs (each with its own font size, colour, bold flag, and alignment), and a
-  configurable student info grid (which fields to show and in what order).
-- **Body** — column toggles for the score table: subject (always on), CA breakdown, CA
-  total, exam, total, grade, and remark.
-- **Summary** — placement (header or footer) and toggles for total, average, position, and
-  "out of N students".
-- **Footer** — remarks block (teacher and principal, each with a label, signature toggle, and
-  optional uploaded signature image), class summary (highest, lowest, average), and a list of
-  custom blocks for arbitrary content like "Next term begins".
+The template is five ordered slots — **header**, **studentInfo**, **main**, **sidebar**,
+**footer** — each holding an ordered list of blocks. Every block is one of seven types
+(`school-info`, `student-info`, `scores`, `custom-table`, `grading-key`, `summary`,
+`remarks`) and carries `id` (fresh `typeid` per call), `hidden` (hide without delete), and a
+typed `config`. Layout-level fields: `name`, `layout` (`full` / `sidebar` with
+`sidebarPosition`), and an optional `watermark` (image pathname, opacity, size, single or
+tiled). The old fixed shape survives only behind the per-component `legacy` casts until
+Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CONTD.md`.
 
 #### Storage and uploads
 
-- The template config is stored in KV as JSON.
+- The template config is stored in KV as JSON. Defaults come from
+  `createDefaultReportCardTemplate()` in `shared/constants/report-card.ts` — a factory
+  function, not a constant, because every block ID must be fresh. Reads deep-merge stored
+  values over fresh defaults (arrays replaced wholesale via `mergeSettings`), then validate
+  with `ReportCardTemplateSchema` (`shared/validators/report-card.ts`) and fall back to the
+  defaults on corruption.
 - Logos and signature images are uploaded to NuxtHub Blob and the template stores the returned
   pathname, not the binary. This avoids the KV value-size limit.
 - Uploads go through oRPC with `z.instanceof(File)` in the input schema, letting oRPC handle
