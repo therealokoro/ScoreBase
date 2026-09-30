@@ -10,7 +10,8 @@ const adminNavItems = [
   { title: "Subjects", href: "/dashboard/subjects", icon: ICONS.subject },
   { title: "Teachers", href: "/dashboard/teachers", icon: ICONS.teacher },
   { title: "Students", href: "/dashboard/students", icon: ICONS.students },
-  { title: "Results", href: "/dashboard/results", icon: ICONS.result }
+  { title: "Results", href: "/dashboard/results", icon: ICONS.result },
+  { title: "Report Card Builder", href: "/dashboard/report-card-builder", icon: ICONS.document }
 ]
 
 const teacherNavItems = [

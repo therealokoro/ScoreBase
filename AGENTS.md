@@ -211,8 +211,8 @@ const getStudent = os.getOne.handler(async ({ input, context }) => {
 
 - **Page layer** — `app/middleware/auth.global.ts` blocks non-admins from
   `ADMIN_ONLY_PAGES` (`/dashboard/classes`, `/dashboard/sessions`, `/dashboard/subjects`,
-  `/dashboard/teachers`). Per-page middleware `admin-only` and `teacher-only` add scoped
-  checks. Add new admin pages to `ADMIN_ONLY_PAGES`.
+  `/dashboard/teachers`, `/dashboard/report-card-builder`). Per-page middleware `admin-only`
+  and `teacher-only` add scoped checks. Add new admin pages to `ADMIN_ONLY_PAGES`.
 - **Teacher scoping** — call `requireClassAccess` before reading or mutating a class-scoped
   record. When a teacher may not change a field (for example reassigning a class teacher or
   moving a student to another class), throw `FORBIDDEN` explicitly. Procedures teachers use
@@ -408,3 +408,11 @@ _Convention changes logged here:_
   normalised through `blocks/placeholder.ts` (`resolveView(data)` returns placeholder data
   when none), and `StyledText` renders via `blocks/text.ts` (`textStyle`). `GradingKeyBlock`
   reads grade boundaries live from `useGetResultSettings()` inside the component.
+- 2026-09-30 — Report card routing restructured (Phase 9): the builder lives at
+  `/dashboard/report-card-builder` (top-level, admin sidebar + `ADMIN_ONLY_PAGES`), no longer
+  under `/dashboard/settings/`. The report card has two views — minimal
+  (`.../report-card/[scoresheetId]/index.vue`, quick-verify: info strip + fixed
+  Subject/CA Total/Exam/Total/Grade table + summary footer) and full
+  (`.../report-card/[scoresheetId]/full.vue`, `fullscreen` layout with an inline `print:hidden`
+  top bar). Sibling `index.vue`/`full.vue` under the param dir avoid Nuxt parent-page nesting;
+  `app/layouts/fullscreen.vue` uses `min-h-screen` so print output is never clipped.

@@ -6,10 +6,7 @@ const commonNav = [
   { title: "Security", icon: ICONS.security, link: "/dashboard/settings/security" }
 ]
 
-const adminNav = [
-  { title: "School", icon: ICONS.school, link: "/dashboard/settings/school" },
-  { title: "Report card", icon: ICONS.result, link: "/dashboard/settings/report-card" }
-]
+const adminNav = [{ title: "School", icon: ICONS.school, link: "/dashboard/settings/school" }]
 
 const auth = useAuth()
 const navList = computed(() => {

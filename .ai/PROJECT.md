@@ -266,7 +266,8 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
 
 #### Builder UI
 
-- Admin-only settings page at `/dashboard/settings/report-card`.
+- Admin-only builder page at `/dashboard/report-card-builder` (top-level dashboard route,
+  linked from the admin sidebar).
 - Two-panel layout: live A4 preview on the left, tabbed settings (Header / Body / Footer) on
   the right.
 - Auto-save with a debounced mutation — admins never need to click "save" after a change.
@@ -279,9 +280,12 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
   mounts blocks through the registry in `ReportCard/blocks/` in fixed slot order
   (`REPORT_CARD_SLOTS`), skipping `hidden` blocks; block data is normalised by
   `blocks/placeholder.ts` and `StyledText` values render via `blocks/text.ts`.
-- The viewer page at
-  `/dashboard/results/[resultId]/report-card/[scoresheetId].vue` uses this component and
-  exposes a print button that calls `window.print()`.
+- The viewer has two pages: a **minimal** quick-verify view at
+  `/dashboard/results/[resultId]/report-card/[scoresheetId]` (compact info strip, fixed
+  Subject/CA Total/Exam/Total/Grade table, summary footer) and a **full** view at
+  `.../[scoresheetId]/full` — the full view uses the `fullscreen` layout (no sidebar), renders
+  the template against real data, and carries the Print / Edit scores / Customize template
+  actions in a `print:hidden` top bar.
 - Print styles use `@page { size: A4 }` with all dashboard chrome hidden via `print:hidden`,
   and the report card wrapper tagged with `report-card-print-root`.
 - Manual-entry content (custom-table manual rows, remark comments via `manualValues`) lands

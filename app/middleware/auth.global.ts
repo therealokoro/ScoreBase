@@ -27,7 +27,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
       "/dashboard/classes",
       "/dashboard/sessions",
       "/dashboard/subjects",
-      "/dashboard/teachers"
+      "/dashboard/teachers",
+      "/dashboard/report-card-builder"
     ]
 
     const isAdminRoute = ADMIN_ONLY_PAGES.some(
