@@ -24,10 +24,10 @@ function comment(role: "teacher" | "principal"): string {
 </script>
 
 <template>
-  <div data-block-type="remarks" class="grid gap-6 sm:grid-cols-2">
+  <div data-block-type="remarks" class="grid gap-4 sm:grid-cols-2">
     <div v-if="config.teacher.visible" class="space-y-1">
       <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
-      <p v-if="config.teacher.showComment" class="min-h-8 text-sm font-medium">
+      <p v-if="config.teacher.showComment" class="min-h-6 text-xs font-medium">
         {{ comment("teacher") }}
       </p>
       <template v-if="config.teacher.showSignature">
@@ -35,7 +35,7 @@ function comment(role: "teacher" | "principal"): string {
           v-if="config.teacher.signatureMode === 'image' && config.teacher.signatureImage"
           :src="assetUrl(config.teacher.signatureImage)"
           alt="Teacher signature"
-          class="h-10 object-contain"
+          class="h-8 object-contain"
         />
         <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
         <p
@@ -49,7 +49,7 @@ function comment(role: "teacher" | "principal"): string {
 
     <div v-if="config.principal.visible" class="space-y-1">
       <p :style="textStyle(config.principal.label.style)">{{ config.principal.label.value }}</p>
-      <p v-if="config.principal.showComment" class="min-h-8 text-sm font-medium">
+      <p v-if="config.principal.showComment" class="min-h-6 text-xs font-medium">
         {{ comment("principal") }}
       </p>
       <template v-if="config.principal.showSignature">
@@ -57,7 +57,7 @@ function comment(role: "teacher" | "principal"): string {
           v-if="config.principal.signatureMode === 'image' && config.principal.signatureImage"
           :src="assetUrl(config.principal.signatureImage)"
           alt="Principal signature"
-          class="h-10 object-contain"
+          class="h-8 object-contain"
         />
         <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
         <p

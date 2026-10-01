@@ -1,101 +1,11 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
-import {
-  createDefaultReportCardTemplate,
-  type ReportCardTemplate
-} from "~~/shared/constants/report-card"
 
 definePageMeta({ middleware: ["admin-only"] })
 
-const { data: savedTemplate } = useGetReportCardTemplate()
-const updateTemplate = useUpdateReportCardTemplate()
-const resetTemplate = useResetReportCardTemplate()
+const { template, saveStatus, isResetting, resetToDefault } = useReportCardTemplateEditor()
 
-// Local working copy — the admin edits this; it syncs to the server via auto-save.
-const template = ref<ReportCardTemplate>(createDefaultReportCardTemplate())
-
-// Suppresses the auto-save watcher while we apply a server value, so loading the
-// page (or resetting) never writes the template straight back.
-let applyingServerValue = false
-
-watch(
-  savedTemplate,
-  (value) => {
-    if (!value) return
-    applyingServerValue = true
-    template.value = structuredClone(toRaw(value))
-    nextTick(() => {
-      applyingServerValue = false
-    })
-  },
-  { immediate: true }
-)
-
-const saveStatus = ref<"saved" | "saving" | "unsaved">("saved")
-
-const debouncedSave = useDebounceFn(async () => {
-  saveStatus.value = "saving"
-  try {
-    await updateTemplate.mutateAsync(template.value)
-    saveStatus.value = "saved"
-  } catch {
-    saveStatus.value = "unsaved"
-    useSonner.error("Failed to save template. Changes will be lost if you leave.")
-  }
-}, 2000)
-
-watch(
-  template,
-  () => {
-    if (applyingServerValue) return
-    saveStatus.value = "unsaved"
-    debouncedSave()
-  },
-  { deep: true }
-)
-
-const statusBadge = computed(() => {
-  switch (saveStatus.value) {
-    case "saving":
-      return {
-        label: "Saving...",
-        icon: ICONS.loading,
-        spin: true,
-        class: "border-warning/30 bg-warning/15 text-warning"
-      }
-    case "unsaved":
-      return {
-        label: "Unsaved changes",
-        icon: ICONS.warning,
-        spin: false,
-        class: "border-destructive/30 bg-destructive/15 text-destructive"
-      }
-    default:
-      return {
-        label: "Saved",
-        icon: ICONS.check,
-        spin: false,
-        class: "border-success/30 bg-success/15 text-success"
-      }
-  }
-})
-
-const resetDialogOpen = ref(false)
-
-async function handleReset() {
-  try {
-    const defaults = await resetTemplate.mutateAsync()
-    applyingServerValue = true
-    template.value = structuredClone(toRaw(defaults))
-    nextTick(() => {
-      applyingServerValue = false
-    })
-    saveStatus.value = "saved"
-    useSonner.success("Report card template reset to defaults")
-  } catch (error) {
-    useSonner.error((error as Error).message || "Failed to reset the template")
-  }
-}
+const sheetOpen = ref(false)
 </script>
 
 <template>
@@ -103,57 +13,49 @@ async function handleReset() {
     title="Report Card Template"
     description="Customize the layout, columns, and content of printed report cards"
   >
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
-      <!-- Preview (left on desktop, second on mobile) -->
-      <div class="order-2 min-w-0 lg:order-1">
+    <div class="flex items-center justify-between gap-2 lg:hidden">
+      <UiButton :icon="ICONS.settings" text="Customize" block @click="sheetOpen = true" />
+    </div>
+
+    <div class="flex items-start gap-4">
+      <!-- Preview stays put while the controls scroll -->
+      <div class="min-w-0 flex-1">
         <ReportCardTemplatePreview :template="template" />
       </div>
 
-      <!-- Controls (right on desktop, first on mobile) -->
-      <div class="order-1 lg:order-2">
-        <div class="sticky top-4 space-y-4">
-          <div class="flex items-center justify-between gap-3">
-            <UiBadge variant="outline" class="gap-1.5 rounded-full" :class="statusBadge.class">
-              <Icon
-                :name="statusBadge.icon"
-                class="size-3"
-                :class="statusBadge.spin && 'animate-spin'"
-              />
-              {{ statusBadge.label }}
+      <!-- Controls: a side panel on desktop, a sheet on smaller screens -->
+      <div class="sticky top-4 hidden w-96 shrink-0 lg:block">
+        <div class="max-h-[calc(100vh-2rem)] overflow-y-auto rounded-lg border border-border p-4">
+          <div class="mb-4 flex items-center justify-between gap-2">
+            <UiHeading :level="6" class="font-semibold">Customize</UiHeading>
+            <UiBadge
+              variant="outline"
+              class="gap-1.5 rounded-full"
+              :class="
+                saveStatus === 'saved'
+                  ? 'border-success/30 bg-success/15 text-success'
+                  : saveStatus === 'saving'
+                    ? 'border-warning/30 bg-warning/15 text-warning'
+                    : 'border-destructive/30 bg-destructive/15 text-destructive'
+              "
+            >
+              {{
+                saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving..." : "Unsaved"
+              }}
             </UiBadge>
           </div>
 
           <ReportCardBuilderBlockEditor v-model:template="template" />
-
-          <UiSeparator />
-
-          <UiAlertDialog v-model:open="resetDialogOpen">
-            <UiAlertDialogTrigger as-child>
-              <UiButton
-                variant="outline"
-                :icon="ICONS.restore"
-                text="Reset to default"
-                :loading="resetTemplate.isPending.value"
-                block
-              />
-            </UiAlertDialogTrigger>
-            <UiAlertDialogContent>
-              <UiAlertDialogHeader>
-                <UiAlertDialogTitle>Reset report card template?</UiAlertDialogTitle>
-                <UiAlertDialogDescription>
-                  This replaces the current template with the default layout. This cannot be undone.
-                </UiAlertDialogDescription>
-              </UiAlertDialogHeader>
-              <UiAlertDialogFooter>
-                <UiAlertDialogCancel />
-                <UiAlertDialogAction variant="destructive" @click="handleReset">
-                  Reset
-                </UiAlertDialogAction>
-              </UiAlertDialogFooter>
-            </UiAlertDialogContent>
-          </UiAlertDialog>
         </div>
       </div>
     </div>
+
+    <ReportCardBuilderCustomizeSheet
+      v-model:open="sheetOpen"
+      v-model:template="template"
+      :save-status="saveStatus"
+      :resetting="isResetting"
+      @reset="resetToDefault"
+    />
   </Page>
 </template>

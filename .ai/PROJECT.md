@@ -240,16 +240,16 @@ report cards look, and the config is persisted in NuxtHub KV under the key
 `settings:report-card-template`. The renderer component reads this config and combines it
 with real student data to produce the printed output.
 
-#### Template structure (Phase 6 — slot + block model)
+#### Template structure (slot + block model)
 
 The template is five ordered slots — **header**, **studentInfo**, **main**, **sidebar**,
-**footer** — each holding an ordered list of blocks. Every block is one of seven types
-(`school-info`, `student-info`, `scores`, `custom-table`, `grading-key`, `summary`,
-`remarks`) and carries `id` (fresh `typeid` per call), `hidden` (hide without delete), and a
-typed `config`. Layout-level fields: `name`, `layout` (`full` / `sidebar` with
-`sidebarPosition`), and an optional `watermark` (image pathname, opacity, size, single or
-tiled). The old fixed shape survives only behind the per-component `legacy` casts until
-Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CONTD.md`.
+**footer** — each holding an ordered list of blocks. Every block has `id` (fresh `typeid` per
+call), `hidden` (hide without delete), and a typed `config`. Block types: `school-info`,
+`student-info`, `scores`, `custom-table`, `grading-key`, `psychomotor` (sidebar-only),
+`summary`, `remarks`. The two-column sidebar layout switches itself on whenever the `sidebar`
+slot has blocks (`sidebarPosition: "left" | "right"`). A watermark (`source: "logo" |
+"custom"`, opacity, size, single/tiled) renders behind the content. Spec:
+`.ai/REPORT-CARD-BUILDER-CONTD.md` plus the review notes in `AGENTS.md`.
 
 #### Storage and uploads
 
@@ -268,7 +268,11 @@ Phases 7–10 delete the stale UI; the spec lives in `.ai/REPORT-CARD-BUILDER-CO
 
 - Admin-only builder page at `/dashboard/report-cards/builder` (child of the Report Cards hub
   at `/dashboard/report-cards`, linked from the admin sidebar).
-- Two-panel layout: live A4 preview on the left, block editor on the right.
+- Two-panel layout: the A4 preview stays put while the customization controls scroll
+  alongside it on desktop; on smaller screens the controls open in a `UiSheet`, and the same
+  sheet is available from the full report card view so admins can edit while seeing a real
+  card. All controls are compact (small inputs, selects, and icon buttons), and text styling
+  (size, bold, colour, alignment) lives in a popover behind an icon button.
 - The editor (Phase 10) works per slot — Header, Student Info, Main, Sidebar, Footer (the
   Sidebar tab is disabled unless the layout is "With sidebar"). Each slot lists its blocks
   with hide, duplicate, reorder, and delete controls plus an "Add block" palette filtered by

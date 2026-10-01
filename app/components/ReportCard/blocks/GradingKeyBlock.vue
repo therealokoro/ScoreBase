@@ -10,40 +10,35 @@ const props = defineProps<{
   blockId?: string
 }>()
 
-// The grading key always mirrors the current result settings — the admin never maintains
-// grades in two places. The composable's placeholderData keeps this non-empty while loading.
-const { data: settings } = useGetResultSettings()
-
-const boundaries = computed(() =>
-  [...(settings.value?.gradeBoundaries ?? [])].sort((a, b) => b.min - a.min)
-)
+// Rows are seeded from result settings when the block is added, then editable per template.
+const rows = computed(() => [...props.config.rows].sort((a, b) => b.min - a.min))
 </script>
 
 <template>
-  <div data-block-type="grading-key" class="space-y-2">
+  <div data-block-type="grading-key" class="space-y-1.5">
     <p :style="textStyle(config.title.style)">{{ config.title.value }}</p>
 
     <div class="border-border overflow-hidden rounded-lg border">
-      <UiTable aria-label="Grading key">
+      <UiTable class="text-xs" aria-label="Grading key">
         <UiTableHeader>
           <UiTableRow>
-            <UiTableHead>Grade</UiTableHead>
-            <UiTableHead class="text-center">Min</UiTableHead>
-            <UiTableHead class="text-center">Max</UiTableHead>
-            <UiTableHead>Remark</UiTableHead>
+            <UiTableHead class="h-8 px-2 text-xs">Grade</UiTableHead>
+            <UiTableHead class="h-8 px-2 text-center text-xs">Range</UiTableHead>
+            <UiTableHead class="h-8 px-2 text-xs">Remark</UiTableHead>
           </UiTableRow>
         </UiTableHeader>
         <UiTableBody>
-          <UiTableRow v-for="boundary in boundaries" :key="boundary.label">
-            <UiTableCell class="font-medium">{{ boundary.label }}</UiTableCell>
-            <UiTableCell class="text-center tabular-nums">{{ boundary.min }}</UiTableCell>
-            <UiTableCell class="text-center tabular-nums">{{ boundary.max }}</UiTableCell>
-            <UiTableCell>{{ boundary.remark }}</UiTableCell>
+          <UiTableRow v-for="row in rows" :key="row.id">
+            <UiTableCell class="px-2 py-1 text-xs font-medium">{{ row.label }}</UiTableCell>
+            <UiTableCell class="px-2 py-1 text-center text-xs tabular-nums">
+              {{ row.min }}–{{ row.max }}
+            </UiTableCell>
+            <UiTableCell class="px-2 py-1 text-xs">{{ row.remark }}</UiTableCell>
           </UiTableRow>
 
-          <UiTableRow v-if="boundaries.length === 0">
-            <UiTableCell class="text-muted-foreground text-center text-sm">
-              No grade boundaries configured
+          <UiTableRow v-if="rows.length === 0">
+            <UiTableCell class="text-muted-foreground px-2 py-1 text-center text-xs">
+              No grades configured
             </UiTableCell>
           </UiTableRow>
         </UiTableBody>

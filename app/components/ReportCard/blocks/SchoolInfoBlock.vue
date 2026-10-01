@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
 import type { SchoolInfoConfig } from "~~/shared/constants/report-card"
+import { LOGO_SIZE_MAP } from "~~/shared/constants/report-card"
 
 import { textStyle } from "./text"
 
@@ -18,6 +19,11 @@ const logoPrimaryUrl = computed(() => assetUrl(props.config.logoPrimary))
 const logoSecondaryUrl = computed(
   () => assetUrl(props.config.logoSecondary) ?? logoPrimaryUrl.value
 )
+
+const logoStyle = computed(() => ({
+  height: `${LOGO_SIZE_MAP[props.config.logoSize]}px`,
+  width: `${LOGO_SIZE_MAP[props.config.logoSize]}px`
+}))
 
 const textFields = computed(() =>
   [
@@ -37,7 +43,8 @@ const textFields = computed(() =>
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
         alt="School logo"
-        class="h-20 w-20 shrink-0 object-contain"
+        class="shrink-0 object-contain"
+        :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
         <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
@@ -55,7 +62,8 @@ const textFields = computed(() =>
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
         alt="School logo"
-        class="h-20 w-20 shrink-0 object-contain"
+        class="shrink-0 object-contain"
+        :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
         <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
@@ -67,12 +75,13 @@ const textFields = computed(() =>
     <!-- Center -->
     <div v-else-if="config.logoPlacement === 'center'" class="flex flex-col items-center space-y-2">
       <div v-if="logoPrimaryUrl" class="flex items-center justify-center gap-4">
-        <img :src="logoPrimaryUrl" alt="School logo" class="h-20 w-20 object-contain" />
+        <img :src="logoPrimaryUrl" alt="School logo" class="object-contain" :style="logoStyle" />
         <img
           v-if="logoSecondaryUrl"
           :src="logoSecondaryUrl"
           alt="School logo"
-          class="h-20 w-20 object-contain"
+          class="object-contain"
+          :style="logoStyle"
         />
       </div>
       <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
@@ -86,13 +95,15 @@ const textFields = computed(() =>
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
         alt="School logo"
-        class="h-20 w-20 shrink-0 object-contain"
+        class="shrink-0 object-contain"
+        :style="logoStyle"
       />
       <img
         v-if="logoSecondaryUrl"
         :src="logoSecondaryUrl"
         alt="School logo"
-        class="h-20 w-20 shrink-0 object-contain"
+        class="shrink-0 object-contain"
+        :style="logoStyle"
       />
       <div class="absolute inset-x-0 top-0 mx-auto max-w-[60%] space-y-1">
         <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">

@@ -417,6 +417,19 @@ _Convention changes logged here:_
   (default cap 1; full view 1.25) — on-screen zoom uses layout-aware CSS `zoom` (never clips;
   `tailwind.css` resets it to 1 in print), and the page carries a markup-only post-MVP
   "Export As" dropdown (Excel/PDF).
+- 2026-10-01 — Report card builder UX pass (review fixes): the template no longer carries a
+  `name` or a `layout` toggle — the two-column sidebar layout is derived from
+  `template.sidebar` having blocks, and `sidebarPosition` (default `"right"`) is only shown
+  when it applies. Block set extended with **`psychomotor`** (sidebar-only, seeded from
+  `DEFAULT_PSYCHOMOTOR_SKILLS`) at the human's request; `grading-key` now carries editable
+  `rows` seeded from result settings' grade boundaries instead of reading them live (a
+  deliberate reversal of the Phase 6 "always live" decision). Watermark gained a
+  `source` (`"logo" | "custom"`) and now actually renders (single/tiled) in
+  `TemplatePreview`. Student-info and summary configs gained `labelPlacement`, school-info
+  gained `logoSize`, and all card tables are compact so a card fits one A4 page. Editor: the
+  preview is fixed while controls live in a `UiSheet` (shared with the full report card view
+  via `useReportCardTemplateEditor` + `ReportCardBuilder/CustomizeSheet.vue`), the palette is
+  a `SmallSelect`, and `StyledTextInput` keeps its extra controls in a popover.
 - 2026-09-30 — Block editor UI (Phase 10): the builder is a real block editor —
   `ReportCardBuilder/BlockEditor.vue` (template name, layout + sidebar side, watermark,
   slot tabs) and `BlockSlotList.vue` (per-slot add/hide/duplicate/reorder/delete with

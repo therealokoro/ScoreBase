@@ -21,19 +21,19 @@ function rowValue(rowId: string): string {
 </script>
 
 <template>
-  <div data-block-type="custom-table" class="space-y-2">
+  <div data-block-type="custom-table" class="space-y-1.5">
     <p :style="textStyle(config.title.style)">{{ config.title.value }}</p>
 
     <div class="border-border overflow-hidden rounded-lg border">
       <UiTable aria-label="Custom table">
         <UiTableBody>
           <UiTableRow v-for="row in config.rows" :key="row.id">
-            <UiTableCell class="font-medium">{{ row.label }}</UiTableCell>
-            <UiTableCell class="text-right">{{ rowValue(row.id) }}</UiTableCell>
+            <UiTableCell class="px-2 py-1 text-xs font-medium">{{ row.label }}</UiTableCell>
+            <UiTableCell class="px-2 py-1 text-right text-xs">{{ rowValue(row.id) }}</UiTableCell>
           </UiTableRow>
 
           <UiTableRow v-if="config.rows.length === 0">
-            <UiTableCell class="text-muted-foreground text-center text-sm">
+            <UiTableCell class="text-muted-foreground px-2 py-1 text-center text-xs">
               No rows configured
             </UiTableCell>
           </UiTableRow>

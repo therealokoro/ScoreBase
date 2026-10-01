@@ -62,21 +62,25 @@ const stats = computed(() => {
   <div data-block-type="summary">
     <div
       v-if="config.style === 'inline'"
-      class="border-border bg-muted/40 flex flex-wrap gap-x-8 gap-y-3 rounded-lg border p-3 text-sm"
+      class="border-border bg-muted/40 flex flex-wrap gap-x-6 gap-y-2 rounded-lg border p-3"
     >
-      <div v-for="stat in stats" :key="stat.key">
+      <div
+        v-for="stat in stats"
+        :key="stat.key"
+        :class="config.labelPlacement === 'side' ? 'flex items-baseline gap-2' : ''"
+      >
         <p class="text-muted-foreground text-[10px] tracking-wide uppercase">{{ stat.label }}</p>
-        <p class="font-semibold">{{ stat.value }}</p>
+        <p class="text-xs font-semibold">{{ stat.value }}</p>
       </div>
     </div>
 
     <dl
       v-else
-      class="border-border bg-muted/40 grid grid-cols-2 gap-3 rounded-lg border p-3 text-sm"
+      class="border-border bg-muted/40 grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border p-3"
     >
       <div v-for="stat in stats" :key="stat.key" class="flex items-baseline justify-between gap-2">
-        <dt class="text-muted-foreground text-xs">{{ stat.label }}</dt>
-        <dd class="font-semibold">{{ stat.value }}</dd>
+        <dt class="text-muted-foreground text-[10px]">{{ stat.label }}</dt>
+        <dd class="text-xs font-semibold">{{ stat.value }}</dd>
       </div>
     </dl>
   </div>

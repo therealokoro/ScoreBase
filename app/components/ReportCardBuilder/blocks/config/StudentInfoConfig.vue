@@ -2,6 +2,7 @@
 import { typeid } from "typeid-js"
 import { ICONS } from "~~/shared/constants/icons"
 import type {
+  LabelPlacement,
   StudentInfoBorderStyle,
   StudentInfoConfig,
   StudentInfoField
@@ -33,6 +34,11 @@ const borderOptions: { value: StudentInfoBorderStyle; label: string }[] = [
   { value: "shaded-labels", label: "Shaded labels" }
 ]
 
+const labelOptions: { value: LabelPlacement; label: string }[] = [
+  { value: "top", label: "Label above the value" },
+  { value: "side", label: "Label beside the value" }
+]
+
 const columnsModel = computed({
   get: () => String(config.value.columns),
   set: (value: string) => {
@@ -62,34 +68,27 @@ function moveField(index: number, direction: -1 | 1) {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="grid grid-cols-2 gap-3">
-      <div class="space-y-2">
-        <UiLabel>Columns</UiLabel>
-        <UiSelect v-model="columnsModel" :options="columnOptions" placeholder="Choose" />
-      </div>
+  <div class="space-y-4">
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Columns</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="columnsModel" :options="columnOptions" />
+    </div>
 
-      <div class="space-y-2">
-        <UiLabel>Border style</UiLabel>
-        <div class="flex items-center gap-1">
-          <UiButton
-            v-for="option in borderOptions"
-            :key="option.value"
-            type="button"
-            size="sm"
-            :variant="config.borderStyle === option.value ? 'secondary' : 'ghost'"
-            :text="option.label"
-            @click="config.borderStyle = option.value"
-          />
-        </div>
-      </div>
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Border style</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="config.borderStyle" :options="borderOptions" />
+    </div>
+
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Labels</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="config.labelPlacement" :options="labelOptions" />
     </div>
 
     <UiSeparator />
 
-    <div class="space-y-3">
+    <div class="space-y-2">
       <div class="flex items-center justify-between gap-2">
-        <UiLabel>Fields</UiLabel>
+        <UiLabel class="text-xs">Fields</UiLabel>
         <UiButton
           type="button"
           variant="outline"
@@ -100,20 +99,19 @@ function moveField(index: number, direction: -1 | 1) {
         />
       </div>
 
-      <p v-if="config.fields.length === 0" class="text-muted-foreground text-xs">
+      <p v-if="config.fields.length === 0" class="text-muted-foreground text-[10px]">
         No fields yet — add one to show student details on the report card.
       </p>
 
       <div
         v-for="(field, index) in config.fields"
         :key="field.id"
-        class="space-y-2 rounded-lg border border-border p-3"
+        class="space-y-2 rounded-md border border-border p-2"
       >
-        <div class="flex items-center gap-2">
-          <UiSelect
+        <div class="flex items-center gap-1">
+          <ReportCardBuilderSmallSelect
             v-model="field.field"
             :options="FIELD_OPTIONS"
-            placeholder="Choose a field"
             class="flex-1"
           />
           <UiButton
@@ -145,7 +143,11 @@ function moveField(index: number, direction: -1 | 1) {
           />
         </div>
 
-        <UiInput v-model="field.label" placeholder="Label shown on the report card" />
+        <UiInput
+          v-model="field.label"
+          placeholder="Label shown on the report card"
+          class="h-8 text-xs"
+        />
       </div>
     </div>
   </div>

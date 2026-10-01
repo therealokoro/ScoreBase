@@ -3,6 +3,7 @@ import { z } from "zod"
 import {
   createDefaultCustomTableConfig,
   createDefaultGradingKeyConfig,
+  createDefaultPsychomotorConfig,
   createDefaultRemarksConfig,
   createDefaultSchoolInfoConfig,
   createDefaultScoresConfig,
@@ -11,6 +12,7 @@ import {
   type BlockType,
   type CustomTableConfig,
   type GradingKeyConfig,
+  type PsychomotorConfig,
   type RemarksConfig,
   type SchoolInfoConfig,
   type ScoresConfig,
@@ -21,6 +23,7 @@ import {
 import {
   CustomTableConfigSchema,
   GradingKeyConfigSchema,
+  PsychomotorConfigSchema,
   RemarksConfigSchema,
   SchoolInfoConfigSchema,
   ScoresConfigSchema,
@@ -30,6 +33,7 @@ import {
 
 import CustomTableBlock from "./CustomTableBlock.vue"
 import GradingKeyBlock from "./GradingKeyBlock.vue"
+import PsychomotorBlock from "./PsychomotorBlock.vue"
 import RemarksBlock from "./RemarksBlock.vue"
 import SchoolInfoBlock from "./SchoolInfoBlock.vue"
 import ScoresBlock from "./ScoresBlock.vue"
@@ -69,6 +73,7 @@ interface BlockConfigMap {
   scores: ScoresConfig
   "custom-table": CustomTableConfig
   "grading-key": GradingKeyConfig
+  psychomotor: PsychomotorConfig
   summary: SummaryConfig
   remarks: RemarksConfig
 }
@@ -135,8 +140,19 @@ export const blockRegistry: BlockRegistry = {
     configSchema: GradingKeyConfigSchema,
     defaultConfig: createDefaultGradingKeyConfig,
     component: GradingKeyBlock,
-    // Grade data comes from ResultSettings at render time, not from ReportCardData.
+    // Rows are seeded from result settings' grade boundaries when the block is added.
     dataRequirements: { computed: [], manual: [] }
+  },
+  psychomotor: {
+    type: "psychomotor",
+    label: "Psychomotor Skills",
+    // Sidebar-only by design: adding one is what turns the two-column layout on.
+    allowedSlots: ["sidebar"],
+    configSchema: PsychomotorConfigSchema,
+    defaultConfig: createDefaultPsychomotorConfig,
+    component: PsychomotorBlock,
+    // Skill labels are fixed per template; ratings are teacher-entered per student.
+    dataRequirements: { computed: [], manual: ["rows"] }
   },
   summary: {
     type: "summary",

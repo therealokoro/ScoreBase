@@ -11,6 +11,12 @@ const placements: { value: LogoPlacement; label: string }[] = [
   { value: "left-right", label: "Both sides" }
 ]
 
+const logoSizeOptions = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" }
+]
+
 const showSecondaryLogo = computed(() =>
   ["center", "left-right"].includes(config.value.logoPlacement)
 )
@@ -24,9 +30,9 @@ const sameLogo = computed({
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="space-y-2">
-      <UiLabel>Logo placement</UiLabel>
+  <div class="space-y-4">
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Logo placement</UiLabel>
       <div class="grid grid-cols-2 gap-3">
         <button
           v-for="placement in placements"
@@ -99,6 +105,11 @@ const sameLogo = computed({
       </div>
     </div>
 
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Logo size</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="config.logoSize" :options="logoSizeOptions" />
+    </div>
+
     <div class="space-y-3">
       <ReportCardBuilderAssetUpload
         v-model="config.logoPrimary"
@@ -127,17 +138,29 @@ const sameLogo = computed({
       v-model="config.schoolName"
       label="School name"
       placeholder="e.g. Springfield Secondary School"
+      :min-size="12"
+      :max-size="22"
     />
-    <ReportCardBuilderStyledTextInput v-model="config.address" label="Address" multiline />
+    <ReportCardBuilderStyledTextInput
+      v-model="config.address"
+      label="Address"
+      multiline
+      :min-size="9"
+      :max-size="14"
+    />
     <ReportCardBuilderStyledTextInput
       v-model="config.motto"
       label="Motto"
       placeholder="e.g. Knowledge and Integrity"
+      :min-size="9"
+      :max-size="16"
     />
     <ReportCardBuilderStyledTextInput
       v-model="config.extraText"
       label="Extra text"
       placeholder="e.g. Phone, email, website"
+      :min-size="8"
+      :max-size="12"
     />
   </div>
 </template>

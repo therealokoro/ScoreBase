@@ -13,6 +13,7 @@ import { blockRegistry, getBlockDefinition } from "../ReportCard/blocks/registry
 import type { BlockDefinition } from "../ReportCard/blocks/registry"
 import CustomTableConfigPanel from "./blocks/config/CustomTableConfig.vue"
 import GradingKeyConfigPanel from "./blocks/config/GradingKeyConfig.vue"
+import PsychomotorConfigPanel from "./blocks/config/PsychomotorConfig.vue"
 import RemarksConfigPanel from "./blocks/config/RemarksConfig.vue"
 import SchoolInfoConfigPanel from "./blocks/config/SchoolInfoConfig.vue"
 import ScoresConfigPanel from "./blocks/config/ScoresConfig.vue"
@@ -29,12 +30,12 @@ const configPanels: Record<BlockType, Component> = {
   scores: ScoresConfigPanel,
   "custom-table": CustomTableConfigPanel,
   "grading-key": GradingKeyConfigPanel,
+  psychomotor: PsychomotorConfigPanel,
   summary: SummaryConfigPanel,
   remarks: RemarksConfigPanel
 }
 
 const selectedBlockId = ref<string | null>(null)
-const paletteOpen = ref(false)
 const deleteDialogOpen = ref(false)
 const pendingDeleteId = ref<string | null>(null)
 
@@ -44,15 +45,20 @@ const availableBlocks = computed(() =>
   Object.values(blockRegistry).filter((definition) => definition.allowedSlots.includes(props.slot))
 )
 
-function requirementSummary(definition: BlockDefinition): string {
-  const parts: string[] = []
-  if (definition.dataRequirements.computed.length > 0) {
-    parts.push(`Uses ${definition.dataRequirements.computed.length} student data fields`)
-  }
-  if (definition.dataRequirements.manual.length > 0) {
-    parts.push("Teachers fill in values for each student")
-  }
-  return parts.join(" · ") || "Layout or fixed content only"
+const blockOptions = computed(() =>
+  availableBlocks.value.map((definition) => ({
+    label: definition.label,
+    value: definition.type
+  }))
+)
+
+/** Always reset to empty: picking an option adds the block straight away. */
+const paletteChoice = ref("")
+
+function addChosenBlock(type: string) {
+  const definition = availableBlocks.value.find((item) => item.type === type)
+  if (definition) addBlock(definition)
+  paletteChoice.value = ""
 }
 
 function selectBlock(id: string) {
@@ -70,7 +76,6 @@ function addBlock(definition: BlockDefinition) {
 
   blocks.value.push(block)
   selectedBlockId.value = block.id
-  paletteOpen.value = false
 }
 
 function duplicateBlock(index: number) {
@@ -183,40 +188,16 @@ function confirmDelete() {
       </div>
     </div>
 
-    <!-- Add block palette -->
-    <div v-if="paletteOpen" class="space-y-2 rounded-lg border border-dashed border-border p-3">
-      <p class="text-sm font-medium">Add a block</p>
-      <button
-        v-for="definition in availableBlocks"
-        :key="definition.type"
-        type="button"
-        class="hover:bg-muted w-full rounded-md border border-border p-2 text-left transition-colors"
-        @click="addBlock(definition)"
-      >
-        <span class="block text-sm font-medium">{{ definition.label }}</span>
-        <span class="text-muted-foreground block text-xs">
-          {{ requirementSummary(definition) }}
-        </span>
-      </button>
-      <UiButton
-        type="button"
-        variant="ghost"
-        size="sm"
-        text="Cancel"
-        @click="paletteOpen = false"
+    <!-- Add block — a compact select listing what this slot allows -->
+    <div class="space-y-1.5 rounded-lg border border-dashed border-border p-2">
+      <p class="text-xs font-medium">Add a block</p>
+      <ReportCardBuilderSmallSelect
+        v-model="paletteChoice"
+        :options="blockOptions"
+        placeholder="Choose a block…"
+        @update:model-value="addChosenBlock"
       />
     </div>
-
-    <UiButton
-      v-else
-      type="button"
-      variant="outline"
-      size="sm"
-      :icon="ICONS.add"
-      text="Add block"
-      block
-      @click="paletteOpen = true"
-    />
 
     <!-- Delete confirmation -->
     <UiAlertDialog v-model:open="deleteDialogOpen">

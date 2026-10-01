@@ -1,7 +1,10 @@
 import { typeid } from "typeid-js"
 import { describe, expect, it } from "vitest"
 
-import { createDefaultReportCardTemplate } from "#shared/constants/report-card"
+import {
+  createDefaultPsychomotorConfig,
+  createDefaultReportCardTemplate
+} from "#shared/constants/report-card"
 
 import {
   ReportCardTemplateSchema,
@@ -19,7 +22,7 @@ const gradingKeyBlock = () => ({
   id: typeid("block").toString(),
   type: "grading-key",
   hidden: false,
-  config: { title: styled("Grading") }
+  config: { title: styled("Grading"), rows: [] }
 })
 
 const templateWith = (overrides: Record<string, unknown>) => ({
@@ -87,7 +90,8 @@ describe("ReportCardTemplateSchema", () => {
   it("rejects a watermark opacity above 1", () => {
     const invalid = templateWith({
       watermark: {
-        imageUrl: "report-card/logo-primary",
+        source: "custom",
+        imageUrl: "report-card/watermark",
         opacity: 1.5,
         size: "medium",
         mode: "single"
@@ -97,36 +101,53 @@ describe("ReportCardTemplateSchema", () => {
     expect(ReportCardTemplateSchema.safeParse(invalid).success).toBe(false)
   })
 
-  it("rejects a template name that is empty or over 120 characters", () => {
-    expect(ReportCardTemplateSchema.safeParse(templateWith({ name: "" })).success).toBe(false)
-    expect(
-      ReportCardTemplateSchema.safeParse(templateWith({ name: "x".repeat(121) })).success
-    ).toBe(false)
-  })
-
-  it("requires sidebarPosition to be null when layout is full", () => {
-    const invalid = templateWith({ sidebarPosition: "left" })
-
-    expect(ReportCardTemplateSchema.safeParse(invalid).success).toBe(false)
-  })
-
-  it("requires a sidebarPosition when layout is sidebar", () => {
-    const invalid = templateWith({ layout: "sidebar" })
+  it("rejects a custom watermark without an uploaded image", () => {
+    const invalid = templateWith({
+      watermark: {
+        source: "custom",
+        imageUrl: null,
+        opacity: 0.1,
+        size: "medium",
+        mode: "single"
+      }
+    })
 
     expect(ReportCardTemplateSchema.safeParse(invalid).success).toBe(false)
   })
 
-  it("rejects sidebar blocks when layout is full", () => {
-    const invalid = templateWith({ sidebar: [gradingKeyBlock()] })
-
-    expect(ReportCardTemplateSchema.safeParse(invalid).success).toBe(false)
-  })
-
-  it("accepts a sidebar layout with blocks in the sidebar", () => {
+  it("accepts a logo watermark with no uploaded image", () => {
     const valid = templateWith({
-      layout: "sidebar",
+      watermark: {
+        source: "logo",
+        imageUrl: null,
+        opacity: 0.08,
+        size: "medium",
+        mode: "single"
+      }
+    })
+
+    expect(ReportCardTemplateSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it("accepts sidebar blocks (the sidebar layout is derived from them)", () => {
+    const valid = templateWith({
       sidebarPosition: "right",
       sidebar: [gradingKeyBlock()]
+    })
+
+    expect(ReportCardTemplateSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it("accepts a psychomotor block only in the sidebar slot shape", () => {
+    const valid = templateWith({
+      sidebar: [
+        {
+          id: typeid("block").toString(),
+          type: "psychomotor",
+          hidden: false,
+          config: createDefaultPsychomotorConfig()
+        }
+      ]
     })
 
     expect(ReportCardTemplateSchema.safeParse(valid).success).toBe(true)
@@ -175,6 +196,7 @@ describe("StudentInfoConfigSchema", () => {
     const valid = {
       columns: 3,
       borderStyle: "outlined",
+      labelPlacement: "top",
       fields: [
         { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
         { id: typeid("field").toString(), field: "class.size", label: "Class Size" }
@@ -188,6 +210,7 @@ describe("StudentInfoConfigSchema", () => {
     const invalid = {
       columns: 2,
       borderStyle: "borderless",
+      labelPlacement: "top",
       fields: [{ id: typeid("field").toString(), field: "bogus.field", label: "Bogus" }]
     }
 
@@ -198,6 +221,7 @@ describe("StudentInfoConfigSchema", () => {
     const invalid = {
       columns: 5,
       borderStyle: "shaded-labels",
+      labelPlacement: "top",
       fields: [{ id: typeid("field").toString(), field: "term.name", label: "Term" }]
     }
 

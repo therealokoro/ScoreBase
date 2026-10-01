@@ -51,13 +51,12 @@ describe("getReportCardTemplate", () => {
   })
 
   it("deep-merges the stored value over the defaults", async () => {
-    vi.mocked(kv.get).mockResolvedValue({ name: "Springfield Template" })
+    vi.mocked(kv.get).mockResolvedValue({ sidebarPosition: "left" })
 
     const template = await getReportCardTemplate()
 
-    expect(template.name).toBe("Springfield Template")
+    expect(template.sidebarPosition).toBe("left")
     // Sibling fields survive the merge.
-    expect(template.layout).toBe("full")
     expect(template.footer[1]?.type).toBe("remarks")
   })
 
@@ -73,14 +72,14 @@ describe("getReportCardTemplate", () => {
   })
 
   it("falls back to the defaults when the merged value is corrupt", async () => {
-    // A sidebar block is not allowed while layout is "full", so this fails validation.
+    // A grading-key block without rows fails validation, so the merge result is corrupt.
     vi.mocked(kv.get).mockResolvedValue({
       sidebar: [
         {
           id: "block_abcdefghjkmnpqrstvwxyz0001",
           type: "grading-key",
           hidden: false,
-          config: { title: styled("") }
+          config: { title: styled("g"), rows: "nope" }
         }
       ]
     })
@@ -114,7 +113,7 @@ describe("setReportCardTemplate", () => {
 
   it("writes the full template back to KV and returns it", async () => {
     const template: ReportCardTemplate = structuredClone(createDefaultReportCardTemplate())
-    template.name = "Updated"
+    template.sidebarPosition = "left"
 
     await expect(setReportCardTemplate(template)).resolves.toBe(template)
     expect(kv.set).toHaveBeenCalledWith("settings:report-card-template", template)

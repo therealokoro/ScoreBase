@@ -1,5 +1,8 @@
 import { typeid } from "typeid-js"
 
+import { DEFAULT_GRADE_BOUNDARIES } from "./kv-settings"
+import type { GradeBoundary } from "./kv-settings"
+
 // ---------------------------------------------------------------------------
 // Report Card Template — slot + block model
 //
@@ -52,6 +55,7 @@ export const REPORT_CARD_BLOCK_TYPES = [
   "scores",
   "custom-table",
   "grading-key",
+  "psychomotor",
   "summary",
   "remarks"
 ] as const
@@ -88,6 +92,12 @@ export interface GradingKeyBlock extends ReportCardBlockBase {
   config: GradingKeyConfig
 }
 
+/** Psychomotor skills table — sidebar-only, values are teacher-entered per student. */
+export interface PsychomotorBlock extends ReportCardBlockBase {
+  type: "psychomotor"
+  config: PsychomotorConfig
+}
+
 export interface SummaryBlock extends ReportCardBlockBase {
   type: "summary"
   config: SummaryConfig
@@ -105,28 +115,31 @@ export type ReportCardBlock =
   | ScoresBlock
   | CustomTableBlock
   | GradingKeyBlock
+  | PsychomotorBlock
   | SummaryBlock
   | RemarksBlock
 
+export type WatermarkSource = "logo" | "custom"
+
 export interface Watermark {
-  imageUrl: string // NuxtHub Blob pathname
+  source: WatermarkSource
+  imageUrl: string | null // NuxtHub Blob pathname — only used when source is "custom"
   opacity: number // 0–1
   size: "small" | "medium" | "large"
   mode: "single" | "tiled"
 }
 
-export type ReportCardLayout = "full" | "sidebar"
+export type SidebarPosition = "left" | "right"
 
 export interface ReportCardTemplate {
   id: string // typeid("template")
-  name: string
-  layout: ReportCardLayout
-  sidebarPosition: "left" | "right" | null // null when layout is "full"
+  // Sidebar layout is derived: it kicks in whenever `sidebar` has blocks.
+  sidebarPosition: SidebarPosition
   watermark: Watermark | null
   header: ReportCardBlock[]
   studentInfo: ReportCardBlock[]
   main: ReportCardBlock[]
-  sidebar: ReportCardBlock[] // always [] when layout is "full"
+  sidebar: ReportCardBlock[]
   footer: ReportCardBlock[]
 }
 
@@ -134,12 +147,25 @@ export interface ReportCardTemplate {
 // Block configs
 // ---------------------------------------------------------------------------
 
+/** Whether a labelled value shows its label above the value or beside it. */
+export type LabelPlacement = "top" | "side"
+
 // -- school-info ------------------------------------------------------------
 
 export type LogoPlacement = "left" | "center" | "right" | "left-right"
 
+/** Rendered logo heights in px. Capped so a header always fits on an A4 page. */
+export const LOGO_SIZE_MAP: Record<"small" | "medium" | "large", number> = {
+  small: 56,
+  medium: 72,
+  large: 96
+}
+
+export type LogoSize = keyof typeof LOGO_SIZE_MAP
+
 export interface SchoolInfoConfig {
   logoPlacement: LogoPlacement
+  logoSize: LogoSize
   logoPrimary: string | null // NuxtHub Blob pathname
   logoSecondary: string | null // used when logoPlacement is "center" or "left-right"
   // When logoSecondary is null and two logo slots are shown, logoPrimary fills both.
@@ -177,6 +203,7 @@ export type StudentInfoBorderStyle = "outlined" | "borderless" | "shaded-labels"
 export interface StudentInfoConfig {
   columns: 2 | 3 | 4
   borderStyle: StudentInfoBorderStyle
+  labelPlacement: LabelPlacement
   fields: StudentInfoFieldRow[]
 }
 
@@ -223,10 +250,44 @@ export interface CustomTableConfig {
 
 // -- grading-key ------------------------------------------------------------
 
-// Grade data always comes from getResultSettings() — no manual entry.
+export interface GradingKeyRow {
+  id: string // typeid("row")
+  label: string // e.g. "A"
+  min: number
+  max: number
+  remark: string // e.g. "Excellent"
+}
+
+// Seeded from result settings' gradeBoundaries, then editable per template.
 export interface GradingKeyConfig {
   title: StyledText
+  rows: GradingKeyRow[]
 }
+
+// -- psychomotor ------------------------------------------------------------
+
+export interface PsychomotorRow {
+  id: string // typeid("row")
+  label: string // the skill, e.g. "Handwriting"
+}
+
+// Values are entered per student at scoresheet time (manualValues, Phase 12).
+export interface PsychomotorConfig {
+  title: StyledText
+  rows: PsychomotorRow[]
+}
+
+/** Default psychomotor skills offered when a psychomotor block is added. */
+export const DEFAULT_PSYCHOMOTOR_SKILLS = [
+  "Handwriting",
+  "Verbal Fluency",
+  "Sports and Games",
+  "Handling of Tools",
+  "Drawing and Painting",
+  "Musical Skills",
+  "Neatness",
+  "Punctuality"
+] as const
 
 // -- summary ----------------------------------------------------------------
 
@@ -245,6 +306,7 @@ export interface SummaryConfig {
   // "inline" → horizontal row of labelled values
   // "grid"   → 2-column key/value pairs
   style: SummaryStyle
+  labelPlacement: LabelPlacement
 }
 
 // -- remarks ----------------------------------------------------------------
@@ -300,18 +362,19 @@ export type ReportCardAssetKey =
 export function createDefaultSchoolInfoConfig(): SchoolInfoConfig {
   return {
     logoPlacement: "left",
+    logoSize: "medium",
     logoPrimary: null,
     logoSecondary: null,
     schoolName: {
       value: "",
-      style: { ...DEFAULT_TEXT_STYLE, fontSize: 18, fontWeight: "bold", align: "center" }
+      style: { ...DEFAULT_TEXT_STYLE, fontSize: 16, fontWeight: "bold", align: "center" }
     },
-    address: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, align: "center" } },
+    address: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, align: "center" } },
     motto: {
       value: "",
-      style: { ...DEFAULT_TEXT_STYLE, fontSize: 12, fontWeight: "bold", align: "center" }
+      style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, fontWeight: "bold", align: "center" }
     },
-    extraText: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, align: "center" } }
+    extraText: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10, align: "center" } }
   }
 }
 
@@ -319,6 +382,7 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
   return {
     columns: 3,
     borderStyle: "outlined",
+    labelPlacement: "top",
     fields: [
       { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
       { id: typeid("field").toString(), field: "student.id", label: "Student ID" },
@@ -336,17 +400,43 @@ export function createDefaultScoresConfig(): ScoresConfig {
 export function createDefaultCustomTableConfig(): CustomTableConfig {
   return {
     variant: "static",
-    title: { value: "Custom Table", style: { ...DEFAULT_TEXT_STYLE } },
+    title: { value: "Custom Table", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
     rows: [{ id: typeid("row").toString(), label: "Label", value: "" }]
   }
 }
 
-export function createDefaultGradingKeyConfig(): GradingKeyConfig {
-  return { title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE } } }
+/** Seeds the grading key from result settings' grade boundaries (editable afterwards). */
+export function createDefaultGradingKeyConfig(
+  boundaries: readonly GradeBoundary[] = DEFAULT_GRADE_BOUNDARIES
+): GradingKeyConfig {
+  return {
+    title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
+    rows: boundaries.map((boundary) => ({
+      id: typeid("row").toString(),
+      label: boundary.label,
+      min: boundary.min,
+      max: boundary.max,
+      remark: boundary.remark
+    }))
+  }
+}
+
+/** Seeds the psychomotor table with the standard skills list (editable afterwards). */
+export function createDefaultPsychomotorConfig(
+  skills: readonly string[] = DEFAULT_PSYCHOMOTOR_SKILLS
+): PsychomotorConfig {
+  return {
+    title: { value: "Psychomotor Skills", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
+    rows: skills.map((label) => ({ id: typeid("row").toString(), label }))
+  }
 }
 
 export function createDefaultSummaryConfig(): SummaryConfig {
-  return { metrics: ["marksObtained", "average", "position", "positionOutOf"], style: "inline" }
+  return {
+    metrics: ["marksObtained", "average", "position", "positionOutOf"],
+    style: "inline",
+    labelPlacement: "top"
+  }
 }
 
 export function createDefaultRemarksConfig(): RemarksConfig {
@@ -384,9 +474,7 @@ export function createDefaultRemarksConfig(): RemarksConfig {
 export function createDefaultReportCardTemplate(): ReportCardTemplate {
   return {
     id: typeid("template").toString(),
-    name: "Default Template",
-    layout: "full",
-    sidebarPosition: null,
+    sidebarPosition: "right",
     watermark: null,
     header: [
       {

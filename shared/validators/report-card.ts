@@ -48,14 +48,23 @@ export type StyledText = z.infer<typeof StyledTextSchema>
 // Watermark
 // ---------------------------------------------------------------------------
 
-export const WatermarkSchema = z.object({
-  imageUrl: z.string().min(1),
-  opacity: z.number().min(0).max(1),
-  size: z.enum(["small", "medium", "large"]),
-  mode: z.enum(["single", "tiled"])
-})
+export const WatermarkSchema = z
+  .object({
+    source: z.enum(["logo", "custom"]),
+    imageUrl: z.string().nullable(),
+    opacity: z.number().min(0).max(1),
+    size: z.enum(["small", "medium", "large"]),
+    mode: z.enum(["single", "tiled"])
+  })
+  .refine((watermark) => watermark.source !== "custom" || watermark.imageUrl !== null, {
+    message: "A custom watermark needs an uploaded image",
+    path: ["imageUrl"]
+  })
 
 export type Watermark = z.infer<typeof WatermarkSchema>
+
+/** Whether a labelled value shows its label above the value or beside it. */
+export const LabelPlacementSchema = z.enum(["top", "side"])
 
 // ---------------------------------------------------------------------------
 // Block configs
@@ -65,6 +74,7 @@ export type Watermark = z.infer<typeof WatermarkSchema>
 
 export const SchoolInfoConfigSchema = z.object({
   logoPlacement: z.enum(["left", "center", "right", "left-right"]),
+  logoSize: z.enum(["small", "medium", "large"]),
   logoPrimary: z.string().nullable(),
   logoSecondary: z.string().nullable(),
   schoolName: StyledTextSchema,
@@ -103,6 +113,7 @@ export type StudentInfoFieldRow = z.infer<typeof StudentInfoFieldRowSchema>
 export const StudentInfoConfigSchema = z.object({
   columns: z.union([z.literal(2), z.literal(3), z.literal(4)]),
   borderStyle: z.enum(["outlined", "borderless", "shaded-labels"]),
+  labelPlacement: LabelPlacementSchema,
   fields: z.array(StudentInfoFieldRowSchema)
 })
 
@@ -163,11 +174,38 @@ export type CustomTableConfig = z.infer<typeof CustomTableConfigSchema>
 
 // -- grading-key -----------------------------------------------------------
 
+export const GradingKeyRowSchema = z.object({
+  id: RowIdSchema,
+  label: z.string().min(1),
+  min: z.number().min(0).max(100),
+  max: z.number().min(0).max(100),
+  remark: z.string()
+})
+
+export type GradingKeyRow = z.infer<typeof GradingKeyRowSchema>
+
 export const GradingKeyConfigSchema = z.object({
-  title: StyledTextSchema
+  title: StyledTextSchema,
+  rows: z.array(GradingKeyRowSchema)
 })
 
 export type GradingKeyConfig = z.infer<typeof GradingKeyConfigSchema>
+
+// -- psychomotor -----------------------------------------------------------
+
+export const PsychomotorRowSchema = z.object({
+  id: RowIdSchema,
+  label: z.string().min(1)
+})
+
+export type PsychomotorRow = z.infer<typeof PsychomotorRowSchema>
+
+export const PsychomotorConfigSchema = z.object({
+  title: StyledTextSchema,
+  rows: z.array(PsychomotorRowSchema)
+})
+
+export type PsychomotorConfig = z.infer<typeof PsychomotorConfigSchema>
 
 // -- summary ---------------------------------------------------------------
 
@@ -184,7 +222,8 @@ export type SummaryMetric = z.infer<typeof SummaryMetricSchema>
 
 export const SummaryConfigSchema = z.object({
   metrics: z.array(SummaryMetricSchema),
-  style: z.enum(["inline", "grid"])
+  style: z.enum(["inline", "grid"]),
+  labelPlacement: LabelPlacementSchema
 })
 
 export type SummaryConfig = z.infer<typeof SummaryConfigSchema>
@@ -244,6 +283,11 @@ export const GradingKeyBlockSchema = BlockBaseSchema.extend({
   config: GradingKeyConfigSchema
 })
 
+export const PsychomotorBlockSchema = BlockBaseSchema.extend({
+  type: z.literal("psychomotor"),
+  config: PsychomotorConfigSchema
+})
+
 export const SummaryBlockSchema = BlockBaseSchema.extend({
   type: z.literal("summary"),
   config: SummaryConfigSchema
@@ -260,6 +304,7 @@ export const ReportCardBlockSchema = z.discriminatedUnion("type", [
   ScoresBlockSchema,
   CustomTableBlockSchema,
   GradingKeyBlockSchema,
+  PsychomotorBlockSchema,
   SummaryBlockSchema,
   RemarksBlockSchema
 ])
@@ -270,42 +315,16 @@ export type ReportCardBlock = z.infer<typeof ReportCardBlockSchema>
 // Template
 // ---------------------------------------------------------------------------
 
-export const ReportCardTemplateSchema = z
-  .object({
-    id: TemplateIdSchema,
-    name: z.string().min(1).max(120),
-    layout: z.enum(["full", "sidebar"]),
-    sidebarPosition: z.enum(["left", "right"]).nullable(),
-    watermark: WatermarkSchema.nullable(),
-    header: z.array(ReportCardBlockSchema),
-    studentInfo: z.array(ReportCardBlockSchema),
-    main: z.array(ReportCardBlockSchema),
-    sidebar: z.array(ReportCardBlockSchema),
-    footer: z.array(ReportCardBlockSchema)
-  })
-  .superRefine((template, ctx) => {
-    if (template.layout === "full" && template.sidebarPosition !== null) {
-      ctx.addIssue({
-        code: "custom",
-        message: "sidebarPosition must be null when layout is full",
-        path: ["sidebarPosition"]
-      })
-    }
-    if (template.layout === "sidebar" && template.sidebarPosition === null) {
-      ctx.addIssue({
-        code: "custom",
-        message: "sidebarPosition is required when layout is sidebar",
-        path: ["sidebarPosition"]
-      })
-    }
-    if (template.layout === "full" && template.sidebar.length > 0) {
-      ctx.addIssue({
-        code: "custom",
-        message: "sidebar blocks are not allowed when layout is full",
-        path: ["sidebar"]
-      })
-    }
-  })
+export const ReportCardTemplateSchema = z.object({
+  id: TemplateIdSchema,
+  sidebarPosition: z.enum(["left", "right"]),
+  watermark: WatermarkSchema.nullable(),
+  header: z.array(ReportCardBlockSchema),
+  studentInfo: z.array(ReportCardBlockSchema),
+  main: z.array(ReportCardBlockSchema),
+  sidebar: z.array(ReportCardBlockSchema),
+  footer: z.array(ReportCardBlockSchema)
+})
 
 export type ReportCardTemplateType = z.infer<typeof ReportCardTemplateSchema>
 

@@ -110,11 +110,11 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
               <UiTableHead
                 v-for="column in columns"
                 :key="column.key"
-                class="whitespace-nowrap"
+                class="h-8 px-2 text-xs whitespace-nowrap"
                 :class="
                   column.key === 'subject'
-                    ? 'border-border sticky left-0 z-10 min-w-35 border-r bg-card'
-                    : 'text-center min-w-15'
+                    ? 'border-border sticky left-0 z-10 min-w-32 border-r bg-card'
+                    : 'text-center min-w-12'
                 "
               >
                 {{ column.label }}
@@ -129,8 +129,8 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
                 :key="column.key"
                 :class="[
                   column.key === 'subject'
-                    ? 'border-border sticky left-0 z-10 border-r bg-card font-medium'
-                    : 'text-center',
+                    ? 'border-border sticky left-0 z-10 border-r bg-card px-2 py-1 text-xs font-medium'
+                    : 'text-center px-2 py-1 text-xs',
                   isBlank(row, column.key) ? 'text-muted-foreground' : ''
                 ]"
               >
@@ -142,7 +142,10 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
             </UiTableRow>
 
             <UiTableRow v-if="resolveView(props.data).subjectRows.length === 0">
-              <UiTableCell colspan="100" class="text-muted-foreground text-center text-sm">
+              <UiTableCell
+                colspan="100"
+                class="text-muted-foreground px-2 py-1 text-center text-xs"
+              >
                 No subject scores yet
               </UiTableCell>
             </UiTableRow>

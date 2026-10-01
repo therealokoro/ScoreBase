@@ -14,8 +14,9 @@ const { isAdmin } = useAuth()
 const { data, isPending } = useGetReportCard(scoresheetId)
 const card = computed(() => data.value)
 
-const { data: templateData } = useGetReportCardTemplate()
-const template = computed(() => templateData.value ?? createDefaultReportCardTemplate())
+const { template, saveStatus, isResetting, resetToDefault } = useReportCardTemplateEditor()
+
+const sheetOpen = ref(false)
 
 // The top bar is rendered here (not in the layout): the layout only provides the blank-canvas
 // shell, so page-specific actions (student name, admin check) stay co-located. Everything in
@@ -64,12 +65,7 @@ function initPrintAction() {
           </UiDropdownMenuContent>
         </UiDropdownMenu>
 
-        <UiButton
-          v-if="isAdmin"
-          variant="outline"
-          :icon="ICONS.settings"
-          to="/dashboard/report-cards/builder"
-        >
+        <UiButton v-if="isAdmin" variant="outline" :icon="ICONS.settings" @click="sheetOpen = true">
           Customize template
         </UiButton>
         <UiButton :icon="ICONS.print" @click="initPrintAction()">Print</UiButton>
@@ -88,5 +84,13 @@ function initPrintAction() {
         />
       </div>
     </div>
+
+    <ReportCardBuilderCustomizeSheet
+      v-model:open="sheetOpen"
+      v-model:template="template"
+      :save-status="saveStatus"
+      :resetting="isResetting"
+      @reset="resetToDefault"
+    />
   </div>
 </template>
