@@ -126,7 +126,7 @@ export const blockRegistry: BlockRegistry = {
   "custom-table": {
     type: "custom-table",
     label: "Custom Table",
-    allowedSlots: ["main", "footer"],
+    allowedSlots: ["main", "sidebar", "footer"],
     configSchema: CustomTableConfigSchema,
     defaultConfig: createDefaultCustomTableConfig,
     component: CustomTableBlock,
