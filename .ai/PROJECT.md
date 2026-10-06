@@ -244,11 +244,12 @@ with real student data to produce the printed output.
 
 The template is five ordered slots — **header**, **studentInfo**, **main**, **sidebar**,
 **footer** — each holding an ordered list of blocks. Every block has `id` (fresh `typeid` per
-call), `hidden` (hide without delete), and a typed `config`. Block types: `school-info`,
-`student-info`, `scores`, `custom-table`, `grading-key`, `psychomotor` (sidebar-only),
-`summary`, `remarks`. The two-column sidebar layout switches itself on whenever the `sidebar`
-slot has blocks (`sidebarPosition: "left" | "right"`). A watermark (`source: "logo" |
-"custom"`, opacity, size, single/tiled) renders behind the content. Spec:
+call), `hidden` (hide without delete), an optional `fontFamily` override, and a typed
+`config`. Block types: `school-info`, `student-info`, `scores`, `custom-table`,
+`grading-key` (live from result settings), `psychomotor` (sidebar-only), `summary`, `remarks`.
+The template also carries a global `fontFamily` and an optional watermark (`source: "logo" |
+"custom"`, opacity, size, single/tiled). The two-column sidebar layout switches itself on
+whenever the `sidebar` slot has blocks (`sidebarPosition: "left" | "right"`). Spec:
 `.ai/REPORT-CARD-BUILDER-CONTD.md` plus the review notes in `AGENTS.md`.
 
 #### Storage and uploads

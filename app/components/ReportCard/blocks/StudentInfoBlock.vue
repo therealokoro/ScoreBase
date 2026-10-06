@@ -29,8 +29,6 @@ function fieldValue(field: StudentInfoField): string {
       return view.average !== null ? `${view.average}%` : "—"
     case "result.position":
       return view.position || "—"
-    case "result.positionOutOf":
-      return `out of ${view.totalStudents}`
     default:
       return "—"
   }
@@ -52,29 +50,35 @@ const containerClass = computed(() => {
   switch (props.config.borderStyle) {
     case "outlined":
       return "border-border rounded-lg border p-3"
-    case "shaded-labels":
-      return "bg-muted/40 rounded-lg p-3"
+    case "bordered":
+      // Outer border comes from the wrapper; cells draw the inner grid lines.
+      return "border-border overflow-hidden rounded-lg border"
     default:
       return ""
   }
 })
 
-const labelClass = computed(() =>
-  props.config.borderStyle === "shaded-labels"
-    ? "text-muted-foreground bg-background rounded px-1 py-0.5 text-[10px]"
-    : "text-muted-foreground text-[10px]"
-)
+const bordered = computed(() => props.config.borderStyle === "bordered")
 </script>
 
 <template>
   <div data-block-type="student-info" :class="containerClass">
-    <div v-if="items.length" class="grid gap-x-4 gap-y-2" :style="gridStyle">
+    <div
+      v-if="items.length"
+      class="grid"
+      :class="bordered ? '' : 'gap-x-4 gap-y-2'"
+      :style="gridStyle"
+    >
       <div
         v-for="item in items"
         :key="item.id"
-        :class="config.labelPlacement === 'side' ? 'flex items-baseline gap-2' : 'space-y-0.5'"
+        :class="[
+          bordered ? 'border-border border-r border-b p-2' : '',
+          !bordered && config.labelPlacement === 'side' ? 'flex items-baseline gap-2' : '',
+          !bordered && config.labelPlacement === 'top' ? 'space-y-0.5' : ''
+        ]"
       >
-        <p :class="labelClass">{{ item.label }}</p>
+        <p class="text-muted-foreground text-[10px]">{{ item.label }}</p>
         <p class="text-xs font-semibold">{{ item.value }}</p>
       </div>
     </div>

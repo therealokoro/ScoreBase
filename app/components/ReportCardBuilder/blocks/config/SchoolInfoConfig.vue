@@ -22,9 +22,12 @@ const showSecondaryLogo = computed(() =>
 )
 
 const sameLogo = computed({
-  get: () => !config.value.logoSecondary,
+  // Checked only when the secondary slot actually mirrors the primary — so an empty
+  // secondary keeps its upload field visible.
+  get: () =>
+    config.value.logoSecondary !== null && config.value.logoSecondary === config.value.logoPrimary,
   set: (value: boolean) => {
-    config.value.logoSecondary = value ? null : config.value.logoPrimary
+    config.value.logoSecondary = value ? config.value.logoPrimary : null
   }
 })
 </script>
@@ -124,7 +127,6 @@ const sameLogo = computed({
         </label>
 
         <ReportCardBuilderAssetUpload
-          v-if="!sameLogo"
           v-model="config.logoSecondary"
           asset-key="logo-secondary"
           label="Secondary logo"

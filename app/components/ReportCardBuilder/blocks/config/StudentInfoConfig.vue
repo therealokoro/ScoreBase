@@ -18,8 +18,7 @@ const FIELD_OPTIONS: { value: StudentInfoField; label: string }[] = [
   { value: "term.name", label: "Term" },
   { value: "session.name", label: "Session" },
   { value: "result.average", label: "Average" },
-  { value: "result.position", label: "Position" },
-  { value: "result.positionOutOf", label: "Position (out of)" }
+  { value: "result.position", label: "Position" }
 ]
 
 const columnOptions = [
@@ -30,8 +29,8 @@ const columnOptions = [
 
 const borderOptions: { value: StudentInfoBorderStyle; label: string }[] = [
   { value: "outlined", label: "Outlined" },
-  { value: "borderless", label: "Borderless" },
-  { value: "shaded-labels", label: "Shaded labels" }
+  { value: "bordered", label: "Bordered grid" },
+  { value: "borderless", label: "Borderless" }
 ]
 
 const labelOptions: { value: LabelPlacement; label: string }[] = [

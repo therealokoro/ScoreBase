@@ -26,10 +26,10 @@ function comment(role: "teacher" | "principal"): string {
 <template>
   <div data-block-type="remarks" class="grid gap-4 sm:grid-cols-2">
     <div v-if="config.teacher.visible" class="space-y-1">
-      <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
-      <p v-if="config.teacher.showComment" class="min-h-6 text-xs font-medium">
-        {{ comment("teacher") }}
-      </p>
+      <div :class="config.teacher.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''">
+        <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
+        <p class="min-h-5 text-[11px] font-medium">{{ comment("teacher") }}</p>
+      </div>
       <template v-if="config.teacher.showSignature">
         <img
           v-if="config.teacher.signatureMode === 'image' && config.teacher.signatureImage"
@@ -37,9 +37,9 @@ function comment(role: "teacher" | "principal"): string {
           alt="Teacher signature"
           class="h-8 object-contain"
         />
-        <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
+        <div v-else class="border-foreground mt-5 mb-1 w-40 border-b" />
         <p
-          class="text-muted-foreground text-xs"
+          class="text-muted-foreground text-[10px]"
           :style="textStyle(config.teacher.signatureLabel.style)"
         >
           {{ config.teacher.signatureLabel.value }}
@@ -48,10 +48,12 @@ function comment(role: "teacher" | "principal"): string {
     </div>
 
     <div v-if="config.principal.visible" class="space-y-1">
-      <p :style="textStyle(config.principal.label.style)">{{ config.principal.label.value }}</p>
-      <p v-if="config.principal.showComment" class="min-h-6 text-xs font-medium">
-        {{ comment("principal") }}
-      </p>
+      <div
+        :class="config.principal.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''"
+      >
+        <p :style="textStyle(config.principal.label.style)">{{ config.principal.label.value }}</p>
+        <p class="min-h-5 text-[11px] font-medium">{{ comment("principal") }}</p>
+      </div>
       <template v-if="config.principal.showSignature">
         <img
           v-if="config.principal.signatureMode === 'image' && config.principal.signatureImage"
@@ -59,9 +61,9 @@ function comment(role: "teacher" | "principal"): string {
           alt="Principal signature"
           class="h-8 object-contain"
         />
-        <div v-else class="border-foreground mt-6 mb-1 w-40 border-b" />
+        <div v-else class="border-foreground mt-5 mb-1 w-40 border-b" />
         <p
-          class="text-muted-foreground text-xs"
+          class="text-muted-foreground text-[10px]"
           :style="textStyle(config.principal.signatureLabel.style)"
         >
           {{ config.principal.signatureLabel.value }}

@@ -417,6 +417,18 @@ _Convention changes logged here:_
   (default cap 1; full view 1.25) — on-screen zoom uses layout-aware CSS `zoom` (never clips;
   `tailwind.css` resets it to 1 in print), and the page carries a markup-only post-MVP
   "Export As" dropdown (Excel/PDF).
+- 2026-10-06 — Report card builder review round 2: template gains a global `fontFamily` and
+  every block an optional `fontFamily` override (renderer wraps each block); student-info
+  border style is now `outlined | bordered | borderless` (bordered draws the inner grid, and
+  the redundant `result.positionOutOf` field is gone); scores gained `caHeading`
+  (`separate | grouped`) and the card table no longer scrolls — headers are absolutely
+  positioned so columns size to their body values, in both the builder/full view and print;
+  grading-key went back to **live** result-settings data (no stored rows) with a
+  `display: "grade" | "remark"` choice and a narrow, range-on-the-right table; remarks
+  dropped `showComment` for `commentLabelPlacement`. The sidebar slot no longer offers
+  Result Summary or Grading Key. All builder controls now live in a full-height `UiSheet`
+  (wider, 6 tabs in a 3-column grid, with a new General tab for font + watermark), the
+  preview spans the full width, and the sheet's open/close animation was shortened to 200ms.
 - 2026-10-01 — Report card builder UX pass (review fixes): the template no longer carries a
   `name` or a `layout` toggle — the two-column sidebar layout is derived from
   `template.sidebar` having blocks, and `sidebarPosition` (default `"right"`) is only shown

@@ -126,7 +126,7 @@ export const blockRegistry: BlockRegistry = {
   "custom-table": {
     type: "custom-table",
     label: "Custom Table",
-    allowedSlots: ["main", "sidebar", "footer"],
+    allowedSlots: ["main", "footer"],
     configSchema: CustomTableConfigSchema,
     defaultConfig: createDefaultCustomTableConfig,
     component: CustomTableBlock,
@@ -136,11 +136,11 @@ export const blockRegistry: BlockRegistry = {
   "grading-key": {
     type: "grading-key",
     label: "Grading Key",
-    allowedSlots: ["main", "sidebar", "footer"],
+    allowedSlots: ["main", "footer"],
     configSchema: GradingKeyConfigSchema,
     defaultConfig: createDefaultGradingKeyConfig,
     component: GradingKeyBlock,
-    // Rows are seeded from result settings' grade boundaries when the block is added.
+    // Grade data comes live from result settings; the block picks grade or remark.
     dataRequirements: { computed: [], manual: [] }
   },
   psychomotor: {
@@ -157,7 +157,7 @@ export const blockRegistry: BlockRegistry = {
   summary: {
     type: "summary",
     label: "Result Summary",
-    allowedSlots: ["studentInfo", "main", "sidebar", "footer"],
+    allowedSlots: ["studentInfo", "main", "footer"],
     configSchema: SummaryConfigSchema,
     defaultConfig: createDefaultSummaryConfig,
     component: SummaryBlock,

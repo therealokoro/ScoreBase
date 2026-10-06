@@ -76,7 +76,12 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
   <div ref="container" class="w-full overflow-hidden">
     <div
       class="report-card-print-root bg-card text-card-foreground relative p-6 shadow-sm"
-      :style="{ zoom: String(scale), width: '210mm', minHeight: '297mm' }"
+      :style="{
+        zoom: String(scale),
+        width: '210mm',
+        minHeight: '297mm',
+        fontFamily: template.fontFamily
+      }"
     >
       <!-- Watermark (single: centred logo/image; tiled: repeated background) -->
       <div
@@ -109,13 +114,14 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
         <!-- Full-width slots -->
         <template v-for="slotName in ['header', 'studentInfo'] as const" :key="slotName">
           <template v-for="block in template[slotName]" :key="block.id">
-            <component
-              :is="getBlockDefinition(block.type).component"
-              v-if="!block.hidden"
-              :config="block.config"
-              :data="data ?? null"
-              :block-id="block.id"
-            />
+            <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+              <component
+                :is="getBlockDefinition(block.type).component"
+                :config="block.config"
+                :data="data ?? null"
+                :block-id="block.id"
+              />
+            </div>
           </template>
         </template>
 
@@ -127,50 +133,54 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
         >
           <div class="min-w-0 flex-[2] space-y-4">
             <template v-for="block in template.main" :key="block.id">
-              <component
-                :is="getBlockDefinition(block.type).component"
-                v-if="!block.hidden"
-                :config="block.config"
-                :data="data ?? null"
-                :block-id="block.id"
-              />
+              <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+                <component
+                  :is="getBlockDefinition(block.type).component"
+                  :config="block.config"
+                  :data="data ?? null"
+                  :block-id="block.id"
+                />
+              </div>
             </template>
           </div>
 
           <aside class="min-w-0 flex-1 space-y-4">
             <template v-for="block in template.sidebar" :key="block.id">
-              <component
-                :is="getBlockDefinition(block.type).component"
-                v-if="!block.hidden"
-                :config="block.config"
-                :data="data ?? null"
-                :block-id="block.id"
-              />
+              <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+                <component
+                  :is="getBlockDefinition(block.type).component"
+                  :config="block.config"
+                  :data="data ?? null"
+                  :block-id="block.id"
+                />
+              </div>
             </template>
           </aside>
         </div>
 
         <div v-else class="space-y-4">
           <template v-for="block in template.main" :key="block.id">
-            <component
-              :is="getBlockDefinition(block.type).component"
-              v-if="!block.hidden"
-              :config="block.config"
-              :data="data ?? null"
-              :block-id="block.id"
-            />
+            <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+              <component
+                :is="getBlockDefinition(block.type).component"
+                :config="block.config"
+                :data="data ?? null"
+                :block-id="block.id"
+              />
+            </div>
           </template>
         </div>
 
         <!-- Footer -->
         <template v-for="block in template.footer" :key="block.id">
-          <component
-            :is="getBlockDefinition(block.type).component"
-            v-if="!block.hidden"
-            :config="block.config"
-            :data="data ?? null"
-            :block-id="block.id"
-          />
+          <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+            <component
+              :is="getBlockDefinition(block.type).component"
+              :config="block.config"
+              :data="data ?? null"
+              :block-id="block.id"
+            />
+          </div>
         </template>
       </div>
     </div>

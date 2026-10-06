@@ -51,6 +51,21 @@ const columns = computed<Column[]>(() => {
   })
 })
 
+/** Columns before the CA run — used to build the grouped CA heading. */
+const caColumns = computed(() => columns.value.filter((column) => /^ca\d+$/.test(column.key)))
+const caRange = computed(() => {
+  const config = resolveView(props.data).scoreConfig
+  const slots = caColumns.value.map((column) => Number(/^ca(\d+)$/.exec(column.key)![1]))
+  const total = slots.reduce((sum, slot) => sum + (config.caMaxScores[slot - 1] ?? 0), 0)
+  return { count: slots.length, total }
+})
+const groupedCa = computed(() => props.config.caHeading === "grouped" && caRange.value.count > 0)
+const caIndex = computed(() => columns.value.findIndex((column) => /^ca\d+$/.test(column.key)))
+const columnsBeforeCa = computed(() => (caIndex.value >= 0 ? columns.value.slice(0, caIndex.value) : []))
+const columnsAfterCa = computed(() =>
+  caIndex.value >= 0 ? columns.value.slice(caIndex.value + caRange.value.count) : columns.value
+)
+
 const classStats = computed(() => {
   const totals = resolveView(props.data).allStudentTotals
   if (totals.length === 0) return null
@@ -98,39 +113,104 @@ function cellValue(row: ComputedSubjectRow, key: ScoreColumnId): string | number
 function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
   return cellValue(row, key) === "—"
 }
+
+const subjectRows = computed(() => resolveView(props.data).subjectRows)
 </script>
 
 <template>
   <div data-block-type="scores">
     <div class="border-border overflow-hidden rounded-lg border">
-      <UiScrollArea class="grid overflow-x-auto" orientation="horizontal">
-        <UiTable class="w-full table-auto" aria-label="Subject scores">
-          <UiTableHeader>
-            <UiTableRow>
-              <UiTableHead
-                v-for="column in columns"
+      <!-- No scroll container: the table is sized to fit the A4 width. Headers are absolutely
+           positioned so they never widen a column — columns size to their body values. -->
+      <table class="w-full table-auto text-xs">
+        <thead>
+          <tr class="border-b border-border">
+            <template v-if="groupedCa">
+              <th
+                v-for="column in columnsBeforeCa"
                 :key="column.key"
-                class="h-8 px-2 text-xs whitespace-nowrap"
-                :class="
-                  column.key === 'subject'
-                    ? 'border-border sticky left-0 z-10 min-w-32 border-r bg-card'
-                    : 'text-center min-w-12'
-                "
+                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
               >
-                {{ column.label }}
-              </UiTableHead>
-            </UiTableRow>
-          </UiTableHeader>
+                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
+                  {{ column.label }}
+                </span>
+                <span class="invisible">0</span>
+              </th>
+              <th class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground">
+                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
+                  CA ({{ caRange.total }})
+                </span>
+                <span class="invisible">0</span>
+              </th>
+              <th
+                v-for="column in columnsAfterCa"
+                :key="column.key"
+                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
+              >
+                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
+                  {{ column.label }}
+                </span>
+                <span class="invisible">0</span>
+              </th>
+            </template>
 
-          <UiTableBody>
-            <UiTableRow v-for="row in resolveView(props.data).subjectRows" :key="row.id">
-              <UiTableCell
+            <template v-else>
+              <th
                 v-for="column in columns"
                 :key="column.key"
+                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
+              >
+                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
+                  {{ column.label }}
+                </span>
+                <span class="invisible">0</span>
+              </th>
+            </template>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="row in subjectRows" :key="row.id" class="border-b border-border last:border-0">
+            <template v-if="groupedCa">
+              <td
+                v-for="column in columnsBeforeCa"
+                :key="column.key"
+                class="px-1 py-1"
                 :class="[
-                  column.key === 'subject'
-                    ? 'border-border sticky left-0 z-10 border-r bg-card px-2 py-1 text-xs font-medium'
-                    : 'text-center px-2 py-1 text-xs',
+                  column.key === 'subject' ? 'font-medium' : 'text-center',
+                  isBlank(row, column.key) ? 'text-muted-foreground' : ''
+                ]"
+              >
+                {{ cellValue(row, column.key) }}
+              </td>
+              <td
+                v-for="column in caColumns"
+                :key="column.key"
+                class="px-1 py-1 text-center"
+                :class="isBlank(row, column.key) ? 'text-muted-foreground' : ''"
+              >
+                {{ cellValue(row, column.key) }}
+              </td>
+              <td
+                v-for="column in columnsAfterCa"
+                :key="column.key"
+                class="px-1 py-1 text-center"
+                :class="isBlank(row, column.key) ? 'text-muted-foreground' : ''"
+              >
+                <UiBadge v-if="column.key === 'grade' && row.grade" variant="outline">
+                  {{ row.grade }}
+                </UiBadge>
+                <template v-else>{{ cellValue(row, column.key) }}</template>
+              </td>
+            </template>
+
+            <template v-else>
+              <td
+                v-for="column in columns"
+                :key="column.key"
+                class="px-1 py-1"
+                :class="[
+                  column.key === 'subject' ? 'font-medium' : 'text-center',
                   isBlank(row, column.key) ? 'text-muted-foreground' : ''
                 ]"
               >
@@ -138,20 +218,17 @@ function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
                   {{ row.grade }}
                 </UiBadge>
                 <template v-else>{{ cellValue(row, column.key) }}</template>
-              </UiTableCell>
-            </UiTableRow>
+              </td>
+            </template>
+          </tr>
 
-            <UiTableRow v-if="resolveView(props.data).subjectRows.length === 0">
-              <UiTableCell
-                colspan="100"
-                class="text-muted-foreground px-2 py-1 text-center text-xs"
-              >
-                No subject scores yet
-              </UiTableCell>
-            </UiTableRow>
-          </UiTableBody>
-        </UiTable>
-      </UiScrollArea>
+          <tr v-if="subjectRows.length === 0">
+            <td colspan="100" class="text-muted-foreground px-2 py-1 text-center text-xs">
+              No subject scores yet
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>

@@ -22,7 +22,8 @@ const gradingKeyBlock = () => ({
   id: typeid("block").toString(),
   type: "grading-key",
   hidden: false,
-  config: { title: styled("Grading"), rows: [] }
+  fontFamily: null,
+  config: { title: styled("Grading"), display: "grade" }
 })
 
 const templateWith = (overrides: Record<string, unknown>) => ({
@@ -50,6 +51,7 @@ describe("ReportCardTemplateSchema", () => {
           id: typeid("block").toString(),
           type: "school-info",
           hidden: false,
+          fontFamily: null,
           config: {
             logoPlacement: "left",
             logoPrimary: null,
@@ -145,6 +147,7 @@ describe("ReportCardTemplateSchema", () => {
           id: typeid("block").toString(),
           type: "psychomotor",
           hidden: false,
+          fontFamily: null,
           config: createDefaultPsychomotorConfig()
         }
       ]
@@ -158,26 +161,27 @@ describe("ScoresConfigSchema", () => {
   it("accepts CA breakdown and summed together with dynamic CA columns", () => {
     const valid = {
       caMode: "breakdown",
-      columns: ["subject", "ca1", "ca2", "ca3", "caTotal", "exam", "total", "grade", "remark"]
+      columns: ["subject", "ca1", "ca2", "ca3", "caTotal", "exam", "total", "grade", "remark"],
+      caHeading: "separate"
     }
 
     expect(ScoresConfigSchema.safeParse(valid).success).toBe(true)
   })
 
   it("rejects a CA column that is not a number-indexed id", () => {
-    const invalid = { caMode: "summed", columns: ["subject", "caX"] }
+    const invalid = { caMode: "summed", columns: ["subject", "caX"], caHeading: "separate" }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
 
   it("requires the subject column to come first", () => {
-    const invalid = { caMode: "summed", columns: ["caTotal", "subject"] }
+    const invalid = { caMode: "summed", columns: ["caTotal", "subject"], caHeading: "separate" }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
 
   it("rejects an empty column list", () => {
-    const invalid = { caMode: "summed", columns: [] }
+    const invalid = { caMode: "summed", columns: [], caHeading: "separate" }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })

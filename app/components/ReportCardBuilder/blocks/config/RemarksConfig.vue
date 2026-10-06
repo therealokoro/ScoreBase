@@ -1,11 +1,16 @@
 <script lang="ts" setup>
-import type { RemarksConfig, SignatureMode } from "~~/shared/constants/report-card"
+import type { LabelPlacement, RemarksConfig, SignatureMode } from "~~/shared/constants/report-card"
 
 const config = defineModel<RemarksConfig>({ required: true })
 
 const signatureOptions: { value: SignatureMode; label: string }[] = [
   { value: "blank", label: "Blank line" },
   { value: "image", label: "Upload image" }
+]
+
+const placementOptions: { value: LabelPlacement; label: string }[] = [
+  { value: "top", label: "Label above the comment" },
+  { value: "side", label: "Label beside the comment" }
 ]
 
 const parties = [
@@ -15,33 +20,35 @@ const parties = [
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4">
     <div
       v-for="party in parties"
       :key="party.key"
-      class="space-y-4 rounded-lg border border-border p-3"
+      class="space-y-3 rounded-lg border border-border p-2.5"
     >
       <label class="flex items-center justify-between gap-3">
-        <span class="text-sm font-medium">{{ party.title }}</span>
+        <span class="text-xs font-medium">{{ party.title }}</span>
         <UiSwitch v-model="config[party.key].visible" :aria-label="`Show ${party.title} section`" />
       </label>
 
-      <div v-if="config[party.key].visible" class="space-y-4">
+      <div v-if="config[party.key].visible" class="space-y-3">
         <ReportCardBuilderStyledTextInput
           v-model="config[party.key].label"
           label="Section heading"
+          :min-size="9"
+          :max-size="14"
         />
 
-        <label class="flex items-center justify-between gap-3">
-          <span class="text-sm">Show the comment</span>
-          <UiSwitch
-            v-model="config[party.key].showComment"
-            :aria-label="`Show the ${party.title} comment`"
+        <div class="space-y-1.5">
+          <UiLabel class="text-xs">Comment label</UiLabel>
+          <ReportCardBuilderSmallSelect
+            v-model="config[party.key].commentLabelPlacement"
+            :options="placementOptions"
           />
-        </label>
+        </div>
 
         <label class="flex items-center justify-between gap-3">
-          <span class="text-sm">Include a signature</span>
+          <span class="text-xs">Include a signature</span>
           <UiSwitch
             v-model="config[party.key].showSignature"
             :aria-label="`Include the ${party.title} signature`"
@@ -49,8 +56,8 @@ const parties = [
         </label>
 
         <template v-if="config[party.key].showSignature">
-          <div class="space-y-2">
-            <UiLabel>Signature style</UiLabel>
+          <div class="space-y-1.5">
+            <UiLabel class="text-xs">Signature style</UiLabel>
             <div class="flex items-center gap-1">
               <UiButton
                 v-for="option in signatureOptions"
@@ -66,7 +73,7 @@ const parties = [
 
           <p
             v-if="config[party.key].signatureMode === 'blank' && !config[party.key].signatureImage"
-            class="text-muted-foreground text-xs"
+            class="text-muted-foreground text-[10px]"
           >
             A blank signature line will be printed.
           </p>
@@ -80,6 +87,8 @@ const parties = [
           <ReportCardBuilderStyledTextInput
             v-model="config[party.key].signatureLabel"
             label="Name under the signature"
+            :min-size="8"
+            :max-size="12"
           />
         </template>
       </div>

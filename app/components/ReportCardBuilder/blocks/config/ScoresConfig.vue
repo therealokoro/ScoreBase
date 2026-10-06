@@ -107,10 +107,33 @@ function setCaMode(mode: "breakdown" | "summed") {
       </p>
     </div>
 
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">CA heading</UiLabel>
+      <div class="flex items-center gap-1">
+        <UiButton
+          type="button"
+          size="sm"
+          :variant="config.caHeading === 'separate' ? 'secondary' : 'ghost'"
+          text="Separate heads"
+          @click="config.caHeading = 'separate'"
+        />
+        <UiButton
+          type="button"
+          size="sm"
+          :variant="config.caHeading === 'grouped' ? 'secondary' : 'ghost'"
+          text="Grouped"
+          @click="config.caHeading = 'grouped'"
+        />
+      </div>
+      <p class="text-muted-foreground text-[10px]">
+        Grouped puts a single heading over all the CA columns.
+      </p>
+    </div>
+
     <UiSeparator />
 
     <div class="space-y-2">
-      <UiLabel>Columns</UiLabel>
+      <UiLabel class="text-xs">Columns</UiLabel>
 
       <div class="space-y-1">
         <div

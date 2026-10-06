@@ -1,8 +1,5 @@
 import { typeid } from "typeid-js"
 
-import { DEFAULT_GRADE_BOUNDARIES } from "./kv-settings"
-import type { GradeBoundary } from "./kv-settings"
-
 // ---------------------------------------------------------------------------
 // Report Card Template — slot + block model
 //
@@ -46,6 +43,19 @@ export const DEFAULT_TEXT_STYLE: TextStyle = {
 
 export type Slot = "header" | "studentInfo" | "main" | "sidebar" | "footer"
 
+/** Font choices offered globally and per block. */
+export const FONT_FAMILIES = [
+  { label: "Arial", value: "Arial, Helvetica, sans-serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Times New Roman", value: "'Times New Roman', Times, serif" },
+  { label: "Verdana", value: "Verdana, Geneva, sans-serif" },
+  { label: "Trebuchet MS", value: "'Trebuchet MS', Tahoma, sans-serif" },
+  { label: "Courier New", value: "'Courier New', Courier, monospace" },
+  { label: "Script", value: "cursive" }
+] as const
+
+export const DEFAULT_FONT_FAMILY = FONT_FAMILIES[0].value
+
 /** The five slots in their fixed render order on the A4 canvas. */
 export const REPORT_CARD_SLOTS = ["header", "studentInfo", "main", "sidebar", "footer"] as const
 
@@ -65,6 +75,8 @@ export type BlockType = (typeof REPORT_CARD_BLOCK_TYPES)[number]
 export interface ReportCardBlockBase {
   id: string // typeid("block")
   hidden: boolean // hides without deleting
+  /** Optional per-block font override; null inherits the template's font family. */
+  fontFamily: string | null
 }
 
 export interface SchoolInfoBlock extends ReportCardBlockBase {
@@ -133,6 +145,8 @@ export type SidebarPosition = "left" | "right"
 
 export interface ReportCardTemplate {
   id: string // typeid("template")
+  /** Global font family for all report card text (blocks can override it). */
+  fontFamily: string
   // Sidebar layout is derived: it kicks in whenever `sidebar` has blocks.
   sidebarPosition: SidebarPosition
   watermark: Watermark | null
@@ -190,7 +204,6 @@ export type StudentInfoField =
   | "session.name"
   | "result.average"
   | "result.position"
-  | "result.positionOutOf"
 
 export interface StudentInfoFieldRow {
   id: string // typeid("field")
@@ -198,7 +211,7 @@ export interface StudentInfoFieldRow {
   label: string // e.g. "Student Name" — admin-editable
 }
 
-export type StudentInfoBorderStyle = "outlined" | "borderless" | "shaded-labels"
+export type StudentInfoBorderStyle = "outlined" | "borderless" | "bordered"
 
 export interface StudentInfoConfig {
   columns: 2 | 3 | 4
@@ -230,6 +243,8 @@ export interface ScoresConfig {
   // "breakdown" → individual CA columns; "summed" → single CA Total column.
   // These are independent — both, either, or neither can be on.
   columns: ScoreColumnId[] // ordered list of visible columns; always starts with "subject"
+  // "separate" → one head per CA column; "grouped" → a single head spanning the CA columns.
+  caHeading: "separate" | "grouped"
 }
 
 // -- custom-table -----------------------------------------------------------
@@ -250,18 +265,13 @@ export interface CustomTableConfig {
 
 // -- grading-key ------------------------------------------------------------
 
-export interface GradingKeyRow {
-  id: string // typeid("row")
-  label: string // e.g. "A"
-  min: number
-  max: number
-  remark: string // e.g. "Excellent"
-}
+export type GradingKeyDisplay = "grade" | "remark"
 
-// Seeded from result settings' gradeBoundaries, then editable per template.
+// Grade data always comes live from result settings' KV gradeBoundaries; the block only
+// chooses whether the grade or its remark is shown next to the value range.
 export interface GradingKeyConfig {
   title: StyledText
-  rows: GradingKeyRow[]
+  display: GradingKeyDisplay
 }
 
 // -- psychomotor ------------------------------------------------------------
@@ -316,7 +326,8 @@ export type SignatureMode = "blank" | "image"
 export interface RemarksSignatureConfig {
   visible: boolean
   label: StyledText // e.g. "Class Teacher's Remark"
-  showComment: boolean
+  /** Whether the label sits above the comment or beside it. */
+  commentLabelPlacement: LabelPlacement
   showSignature: boolean
   signatureMode: SignatureMode
   signatureImage: string | null // NuxtHub Blob pathname
@@ -394,7 +405,11 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
 }
 
 export function createDefaultScoresConfig(): ScoresConfig {
-  return { caMode: "summed", columns: ["subject", "caTotal", "exam", "total", "grade", "remark"] }
+  return {
+    caMode: "summed",
+    columns: ["subject", "caTotal", "exam", "total", "grade", "remark"],
+    caHeading: "separate"
+  }
 }
 
 export function createDefaultCustomTableConfig(): CustomTableConfig {
@@ -405,19 +420,11 @@ export function createDefaultCustomTableConfig(): CustomTableConfig {
   }
 }
 
-/** Seeds the grading key from result settings' grade boundaries (editable afterwards). */
-export function createDefaultGradingKeyConfig(
-  boundaries: readonly GradeBoundary[] = DEFAULT_GRADE_BOUNDARIES
-): GradingKeyConfig {
+/** Grade data comes live from result settings — the block only picks grade or remark. */
+export function createDefaultGradingKeyConfig(): GradingKeyConfig {
   return {
-    title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
-    rows: boundaries.map((boundary) => ({
-      id: typeid("row").toString(),
-      label: boundary.label,
-      min: boundary.min,
-      max: boundary.max,
-      remark: boundary.remark
-    }))
+    title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
+    display: "grade"
   }
 }
 
@@ -443,21 +450,21 @@ export function createDefaultRemarksConfig(): RemarksConfig {
   return {
     teacher: {
       visible: true,
-      label: { value: "Class Teacher's Remark", style: { ...DEFAULT_TEXT_STYLE } },
-      showComment: true,
+      label: { value: "Class Teacher's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
+      commentLabelPlacement: "top",
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
-      signatureLabel: { value: "Class Teacher", style: { ...DEFAULT_TEXT_STYLE } }
+      signatureLabel: { value: "Class Teacher", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
     },
     principal: {
       visible: true,
-      label: { value: "Principal's Remark", style: { ...DEFAULT_TEXT_STYLE } },
-      showComment: true,
+      label: { value: "Principal's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
+      commentLabelPlacement: "top",
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
-      signatureLabel: { value: "Principal", style: { ...DEFAULT_TEXT_STYLE } }
+      signatureLabel: { value: "Principal", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
     }
   }
 }
@@ -474,6 +481,7 @@ export function createDefaultRemarksConfig(): RemarksConfig {
 export function createDefaultReportCardTemplate(): ReportCardTemplate {
   return {
     id: typeid("template").toString(),
+    fontFamily: DEFAULT_FONT_FAMILY,
     sidebarPosition: "right",
     watermark: null,
     header: [
@@ -481,6 +489,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "school-info",
         hidden: false,
+        fontFamily: null,
         config: createDefaultSchoolInfoConfig()
       }
     ],
@@ -489,6 +498,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "student-info",
         hidden: false,
+        fontFamily: null,
         config: createDefaultStudentInfoConfig()
       }
     ],
@@ -497,6 +507,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "scores",
         hidden: false,
+        fontFamily: null,
         config: createDefaultScoresConfig()
       }
     ],
@@ -506,12 +517,14 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         id: typeid("block").toString(),
         type: "summary",
         hidden: false,
+        fontFamily: null,
         config: createDefaultSummaryConfig()
       },
       {
         id: typeid("block").toString(),
         type: "remarks",
         hidden: false,
+        fontFamily: null,
         config: createDefaultRemarksConfig()
       }
     ]

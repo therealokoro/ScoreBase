@@ -8,9 +8,15 @@ import type {
   ReportCardTemplate,
   Slot
 } from "~~/shared/constants/report-card"
+import { FONT_FAMILIES } from "~~/shared/constants/report-card"
 
 import { blockRegistry, getBlockDefinition } from "../ReportCard/blocks/registry"
 import type { BlockDefinition } from "../ReportCard/blocks/registry"
+
+const fontOptions = [
+  { label: "Use the general font", value: "" },
+  ...FONT_FAMILIES.map((font) => ({ label: font.label, value: font.value }))
+]
 import CustomTableConfigPanel from "./blocks/config/CustomTableConfig.vue"
 import GradingKeyConfigPanel from "./blocks/config/GradingKeyConfig.vue"
 import PsychomotorConfigPanel from "./blocks/config/PsychomotorConfig.vue"
@@ -184,6 +190,16 @@ function confirmDelete() {
       </div>
 
       <div v-if="block.id === selectedBlockId" class="space-y-3 border-t border-border p-3">
+        <div class="space-y-1.5">
+          <UiLabel class="text-xs">Font family</UiLabel>
+          <ReportCardBuilderSmallSelect
+            :model-value="block.fontFamily ?? ''"
+            :options="fontOptions"
+            placeholder="Use the general font"
+            @update:model-value="(value) => (block.fontFamily = value === '' ? null : value)"
+          />
+        </div>
+
         <component :is="configPanels[block.type]" v-model="block.config" />
       </div>
     </div>

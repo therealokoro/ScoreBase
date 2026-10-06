@@ -46,7 +46,7 @@ const statusBadge = computed(() => {
 
 <template>
   <UiSheet v-model:open="open">
-    <UiSheetContent side="right" class="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+    <UiSheetContent side="right" class="flex w-full flex-col gap-0 p-0 sm:max-w-xl">
       <UiSheetHeader class="space-y-2 border-b border-border p-4">
         <div class="flex items-center justify-between gap-2">
           <UiSheetTitle class="text-base">Customize report card</UiSheetTitle>

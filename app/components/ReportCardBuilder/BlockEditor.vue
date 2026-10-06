@@ -1,15 +1,21 @@
 <script lang="ts" setup>
 import type { ReportCardTemplate, Slot, WatermarkSource } from "~~/shared/constants/report-card"
+import { FONT_FAMILIES } from "~~/shared/constants/report-card"
 
 const template = defineModel<ReportCardTemplate>("template", { required: true })
 
-const SLOT_TABS: { value: Slot; label: string }[] = [
+const TABS: { value: Slot | "general"; label: string }[] = [
+  { value: "general", label: "General" },
   { value: "header", label: "Header" },
   { value: "studentInfo", label: "Student Info" },
   { value: "main", label: "Main" },
   { value: "sidebar", label: "Sidebar" },
   { value: "footer", label: "Footer" }
 ]
+
+const SLOT_TABS = TABS.filter((tab) => tab.value !== "general") as { value: Slot; label: string }[]
+
+const fontOptions = FONT_FAMILIES.map((font) => ({ label: font.label, value: font.value }))
 
 const sidebarSideOptions = [
   { value: "left", label: "Left" },
@@ -43,113 +49,122 @@ const watermarkMode = computed<WatermarkMode>({
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Sidebar side — only meaningful when the sidebar is in use -->
-    <div v-if="hasSidebarBlocks" class="space-y-1.5">
-      <UiLabel class="text-xs">Sidebar side</UiLabel>
-      <ReportCardBuilderSmallSelect
-        v-model="template.sidebarPosition"
-        :options="sidebarSideOptions"
-        class="max-w-32"
-      />
-    </div>
+  <UiTabs default-value="general">
+    <UiTabsList class="grid w-full grid-cols-3 gap-1">
+      <UiTabsTrigger v-for="tab in TABS" :key="tab.value" :value="tab.value" class="text-xs">
+        {{ tab.label }}
+      </UiTabsTrigger>
+    </UiTabsList>
 
-    <!-- Watermark -->
-    <div class="space-y-3 rounded-lg border border-border p-3">
-      <UiLabel class="text-xs">Watermark</UiLabel>
+    <!-- General: template-wide settings -->
+    <UiTabsContent value="general" class="mt-3 space-y-5">
+      <div class="space-y-1.5">
+        <UiLabel class="text-xs">Font family</UiLabel>
+        <ReportCardBuilderSmallSelect v-model="template.fontFamily" :options="fontOptions" />
+        <p class="text-muted-foreground text-[10px]">
+          Applies to every block. Individual blocks can override it.
+        </p>
+      </div>
 
-      <UiRadioGroup v-model="watermarkMode" class="space-y-1.5">
-        <label class="flex items-center gap-2 text-xs">
-          <UiRadioGroupItem value="off" />
-          Off
-        </label>
-        <label class="flex items-center gap-2 text-xs">
-          <UiRadioGroupItem value="logo" />
-          Use primary logo as watermark
-        </label>
-        <label class="flex items-center gap-2 text-xs">
-          <UiRadioGroupItem value="custom" />
-          Upload a custom image
-        </label>
-      </UiRadioGroup>
+      <div v-if="hasSidebarBlocks" class="space-y-1.5">
+        <UiLabel class="text-xs">Sidebar side</UiLabel>
+        <ReportCardBuilderSmallSelect
+          v-model="template.sidebarPosition"
+          :options="sidebarSideOptions"
+          class="max-w-32"
+        />
+      </div>
 
-      <ReportCardBuilderAssetUpload
-        v-if="watermarkMode === 'custom'"
-        :model-value="template.watermark?.imageUrl ?? null"
-        asset-key="watermark"
-        label="Watermark image"
-        @update:model-value="
-          (value) => {
-            if (template.watermark) template.watermark.imageUrl = value
-          }
-        "
-      />
+      <UiSeparator />
 
-      <p v-if="watermarkMode === 'logo'" class="text-muted-foreground text-[10px]">
-        The primary school logo is used. Upload one in the School Information block.
-      </p>
+      <div class="space-y-3">
+        <UiLabel class="text-xs">Watermark</UiLabel>
 
-      <template v-if="template.watermark">
-        <div class="flex items-center gap-2">
-          <span class="text-muted-foreground w-14 text-[10px]">Opacity</span>
-          <UiSlider
-            :model-value="[Math.round(template.watermark.opacity * 100)]"
-            :min="0"
-            :max="100"
-            :step="1"
-            @update:model-value="(value) => (template.watermark!.opacity = (value?.[0] ?? 8) / 100)"
-          />
-          <span class="w-8 text-right text-[10px] tabular-nums">
-            {{ Math.round(template.watermark.opacity * 100) }}%
-          </span>
-        </div>
+        <UiRadioGroup v-model="watermarkMode" class="space-y-1.5">
+          <label class="flex items-center gap-2 text-xs">
+            <UiRadioGroupItem value="off" />
+            Off
+          </label>
+          <label class="flex items-center gap-2 text-xs">
+            <UiRadioGroupItem value="logo" />
+            Use primary logo as watermark
+          </label>
+          <label class="flex items-center gap-2 text-xs">
+            <UiRadioGroupItem value="custom" />
+            Upload a custom image
+          </label>
+        </UiRadioGroup>
 
-        <div class="flex items-center gap-1">
-          <span class="text-muted-foreground w-14 text-[10px]">Size</span>
-          <UiButton
-            v-for="size in ['small', 'medium', 'large'] as const"
-            :key="size"
-            type="button"
-            size="sm"
-            :variant="template.watermark.size === size ? 'secondary' : 'ghost'"
-            :text="size.charAt(0).toUpperCase() + size.slice(1)"
-            @click="template.watermark.size = size"
-          />
-        </div>
+        <ReportCardBuilderAssetUpload
+          v-if="watermarkMode === 'custom'"
+          :model-value="template.watermark?.imageUrl ?? null"
+          asset-key="watermark"
+          label="Watermark image"
+          @update:model-value="
+            (value) => {
+              if (template.watermark) template.watermark.imageUrl = value
+            }
+          "
+        />
 
-        <div class="flex items-center gap-1">
-          <span class="text-muted-foreground w-14 text-[10px]">Mode</span>
-          <UiButton
-            type="button"
-            size="sm"
-            :variant="template.watermark.mode === 'single' ? 'secondary' : 'ghost'"
-            text="Single"
-            @click="template.watermark.mode = 'single'"
-          />
-          <UiButton
-            type="button"
-            size="sm"
-            :variant="template.watermark.mode === 'tiled' ? 'secondary' : 'ghost'"
-            text="Tiled"
-            @click="template.watermark.mode = 'tiled'"
-          />
-        </div>
-      </template>
-    </div>
+        <p v-if="watermarkMode === 'logo'" class="text-muted-foreground text-[10px]">
+          The primary school logo is used. Upload one in the School Information block.
+        </p>
 
-    <UiSeparator />
+        <template v-if="template.watermark">
+          <div class="flex items-center gap-2">
+            <span class="text-muted-foreground w-14 text-[10px]">Opacity</span>
+            <UiSlider
+              :model-value="[Math.round(template.watermark.opacity * 100)]"
+              :min="0"
+              :max="100"
+              :step="1"
+              @update:model-value="
+                (value) => (template.watermark!.opacity = (value?.[0] ?? 8) / 100)
+              "
+            />
+            <span class="w-8 text-right text-[10px] tabular-nums">
+              {{ Math.round(template.watermark.opacity * 100) }}%
+            </span>
+          </div>
 
-    <!-- Slot tabs (reka drives the switching; each slot owns its block list) -->
-    <UiTabs default-value="header">
-      <UiTabsList class="grid w-full grid-cols-5">
-        <UiTabsTrigger v-for="tab in SLOT_TABS" :key="tab.value" :value="tab.value" class="text-xs">
-          {{ tab.label }}
-        </UiTabsTrigger>
-      </UiTabsList>
+          <div class="flex items-center gap-1">
+            <span class="text-muted-foreground w-14 text-[10px]">Size</span>
+            <UiButton
+              v-for="size in ['small', 'medium', 'large'] as const"
+              :key="size"
+              type="button"
+              size="sm"
+              :variant="template.watermark.size === size ? 'secondary' : 'ghost'"
+              :text="size.charAt(0).toUpperCase() + size.slice(1)"
+              @click="template.watermark.size = size"
+            />
+          </div>
 
-      <UiTabsContent v-for="tab in SLOT_TABS" :key="tab.value" :value="tab.value" class="mt-3">
-        <ReportCardBuilderBlockSlotList :slot="tab.value" v-model:template="template" />
-      </UiTabsContent>
-    </UiTabs>
-  </div>
+          <div class="flex items-center gap-1">
+            <span class="text-muted-foreground w-14 text-[10px]">Mode</span>
+            <UiButton
+              type="button"
+              size="sm"
+              :variant="template.watermark.mode === 'single' ? 'secondary' : 'ghost'"
+              text="Single"
+              @click="template.watermark.mode = 'single'"
+            />
+            <UiButton
+              type="button"
+              size="sm"
+              :variant="template.watermark.mode === 'tiled' ? 'secondary' : 'ghost'"
+              text="Tiled"
+              @click="template.watermark.mode = 'tiled'"
+            />
+          </div>
+        </template>
+      </div>
+    </UiTabsContent>
+
+    <!-- One tab per slot; each owns its block list -->
+    <UiTabsContent v-for="tab in SLOT_TABS" :key="tab.value" :value="tab.value" class="mt-3">
+      <ReportCardBuilderBlockSlotList :slot="tab.value" v-model:template="template" />
+    </UiTabsContent>
+  </UiTabs>
 </template>

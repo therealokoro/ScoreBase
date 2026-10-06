@@ -1,41 +1,13 @@
 <script lang="ts" setup>
-import { typeid } from "typeid-js"
 import { ICONS } from "~~/shared/constants/icons"
-import { DEFAULT_GRADE_BOUNDARIES } from "~~/shared/constants/kv-settings"
-import type { GradingKeyConfig } from "~~/shared/constants/report-card"
+import type { GradingKeyConfig, GradingKeyDisplay } from "~~/shared/constants/report-card"
 
 const config = defineModel<GradingKeyConfig>({ required: true })
 
-// The live grade scale lives in result settings; this block seeds from it and stays editable.
-const { data: resultSettings } = useGetResultSettings()
-
-function addRow() {
-  config.value.rows.push({ id: typeid("row").toString(), label: "", min: 0, max: 0, remark: "" })
-}
-
-function removeRow(index: number) {
-  config.value.rows.splice(index, 1)
-}
-
-function moveRow(index: number, direction: -1 | 1) {
-  const target = index + direction
-  const rows = config.value.rows
-  if (target < 0 || target >= rows.length) return
-  const [item] = rows.splice(index, 1)
-  if (item) rows.splice(target, 0, item)
-}
-
-/** Re-seeds the rows from result settings (or the standard scale when unavailable). */
-function refreshFromSettings() {
-  const boundaries = resultSettings.value?.gradeBoundaries ?? DEFAULT_GRADE_BOUNDARIES
-  config.value.rows = boundaries.map((boundary) => ({
-    id: typeid("row").toString(),
-    label: boundary.label,
-    min: boundary.min,
-    max: boundary.max,
-    remark: boundary.remark
-  }))
-}
+const displayOptions: { value: GradingKeyDisplay; label: string }[] = [
+  { value: "grade", label: "Show the grade" },
+  { value: "remark", label: "Show the remark" }
+]
 </script>
 
 <template>
@@ -43,88 +15,27 @@ function refreshFromSettings() {
     <ReportCardBuilderStyledTextInput
       v-model="config.title"
       label="Title"
-      :min-size="10"
-      :max-size="16"
+      :min-size="9"
+      :max-size="14"
     />
 
-    <div class="flex items-center justify-between gap-2">
-      <UiLabel class="text-xs">Grades</UiLabel>
-      <div class="flex items-center gap-1">
-        <UiButton
-          type="button"
-          variant="ghost"
-          size="sm"
-          :icon="ICONS.restore"
-          text="From result settings"
-          @click="refreshFromSettings"
-        />
-        <UiButton
-          type="button"
-          variant="outline"
-          size="sm"
-          :icon="ICONS.add"
-          text="Add"
-          @click="addRow"
-        />
-      </div>
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Beside the score range</UiLabel>
+      <UiRadioGroup v-model="config.display" class="space-y-1.5">
+        <label
+          v-for="option in displayOptions"
+          :key="option.value"
+          class="flex items-center gap-2 text-xs"
+        >
+          <UiRadioGroupItem :value="option.value" />
+          {{ option.label }}
+        </label>
+      </UiRadioGroup>
     </div>
 
-    <p class="text-muted-foreground text-[10px]">
-      Seeded from result settings when the block is added. Edit the grades here to suit this
-      template.
+    <p class="bg-muted text-muted-foreground flex gap-2 rounded p-2 text-[10px]">
+      <Icon :name="ICONS.info" class="mt-0.5 size-3 shrink-0" />
+      <span>Grades always come from result settings, so they stay in sync automatically.</span>
     </p>
-
-    <div class="space-y-2">
-      <div
-        v-for="(row, index) in config.rows"
-        :key="row.id"
-        class="space-y-2 rounded-md border border-border p-2"
-      >
-        <div class="flex items-center gap-1">
-          <UiInput v-model="row.label" placeholder="Grade" class="h-8 w-16 text-xs" />
-          <UiInput
-            v-model.number="row.min"
-            type="number"
-            placeholder="Min"
-            class="h-8 flex-1 text-xs"
-          />
-          <UiInput
-            v-model.number="row.max"
-            type="number"
-            placeholder="Max"
-            class="h-8 flex-1 text-xs"
-          />
-          <UiButton
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            :icon="ICONS.up"
-            :label="`Move grade ${index + 1} up`"
-            :disabled="index === 0"
-            @click="moveRow(index, -1)"
-          />
-          <UiButton
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            :icon="ICONS.down"
-            :label="`Move grade ${index + 1} down`"
-            :disabled="index === config.rows.length - 1"
-            @click="moveRow(index, 1)"
-          />
-          <UiButton
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            :icon="ICONS.delete"
-            :label="`Remove grade ${index + 1}`"
-            class="text-destructive"
-            @click="removeRow(index)"
-          />
-        </div>
-
-        <UiInput v-model="row.remark" placeholder="Remark, e.g. Excellent" class="h-8 text-xs" />
-      </div>
-    </div>
   </div>
 </template>

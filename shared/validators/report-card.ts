@@ -95,8 +95,7 @@ export const STUDENT_INFO_FIELDS = [
   "term.name",
   "session.name",
   "result.average",
-  "result.position",
-  "result.positionOutOf"
+  "result.position"
 ] as const
 
 export const StudentInfoFieldSchema = z.enum(STUDENT_INFO_FIELDS)
@@ -112,7 +111,7 @@ export type StudentInfoFieldRow = z.infer<typeof StudentInfoFieldRowSchema>
 
 export const StudentInfoConfigSchema = z.object({
   columns: z.union([z.literal(2), z.literal(3), z.literal(4)]),
-  borderStyle: z.enum(["outlined", "borderless", "shaded-labels"]),
+  borderStyle: z.enum(["outlined", "borderless", "bordered"]),
   labelPlacement: LabelPlacementSchema,
   fields: z.array(StudentInfoFieldRowSchema)
 })
@@ -145,7 +144,8 @@ export type ScoreColumnId = z.infer<typeof ScoreColumnIdSchema>
 export const ScoresConfigSchema = z
   .object({
     caMode: z.enum(["breakdown", "summed"]),
-    columns: z.array(ScoreColumnIdSchema)
+    columns: z.array(ScoreColumnIdSchema),
+    caHeading: z.enum(["separate", "grouped"])
   })
   .refine((config) => config.columns[0] === "subject", {
     message: "The subject column must come first",
@@ -174,19 +174,9 @@ export type CustomTableConfig = z.infer<typeof CustomTableConfigSchema>
 
 // -- grading-key -----------------------------------------------------------
 
-export const GradingKeyRowSchema = z.object({
-  id: RowIdSchema,
-  label: z.string().min(1),
-  min: z.number().min(0).max(100),
-  max: z.number().min(0).max(100),
-  remark: z.string()
-})
-
-export type GradingKeyRow = z.infer<typeof GradingKeyRowSchema>
-
 export const GradingKeyConfigSchema = z.object({
   title: StyledTextSchema,
-  rows: z.array(GradingKeyRowSchema)
+  display: z.enum(["grade", "remark"])
 })
 
 export type GradingKeyConfig = z.infer<typeof GradingKeyConfigSchema>
@@ -233,7 +223,7 @@ export type SummaryConfig = z.infer<typeof SummaryConfigSchema>
 export const RemarksSignatureConfigSchema = z.object({
   visible: z.boolean(),
   label: StyledTextSchema,
-  showComment: z.boolean(),
+  commentLabelPlacement: LabelPlacementSchema,
   showSignature: z.boolean(),
   signatureMode: z.enum(["blank", "image"]),
   signatureImage: z.string().nullable(),
@@ -255,7 +245,9 @@ export type RemarksConfig = z.infer<typeof RemarksConfigSchema>
 
 const BlockBaseSchema = z.object({
   id: BlockIdSchema,
-  hidden: z.boolean()
+  hidden: z.boolean(),
+  // Optional per-block font override; null inherits the template's font family.
+  fontFamily: z.string().nullable()
 })
 
 export const SchoolInfoBlockSchema = BlockBaseSchema.extend({
@@ -317,6 +309,7 @@ export type ReportCardBlock = z.infer<typeof ReportCardBlockSchema>
 
 export const ReportCardTemplateSchema = z.object({
   id: TemplateIdSchema,
+  fontFamily: z.string().min(1),
   sidebarPosition: z.enum(["left", "right"]),
   watermark: WatermarkSchema.nullable(),
   header: z.array(ReportCardBlockSchema),
