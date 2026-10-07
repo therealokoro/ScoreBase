@@ -18,9 +18,21 @@ import { typeid } from "typeid-js"
 
 export type TextAlign = "left" | "center" | "right"
 
+/** Font weights offered in the text-style controls (values are valid CSS font-weights). */
+export const FONT_WEIGHTS = [
+  { label: "Light", value: "300" },
+  { label: "Normal", value: "normal" },
+  { label: "Medium", value: "500" },
+  { label: "Semi-bold", value: "600" },
+  { label: "Bold", value: "bold" },
+  { label: "Extra bold", value: "800" }
+] as const
+
+export type FontWeight = (typeof FONT_WEIGHTS)[number]["value"]
+
 export interface TextStyle {
   fontSize: number // px, 10–28
-  fontWeight: "normal" | "bold"
+  fontWeight: FontWeight
   color: string // hex e.g. "#000000"
   align: TextAlign
 }
@@ -184,9 +196,8 @@ export interface SchoolInfoConfig {
   logoSecondary: string | null // used when logoPlacement is "center" or "left-right"
   // When logoSecondary is null and two logo slots are shown, logoPrimary fills both.
   schoolName: StyledText
-  address: StyledText
-  motto: StyledText
-  extraText: StyledText // e.g. phone, email, website
+  /** Free-form header text; the admin adds as many paragraphs as needed. */
+  paragraphs: StyledText[]
 }
 
 // -- student-info -----------------------------------------------------------
@@ -217,6 +228,9 @@ export interface StudentInfoConfig {
   columns: 2 | 3 | 4
   borderStyle: StudentInfoBorderStyle
   labelPlacement: LabelPlacement
+  /** Font size / weight for the values (labels stay small and muted). */
+  valueFontSize: number
+  valueFontWeight: FontWeight
   fields: StudentInfoFieldRow[]
 }
 
@@ -236,15 +250,18 @@ export type ScoreColumnId =
   | "remark"
   | "subjectPosition"
 
-export type ScoresCaMode = "breakdown" | "summed"
+export type ScoresCaDisplay = "breakdown-grouped" | "breakdown-single" | "summed"
 
 export interface ScoresConfig {
-  caMode: ScoresCaMode
-  // "breakdown" → individual CA columns; "summed" → single CA Total column.
-  // These are independent — both, either, or neither can be on.
-  columns: ScoreColumnId[] // ordered list of visible columns; always starts with "subject"
-  // "separate" → one head per CA column; "grouped" → a single head spanning the CA columns.
-  caHeading: "separate" | "grouped"
+  /**
+   * One control that decides how the CA columns render: - "breakdown-grouped": a nested
+   * "Assessments" group over the CA columns - "breakdown-single": each CA as its own column with
+   * its own head - "summed": a single CA Total column
+   */
+  caDisplay: ScoresCaDisplay
+  // Non-CA columns in display order; the CA columns (or CA Total) are inserted right after
+  // "subject" based on `caDisplay`. CA ids are not allowed here.
+  columns: ScoreColumnId[]
 }
 
 // -- custom-table -----------------------------------------------------------
@@ -380,12 +397,7 @@ export function createDefaultSchoolInfoConfig(): SchoolInfoConfig {
       value: "",
       style: { ...DEFAULT_TEXT_STYLE, fontSize: 16, fontWeight: "bold", align: "center" }
     },
-    address: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, align: "center" } },
-    motto: {
-      value: "",
-      style: { ...DEFAULT_TEXT_STYLE, fontSize: 11, fontWeight: "bold", align: "center" }
-    },
-    extraText: { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10, align: "center" } }
+    paragraphs: []
   }
 }
 
@@ -394,6 +406,8 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
     columns: 3,
     borderStyle: "outlined",
     labelPlacement: "top",
+    valueFontSize: 11,
+    valueFontWeight: "600",
     fields: [
       { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
       { id: typeid("field").toString(), field: "student.id", label: "Student ID" },
@@ -406,9 +420,8 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
 
 export function createDefaultScoresConfig(): ScoresConfig {
   return {
-    caMode: "summed",
-    columns: ["subject", "caTotal", "exam", "total", "grade", "remark"],
-    caHeading: "separate"
+    caDisplay: "summed",
+    columns: ["subject", "exam", "total", "grade", "remark"]
   }
 }
 

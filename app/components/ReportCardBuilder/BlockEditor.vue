@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 import type { ReportCardTemplate, Slot, WatermarkSource } from "~~/shared/constants/report-card"
 import { FONT_FAMILIES } from "~~/shared/constants/report-card"
 
 const template = defineModel<ReportCardTemplate>("template", { required: true })
+const activeTab = defineModel<ReportCardEditorTab>("tab", { required: true })
+const selectedBlockId = defineModel<string | null>("selectedBlockId", { required: true })
 
-const TABS: { value: Slot | "general"; label: string }[] = [
+const TABS: { value: ReportCardEditorTab; label: string }[] = [
   { value: "general", label: "General" },
   { value: "header", label: "Header" },
   { value: "studentInfo", label: "Student Info" },
@@ -49,7 +52,10 @@ const watermarkMode = computed<WatermarkMode>({
 </script>
 
 <template>
-  <UiTabs default-value="general">
+  <UiTabs
+    :model-value="activeTab"
+    @update:model-value="(value) => (activeTab = value as ReportCardEditorTab)"
+  >
     <UiTabsList class="grid w-full grid-cols-3 gap-1">
       <UiTabsTrigger v-for="tab in TABS" :key="tab.value" :value="tab.value" class="text-xs">
         {{ tab.label }}
@@ -164,7 +170,11 @@ const watermarkMode = computed<WatermarkMode>({
 
     <!-- One tab per slot; each owns its block list -->
     <UiTabsContent v-for="tab in SLOT_TABS" :key="tab.value" :value="tab.value" class="mt-3">
-      <ReportCardBuilderBlockSlotList :slot="tab.value" v-model:template="template" />
+      <ReportCardBuilderBlockSlotList
+        :slot="tab.value"
+        v-model:template="template"
+        v-model:selected-block-id="selectedBlockId"
+      />
     </UiTabsContent>
   </UiTabs>
 </template>

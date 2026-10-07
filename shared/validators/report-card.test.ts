@@ -158,30 +158,40 @@ describe("ReportCardTemplateSchema", () => {
 })
 
 describe("ScoresConfigSchema", () => {
-  it("accepts CA breakdown and summed together with dynamic CA columns", () => {
-    const valid = {
-      caMode: "breakdown",
-      columns: ["subject", "ca1", "ca2", "ca3", "caTotal", "exam", "total", "grade", "remark"],
-      caHeading: "separate"
+  it("accepts the three CA display modes with non-CA columns", () => {
+    for (const caDisplay of ["breakdown-grouped", "breakdown-single", "summed"] as const) {
+      const valid = {
+        caDisplay,
+        columns: ["subject", "exam", "total", "grade", "remark"]
+      }
+
+      expect(ScoresConfigSchema.safeParse(valid).success).toBe(true)
+    }
+  })
+
+  it("rejects CA columns in the column list (they are driven by caDisplay)", () => {
+    const invalid = {
+      caDisplay: "breakdown-single",
+      columns: ["subject", "ca1", "exam"]
     }
 
-    expect(ScoresConfigSchema.safeParse(valid).success).toBe(true)
+    expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
 
   it("rejects a CA column that is not a number-indexed id", () => {
-    const invalid = { caMode: "summed", columns: ["subject", "caX"], caHeading: "separate" }
+    const invalid = { caDisplay: "summed", columns: ["subject", "caX"] }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
 
   it("requires the subject column to come first", () => {
-    const invalid = { caMode: "summed", columns: ["caTotal", "subject"], caHeading: "separate" }
+    const invalid = { caDisplay: "summed", columns: ["exam", "subject"] }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
 
   it("rejects an empty column list", () => {
-    const invalid = { caMode: "summed", columns: [], caHeading: "separate" }
+    const invalid = { caDisplay: "summed", columns: [] }
 
     expect(ScoresConfigSchema.safeParse(invalid).success).toBe(false)
   })
@@ -201,6 +211,8 @@ describe("StudentInfoConfigSchema", () => {
       columns: 3,
       borderStyle: "outlined",
       labelPlacement: "top",
+      valueFontSize: 11,
+      valueFontWeight: "600",
       fields: [
         { id: typeid("field").toString(), field: "student.name", label: "Student Name" },
         { id: typeid("field").toString(), field: "class.size", label: "Class Size" }
@@ -215,6 +227,8 @@ describe("StudentInfoConfigSchema", () => {
       columns: 2,
       borderStyle: "borderless",
       labelPlacement: "top",
+      valueFontSize: 11,
+      valueFontWeight: "600",
       fields: [{ id: typeid("field").toString(), field: "bogus.field", label: "Bogus" }]
     }
 
@@ -226,6 +240,8 @@ describe("StudentInfoConfigSchema", () => {
       columns: 5,
       borderStyle: "shaded-labels",
       labelPlacement: "top",
+      valueFontSize: 11,
+      valueFontWeight: "600",
       fields: [{ id: typeid("field").toString(), field: "term.name", label: "Term" }]
     }
 

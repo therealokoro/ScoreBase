@@ -157,7 +157,7 @@ export const blockRegistry: BlockRegistry = {
   summary: {
     type: "summary",
     label: "Result Summary",
-    allowedSlots: ["studentInfo", "main", "footer"],
+    allowedSlots: ["studentInfo", "footer"],
     configSchema: SummaryConfigSchema,
     defaultConfig: createDefaultSummaryConfig,
     component: SummaryBlock,

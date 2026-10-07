@@ -25,13 +25,9 @@ const logoStyle = computed(() => ({
   width: `${LOGO_SIZE_MAP[props.config.logoSize]}px`
 }))
 
+/** School name first, then only the paragraphs the admin actually filled in. */
 const textFields = computed(() =>
-  [
-    { id: "schoolName", text: props.config.schoolName },
-    { id: "address", text: props.config.address },
-    { id: "motto", text: props.config.motto },
-    { id: "extraText", text: props.config.extraText }
-  ].filter((field) => field.text.value !== "")
+  [props.config.schoolName, ...props.config.paragraphs].filter((field) => field.value !== "")
 )
 </script>
 
@@ -47,17 +43,14 @@ const textFields = computed(() =>
         :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
-        <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
-          {{ field.text.value }}
-        </h1>
+        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
+          {{ field.value }}
+        </p>
       </div>
     </div>
 
     <!-- Right -->
-    <div
-      v-else-if="config.logoPlacement === 'right'"
-      class="flex flex-row-reverse items-start gap-4"
-    >
+    <div v-else-if="config.logoPlacement === 'right'" class="flex flex-row-reverse items-start gap-4">
       <img
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
@@ -66,9 +59,9 @@ const textFields = computed(() =>
         :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
-        <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
-          {{ field.text.value }}
-        </h1>
+        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
+          {{ field.value }}
+        </p>
       </div>
     </div>
 
@@ -84,9 +77,9 @@ const textFields = computed(() =>
           :style="logoStyle"
         />
       </div>
-      <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
-        {{ field.text.value }}
-      </h1>
+      <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
+        {{ field.value }}
+      </p>
     </div>
 
     <!-- Both sides -->
@@ -106,9 +99,9 @@ const textFields = computed(() =>
         :style="logoStyle"
       />
       <div class="absolute inset-x-0 top-0 mx-auto max-w-[60%] space-y-1">
-        <h1 v-for="field in textFields" :key="field.id" :style="textStyle(field.text.style)">
-          {{ field.text.value }}
-        </h1>
+        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
+          {{ field.value }}
+        </p>
       </div>
     </div>
   </div>

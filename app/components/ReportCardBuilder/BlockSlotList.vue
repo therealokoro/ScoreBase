@@ -14,7 +14,7 @@ import { blockRegistry, getBlockDefinition } from "../ReportCard/blocks/registry
 import type { BlockDefinition } from "../ReportCard/blocks/registry"
 
 const fontOptions = [
-  { label: "Use the general font", value: "" },
+  { label: "Use the general font", value: "inherit" },
   ...FONT_FAMILIES.map((font) => ({ label: font.label, value: font.value }))
 ]
 import CustomTableConfigPanel from "./blocks/config/CustomTableConfig.vue"
@@ -41,7 +41,7 @@ const configPanels: Record<BlockType, Component> = {
   remarks: RemarksConfigPanel
 }
 
-const selectedBlockId = ref<string | null>(null)
+const selectedBlockId = defineModel<string | null>("selectedBlockId", { required: true })
 const deleteDialogOpen = ref(false)
 const pendingDeleteId = ref<string | null>(null)
 
@@ -193,10 +193,10 @@ function confirmDelete() {
         <div class="space-y-1.5">
           <UiLabel class="text-xs">Font family</UiLabel>
           <ReportCardBuilderSmallSelect
-            :model-value="block.fontFamily ?? ''"
+            :model-value="block.fontFamily ?? 'inherit'"
             :options="fontOptions"
             placeholder="Use the general font"
-            @update:model-value="(value) => (block.fontFamily = value === '' ? null : value)"
+            @update:model-value="(value) => (block.fontFamily = value === 'inherit' ? null : value)"
           />
         </div>
 

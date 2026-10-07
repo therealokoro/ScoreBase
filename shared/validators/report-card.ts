@@ -28,9 +28,11 @@ const RowIdSchema = z
 // Text styling
 // ---------------------------------------------------------------------------
 
+export const FONT_WEIGHTS = ["300", "normal", "500", "600", "bold", "800"] as const
+
 export const TextStyleSchema = z.object({
-  fontSize: z.number().int().min(10).max(28),
-  fontWeight: z.enum(["normal", "bold"]),
+  fontSize: z.number().int().min(8).max(28),
+  fontWeight: z.enum(FONT_WEIGHTS),
   color: HexColorSchema,
   align: z.enum(["left", "center", "right"])
 })
@@ -78,9 +80,7 @@ export const SchoolInfoConfigSchema = z.object({
   logoPrimary: z.string().nullable(),
   logoSecondary: z.string().nullable(),
   schoolName: StyledTextSchema,
-  address: StyledTextSchema,
-  motto: StyledTextSchema,
-  extraText: StyledTextSchema
+  paragraphs: z.array(StyledTextSchema)
 })
 
 export type SchoolInfoConfig = z.infer<typeof SchoolInfoConfigSchema>
@@ -113,6 +113,8 @@ export const StudentInfoConfigSchema = z.object({
   columns: z.union([z.literal(2), z.literal(3), z.literal(4)]),
   borderStyle: z.enum(["outlined", "borderless", "bordered"]),
   labelPlacement: LabelPlacementSchema,
+  valueFontSize: z.number().int().min(8).max(20),
+  valueFontWeight: z.enum(FONT_WEIGHTS),
   fields: z.array(StudentInfoFieldRowSchema)
 })
 
@@ -143,14 +145,17 @@ export type ScoreColumnId = z.infer<typeof ScoreColumnIdSchema>
 
 export const ScoresConfigSchema = z
   .object({
-    caMode: z.enum(["breakdown", "summed"]),
-    columns: z.array(ScoreColumnIdSchema),
-    caHeading: z.enum(["separate", "grouped"])
+    caDisplay: z.enum(["breakdown-grouped", "breakdown-single", "summed"]),
+    columns: z.array(ScoreColumnIdSchema)
   })
   .refine((config) => config.columns[0] === "subject", {
     message: "The subject column must come first",
     path: ["columns"]
   })
+  .refine(
+    (config) => !config.columns.some((column) => /^ca\d+$/.test(column) || column === "caTotal"),
+    { message: "CA columns are controlled by caDisplay", path: ["columns"] }
+  )
 
 export type ScoresConfig = z.infer<typeof ScoresConfigSchema>
 

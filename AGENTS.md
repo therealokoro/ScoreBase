@@ -417,6 +417,18 @@ _Convention changes logged here:_
   (default cap 1; full view 1.25) — on-screen zoom uses layout-aware CSS `zoom` (never clips;
   `tailwind.css` resets it to 1 in print), and the page carries a markup-only post-MVP
   "Export As" dropdown (Excel/PDF).
+- 2026-10-07 — Report card builder review round 3: school-info now holds just the school name
+  plus a free-form paragraph list (address/motto/extraText are gone); `TextStyle.fontWeight`
+  is a full weight scale (`FONT_WEIGHTS`) and the text controls use a weight select instead of
+  a bold switch; student-info gained value font size/weight; `ScoresConfig` replaces
+  `caMode` + `caHeading` with a single `caDisplay`
+  (`breakdown-grouped | breakdown-single | summed`) and `columns` no longer accepts CA ids
+  (the CA block is inserted after Subject, with the CA count taken from result settings); the
+  scores table heads wrap instead of overflowing and grades render as plain text; the sidebar
+  slot no longer offers Result Summary and is as narrow as its content allows; the editor tab
+  and open block live in `useReportCardTemplateEditor` so they survive the sheet closing; the
+  builder page uses a floating circular Customize button; and `/images/**` sends
+  `Cache-Control: no-store` so a re-uploaded logo replaces the cached one.
 - 2026-10-06 — Report card builder review round 2: template gains a global `fontFamily` and
   every block an optional `fontFamily` override (renderer wraps each block); student-info
   border style is now `outlined | bordered | borderless` (bordered draws the inner grid, and

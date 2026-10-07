@@ -14,7 +14,8 @@ const { isAdmin } = useAuth()
 const { data, isPending } = useGetReportCard(scoresheetId)
 const card = computed(() => data.value)
 
-const { template, saveStatus, isResetting, resetToDefault } = useReportCardTemplateEditor()
+const { template, editorTab, selectedBlockId, saveStatus, isResetting, resetToDefault } =
+  useReportCardTemplateEditor()
 
 const sheetOpen = ref(false)
 
@@ -88,6 +89,8 @@ function initPrintAction() {
     <ReportCardBuilderCustomizeSheet
       v-model:open="sheetOpen"
       v-model:template="template"
+      v-model:tab="editorTab"
+      v-model:selected-block-id="selectedBlockId"
       :save-status="saveStatus"
       :resetting="isResetting"
       @reset="resetToDefault"

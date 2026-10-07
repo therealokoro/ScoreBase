@@ -21,15 +21,15 @@ function skillValue(): string {
     <p :style="textStyle(config.title.style)">{{ config.title.value }}</p>
 
     <div class="border-border overflow-hidden rounded-lg border">
-      <UiTable class="text-xs" aria-label="Psychomotor skills">
+      <UiTable class="w-fit text-[9px]" aria-label="Psychomotor skills">
         <UiTableBody>
           <UiTableRow v-for="row in config.rows" :key="row.id">
-            <UiTableCell class="px-2 py-1 text-xs font-medium">{{ row.label }}</UiTableCell>
-            <UiTableCell class="px-2 py-1 text-center text-xs">{{ skillValue() }}</UiTableCell>
+            <UiTableCell class="px-1 py-0.5 text-[9px] font-medium">{{ row.label }}</UiTableCell>
+            <UiTableCell class="px-1 py-0.5 text-center text-[9px]">{{ skillValue() }}</UiTableCell>
           </UiTableRow>
 
           <UiTableRow v-if="config.rows.length === 0">
-            <UiTableCell class="text-muted-foreground px-2 py-1 text-center text-xs">
+            <UiTableCell class="text-muted-foreground px-1 py-0.5 text-center text-[9px]">
               No skills configured
             </UiTableCell>
           </UiTableRow>

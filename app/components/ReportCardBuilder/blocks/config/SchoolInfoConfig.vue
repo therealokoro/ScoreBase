@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import type { LogoPlacement, SchoolInfoConfig, StyledText } from "~~/shared/constants/report-card"
+import { DEFAULT_TEXT_STYLE } from "~~/shared/constants/report-card"
 import { ICONS } from "~~/shared/constants/icons"
-import type { LogoPlacement, SchoolInfoConfig } from "~~/shared/constants/report-card"
 
 const config = defineModel<SchoolInfoConfig>({ required: true })
 
@@ -30,6 +31,23 @@ const sameLogo = computed({
     config.value.logoSecondary = value ? config.value.logoPrimary : null
   }
 })
+
+function addParagraph() {
+  const paragraph: StyledText = { value: "", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } }
+  config.value.paragraphs.push(paragraph)
+}
+
+function removeParagraph(index: number) {
+  config.value.paragraphs.splice(index, 1)
+}
+
+function moveParagraph(index: number, direction: -1 | 1) {
+  const target = index + direction
+  const paragraphs = config.value.paragraphs
+  if (target < 0 || target >= paragraphs.length) return
+  const [item] = paragraphs.splice(index, 1)
+  if (item) paragraphs.splice(target, 0, item)
+}
 </script>
 
 <template>
@@ -143,26 +161,65 @@ const sameLogo = computed({
       :min-size="12"
       :max-size="22"
     />
-    <ReportCardBuilderStyledTextInput
-      v-model="config.address"
-      label="Address"
-      multiline
-      :min-size="9"
-      :max-size="14"
-    />
-    <ReportCardBuilderStyledTextInput
-      v-model="config.motto"
-      label="Motto"
-      placeholder="e.g. Knowledge and Integrity"
-      :min-size="9"
-      :max-size="16"
-    />
-    <ReportCardBuilderStyledTextInput
-      v-model="config.extraText"
-      label="Extra text"
-      placeholder="e.g. Phone, email, website"
-      :min-size="8"
-      :max-size="12"
-    />
+
+    <div class="space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <UiLabel class="text-xs">Paragraphs</UiLabel>
+        <UiButton
+          type="button"
+          variant="outline"
+          size="sm"
+          :icon="ICONS.add"
+          text="Add"
+          @click="addParagraph"
+        />
+      </div>
+
+      <p v-if="config.paragraphs.length === 0" class="text-muted-foreground text-[10px]">
+        No paragraphs yet — add address, motto, contact details or any other header text.
+      </p>
+
+      <div
+        v-for="(paragraph, index) in config.paragraphs"
+        :key="index"
+        class="space-y-2 rounded-md border border-border p-2"
+      >
+        <ReportCardBuilderStyledTextInput
+          v-model="config.paragraphs[index]!"
+          placeholder="Paragraph text"
+          :min-size="8"
+          :max-size="16"
+        />
+        <div class="flex items-center justify-end gap-1">
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :icon="ICONS.up"
+            :label="`Move paragraph ${index + 1} up`"
+            :disabled="index === 0"
+            @click="moveParagraph(index, -1)"
+          />
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :icon="ICONS.down"
+            :label="`Move paragraph ${index + 1} down`"
+            :disabled="index === config.paragraphs.length - 1"
+            @click="moveParagraph(index, 1)"
+          />
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :icon="ICONS.delete"
+            :label="`Remove paragraph ${index + 1}`"
+            class="text-destructive"
+            @click="removeParagraph(index)"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>

@@ -14,8 +14,8 @@ import { serverAuth } from "~~/server/utils/server-auth"
  * Builds the allowlist of origins permitted to call the RPC surface.
  *
  * The surface is credentialed, so it must never reflect arbitrary origins. We allow the configured
- * app origin (`BETTER_AUTH_URL`), the incoming request's own origin (same-origin callers), and —
- * in development only — the common localhost ports.
+ * app origin (`BETTER_AUTH_URL`), the incoming request's own origin (same-origin callers), and — in
+ * development only — the common localhost ports.
  */
 function getAllowedOrigins(): Set<string> {
   const origins = new Set<string>()

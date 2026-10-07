@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
 import type { StyledText, TextAlign } from "~~/shared/constants/report-card"
+import { FONT_WEIGHTS } from "~~/shared/constants/report-card"
 
 withDefaults(
   defineProps<{
@@ -26,11 +27,13 @@ const alignOptions: { value: TextAlign; icon: string; label: string }[] = [
 ]
 
 const bold = computed({
-  get: () => text.value.style.fontWeight === "bold",
-  set: (value: boolean) => {
-    text.value.style.fontWeight = value ? "bold" : "normal"
+  get: () => text.value.style.fontWeight,
+  set: (value: string) => {
+    text.value.style.fontWeight = value as StyledText["style"]["fontWeight"]
   }
 })
+
+const weightOptions = FONT_WEIGHTS.map((weight) => ({ label: weight.label, value: weight.value }))
 
 // The extra styling controls live in a popover so the panel stays compact by default.
 const styleOpen = ref(false)
@@ -80,10 +83,9 @@ onClickOutside(root, () => (styleOpen.value = false))
       </div>
 
       <div class="flex items-center justify-between gap-2">
-        <label class="flex items-center gap-2">
-          <UiSwitch v-model="bold" aria-label="Bold text" />
-          <span class="text-muted-foreground text-[10px]">Bold</span>
-        </label>
+        <div class="w-28">
+          <ReportCardBuilderSmallSelect v-model="bold" :options="weightOptions" />
+        </div>
 
         <div class="flex items-center gap-1">
           <UiButton

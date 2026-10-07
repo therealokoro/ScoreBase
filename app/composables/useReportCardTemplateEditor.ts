@@ -1,17 +1,26 @@
 import {
   createDefaultReportCardTemplate,
-  type ReportCardTemplate
+  type ReportCardTemplate,
+  type Slot
 } from "~~/shared/constants/report-card"
+
+export type ReportCardEditorTab = Slot | "general"
 
 /**
  * Shared report card template editing logic: loads the saved template into a local working copy,
  * auto-saves changes (debounced), and exposes a reset action. Used by the builder page and the full
  * report card view so both can edit the same way.
+ *
+ * The active editor tab and the open block live here (not in the sheet) so they survive the control
+ * sheet being closed and reopened.
  */
 export const useReportCardTemplateEditor = () => {
   const { data: savedTemplate } = useGetReportCardTemplate()
   const updateTemplate = useUpdateReportCardTemplate()
   const resetTemplate = useResetReportCardTemplate()
+
+  const editorTab = ref<ReportCardEditorTab>("general")
+  const selectedBlockId = ref<string | null>(null)
 
   // Local working copy — edits land here first, then sync to the server via auto-save.
   const template = ref<ReportCardTemplate>(createDefaultReportCardTemplate())
@@ -73,5 +82,5 @@ export const useReportCardTemplateEditor = () => {
     }
   }
 
-  return { template, saveStatus, isResetting, resetToDefault }
+  return { template, editorTab, selectedBlockId, saveStatus, isResetting, resetToDefault }
 }

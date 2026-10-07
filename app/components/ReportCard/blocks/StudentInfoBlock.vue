@@ -59,6 +59,11 @@ const containerClass = computed(() => {
 })
 
 const bordered = computed(() => props.config.borderStyle === "bordered")
+
+const valueStyle = computed(() => ({
+  fontSize: `${props.config.valueFontSize}px`,
+  fontWeight: props.config.valueFontWeight
+}))
 </script>
 
 <template>
@@ -79,7 +84,7 @@ const bordered = computed(() => props.config.borderStyle === "bordered")
         ]"
       >
         <p class="text-muted-foreground text-[10px]">{{ item.label }}</p>
-        <p class="text-xs font-semibold">{{ item.value }}</p>
+        <p :style="valueStyle">{{ item.value }}</p>
       </div>
     </div>
   </div>

@@ -15,6 +15,9 @@ export default eventHandler(async (event) => {
   // The upload helper always writes images; lock the response to image content so a stored
   // blob can never be served as HTML (XSS hardening).
   setHeader(event, "Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'")
+  // Blob pathnames are deterministic (a re-upload overwrites the previous file), so caching
+  // would keep showing the old image after a replacement.
+  setHeader(event, "Cache-Control", "no-store")
 
   return blob.serve(event, pathname)
 })

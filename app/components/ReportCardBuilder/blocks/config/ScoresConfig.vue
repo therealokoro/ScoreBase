@@ -1,18 +1,16 @@
 <script lang="ts" setup>
+import type { ScoreColumnId, ScoresCaDisplay, ScoresConfig } from "~~/shared/constants/report-card"
 import { ICONS } from "~~/shared/constants/icons"
-import type { ScoreColumnId, ScoresConfig } from "~~/shared/constants/report-card"
 
 const config = defineModel<ScoresConfig>({ required: true })
 
-/** Canonical display order — the checklist keeps columns sorted this way. */
+// The number of CA slots comes from result settings, never hardcoded here.
+const { data: resultSettings } = useGetResultSettings()
+const caCount = computed(() => resultSettings.value?.caCount ?? 3)
+
+/** Canonical display order for the non-CA columns (CA columns are driven by caDisplay). */
 const CANONICAL_ORDER: ScoreColumnId[] = [
   "subject",
-  "ca1",
-  "ca2",
-  "ca3",
-  "ca4",
-  "ca5",
-  "caTotal",
   "exam",
   "total",
   "classHighest",
@@ -25,7 +23,6 @@ const CANONICAL_ORDER: ScoreColumnId[] = [
 
 const COLUMN_LABELS: Record<string, string> = {
   subject: "Subject",
-  caTotal: "CA Total",
   exam: "Exam",
   total: "Total",
   classHighest: "Class Highest",
@@ -36,21 +33,15 @@ const COLUMN_LABELS: Record<string, string> = {
   subjectPosition: "Position"
 }
 
+const caDisplayOptions: { value: ScoresCaDisplay; label: string }[] = [
+  { value: "breakdown-grouped", label: "Breakdown — grouped under “Assessments”" },
+  { value: "breakdown-single", label: "Breakdown — one column per CA" },
+  { value: "summed", label: "Summed — a single CA Total column" }
+]
+
 const checklist = computed<{ key: ScoreColumnId; label: string }[]>(() =>
-  CANONICAL_ORDER.map((key) => {
-    const caMatch = /^ca(\d+)$/.exec(key)
-    return {
-      key,
-      label: caMatch ? `CA ${caMatch[1]}` : (COLUMN_LABELS[key] ?? key)
-    }
-  })
+  CANONICAL_ORDER.map((key) => ({ key, label: COLUMN_LABELS[key] ?? key }))
 )
-
-/** CA slots currently listed in the checklist. */
-const caSlots = computed(() => config.value.columns.filter((key) => /^ca\d+$/.test(key)))
-
-// caMode mirrors the checklist so it never contradicts what actually renders.
-const caMode = computed(() => (caSlots.value.length > 0 ? "breakdown" : "summed"))
 
 function sortColumns() {
   config.value.columns = [...new Set(config.value.columns)].sort(
@@ -66,80 +57,29 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
     config.value.columns = columns.filter((column) => column !== key)
   }
   sortColumns()
-  config.value.caMode = caMode.value
-}
-
-/** Convenience switch: Breakdown lists every CA slot, Summed swaps them for CA Total. */
-function setCaMode(mode: "breakdown" | "summed") {
-  const columns = config.value.columns
-  const withoutCa = columns.filter((key) => !/^ca\d+$/.test(key) && key !== "caTotal")
-  config.value.columns =
-    mode === "breakdown"
-      ? [...withoutCa, "ca1", "ca2", "ca3", "ca4", "ca5"]
-      : [...withoutCa, "caTotal"]
-  sortColumns()
-  config.value.caMode = caMode.value
 }
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="space-y-2">
-      <UiLabel>CA display</UiLabel>
-      <div class="flex items-center gap-1">
-        <UiButton
-          type="button"
-          size="sm"
-          :variant="caMode === 'breakdown' ? 'secondary' : 'ghost'"
-          text="Breakdown"
-          @click="setCaMode('breakdown')"
-        />
-        <UiButton
-          type="button"
-          size="sm"
-          :variant="caMode === 'summed' ? 'secondary' : 'ghost'"
-          text="Summed"
-          @click="setCaMode('summed')"
-        />
-      </div>
-      <p class="text-muted-foreground text-xs">
-        Breakdown shows each CA column; Summed shows one CA Total. You can also mix them below.
-      </p>
-    </div>
-
+  <div class="space-y-4">
     <div class="space-y-1.5">
-      <UiLabel class="text-xs">CA heading</UiLabel>
-      <div class="flex items-center gap-1">
-        <UiButton
-          type="button"
-          size="sm"
-          :variant="config.caHeading === 'separate' ? 'secondary' : 'ghost'"
-          text="Separate heads"
-          @click="config.caHeading = 'separate'"
-        />
-        <UiButton
-          type="button"
-          size="sm"
-          :variant="config.caHeading === 'grouped' ? 'secondary' : 'ghost'"
-          text="Grouped"
-          @click="config.caHeading = 'grouped'"
-        />
-      </div>
+      <UiLabel class="text-xs">CA display</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="config.caDisplay" :options="caDisplayOptions" />
       <p class="text-muted-foreground text-[10px]">
-        Grouped puts a single heading over all the CA columns.
+        Uses {{ caCount }} CA {{ caCount === 1 ? "slot" : "slots" }} from your result settings.
       </p>
     </div>
 
     <UiSeparator />
 
     <div class="space-y-2">
-      <UiLabel class="text-xs">Columns</UiLabel>
+      <UiLabel class="text-xs">Other columns</UiLabel>
 
       <div class="space-y-1">
         <div
           v-for="column in checklist"
           :key="column.key"
-          class="flex items-center gap-3 rounded-md border border-border px-3 py-2"
+          class="flex items-center gap-2 rounded-md border border-border px-2 py-1.5"
         >
           <UiTooltip v-if="column.key === 'subject'">
             <UiTooltipTrigger as-child>
@@ -162,7 +102,7 @@ function setCaMode(mode: "breakdown" | "summed") {
 
           <button
             type="button"
-            class="flex-1 text-left text-sm"
+            class="flex-1 text-left text-xs"
             :disabled="column.key === 'subject'"
             @click="
               column.key !== 'subject' &&
@@ -174,11 +114,11 @@ function setCaMode(mode: "breakdown" | "summed") {
         </div>
       </div>
 
-      <p class="text-muted-foreground flex gap-2 text-xs">
-        <Icon :name="ICONS.info" class="mt-0.5 size-3.5 shrink-0" />
+      <p class="text-muted-foreground flex gap-2 text-[10px]">
+        <Icon :name="ICONS.info" class="mt-0.5 size-3 shrink-0" />
         <span>
-          CA slots above 3 are only shown when the result's score settings use that many. "Position"
-          needs per-subject rankings, which are not available yet, so it prints a dash.
+          "Position" needs per-subject rankings, which are not available yet, so it prints a
+          dash.
         </span>
       </p>
     </div>

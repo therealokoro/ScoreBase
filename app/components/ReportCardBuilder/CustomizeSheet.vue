@@ -1,8 +1,11 @@
 <script lang="ts" setup>
+import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 import { ICONS } from "~~/shared/constants/icons"
 import type { ReportCardTemplate } from "~~/shared/constants/report-card"
 
 const open = defineModel<boolean>("open", { default: false })
+const tab = defineModel<ReportCardEditorTab>("tab", { required: true })
+const selectedBlockId = defineModel<string | null>("selectedBlockId", { required: true })
 const template = defineModel<ReportCardTemplate>("template", { required: true })
 
 const props = withDefaults(
@@ -46,7 +49,12 @@ const statusBadge = computed(() => {
 
 <template>
   <UiSheet v-model:open="open">
-    <UiSheetContent side="right" class="flex w-full flex-col gap-0 p-0 sm:max-w-xl">
+    <UiSheetContent
+      :is-blurred="false"
+      side="right"
+      variant="floating"
+      class="flex w-full flex-col gap-0 p-0 sm:max-w-xl"
+    >
       <UiSheetHeader class="space-y-2 border-b border-border p-4">
         <div class="flex items-center justify-between gap-2">
           <UiSheetTitle class="text-base">Customize report card</UiSheetTitle>
@@ -65,7 +73,11 @@ const statusBadge = computed(() => {
       </UiSheetHeader>
 
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
-        <ReportCardBuilderBlockEditor v-model:template="template" />
+        <ReportCardBuilderBlockEditor
+          v-model:template="template"
+          v-model:tab="tab"
+          v-model:selected-block-id="selectedBlockId"
+        />
       </div>
 
       <div class="border-t border-border p-4">

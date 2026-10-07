@@ -128,10 +128,10 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
         <!-- Main (+ optional sidebar) -->
         <div
           v-if="hasSidebar"
-          class="flex gap-4"
+          class="flex gap-3"
           :class="template.sidebarPosition === 'left' ? 'flex-row-reverse' : ''"
         >
-          <div class="min-w-0 flex-[2] space-y-4">
+          <div class="min-w-0 flex-1 space-y-4">
             <template v-for="block in template.main" :key="block.id">
               <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
                 <component
@@ -144,7 +144,8 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
             </template>
           </div>
 
-          <aside class="min-w-0 flex-1 space-y-4">
+          <!-- As narrow as the content allows -->
+          <aside class="w-[30%] max-w-44 shrink-0 space-y-3">
             <template v-for="block in template.sidebar" :key="block.id">
               <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
                 <component

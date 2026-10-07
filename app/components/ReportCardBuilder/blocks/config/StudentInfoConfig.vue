@@ -2,13 +2,20 @@
 import { typeid } from "typeid-js"
 import { ICONS } from "~~/shared/constants/icons"
 import type {
+  FontWeight,
   LabelPlacement,
   StudentInfoBorderStyle,
   StudentInfoConfig,
   StudentInfoField
 } from "~~/shared/constants/report-card"
+import { FONT_WEIGHTS } from "~~/shared/constants/report-card"
 
 const config = defineModel<StudentInfoConfig>({ required: true })
+
+const FONT_WEIGHT_OPTIONS = FONT_WEIGHTS.map((weight) => ({
+  label: weight.label,
+  value: weight.value
+}))
 
 const FIELD_OPTIONS: { value: StudentInfoField; label: string }[] = [
   { value: "student.name", label: "Student name" },
@@ -81,6 +88,28 @@ function moveField(index: number, direction: -1 | 1) {
     <div class="space-y-1.5">
       <UiLabel class="text-xs">Labels</UiLabel>
       <ReportCardBuilderSmallSelect v-model="config.labelPlacement" :options="labelOptions" />
+    </div>
+
+    <UiSeparator />
+
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Value text</UiLabel>
+      <div class="flex items-center gap-2">
+        <span class="text-muted-foreground w-8 text-[10px]">Size</span>
+        <UiSlider
+          :model-value="[config.valueFontSize]"
+          :min="8"
+          :max="16"
+          :step="1"
+          @update:model-value="(value) => (config.valueFontSize = value?.[0] ?? 11)"
+        />
+        <span class="w-5 text-right text-[10px] tabular-nums">{{ config.valueFontSize }}</span>
+      </div>
+      <ReportCardBuilderSmallSelect
+        :model-value="config.valueFontWeight"
+        :options="FONT_WEIGHT_OPTIONS"
+        @update:model-value="(value) => (config.valueFontWeight = value as FontWeight)"
+      />
     </div>
 
     <UiSeparator />

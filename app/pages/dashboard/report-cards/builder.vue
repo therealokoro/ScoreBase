@@ -3,7 +3,8 @@ import { ICONS } from "~~/shared/constants/icons"
 
 definePageMeta({ middleware: ["admin-only"] })
 
-const { template, saveStatus, isResetting, resetToDefault } = useReportCardTemplateEditor()
+const { template, editorTab, selectedBlockId, saveStatus, isResetting, resetToDefault } =
+  useReportCardTemplateEditor()
 
 const sheetOpen = ref(false)
 </script>
@@ -27,8 +28,6 @@ const sheetOpen = ref(false)
       >
         {{ saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving..." : "Unsaved" }}
       </UiBadge>
-
-      <UiButton :icon="ICONS.settings" text="Customize" @click="sheetOpen = true" />
     </div>
 
     <!-- The preview spans the full width; all controls live in the sheet -->
@@ -36,9 +35,21 @@ const sheetOpen = ref(false)
       <ReportCardTemplatePreview :template="template" />
     </div>
 
+    <!-- Floating customize button, always available while the sheet is closed -->
+    <UiButton
+      v-if="!sheetOpen"
+      size="icon-lg"
+      :icon="ICONS.settings"
+      label="Customize report card"
+      class="fixed right-6 bottom-6 z-40 size-14 rounded-full shadow-lg print:hidden"
+      @click="sheetOpen = true"
+    />
+
     <ReportCardBuilderCustomizeSheet
       v-model:open="sheetOpen"
       v-model:template="template"
+      v-model:tab="editorTab"
+      v-model:selected-block-id="selectedBlockId"
       :save-status="saveStatus"
       :resetting="isResetting"
       @reset="resetToDefault"

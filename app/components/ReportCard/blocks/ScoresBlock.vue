@@ -2,6 +2,7 @@
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
 import type { ScoreColumnId, ScoresConfig } from "~~/shared/constants/report-card"
 import type { ComputedSubjectRow } from "~~/shared/utils/report-card"
+import { toOrdinal } from "~~/shared/utils/report-card"
 
 import { resolveView } from "./placeholder"
 
@@ -16,55 +17,46 @@ interface Column {
   label: string
 }
 
-const columns = computed<Column[]>(() => {
-  const config = resolveView(props.data).scoreConfig
-  return props.config.columns.map((key): Column => {
-    const caMatch = /^ca(\d+)$/.exec(key)
-    if (caMatch) {
-      const slot = Number(caMatch[1])
-      return { key, label: `CA ${slot} (${config.caMaxScores[slot - 1] ?? "?"})` }
-    }
-    switch (key) {
-      case "subject":
-        return { key, label: "Subject" }
-      case "caTotal":
-        return { key, label: "CA Total" }
-      case "exam":
-        return { key, label: `Exam (${config.examMax})` }
-      case "total":
-        return { key, label: "Total" }
-      case "classHighest":
-        return { key, label: "Class Highest" }
-      case "classLowest":
-        return { key, label: "Class Lowest" }
-      case "classAverage":
-        return { key, label: "Class Average" }
-      case "grade":
-        return { key, label: "Grade" }
-      case "remark":
-        return { key, label: "Remark" }
-      case "subjectPosition":
-        return { key, label: "Position" }
-      default:
-        return { key, label: key }
+const NON_CA_LABELS: Record<string, string> = {
+  subject: "Subject",
+  exam: "Exam",
+  total: "Total",
+  classHighest: "Class Highest",
+  classLowest: "Class Lowest",
+  classAverage: "Class Average",
+  grade: "Grade",
+  remark: "Remark",
+  subjectPosition: "Position"
+}
+
+const scoreConfig = computed(() => resolveView(props.data).scoreConfig)
+
+/** The CA columns are driven entirely by `caDisplay` — never listed in `columns`. */
+const caColumns = computed<Column[]>(() => {
+  if (props.config.caDisplay === "summed") {
+    return [{ key: "caTotal", label: "CA Total" }]
+  }
+  return Array.from({ length: scoreConfig.value.caCount }, (_, index) => {
+    const slot = index + 1
+    const max = scoreConfig.value.caMaxScores[index] ?? "?"
+    return {
+      key: `ca${slot}` as ScoreColumnId,
+      label: props.config.caDisplay === "breakdown-grouped" ? `${toOrdinal(slot)}|(${max})` : `CA ${slot} (${max})`
     }
   })
 })
 
-/** Columns before the CA run — used to build the grouped CA heading. */
-const caColumns = computed(() => columns.value.filter((column) => /^ca\d+$/.test(column.key)))
-const caRange = computed(() => {
-  const config = resolveView(props.data).scoreConfig
-  const slots = caColumns.value.map((column) => Number(/^ca(\d+)$/.exec(column.key)![1]))
-  const total = slots.reduce((sum, slot) => sum + (config.caMaxScores[slot - 1] ?? 0), 0)
-  return { count: slots.length, total }
+/** subject first, then the CA block, then the rest of the configured columns. */
+const displayColumns = computed<Column[]>(() => {
+  const [first, ...rest] = props.config.columns
+  const head: Column[] = first ? [{ key: first, label: NON_CA_LABELS[first] ?? first }] : []
+  const tail: Column[] = rest.map((key) => ({ key, label: NON_CA_LABELS[key] ?? key }))
+  return [...head, ...caColumns.value, ...tail]
 })
-const groupedCa = computed(() => props.config.caHeading === "grouped" && caRange.value.count > 0)
-const caIndex = computed(() => columns.value.findIndex((column) => /^ca\d+$/.test(column.key)))
-const columnsBeforeCa = computed(() => (caIndex.value >= 0 ? columns.value.slice(0, caIndex.value) : []))
-const columnsAfterCa = computed(() =>
-  caIndex.value >= 0 ? columns.value.slice(caIndex.value + caRange.value.count) : columns.value
-)
+
+const columnsBeforeCa = computed(() => displayColumns.value.slice(0, 1))
+const columnsAfterCa = computed(() => displayColumns.value.slice(1 + caColumns.value.length))
+const grouped = computed(() => props.config.caDisplay === "breakdown-grouped")
 
 const classStats = computed(() => {
   const totals = resolveView(props.data).allStudentTotals
@@ -120,106 +112,73 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
 <template>
   <div data-block-type="scores">
     <div class="border-border overflow-hidden rounded-lg border">
-      <!-- No scroll container: the table is sized to fit the A4 width. Headers are absolutely
-           positioned so they never widen a column — columns size to their body values. -->
+      <!-- No scroll: the table fits the A4 width. Heads wrap instead of overflowing. -->
       <table class="w-full table-auto text-xs">
         <thead>
-          <tr class="border-b border-border">
-            <template v-if="groupedCa">
-              <th
-                v-for="column in columnsBeforeCa"
-                :key="column.key"
-                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
-              >
-                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
-                  {{ column.label }}
-                </span>
-                <span class="invisible">0</span>
-              </th>
-              <th class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground">
-                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
-                  CA ({{ caRange.total }})
-                </span>
-                <span class="invisible">0</span>
-              </th>
-              <th
-                v-for="column in columnsAfterCa"
-                :key="column.key"
-                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
-              >
-                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
-                  {{ column.label }}
-                </span>
-                <span class="invisible">0</span>
-              </th>
-            </template>
+          <!-- Grouped: one "Assessments" head spanning the CA columns -->
+          <tr v-if="grouped" class="border-b border-border">
+            <th
+              v-for="column in columnsBeforeCa"
+              :key="column.key"
+              rowspan="2"
+              class="border-border border-r px-1 py-1 text-[10px] font-medium text-muted-foreground align-middle break-words"
+            >
+              {{ column.label }}
+            </th>
+            <th
+              :colspan="caColumns.length"
+              class="border-border border-r bg-muted/40 px-1 py-1 text-center text-[10px] font-semibold"
+            >
+              Assessments
+            </th>
+            <th
+              v-for="column in columnsAfterCa"
+              :key="column.key"
+              rowspan="2"
+              class="border-border border-r px-1 py-1 text-center text-[10px] font-medium text-muted-foreground align-middle break-words"
+            >
+              {{ column.label }}
+            </th>
+          </tr>
+          <tr v-if="grouped" class="border-b border-border">
+            <th
+              v-for="column in caColumns"
+              :key="column.key"
+              class="border-border border-r px-1 py-0.5 text-center text-[10px] font-medium"
+            >
+              <span class="block">{{ column.label.split("|")[0] }}</span>
+              <span class="text-muted-foreground block text-[9px]">
+                {{ column.label.split("|")[1] }}
+              </span>
+            </th>
+          </tr>
 
-            <template v-else>
-              <th
-                v-for="column in columns"
-                :key="column.key"
-                class="relative h-7 px-1 text-[10px] font-medium text-muted-foreground"
-              >
-                <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap">
-                  {{ column.label }}
-                </span>
-                <span class="invisible">0</span>
-              </th>
-            </template>
+          <!-- Single columns / summed -->
+          <tr v-else class="border-b border-border">
+            <th
+              v-for="column in displayColumns"
+              :key="column.key"
+              class="border-border border-r px-1 py-1 text-[10px] font-medium text-muted-foreground break-words"
+              :class="column.key === 'subject' ? '' : 'text-center'"
+            >
+              {{ column.label }}
+            </th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-for="row in subjectRows" :key="row.id" class="border-b border-border last:border-0">
-            <template v-if="groupedCa">
-              <td
-                v-for="column in columnsBeforeCa"
-                :key="column.key"
-                class="px-1 py-1"
-                :class="[
-                  column.key === 'subject' ? 'font-medium' : 'text-center',
-                  isBlank(row, column.key) ? 'text-muted-foreground' : ''
-                ]"
-              >
-                {{ cellValue(row, column.key) }}
-              </td>
-              <td
-                v-for="column in caColumns"
-                :key="column.key"
-                class="px-1 py-1 text-center"
-                :class="isBlank(row, column.key) ? 'text-muted-foreground' : ''"
-              >
-                {{ cellValue(row, column.key) }}
-              </td>
-              <td
-                v-for="column in columnsAfterCa"
-                :key="column.key"
-                class="px-1 py-1 text-center"
-                :class="isBlank(row, column.key) ? 'text-muted-foreground' : ''"
-              >
-                <UiBadge v-if="column.key === 'grade' && row.grade" variant="outline">
-                  {{ row.grade }}
-                </UiBadge>
-                <template v-else>{{ cellValue(row, column.key) }}</template>
-              </td>
-            </template>
-
-            <template v-else>
-              <td
-                v-for="column in columns"
-                :key="column.key"
-                class="px-1 py-1"
-                :class="[
-                  column.key === 'subject' ? 'font-medium' : 'text-center',
-                  isBlank(row, column.key) ? 'text-muted-foreground' : ''
-                ]"
-              >
-                <UiBadge v-if="column.key === 'grade' && row.grade" variant="outline">
-                  {{ row.grade }}
-                </UiBadge>
-                <template v-else>{{ cellValue(row, column.key) }}</template>
-              </td>
-            </template>
+            <td
+              v-for="column in displayColumns"
+              :key="column.key"
+              class="border-border border-r px-1 py-1 last:border-r-0"
+              :class="[
+                column.key === 'subject' ? 'font-medium' : 'text-center',
+                isBlank(row, column.key) ? 'text-muted-foreground' : ''
+              ]"
+            >
+              {{ cellValue(row, column.key) }}
+            </td>
           </tr>
 
           <tr v-if="subjectRows.length === 0">
