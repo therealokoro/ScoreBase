@@ -1,12 +1,21 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
-import type { GradingKeyConfig, GradingKeyDisplay } from "~~/shared/constants/report-card"
+import type {
+  GradingKeyConfig,
+  GradingKeyDisplay,
+  GradingKeyDisplayStyle
+} from "~~/shared/constants/report-card"
 
 const config = defineModel<GradingKeyConfig>({ required: true })
 
 const displayOptions: { value: GradingKeyDisplay; label: string }[] = [
   { value: "grade", label: "Show the grade" },
   { value: "remark", label: "Show the remark" }
+]
+
+const styleOptions: { value: GradingKeyDisplayStyle; label: string }[] = [
+  { value: "table", label: "Table" },
+  { value: "list", label: "Bulleted list" }
 ]
 </script>
 
@@ -20,6 +29,21 @@ const displayOptions: { value: GradingKeyDisplay; label: string }[] = [
     />
 
     <div class="space-y-1.5">
+      <UiLabel class="text-xs">Style</UiLabel>
+      <div class="flex items-center gap-1">
+        <UiButton
+          v-for="option in styleOptions"
+          :key="option.value"
+          type="button"
+          size="sm"
+          :variant="config.displayStyle === option.value ? 'secondary' : 'ghost'"
+          :text="option.label"
+          @click="config.displayStyle = option.value"
+        />
+      </div>
+    </div>
+
+    <div v-if="config.displayStyle === 'table'" class="space-y-1.5">
       <UiLabel class="text-xs">Beside the score range</UiLabel>
       <UiRadioGroup v-model="config.display" class="space-y-1.5">
         <label

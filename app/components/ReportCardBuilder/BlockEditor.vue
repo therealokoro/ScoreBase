@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 import type { ReportCardTemplate, Slot, WatermarkSource } from "~~/shared/constants/report-card"
 import { FONT_FAMILIES } from "~~/shared/constants/report-card"
+
+import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 
 const template = defineModel<ReportCardTemplate>("template", { required: true })
 const activeTab = defineModel<ReportCardEditorTab>("tab", { required: true })
@@ -23,6 +24,11 @@ const fontOptions = FONT_FAMILIES.map((font) => ({ label: font.label, value: fon
 const sidebarSideOptions = [
   { value: "left", label: "Left" },
   { value: "right", label: "Right" }
+]
+
+const footerLayoutOptions = [
+  { value: "stacked", label: "Stacked" },
+  { value: "columns", label: "Two columns" }
 ]
 
 /** The sidebar layout switches itself on as soon as the sidebar has a block. */
@@ -79,6 +85,19 @@ const watermarkMode = computed<WatermarkMode>({
           :options="sidebarSideOptions"
           class="max-w-32"
         />
+      </div>
+
+      <div v-if="template.footer.length > 0" class="space-y-1.5">
+        <UiLabel class="text-xs">Footer layout</UiLabel>
+        <ReportCardBuilderSmallSelect
+          v-model="template.footerLayout"
+          :options="footerLayoutOptions"
+          class="max-w-40"
+        />
+        <p class="text-muted-foreground text-[10px]">
+          Two columns shows footer blocks side by side. Set each footer block's column on the Footer
+          tab.
+        </p>
       </div>
 
       <UiSeparator />

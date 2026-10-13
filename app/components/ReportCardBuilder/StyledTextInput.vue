@@ -83,8 +83,16 @@ onClickOutside(root, () => (styleOpen.value = false))
       </div>
 
       <div class="flex items-center justify-between gap-2">
-        <div class="w-28">
-          <ReportCardBuilderSmallSelect v-model="bold" :options="weightOptions" />
+        <div class="flex items-center gap-2">
+          <ReportCardBuilderSmallSelect v-model="bold" :options="weightOptions" class="w-28" />
+          <UiButton
+            type="button"
+            :variant="text.style.italic ? 'secondary' : 'ghost'"
+            size="icon-sm"
+            :icon="ICONS.italic"
+            label="Italic text"
+            @click="text.style.italic = !text.style.italic"
+          />
         </div>
 
         <div class="flex items-center gap-1">

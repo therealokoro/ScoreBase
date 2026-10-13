@@ -3,6 +3,11 @@ import type { LabelPlacement, RemarksConfig, SignatureMode } from "~~/shared/con
 
 const config = defineModel<RemarksConfig>({ required: true })
 
+const layoutOptions = [
+  { value: "stacked", label: "Stacked" },
+  { value: "signature-comment", label: "Signature left, comment right" }
+]
+
 const signatureOptions: { value: SignatureMode; label: string }[] = [
   { value: "blank", label: "Blank line" },
   { value: "image", label: "Upload image" }
@@ -38,6 +43,14 @@ const parties = [
           :min-size="9"
           :max-size="14"
         />
+
+        <div class="space-y-1.5">
+          <UiLabel class="text-xs">Layout</UiLabel>
+          <ReportCardBuilderSmallSelect
+            v-model="config[party.key].layout"
+            :options="layoutOptions"
+          />
+        </div>
 
         <div class="space-y-1.5">
           <UiLabel class="text-xs">Comment label</UiLabel>
@@ -86,6 +99,58 @@ const parties = [
 
           <ReportCardBuilderStyledTextInput
             v-model="config[party.key].signatureLabel"
+            label="Name under the signature"
+            :min-size="8"
+            :max-size="12"
+          />
+        </template>
+      </div>
+    </div>
+
+    <!-- Director: signature only -->
+    <div class="space-y-3 rounded-lg border border-border p-2.5">
+      <label class="flex items-center justify-between gap-3">
+        <span class="text-xs font-medium">Director</span>
+        <UiSwitch v-model="config.director.visible" aria-label="Show the director signature" />
+      </label>
+
+      <div v-if="config.director.visible" class="space-y-3">
+        <label class="flex items-center justify-between gap-3">
+          <span class="text-xs">Include a signature</span>
+          <UiSwitch v-model="config.director.showSignature" aria-label="Include the director signature" />
+        </label>
+
+        <template v-if="config.director.showSignature">
+          <div class="space-y-1.5">
+            <UiLabel class="text-xs">Signature style</UiLabel>
+            <div class="flex items-center gap-1">
+              <UiButton
+                v-for="option in signatureOptions"
+                :key="option.value"
+                type="button"
+                size="sm"
+                :variant="config.director.signatureMode === option.value ? 'secondary' : 'ghost'"
+                :text="option.label"
+                @click="config.director.signatureMode = option.value"
+              />
+            </div>
+          </div>
+
+          <p
+            v-if="config.director.signatureMode === 'blank' && !config.director.signatureImage"
+            class="text-muted-foreground text-[10px]"
+          >
+            A blank signature line will be printed.
+          </p>
+
+          <ReportCardBuilderAssetUpload
+            v-model="config.director.signatureImage"
+            asset-key="sig-principal"
+            label="Director signature image"
+          />
+
+          <ReportCardBuilderStyledTextInput
+            v-model="config.director.signatureLabel"
             label="Name under the signature"
             :min-size="8"
             :max-size="12"

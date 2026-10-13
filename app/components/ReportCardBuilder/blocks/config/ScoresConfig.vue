@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { ScoreColumnId, ScoresCaDisplay, ScoresConfig } from "~~/shared/constants/report-card"
 import { ICONS } from "~~/shared/constants/icons"
+import type { ScoreColumnId, ScoresCaDisplay, ScoresConfig } from "~~/shared/constants/report-card"
 
 const config = defineModel<ScoresConfig>({ required: true })
 
@@ -35,9 +35,31 @@ const COLUMN_LABELS: Record<string, string> = {
 
 const caDisplayOptions: { value: ScoresCaDisplay; label: string }[] = [
   { value: "breakdown-grouped", label: "Breakdown — grouped under “Assessments”" },
+  { value: "breakdown-grouped-total", label: "Breakdown — grouped + CA Total column" },
   { value: "breakdown-single", label: "Breakdown — one column per CA" },
   { value: "summed", label: "Summed — a single CA Total column" }
 ]
+
+/** Columns whose header text the admin can override. CA columns are structural. */
+const LABELABLE_KEYS: ScoreColumnId[] = [
+  "subject",
+  "exam",
+  "total",
+  "classHighest",
+  "classLowest",
+  "classAverage",
+  "grade",
+  "remark",
+  "subjectPosition"
+]
+
+function setColumnLabel(key: ScoreColumnId, value: string) {
+  if (value.trim() === "") {
+    delete config.value.columnLabels[key]
+    return
+  }
+  config.value.columnLabels[key] = value
+}
 
 const checklist = computed<{ key: ScoreColumnId; label: string }[]>(() =>
   CANONICAL_ORDER.map((key) => ({ key, label: COLUMN_LABELS[key] ?? key }))
@@ -117,10 +139,29 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
       <p class="text-muted-foreground flex gap-2 text-[10px]">
         <Icon :name="ICONS.info" class="mt-0.5 size-3 shrink-0" />
         <span>
-          "Position" needs per-subject rankings, which are not available yet, so it prints a
-          dash.
+          "Position" needs per-subject rankings, which are not available yet, so it prints a dash.
         </span>
       </p>
+    </div>
+
+    <UiSeparator />
+
+    <div class="space-y-2">
+      <UiLabel class="text-xs">Column headings</UiLabel>
+      <p class="text-muted-foreground text-[10px]">
+        Leave a field empty to use the default heading.
+      </p>
+      <div v-for="key in LABELABLE_KEYS" :key="key" class="flex items-center gap-2">
+        <span class="text-muted-foreground w-24 shrink-0 text-[10px]">
+          {{ COLUMN_LABELS[key] ?? key }}
+        </span>
+        <UiInput
+          :model-value="config.columnLabels[key] ?? ''"
+          :placeholder="COLUMN_LABELS[key] ?? key"
+          class="h-7 flex-1 text-[11px]"
+          @update:model-value="(value) => setColumnLabel(key, String(value))"
+        />
+      </div>
     </div>
   </div>
 </template>

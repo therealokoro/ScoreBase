@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { ICONS } from "~~/shared/constants/icons"
 import type { LogoPlacement, SchoolInfoConfig, StyledText } from "~~/shared/constants/report-card"
 import { DEFAULT_TEXT_STYLE } from "~~/shared/constants/report-card"
-import { ICONS } from "~~/shared/constants/icons"
 
 const config = defineModel<SchoolInfoConfig>({ required: true })
 
@@ -21,6 +21,15 @@ const logoSizeOptions = [
 const showSecondaryLogo = computed(() =>
   ["center", "left-right"].includes(config.value.logoPlacement)
 )
+
+/** "After the school name", then "after paragraph 1..N" for as many paragraphs as exist. */
+const badgePositionOptions = computed(() => [
+  { label: "After the school name", value: "0" },
+  ...config.value.paragraphs.map((_, index) => ({
+    label: `After paragraph ${index + 1}`,
+    value: String(index + 1)
+  }))
+])
 
 const sameLogo = computed({
   // Checked only when the secondary slot actually mirrors the primary — so an empty
@@ -153,6 +162,25 @@ function moveParagraph(index: number, direction: -1 | 1) {
     </div>
 
     <UiSeparator />
+
+    <div class="space-y-2 rounded-md border border-border p-2">
+      <label class="flex items-center justify-between gap-2">
+        <span class="text-xs font-medium">Government Approved badge</span>
+        <UiSwitch
+          v-model="config.showGovernmentApprovedBadge"
+          aria-label="Show the Government Approved badge"
+        />
+      </label>
+
+      <template v-if="config.showGovernmentApprovedBadge">
+        <UiLabel class="text-xs">Badge position</UiLabel>
+        <ReportCardBuilderSmallSelect
+          :model-value="String(config.badgeAfterParagraph)"
+          :options="badgePositionOptions"
+          @update:model-value="(value) => (config.badgeAfterParagraph = Number(value))"
+        />
+      </template>
+    </div>
 
     <ReportCardBuilderStyledTextInput
       v-model="config.schoolName"

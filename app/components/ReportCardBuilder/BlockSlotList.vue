@@ -17,6 +17,12 @@ const fontOptions = [
   { label: "Use the general font", value: "inherit" },
   ...FONT_FAMILIES.map((font) => ({ label: font.label, value: font.value }))
 ]
+
+const columnOptions = [
+  { value: "full", label: "Full width" },
+  { value: "left", label: "Left" },
+  { value: "right", label: "Right" }
+]
 import CustomTableConfigPanel from "./blocks/config/CustomTableConfig.vue"
 import GradingKeyConfigPanel from "./blocks/config/GradingKeyConfig.vue"
 import PsychomotorConfigPanel from "./blocks/config/PsychomotorConfig.vue"
@@ -77,6 +83,8 @@ function addBlock(definition: BlockDefinition) {
     id: typeid("block").toString(),
     type: definition.type,
     hidden: false,
+    fontFamily: null,
+    column: "full",
     config: definition.defaultConfig()
   } as ReportCardBlock
 
@@ -198,6 +206,18 @@ function confirmDelete() {
             placeholder="Use the general font"
             @update:model-value="(value) => (block.fontFamily = value === 'inherit' ? null : value)"
           />
+        </div>
+
+        <div v-if="slot === 'footer' && template.footerLayout === 'columns'" class="space-y-1.5">
+          <UiLabel class="text-xs">Column</UiLabel>
+          <ReportCardBuilderSmallSelect
+            v-model="block.column"
+            :options="columnOptions"
+            class="max-w-40"
+          />
+          <p class="text-muted-foreground text-[10px]">
+            Full width spans both columns; left and right stack in their own column.
+          </p>
         </div>
 
         <component :is="configPanels[block.type]" v-model="block.config" />

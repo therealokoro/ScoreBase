@@ -10,6 +10,11 @@ const variantOptions: { value: CustomTableVariant; label: string }[] = [
   { value: "manual", label: "Teacher fills in" }
 ]
 
+const layoutOptions = [
+  { value: "stacked", label: "Stacked rows" },
+  { value: "inline", label: "Single inline row" }
+]
+
 function addRow() {
   config.value.rows.push({ id: typeid("row").toString(), label: "New row", value: "" })
 }
@@ -49,6 +54,11 @@ function moveRow(index: number, direction: -1 | 1) {
             : "Labels are set here; teachers type the values for each student."
         }}
       </p>
+    </div>
+
+    <div class="space-y-1.5">
+      <UiLabel class="text-xs">Layout</UiLabel>
+      <ReportCardBuilderSmallSelect v-model="config.layout" :options="layoutOptions" />
     </div>
 
     <ReportCardBuilderStyledTextInput v-model="config.title" label="Table title" />
