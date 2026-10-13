@@ -154,6 +154,7 @@ export const ICONS = {
   alignLeft: "lucide:align-left",
   alignCenter: "lucide:align-center",
   alignRight: "lucide:align-right",
+  italic: "lucide:italic",
 
   // =========================
   // Files & Export

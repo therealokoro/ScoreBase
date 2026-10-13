@@ -22,10 +22,30 @@ function rowValue(rowId: string): string {
 
 <template>
   <div data-block-type="custom-table" class="space-y-1.5">
-    <p :style="textStyle(config.title.style)">{{ config.title.value }}</p>
+    <p v-if="config.title.value" :style="textStyle(config.title.style)">
+      {{ config.title.value }}
+    </p>
 
-    <div class="border-border overflow-hidden rounded-lg border">
-      <UiTable aria-label="Custom table">
+    <!-- Inline strip: alternating label/value cells across one row -->
+    <div
+      v-if="config.layout === 'inline'"
+      class="border-border w-fit overflow-hidden rounded-lg border"
+    >
+      <div class="flex flex-wrap">
+        <template v-for="row in config.rows" :key="row.id">
+          <div class="border-border border-r px-2 py-1 text-[10px] font-medium last:border-r-0">
+            {{ row.label }}
+          </div>
+          <div class="border-border border-r px-2 py-1 text-[10px] last:border-r-0">
+            {{ rowValue(row.id) }}
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Stacked: one label/value row per entry -->
+    <div v-else class="border-border w-fit overflow-hidden rounded-lg border">
+      <UiTable class="w-fit text-xs" aria-label="Custom table">
         <UiTableBody>
           <UiTableRow v-for="row in config.rows" :key="row.id">
             <UiTableCell class="px-2 py-1 text-xs font-medium">{{ row.label }}</UiTableCell>

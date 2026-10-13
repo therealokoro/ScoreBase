@@ -33,6 +33,7 @@ export type FontWeight = (typeof FONT_WEIGHTS)[number]["value"]
 export interface TextStyle {
   fontSize: number // px, 10–28
   fontWeight: FontWeight
+  italic: boolean
   color: string // hex e.g. "#000000"
   align: TextAlign
 }
@@ -45,6 +46,7 @@ export interface StyledText {
 export const DEFAULT_TEXT_STYLE: TextStyle = {
   fontSize: 14,
   fontWeight: "normal",
+  italic: false,
   color: "#000000",
   align: "left"
 }
@@ -89,6 +91,11 @@ export interface ReportCardBlockBase {
   hidden: boolean // hides without deleting
   /** Optional per-block font override; null inherits the template's font family. */
   fontFamily: string | null
+  /**
+   * Where this block sits when the template's `footerLayout` is `"columns"`. Ignored for other
+   * slots and for the `"stacked"` footer layout.
+   */
+  column: BlockColumn
 }
 
 export interface SchoolInfoBlock extends ReportCardBlockBase {
@@ -155,12 +162,24 @@ export interface Watermark {
 
 export type SidebarPosition = "left" | "right"
 
+/**
+ * Footer flow. `"stacked"` (default) renders every footer block in one vertical column. `"columns"`
+ * groups consecutive left/right blocks into a two-column row, so a grading key can sit bottom-left
+ * while term info and signatures stack bottom-right.
+ */
+export type FooterLayout = "stacked" | "columns"
+
+/** Column placement for a footer block under the `"columns"` footer layout. */
+export type BlockColumn = "full" | "left" | "right"
+
 export interface ReportCardTemplate {
   id: string // typeid("template")
   /** Global font family for all report card text (blocks can override it). */
   fontFamily: string
   // Sidebar layout is derived: it kicks in whenever `sidebar` has blocks.
   sidebarPosition: SidebarPosition
+  /** Footer flow — see `FooterLayout`. */
+  footerLayout: FooterLayout
   watermark: Watermark | null
   header: ReportCardBlock[]
   studentInfo: ReportCardBlock[]
@@ -198,6 +217,10 @@ export interface SchoolInfoConfig {
   schoolName: StyledText
   /** Free-form header text; the admin adds as many paragraphs as needed. */
   paragraphs: StyledText[]
+  /** Renders the "GOVERNMENT APPROVED" badge in the header. */
+  showGovernmentApprovedBadge: boolean
+  /** Where the badge sits: 0 = straight after the school name, N = after the Nth paragraph. */
+  badgeAfterParagraph: number
 }
 
 // -- student-info -----------------------------------------------------------
@@ -250,7 +273,11 @@ export type ScoreColumnId =
   | "remark"
   | "subjectPosition"
 
-export type ScoresCaDisplay = "breakdown-grouped" | "breakdown-single" | "summed"
+export type ScoresCaDisplay =
+  | "breakdown-grouped"
+  | "breakdown-grouped-total"
+  | "breakdown-single"
+  | "summed"
 
 export interface ScoresConfig {
   /**
@@ -262,11 +289,16 @@ export interface ScoresConfig {
   // Non-CA columns in display order; the CA columns (or CA Total) are inserted right after
   // "subject" based on `caDisplay`. CA ids are not allowed here.
   columns: ScoreColumnId[]
+  /** Optional header overrides, keyed by column id. Missing entries use the built-in labels. */
+  columnLabels: Record<string, string>
 }
 
 // -- custom-table -----------------------------------------------------------
 
 export type CustomTableVariant = "static" | "manual"
+
+/** "stacked" = one row per label/value pair; "inline" = label/value pairs across a single row. */
+export type CustomTableLayout = "stacked" | "inline"
 
 export interface CustomTableRow {
   id: string // typeid("row")
@@ -276,6 +308,7 @@ export interface CustomTableRow {
 
 export interface CustomTableConfig {
   variant: CustomTableVariant
+  layout: CustomTableLayout
   title: StyledText
   rows: CustomTableRow[]
 }
@@ -284,11 +317,15 @@ export interface CustomTableConfig {
 
 export type GradingKeyDisplay = "grade" | "remark"
 
+export type GradingKeyDisplayStyle = "list" | "table"
+
 // Grade data always comes live from result settings' KV gradeBoundaries; the block only
-// chooses whether the grade or its remark is shown next to the value range.
+// chooses how it renders and whether the grade or its remark is shown.
 export interface GradingKeyConfig {
   title: StyledText
   display: GradingKeyDisplay
+  /** "table" = two-column table; "list" = bulleted "A Distinction - 70% and above" lines. */
+  displayStyle: GradingKeyDisplayStyle
 }
 
 // -- psychomotor ------------------------------------------------------------
@@ -340,20 +377,38 @@ export interface SummaryConfig {
 
 export type SignatureMode = "blank" | "image"
 
+/** How a remarks section arranges its signature and comment. */
+export type RemarksLayout = "stacked" | "signature-comment"
+
 export interface RemarksSignatureConfig {
   visible: boolean
   label: StyledText // e.g. "Class Teacher's Remark"
   /** Whether the label sits above the comment or beside it. */
   commentLabelPlacement: LabelPlacement
+  /**
+   * "stacked" = label/comment/signature in a column; "signature-comment" = signature left, comment
+   * right.
+   */
+  layout: RemarksLayout
   showSignature: boolean
   signatureMode: SignatureMode
   signatureImage: string | null // NuxtHub Blob pathname
   signatureLabel: StyledText // e.g. "Class Teacher"
 }
 
+/** A signature-only section (no comment), e.g. the director's. */
+export interface RemarksSignatureOnlyConfig {
+  visible: boolean
+  showSignature: boolean
+  signatureMode: SignatureMode
+  signatureImage: string | null
+  signatureLabel: StyledText
+}
+
 export interface RemarksConfig {
   teacher: RemarksSignatureConfig
   principal: RemarksSignatureConfig
+  director: RemarksSignatureOnlyConfig
 }
 
 // ---------------------------------------------------------------------------
@@ -397,7 +452,9 @@ export function createDefaultSchoolInfoConfig(): SchoolInfoConfig {
       value: "",
       style: { ...DEFAULT_TEXT_STYLE, fontSize: 16, fontWeight: "bold", align: "center" }
     },
-    paragraphs: []
+    paragraphs: [],
+    showGovernmentApprovedBadge: false,
+    badgeAfterParagraph: 0
   }
 }
 
@@ -421,6 +478,7 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
 export function createDefaultScoresConfig(): ScoresConfig {
   return {
     caDisplay: "summed",
+    columnLabels: {},
     columns: ["subject", "exam", "total", "grade", "remark"]
   }
 }
@@ -428,6 +486,7 @@ export function createDefaultScoresConfig(): ScoresConfig {
 export function createDefaultCustomTableConfig(): CustomTableConfig {
   return {
     variant: "static",
+    layout: "stacked",
     title: { value: "Custom Table", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
     rows: [{ id: typeid("row").toString(), label: "Label", value: "" }]
   }
@@ -437,7 +496,8 @@ export function createDefaultCustomTableConfig(): CustomTableConfig {
 export function createDefaultGradingKeyConfig(): GradingKeyConfig {
   return {
     title: { value: "Grading Key", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
-    display: "grade"
+    display: "grade",
+    displayStyle: "table"
   }
 }
 
@@ -465,6 +525,7 @@ export function createDefaultRemarksConfig(): RemarksConfig {
       visible: true,
       label: { value: "Class Teacher's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
       commentLabelPlacement: "top",
+      layout: "stacked",
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
@@ -474,10 +535,18 @@ export function createDefaultRemarksConfig(): RemarksConfig {
       visible: true,
       label: { value: "Principal's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
       commentLabelPlacement: "top",
+      layout: "stacked",
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
       signatureLabel: { value: "Principal", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
+    },
+    director: {
+      visible: false,
+      showSignature: true,
+      signatureMode: "blank",
+      signatureImage: null,
+      signatureLabel: { value: "Director", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
     }
   }
 }
@@ -496,6 +565,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
     id: typeid("template").toString(),
     fontFamily: DEFAULT_FONT_FAMILY,
     sidebarPosition: "right",
+    footerLayout: "stacked",
     watermark: null,
     header: [
       {
@@ -503,6 +573,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         type: "school-info",
         hidden: false,
         fontFamily: null,
+        column: "full",
         config: createDefaultSchoolInfoConfig()
       }
     ],
@@ -512,6 +583,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         type: "student-info",
         hidden: false,
         fontFamily: null,
+        column: "full",
         config: createDefaultStudentInfoConfig()
       }
     ],
@@ -521,6 +593,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         type: "scores",
         hidden: false,
         fontFamily: null,
+        column: "full",
         config: createDefaultScoresConfig()
       }
     ],
@@ -531,6 +604,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         type: "summary",
         hidden: false,
         fontFamily: null,
+        column: "full",
         config: createDefaultSummaryConfig()
       },
       {
@@ -538,6 +612,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         type: "remarks",
         hidden: false,
         fontFamily: null,
+        column: "full",
         config: createDefaultRemarksConfig()
       }
     ]

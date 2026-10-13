@@ -1,6 +1,10 @@
 import { db } from "@nuxthub/db"
 import { eq } from "drizzle-orm"
-import { computeReportCard, computeStudentTotals } from "~~/shared/utils/report-card"
+import {
+  computeReportCard,
+  computeStudentTotals,
+  computeSubjectClassData
+} from "~~/shared/utils/report-card"
 import type { ScoresheetInput } from "~~/shared/utils/report-card"
 
 import { scoresheets } from "../db/schema"
@@ -42,6 +46,7 @@ export async function fetchReportCardData(scoresheetId: string) {
     studentSchoolId: sheet.student.studentId,
     subjectScores: sheet.subjectScores.map((score) => ({
       id: score.id,
+      subjectId: score.subject?.id ?? null,
       subjectName: score.subject?.name ?? "Unknown",
       caScores: score.caScores,
       exam: score.exam
@@ -74,7 +79,11 @@ export async function fetchReportCardData(scoresheetId: string) {
     principalRemark: targetSheetRaw.principalRemark ?? null,
     totalStudents: result.scoresheets.length,
     // Class-wide total pool (fully-scored students only) for the footer class summary.
-    allStudentTotals: computeStudentTotals(allScoresheets)
+    allStudentTotals: computeStudentTotals(allScoresheets),
+    // Per-subject class pool: every student's total for that subject, skipping students whose
+    // subject score is still incomplete. Powers the classAverage / classHighest / classLowest /
+    // subjectPosition columns.
+    subjectClassData: computeSubjectClassData(allScoresheets)
   }
 }
 

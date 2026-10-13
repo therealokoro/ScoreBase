@@ -20,7 +20,7 @@ function fieldValue(field: StudentInfoField): string {
     case "student.class":
       return view.className
     case "class.size":
-      return `${view.totalStudents} students`
+      return String(view.totalStudents)
     case "term.name":
       return view.termName
     case "session.name":
@@ -49,16 +49,33 @@ const gridStyle = computed(() => ({
 const containerClass = computed(() => {
   switch (props.config.borderStyle) {
     case "outlined":
-      return "border-border rounded-lg border p-3"
+      return "border-foreground rounded-lg border p-3"
     case "bordered":
-      // Outer border comes from the wrapper; cells draw the inner grid lines.
-      return "border-border overflow-hidden rounded-lg border"
+      // Outer border comes from the wrapper; cells draw the inner grid lines. `border-foreground`
+      // keeps the print output black like a paper report card.
+      return "border-foreground overflow-hidden rounded-lg border"
     default:
       return ""
   }
 })
 
 const bordered = computed(() => props.config.borderStyle === "bordered")
+
+/**
+ * Cell classes for the bordered grid. The wrapper already draws the outer border, so the last
+ * column and last row drop their inner lines — otherwise those edges print as a double rule.
+ */
+function cellClass(index: number): string[] {
+  if (!bordered.value) return []
+  const columns = props.config.columns
+  const rows = Math.ceil(items.value.length / columns)
+  const row = Math.floor(index / columns)
+  return [
+    "border-foreground border-r border-b p-2",
+    (index + 1) % columns === 0 ? "border-r-0" : "",
+    row === rows - 1 ? "border-b-0" : ""
+  ]
+}
 
 const valueStyle = computed(() => ({
   fontSize: `${props.config.valueFontSize}px`,
@@ -75,16 +92,16 @@ const valueStyle = computed(() => ({
       :style="gridStyle"
     >
       <div
-        v-for="item in items"
+        v-for="(item, index) in items"
         :key="item.id"
         :class="[
-          bordered ? 'border-border border-r border-b p-2' : '',
+          ...cellClass(index),
           !bordered && config.labelPlacement === 'side' ? 'flex items-baseline gap-2' : '',
           !bordered && config.labelPlacement === 'top' ? 'space-y-0.5' : ''
         ]"
       >
-        <p class="text-muted-foreground text-[10px]">{{ item.label }}</p>
-        <p :style="valueStyle">{{ item.value }}</p>
+        <p class="text-muted-foreground text-[10px] break-words">{{ item.label }}</p>
+        <p class="break-words" :style="valueStyle">{{ item.value }}</p>
       </div>
     </div>
   </div>

@@ -5,6 +5,7 @@ import type { GradeBoundary, PositionDisplayMode } from "../validators/settings"
 // ---------------------------------------------------------------------------
 export type SubjectScoreInput = {
   id: string
+  subjectId: string | null
   subjectName: string
   caScores: (number | null)[]
   exam: number | null
@@ -22,6 +23,7 @@ export type ScoresheetInput = {
 // ---------------------------------------------------------------------------
 export type ComputedSubjectRow = {
   id: string
+  subjectId: string | null
   subjectName: string
   caScores: (number | null)[]
   caTotal: number | null // sum of caScores; null if any slot is still null
@@ -98,18 +100,51 @@ export function formatPosition(
 // ---------------------------------------------------------------------------
 
 /**
+ * A single subject's total for one student: CA sum + exam. Returns `null` when any CA slot or the
+ * exam is still empty, so incomplete subjects never pollute class statistics.
+ */
+function computeSubjectTotal(score: SubjectScoreInput): number | null {
+  const caComplete = score.caScores.every((s) => s !== null)
+  if (!caComplete || score.exam === null) return null
+  return score.caScores.reduce<number>((sum, s) => sum + (s ?? 0), 0) + score.exam
+}
+
+/**
  * Grand total of a single scoresheet: the sum of each subject's `caTotal + exam`. Returns `null`
  * when any subject still has an incomplete CA slot or exam, matching the "incomplete = unranked"
  * rule used for position.
  */
 function computeScoresheetTotal(scoresheet: ScoresheetInput): number | null {
-  const rows = scoresheet.subjectScores.map((score) => {
-    const caTotal = score.caScores.every((s) => s !== null)
-      ? score.caScores.reduce<number>((sum, s) => sum + (s ?? 0), 0)
-      : null
-    return caTotal !== null && score.exam !== null ? caTotal + score.exam : null
-  })
+  const rows = scoresheet.subjectScores.map((score) => computeSubjectTotal(score))
   return rows.every((r) => r !== null) ? rows.reduce<number>((sum, r) => sum + (r ?? 0), 0) : null
+}
+
+/** Per-subject class pool, used by the scores block's class-statistics columns. */
+export type SubjectClassData = {
+  subjectId: string
+  totals: number[]
+}
+
+/**
+ * Groups every student's subject total by subject. Students whose score for that subject is still
+ * incomplete are skipped for that subject only (unlike the overall ranking, which excludes the
+ * whole student). Soft-deleted subjects (`subjectId === null`) are ignored.
+ */
+export function computeSubjectClassData(sheets: ScoresheetInput[]): SubjectClassData[] {
+  const bySubject = new Map<string, number[]>()
+
+  for (const sheet of sheets) {
+    for (const score of sheet.subjectScores) {
+      if (score.subjectId === null) continue
+      const total = computeSubjectTotal(score)
+      if (total === null) continue
+      const totals = bySubject.get(score.subjectId) ?? []
+      totals.push(total)
+      bySubject.set(score.subjectId, totals)
+    }
+  }
+
+  return [...bySubject].map(([subjectId, totals]) => ({ subjectId, totals }))
 }
 
 /**
@@ -162,6 +197,7 @@ export function computeReportCard(
 
     return {
       id: score.id,
+      subjectId: score.subjectId,
       subjectName: score.subjectName,
       caScores: score.caScores,
       caTotal,

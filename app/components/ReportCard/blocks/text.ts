@@ -9,6 +9,7 @@ export function textStyle(style: TextStyle): CSSProperties {
   return {
     fontSize: `${style.fontSize}px`,
     fontWeight: style.fontWeight,
+    fontStyle: style.italic ? "italic" : "normal",
     color: style.color,
     textAlign: style.align
   }

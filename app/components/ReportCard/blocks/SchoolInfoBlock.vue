@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
-import type { SchoolInfoConfig } from "~~/shared/constants/report-card"
+import type { SchoolInfoConfig, StyledText } from "~~/shared/constants/report-card"
 import { LOGO_SIZE_MAP } from "~~/shared/constants/report-card"
 
 import { textStyle } from "./text"
@@ -25,10 +25,33 @@ const logoStyle = computed(() => ({
   width: `${LOGO_SIZE_MAP[props.config.logoSize]}px`
 }))
 
-/** School name first, then only the paragraphs the admin actually filled in. */
-const textFields = computed(() =>
-  [props.config.schoolName, ...props.config.paragraphs].filter((field) => field.value !== "")
-)
+type HeaderLine = { kind: "text"; field: StyledText } | { kind: "badge" }
+
+/**
+ * School name, then the admin's paragraphs, with the "GOVERNMENT APPROVED" badge injected at
+ * `badgeAfterParagraph` (0 = straight after the school name). Empty text lines are dropped after
+ * placement is resolved so the badge never jumps position.
+ */
+const headerLines = computed<HeaderLine[]>(() => {
+  const config = props.config
+  const lines: HeaderLine[] = [{ kind: "text", field: config.schoolName }]
+
+  config.paragraphs.forEach((paragraph, index) => {
+    lines.push({ kind: "text", field: paragraph })
+    if (config.showGovernmentApprovedBadge && config.badgeAfterParagraph === index + 1) {
+      lines.push({ kind: "badge" })
+    }
+  })
+
+  if (config.showGovernmentApprovedBadge && config.badgeAfterParagraph === 0) {
+    lines.splice(1, 0, { kind: "badge" })
+  }
+  if (config.showGovernmentApprovedBadge && !lines.some((line) => line.kind === "badge")) {
+    lines.push({ kind: "badge" })
+  }
+
+  return lines.filter((line) => line.kind === "badge" || line.field.value !== "")
+})
 </script>
 
 <template>
@@ -43,14 +66,24 @@ const textFields = computed(() =>
         :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
-        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
-          {{ field.value }}
-        </p>
+        <template v-for="(line, index) in headerLines" :key="index">
+          <div v-if="line.kind === 'badge'" class="my-1 flex justify-center">
+            <span
+              class="bg-destructive text-destructive-foreground rounded px-3 py-0.5 text-xs font-bold tracking-wider"
+            >
+              GOVERNMENT APPROVED
+            </span>
+          </div>
+          <p v-else :style="textStyle(line.field.style)">{{ line.field.value }}</p>
+        </template>
       </div>
     </div>
 
     <!-- Right -->
-    <div v-else-if="config.logoPlacement === 'right'" class="flex flex-row-reverse items-start gap-4">
+    <div
+      v-else-if="config.logoPlacement === 'right'"
+      class="flex flex-row-reverse items-start gap-4"
+    >
       <img
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
@@ -59,9 +92,16 @@ const textFields = computed(() =>
         :style="logoStyle"
       />
       <div class="min-w-0 flex-1 space-y-1">
-        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
-          {{ field.value }}
-        </p>
+        <template v-for="(line, index) in headerLines" :key="index">
+          <div v-if="line.kind === 'badge'" class="my-1 flex justify-center">
+            <span
+              class="bg-destructive text-destructive-foreground rounded px-3 py-0.5 text-xs font-bold tracking-wider"
+            >
+              GOVERNMENT APPROVED
+            </span>
+          </div>
+          <p v-else :style="textStyle(line.field.style)">{{ line.field.value }}</p>
+        </template>
       </div>
     </div>
 
@@ -77,13 +117,20 @@ const textFields = computed(() =>
           :style="logoStyle"
         />
       </div>
-      <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
-        {{ field.value }}
-      </p>
+      <template v-for="(line, index) in headerLines" :key="index">
+        <div v-if="line.kind === 'badge'" class="my-1 flex justify-center">
+          <span
+            class="bg-destructive text-destructive-foreground rounded px-3 py-0.5 text-xs font-bold tracking-wider"
+          >
+            GOVERNMENT APPROVED
+          </span>
+        </div>
+        <p v-else :style="textStyle(line.field.style)">{{ line.field.value }}</p>
+      </template>
     </div>
 
-    <!-- Both sides -->
-    <div v-else class="relative flex items-start justify-between gap-4">
+    <!-- Both sides: logos flank an in-flow centre column so the header keeps its own height -->
+    <div v-else class="flex items-start justify-between gap-4">
       <img
         v-if="logoPrimaryUrl"
         :src="logoPrimaryUrl"
@@ -91,6 +138,22 @@ const textFields = computed(() =>
         class="shrink-0 object-contain"
         :style="logoStyle"
       />
+      <!-- Keeps the centre column centred when only one side has a logo -->
+      <div v-else-if="logoSecondaryUrl" class="shrink-0" :style="logoStyle" aria-hidden="true" />
+
+      <div class="min-w-0 flex-1 space-y-0.5">
+        <template v-for="(line, index) in headerLines" :key="index">
+          <div v-if="line.kind === 'badge'" class="my-1 flex justify-center">
+            <span
+              class="bg-destructive text-destructive-foreground rounded px-3 py-0.5 text-xs font-bold tracking-wider"
+            >
+              GOVERNMENT APPROVED
+            </span>
+          </div>
+          <p v-else :style="textStyle(line.field.style)">{{ line.field.value }}</p>
+        </template>
+      </div>
+
       <img
         v-if="logoSecondaryUrl"
         :src="logoSecondaryUrl"
@@ -98,11 +161,7 @@ const textFields = computed(() =>
         class="shrink-0 object-contain"
         :style="logoStyle"
       />
-      <div class="absolute inset-x-0 top-0 mx-auto max-w-[60%] space-y-1">
-        <p v-for="(field, index) in textFields" :key="index" :style="textStyle(field.style)">
-          {{ field.value }}
-        </p>
-      </div>
+      <div v-else-if="logoPrimaryUrl" class="shrink-0" :style="logoStyle" aria-hidden="true" />
     </div>
   </div>
 </template>

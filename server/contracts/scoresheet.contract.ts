@@ -39,6 +39,8 @@ export const updateScoresheetRemarks = oc.input(UpdateScoresheetRemarksSchema).e
 
 const ComputedSubjectRowSchema = z.object({
   id: z.string(),
+  // The subject this score belongs to; null when the subject row was soft-deleted.
+  subjectId: z.string().nullable(),
   subjectName: z.string(),
   caScores: z.array(z.number().nullable()),
   caTotal: z.number().nullable(),
@@ -73,7 +75,15 @@ export const ReportCardOutputSchema = z.object({
   teacherRemark: z.string().nullable(),
   principalRemark: z.string().nullable(),
   totalStudents: z.number(),
-  allStudentTotals: z.array(z.number())
+  allStudentTotals: z.array(z.number()),
+  // Per-subject class pool for the classAverage / classHighest / classLowest / subjectPosition
+  // columns. Without this entry oRPC strips the field before it reaches the client.
+  subjectClassData: z.array(
+    z.object({
+      subjectId: z.string(),
+      totals: z.array(z.number())
+    })
+  )
 })
 
 export const getReportCard = oc

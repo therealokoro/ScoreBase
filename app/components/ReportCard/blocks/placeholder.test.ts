@@ -6,10 +6,17 @@ import { textStyle } from "./text"
 describe("textStyle", () => {
   it("maps a TextStyle to inline CSS", () => {
     expect(
-      textStyle({ fontSize: 18, fontWeight: "bold", color: "#ff0000", align: "center" })
+      textStyle({
+        fontSize: 18,
+        fontWeight: "bold",
+        italic: true,
+        color: "#ff0000",
+        align: "center"
+      })
     ).toEqual({
       fontSize: "18px",
       fontWeight: "bold",
+      fontStyle: "italic",
       color: "#ff0000",
       textAlign: "center"
     })
@@ -17,7 +24,13 @@ describe("textStyle", () => {
 
   it("passes 'normal' weight through unchanged", () => {
     expect(
-      textStyle({ fontSize: 12, fontWeight: "normal", color: "#000000", align: "left" }).fontWeight
+      textStyle({
+        fontSize: 12,
+        fontWeight: "normal",
+        italic: false,
+        color: "#000000",
+        align: "left"
+      }).fontWeight
     ).toBe("normal")
   })
 })

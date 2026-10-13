@@ -4,6 +4,7 @@ import type { GradeBoundary } from "../validators/settings"
 import {
   computeReportCard,
   computeStudentTotals,
+  computeSubjectClassData,
   formatPosition,
   getGradeBoundary,
   toOrdinal
@@ -24,14 +25,15 @@ function sheet(
   id: string,
   name: string,
   caScores: (number | null)[],
-  exam: number | null
+  exam: number | null,
+  subjectId: string | null = "sub-maths"
 ): ScoresheetInput {
   return {
     scoresheetId: id,
     studentId: `stu-${id}`,
     studentName: name,
     studentSchoolId: `ID-${id}`,
-    subjectScores: [{ id: `ss-${id}`, subjectName: "Maths", caScores, exam }]
+    subjectScores: [{ id: `ss-${id}`, subjectId, subjectName: "Maths", caScores, exam }]
   }
 }
 
@@ -144,5 +146,33 @@ describe("computeStudentTotals", () => {
   it("returns an empty array when nobody is fully scored", () => {
     expect(computeStudentTotals([])).toEqual([])
     expect(computeStudentTotals([sheet("a", "A", [null, null], null)])).toEqual([])
+  })
+})
+
+describe("computeSubjectClassData", () => {
+  it("groups every student's subject total by subject id", () => {
+    const a = sheet("a", "A", [20, 20], 60, "sub-maths") // 100
+    const b = sheet("b", "B", [10, 10], 30, "sub-maths") // 50
+    const c = sheet("c", "C", [5, 5], 20, "sub-english") // 30
+
+    expect(computeSubjectClassData([a, b, c])).toEqual([
+      { subjectId: "sub-maths", totals: [100, 50] },
+      { subjectId: "sub-english", totals: [30] }
+    ])
+  })
+
+  it("skips only the incomplete subject for that student", () => {
+    const complete = sheet("a", "A", [20, 20], 60, "sub-maths") // 100
+    const partial = sheet("b", "B", [20, null], 40, "sub-maths") // incomplete
+
+    expect(computeSubjectClassData([complete, partial])).toEqual([
+      { subjectId: "sub-maths", totals: [100] }
+    ])
+  })
+
+  it("ignores scores whose subject row was deleted (null subjectId)", () => {
+    const orphaned = sheet("a", "A", [20, 20], 60, null)
+
+    expect(computeSubjectClassData([orphaned])).toEqual([])
   })
 })

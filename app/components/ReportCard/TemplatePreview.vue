@@ -70,6 +70,36 @@ const watermarkSize = computed(() =>
 // ----------------------------------- Layout -----------------------------------
 
 const hasSidebar = computed(() => props.template.sidebar.length > 0)
+
+/**
+ * Footer rows for the `"columns"` layout: consecutive `full` blocks stack as their own row, while
+ * consecutive `left`/`right` blocks share a two-column row. Visible blocks only.
+ */
+type FooterRow =
+  | { kind: "full"; blocks: ReportCardBlock[] }
+  | { kind: "columns"; left: ReportCardBlock[]; right: ReportCardBlock[] }
+
+const footerRows = computed<FooterRow[]>(() => {
+  const rows: FooterRow[] = []
+  for (const block of props.template.footer) {
+    if (block.hidden) continue
+
+    if (block.column === "full") {
+      const last = rows.at(-1)
+      if (last?.kind === "full") last.blocks.push(block)
+      else rows.push({ kind: "full", blocks: [block] })
+      continue
+    }
+
+    const last = rows.at(-1)
+    const row: FooterRow =
+      last?.kind === "columns" ? last : { kind: "columns", left: [], right: [] }
+    if (row !== last) rows.push(row)
+    if (block.column === "left") row.left.push(block)
+    else row.right.push(block)
+  }
+  return rows
+})
 </script>
 
 <template>
@@ -172,16 +202,63 @@ const hasSidebar = computed(() => props.template.sidebar.length > 0)
           </template>
         </div>
 
-        <!-- Footer -->
-        <template v-for="block in template.footer" :key="block.id">
-          <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
-            <component
-              :is="getBlockDefinition(block.type).component"
-              :config="block.config"
-              :data="data ?? null"
-              :block-id="block.id"
-            />
-          </div>
+        <!-- Footer: stacked, or two columns (e.g. grading key left / term info right) -->
+        <template v-if="template.footerLayout === 'columns'">
+          <template v-for="(row, rowIndex) in footerRows" :key="rowIndex">
+            <div v-if="row.kind === 'full'" class="space-y-4">
+              <template v-for="block in row.blocks" :key="block.id">
+                <div :style="{ fontFamily: block.fontFamily ?? undefined }">
+                  <component
+                    :is="getBlockDefinition(block.type).component"
+                    :config="block.config"
+                    :data="data ?? null"
+                    :block-id="block.id"
+                  />
+                </div>
+              </template>
+            </div>
+
+            <div v-else class="flex items-start gap-4">
+              <div class="min-w-0 flex-1 space-y-3">
+                <template v-for="block in row.left" :key="block.id">
+                  <div :style="{ fontFamily: block.fontFamily ?? undefined }">
+                    <component
+                      :is="getBlockDefinition(block.type).component"
+                      :config="block.config"
+                      :data="data ?? null"
+                      :block-id="block.id"
+                    />
+                  </div>
+                </template>
+              </div>
+
+              <div class="min-w-0 flex-1 space-y-3">
+                <template v-for="block in row.right" :key="block.id">
+                  <div :style="{ fontFamily: block.fontFamily ?? undefined }">
+                    <component
+                      :is="getBlockDefinition(block.type).component"
+                      :config="block.config"
+                      :data="data ?? null"
+                      :block-id="block.id"
+                    />
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <template v-else>
+          <template v-for="block in template.footer" :key="block.id">
+            <div v-if="!block.hidden" :style="{ fontFamily: block.fontFamily ?? undefined }">
+              <component
+                :is="getBlockDefinition(block.type).component"
+                :config="block.config"
+                :data="data ?? null"
+                :block-id="block.id"
+              />
+            </div>
+          </template>
         </template>
       </div>
     </div>

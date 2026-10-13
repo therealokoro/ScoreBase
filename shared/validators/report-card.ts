@@ -33,6 +33,7 @@ export const FONT_WEIGHTS = ["300", "normal", "500", "600", "bold", "800"] as co
 export const TextStyleSchema = z.object({
   fontSize: z.number().int().min(8).max(28),
   fontWeight: z.enum(FONT_WEIGHTS),
+  italic: z.boolean().default(false),
   color: HexColorSchema,
   align: z.enum(["left", "center", "right"])
 })
@@ -80,7 +81,10 @@ export const SchoolInfoConfigSchema = z.object({
   logoPrimary: z.string().nullable(),
   logoSecondary: z.string().nullable(),
   schoolName: StyledTextSchema,
-  paragraphs: z.array(StyledTextSchema)
+  paragraphs: z.array(StyledTextSchema),
+  // Defaults keep templates saved before these fields existed loading cleanly.
+  showGovernmentApprovedBadge: z.boolean().default(false),
+  badgeAfterParagraph: z.number().int().min(0).default(0)
 })
 
 export type SchoolInfoConfig = z.infer<typeof SchoolInfoConfigSchema>
@@ -145,8 +149,15 @@ export type ScoreColumnId = z.infer<typeof ScoreColumnIdSchema>
 
 export const ScoresConfigSchema = z
   .object({
-    caDisplay: z.enum(["breakdown-grouped", "breakdown-single", "summed"]),
-    columns: z.array(ScoreColumnIdSchema)
+    caDisplay: z.enum([
+      "breakdown-grouped",
+      "breakdown-grouped-total",
+      "breakdown-single",
+      "summed"
+    ]),
+    columns: z.array(ScoreColumnIdSchema),
+    // Header overrides; missing entries fall back to the built-in labels.
+    columnLabels: z.record(z.string(), z.string()).default({})
   })
   .refine((config) => config.columns[0] === "subject", {
     message: "The subject column must come first",
@@ -171,6 +182,7 @@ export type CustomTableRow = z.infer<typeof CustomTableRowSchema>
 
 export const CustomTableConfigSchema = z.object({
   variant: z.enum(["static", "manual"]),
+  layout: z.enum(["stacked", "inline"]).default("stacked"),
   title: StyledTextSchema,
   rows: z.array(CustomTableRowSchema)
 })
@@ -181,7 +193,8 @@ export type CustomTableConfig = z.infer<typeof CustomTableConfigSchema>
 
 export const GradingKeyConfigSchema = z.object({
   title: StyledTextSchema,
-  display: z.enum(["grade", "remark"])
+  display: z.enum(["grade", "remark"]),
+  displayStyle: z.enum(["list", "table"]).default("table")
 })
 
 export type GradingKeyConfig = z.infer<typeof GradingKeyConfigSchema>
@@ -229,6 +242,7 @@ export const RemarksSignatureConfigSchema = z.object({
   visible: z.boolean(),
   label: StyledTextSchema,
   commentLabelPlacement: LabelPlacementSchema,
+  layout: z.enum(["stacked", "signature-comment"]).default("stacked"),
   showSignature: z.boolean(),
   signatureMode: z.enum(["blank", "image"]),
   signatureImage: z.string().nullable(),
@@ -237,9 +251,38 @@ export const RemarksSignatureConfigSchema = z.object({
 
 export type RemarksSignatureConfig = z.infer<typeof RemarksSignatureConfigSchema>
 
+export const RemarksSignatureOnlyConfigSchema = z.object({
+  visible: z.boolean(),
+  showSignature: z.boolean(),
+  signatureMode: z.enum(["blank", "image"]),
+  signatureImage: z.string().nullable(),
+  signatureLabel: StyledTextSchema
+})
+
+export type RemarksSignatureOnlyConfig = z.infer<typeof RemarksSignatureOnlyConfigSchema>
+
+const DEFAULT_DIRECTOR_CONFIG = {
+  visible: false,
+  showSignature: true,
+  signatureMode: "blank" as const,
+  signatureImage: null,
+  signatureLabel: {
+    value: "Director",
+    style: {
+      fontSize: 10,
+      fontWeight: "normal" as const,
+      italic: false,
+      color: "#000000",
+      align: "left" as const
+    }
+  }
+}
+
 export const RemarksConfigSchema = z.object({
   teacher: RemarksSignatureConfigSchema,
-  principal: RemarksSignatureConfigSchema
+  principal: RemarksSignatureConfigSchema,
+  // Defaulted so templates saved before the director existed still validate.
+  director: RemarksSignatureOnlyConfigSchema.default(DEFAULT_DIRECTOR_CONFIG)
 })
 
 export type RemarksConfig = z.infer<typeof RemarksConfigSchema>
@@ -251,8 +294,11 @@ export type RemarksConfig = z.infer<typeof RemarksConfigSchema>
 const BlockBaseSchema = z.object({
   id: BlockIdSchema,
   hidden: z.boolean(),
-  // Optional per-block font override; null inherits the template's font family.
-  fontFamily: z.string().nullable()
+  // Optional per-block font override; null inherits the template's font family. Defaulted so
+  // templates saved before this field existed still validate.
+  fontFamily: z.string().nullable().default(null),
+  // Footer column placement; defaulted for the same backward-compatibility reason.
+  column: z.enum(["full", "left", "right"]).default("full")
 })
 
 export const SchoolInfoBlockSchema = BlockBaseSchema.extend({
@@ -316,6 +362,8 @@ export const ReportCardTemplateSchema = z.object({
   id: TemplateIdSchema,
   fontFamily: z.string().min(1),
   sidebarPosition: z.enum(["left", "right"]),
+  // Defaulted so templates saved before the two-column footer existed still validate.
+  footerLayout: z.enum(["stacked", "columns"]).default("stacked"),
   watermark: WatermarkSchema.nullable(),
   header: z.array(ReportCardBlockSchema),
   studentInfo: z.array(ReportCardBlockSchema),

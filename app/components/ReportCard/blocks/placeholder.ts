@@ -1,5 +1,5 @@
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
-import type { ComputedSubjectRow } from "~~/shared/utils/report-card"
+import type { ComputedSubjectRow, SubjectClassData } from "~~/shared/utils/report-card"
 import type { ScoreConfigSnapshot } from "~~/shared/validators/results"
 
 /**
@@ -22,6 +22,7 @@ export interface ReportCardView {
   teacherRemark: string | null
   principalRemark: string | null
   allStudentTotals: number[]
+  subjectClassData: SubjectClassData[]
 }
 
 /** Placeholder values shown in the builder preview while no real scoresheet is loaded. */
@@ -34,6 +35,7 @@ export const REPORT_CARD_PLACEHOLDER: ReportCardView = {
   subjectRows: [
     {
       id: "ph-1",
+      subjectId: "ph-sub-1",
       subjectName: "Mathematics",
       caScores: [18, 17, 15],
       caTotal: 50,
@@ -44,6 +46,7 @@ export const REPORT_CARD_PLACEHOLDER: ReportCardView = {
     },
     {
       id: "ph-2",
+      subjectId: "ph-sub-2",
       subjectName: "English Language",
       caScores: [15, 14, 12],
       caTotal: 41,
@@ -54,6 +57,7 @@ export const REPORT_CARD_PLACEHOLDER: ReportCardView = {
     },
     {
       id: "ph-3",
+      subjectId: "ph-sub-3",
       subjectName: "Basic Science",
       caScores: [12, 10, 11],
       caTotal: 33,
@@ -72,7 +76,12 @@ export const REPORT_CARD_PLACEHOLDER: ReportCardView = {
   subjectCount: 3,
   teacherRemark: "A diligent and focused student.",
   principalRemark: "Keep up the excellent work.",
-  allStudentTotals: [88, 83, 79, 74, 68, 65, 61, 58, 55, 52]
+  allStudentTotals: [88, 83, 79, 74, 68, 65, 61, 58, 55, 52],
+  subjectClassData: [
+    { subjectId: "ph-sub-1", totals: [88, 79, 71, 64, 55, 48] },
+    { subjectId: "ph-sub-2", totals: [76, 72, 68, 61, 54, 47] },
+    { subjectId: "ph-sub-3", totals: [68, 66, 60, 57, 51, 44] }
+  ]
 }
 
 export function normalizeReportCardData(data: ReportCardData): ReportCardView {
@@ -91,7 +100,8 @@ export function normalizeReportCardData(data: ReportCardData): ReportCardView {
     subjectCount: data.computed.subjectCount,
     teacherRemark: data.teacherRemark,
     principalRemark: data.principalRemark,
-    allStudentTotals: data.allStudentTotals
+    allStudentTotals: data.allStudentTotals,
+    subjectClassData: data.subjectClassData
   }
 }
 
