@@ -31,7 +31,7 @@ function initPrintAction() {
   <div>
     <!-- Minimal top bar -->
     <header
-      class="bg-background border-border flex h-12 items-center gap-3 border-b px-4 print:hidden"
+      class="bg-background border-border sticky top-0 z-20 flex h-12 items-center gap-3 border-b px-4 print:hidden"
     >
       <UiButton
         variant="ghost"

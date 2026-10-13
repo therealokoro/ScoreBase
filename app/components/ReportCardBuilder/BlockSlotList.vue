@@ -1,17 +1,10 @@
 <script lang="ts" setup>
-import { typeid } from "typeid-js"
 import type { Component } from "vue"
 import { ICONS } from "~~/shared/constants/icons"
-import type {
-  BlockType,
-  ReportCardBlock,
-  ReportCardTemplate,
-  Slot
-} from "~~/shared/constants/report-card"
+import type { BlockType, ReportCardTemplate, Slot } from "~~/shared/constants/report-card"
 import { FONT_FAMILIES } from "~~/shared/constants/report-card"
 
-import { blockRegistry, getBlockDefinition } from "../ReportCard/blocks/registry"
-import type { BlockDefinition } from "../ReportCard/blocks/registry"
+import { getBlockDefinition } from "../ReportCard/blocks/registry"
 
 const fontOptions = [
   { label: "Use the general font", value: "inherit" },
@@ -48,61 +41,11 @@ const configPanels: Record<BlockType, Component> = {
 }
 
 const selectedBlockId = defineModel<string | null>("selectedBlockId", { required: true })
-const deleteDialogOpen = ref(false)
-const pendingDeleteId = ref<string | null>(null)
 
 const blocks = computed(() => template.value[props.slot])
 
-const availableBlocks = computed(() =>
-  Object.values(blockRegistry).filter((definition) => definition.allowedSlots.includes(props.slot))
-)
-
-const blockOptions = computed(() =>
-  availableBlocks.value.map((definition) => ({
-    label: definition.label,
-    value: definition.type
-  }))
-)
-
-/** Always reset to empty: picking an option adds the block straight away. */
-const paletteChoice = ref("")
-
-function addChosenBlock(type: string) {
-  const definition = availableBlocks.value.find((item) => item.type === type)
-  if (definition) addBlock(definition)
-  paletteChoice.value = ""
-}
-
 function selectBlock(id: string) {
   selectedBlockId.value = selectedBlockId.value === id ? null : id
-}
-
-function addBlock(definition: BlockDefinition) {
-  // The registry guarantees the (type, config) pairing; the union can't express it generically.
-  const block = {
-    id: typeid("block").toString(),
-    type: definition.type,
-    hidden: false,
-    fontFamily: null,
-    column: "full",
-    config: definition.defaultConfig()
-  } as ReportCardBlock
-
-  blocks.value.push(block)
-  selectedBlockId.value = block.id
-}
-
-function duplicateBlock(index: number) {
-  const source = blocks.value[index]
-  if (!source) return
-
-  const copy = {
-    ...structuredClone(toRaw(source)),
-    id: typeid("block").toString()
-  } as ReportCardBlock
-
-  blocks.value.splice(index + 1, 0, copy)
-  selectedBlockId.value = copy.id
 }
 
 function moveBlock(index: number, direction: -1 | 1) {
@@ -110,19 +53,6 @@ function moveBlock(index: number, direction: -1 | 1) {
   if (target < 0 || target >= blocks.value.length) return
   const [item] = blocks.value.splice(index, 1)
   if (item) blocks.value.splice(target, 0, item)
-}
-
-function requestDelete(id: string) {
-  pendingDeleteId.value = id
-  deleteDialogOpen.value = true
-}
-
-function confirmDelete() {
-  const index = blocks.value.findIndex((block) => block.id === pendingDeleteId.value)
-  if (index >= 0) blocks.value.splice(index, 1)
-  if (selectedBlockId.value === pendingDeleteId.value) selectedBlockId.value = null
-  pendingDeleteId.value = null
-  deleteDialogOpen.value = false
 }
 </script>
 
@@ -178,23 +108,6 @@ function confirmDelete() {
           :disabled="index === blocks.length - 1"
           @click="moveBlock(index, 1)"
         />
-        <UiButton
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          :icon="ICONS.duplicate"
-          label="Duplicate"
-          @click="duplicateBlock(index)"
-        />
-        <UiButton
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          :icon="ICONS.delete"
-          label="Remove"
-          class="text-destructive"
-          @click="requestDelete(block.id)"
-        />
       </div>
 
       <div v-if="block.id === selectedBlockId" class="space-y-3 border-t border-border p-3">
@@ -223,34 +136,5 @@ function confirmDelete() {
         <component :is="configPanels[block.type]" v-model="block.config" />
       </div>
     </div>
-
-    <!-- Add block — a compact select listing what this slot allows -->
-    <div class="space-y-1.5 rounded-lg border border-dashed border-border p-2">
-      <p class="text-xs font-medium">Add a block</p>
-      <ReportCardBuilderSmallSelect
-        v-model="paletteChoice"
-        :options="blockOptions"
-        placeholder="Choose a block…"
-        @update:model-value="addChosenBlock"
-      />
-    </div>
-
-    <!-- Delete confirmation -->
-    <UiAlertDialog v-model:open="deleteDialogOpen">
-      <UiAlertDialogContent>
-        <UiAlertDialogHeader>
-          <UiAlertDialogTitle>Remove this block?</UiAlertDialogTitle>
-          <UiAlertDialogDescription>
-            The block and its settings will be removed from this template.
-          </UiAlertDialogDescription>
-        </UiAlertDialogHeader>
-        <UiAlertDialogFooter>
-          <UiAlertDialogCancel />
-          <UiAlertDialogAction variant="destructive" @click="confirmDelete">
-            Remove
-          </UiAlertDialogAction>
-        </UiAlertDialogFooter>
-      </UiAlertDialogContent>
-    </UiAlertDialog>
   </div>
 </template>
