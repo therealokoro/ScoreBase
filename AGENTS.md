@@ -274,8 +274,23 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
 - The report card wrapper is tagged `report-card-print-root`, and
   `app/assets/css/tailwind.css` sets `@page { size: A4 }`.
 - The renderer is `app/components/ReportCard/TemplatePreview.vue`. It scales the A4 canvas to
-  the container with a CSS `--rc-scale` variable and `print:transform-none`, and normalises
-  the builder's placeholder data and the viewer's real `ReportCardData` into one view model.
+  the container with a layout-aware CSS `zoom` (capped by the `maxScale` prop; `tailwind.css`
+  resets it to 1 in print), and normalises the builder's placeholder data and the viewer's real
+  `ReportCardData` into one view model.
+- Footer flow is `template.footerLayout`: `"stacked"` (default) renders every footer block in
+  one column; `"columns"` groups consecutive `left`/`right` blocks into a two-column row while
+  `full` blocks span it. Each block carries its own `column`, edited per block on the Footer tab
+  and the layout itself on the General tab. Both fields are schema-defaulted, so templates saved
+  before they existed still load.
+- The scores table is a plain semantic `<table>` with a two-row `<thead>` (`rowspan="2"` outer
+  heads, `colspan` on the "Assessments" group derived from the result's `caCount`), a `<colgroup>`
+  of normalised widths and `table-fixed`. It is deliberately **not** TanStack Table: the card is
+  print-critical and must never scroll or clip.
+- The J.K. People's Comprehensive Academy template is seeded by the
+  `seed:seed-jk-template` task (`server/tasks/seed/seed-jk-template.ts`, which also exports
+  `buildJkTemplate()` for tests). Nitro derives the runnable name from the path
+  (`<dir>:<file>`), so it is `seed:seed-jk-template` regardless of `meta.name`. Seeding
+  overwrites the single saved template, like "Reset to default".
 
 ### Auto-imports
 
@@ -464,3 +479,15 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-13 — J.K. People's Comprehensive Academy template (Phases 1–7). Model: `TextStyle.italic`;
+  school-info `paragraphs[]` + `showGovernmentApprovedBadge`/`badgeAfterParagraph`; scores
+  `caDisplay: breakdown-grouped-total` and `columnLabels` (CA ids are no longer accepted in
+  `columns`); grading-key `displayStyle`; remarks per-party `layout` + `director`; custom-table
+  `layout`; **`footerLayout` + per-block `column`** (two-column footer); per-subject class data
+  (`computeSubjectClassData`, `subjectId`, `subjectClassData` on the query and output schema).
+  Renderers: the school-info `left-right` centre column is now **in normal flow** (an absolutely
+  positioned centre collapsed the header, so the student grid overlapped it); the scores table
+  uses a `<colgroup>` + `table-fixed` so the subject column keeps its width; the student grid
+  draws single rules on its edges. Seeded by `seed:seed-jk-template`. New component tests cover
+  the header layout (with a regression guard for the absolute centring) and grouped header spans
+  for 2/3/4 CA columns. Also fixed the stale `--rc-scale` claim in § Report card print.

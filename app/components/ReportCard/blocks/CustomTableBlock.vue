@@ -33,7 +33,9 @@ function rowValue(rowId: string): string {
     >
       <div class="flex flex-wrap">
         <template v-for="row in config.rows" :key="row.id">
-          <div class="border-border border-r px-2 py-1 text-[10px] font-medium last:border-r-0">
+          <div
+            class="border-border bg-muted/40 border-r px-2 py-1 text-[10px] font-medium last:border-r-0"
+          >
             {{ row.label }}
           </div>
           <div class="border-border border-r px-2 py-1 text-[10px] last:border-r-0">

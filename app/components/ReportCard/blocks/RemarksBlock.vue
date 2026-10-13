@@ -40,18 +40,25 @@ function comment(role: "teacher" | "principal"): string {
               alt="Teacher signature"
               class="h-8 object-contain"
             />
-            <div v-else class="border-foreground mt-5 mb-1 w-36 border-b" />
-            <p
-              class="text-muted-foreground text-[10px]"
-              :style="textStyle(config.teacher.signatureLabel.style)"
-            >
-              {{ config.teacher.signatureLabel.value }}
-            </p>
+            <!-- Blank mode reads "Class Teacher: ____", like the paper original -->
+            <div v-else class="flex items-end gap-2">
+              <p
+                class="text-muted-foreground text-[10px]"
+                :style="textStyle(config.teacher.signatureLabel.style)"
+              >
+                {{ config.teacher.signatureLabel.value }}
+              </p>
+              <div class="border-foreground mb-1 w-36 border-b" />
+            </div>
           </div>
 
           <div
             class="min-w-0 flex-1 text-right"
-            :class="config.teacher.commentLabelPlacement === 'side' ? 'flex items-baseline justify-end gap-2' : ''"
+            :class="
+              config.teacher.commentLabelPlacement === 'side'
+                ? 'flex items-baseline justify-end gap-2'
+                : ''
+            "
           >
             <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
             <p class="min-h-5 text-[11px] font-medium">{{ comment("teacher") }}</p>
@@ -61,7 +68,9 @@ function comment(role: "teacher" | "principal"): string {
         <!-- Stacked (label/comment, then signature) -->
         <template v-else>
           <div
-            :class="config.teacher.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''"
+            :class="
+              config.teacher.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''
+            "
           >
             <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
             <p class="min-h-5 text-[11px] font-medium">{{ comment("teacher") }}</p>
@@ -87,7 +96,9 @@ function comment(role: "teacher" | "principal"): string {
       <!-- Principal -->
       <div v-if="config.principal.visible" class="space-y-1">
         <div
-          :class="config.principal.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''"
+          :class="
+            config.principal.commentLabelPlacement === 'side' ? 'flex items-baseline gap-2' : ''
+          "
         >
           <p :style="textStyle(config.principal.label.style)">{{ config.principal.label.value }}</p>
           <p class="min-h-5 text-[11px] font-medium">{{ comment("principal") }}</p>
@@ -110,22 +121,32 @@ function comment(role: "teacher" | "principal"): string {
       </div>
     </div>
 
-    <!-- Director: signature only, bottom-right -->
-    <div v-if="config.director.visible" class="flex justify-end">
-      <div class="space-y-0.5 text-right">
+    <!-- Director: its own line, left-aligned so it lines up with the block above it -->
+    <div v-if="config.director.visible">
+      <div
+        v-if="config.director.signatureMode === 'image' && config.director.signatureImage"
+        class="space-y-0.5"
+      >
         <img
-          v-if="config.director.signatureMode === 'image' && config.director.signatureImage"
           :src="assetUrl(config.director.signatureImage)"
           alt="Director signature"
-          class="ml-auto h-8 object-contain"
+          class="h-8 object-contain"
         />
-        <div v-else class="border-foreground mt-5 mb-1 ml-auto w-36 border-b" />
         <p
           class="text-muted-foreground text-[10px]"
           :style="textStyle(config.director.signatureLabel.style)"
         >
           {{ config.director.signatureLabel.value }}
         </p>
+      </div>
+      <div v-else class="flex items-end gap-2">
+        <p
+          class="text-muted-foreground text-[10px]"
+          :style="textStyle(config.director.signatureLabel.style)"
+        >
+          {{ config.director.signatureLabel.value }}
+        </p>
+        <div class="border-foreground mb-1 w-36 border-b" />
       </div>
     </div>
   </div>
