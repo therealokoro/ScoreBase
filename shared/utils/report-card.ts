@@ -82,6 +82,17 @@ export function toOrdinal(n: number): string {
 }
 
 /**
+ * Wording for a grade boundary's score range, as printed on the grading key: the top grade reads
+ * "70% and above", the bottom "Below 40%", everything else "60% - 69%". Derived from the boundary
+ * itself, so it stays correct for any configured scale.
+ */
+export function formatGradeRange(boundary: { min: number; max: number }): string {
+  if (boundary.max >= 100) return `${boundary.min}% and above`
+  if (boundary.min <= 0) return `Below ${boundary.max + 1}%`
+  return `${boundary.min}% - ${boundary.max}%`
+}
+
+/**
  * Formats a position rank for display, applying positionDisplayMode and positionTopN rules. Returns
  * an empty string when the position should not be shown on this student's report card.
  */

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
 import type { GradingKeyConfig } from "~~/shared/constants/report-card"
+import { formatGradeRange } from "~~/shared/utils/report-card"
 
 import { textStyle } from "./text"
 
@@ -37,7 +38,7 @@ const boundaries = computed(() =>
           <span class="font-semibold">{{ boundary.label }}</span>
           <span v-if="boundary.remark"> {{ boundary.remark }} -</span>
           <span v-else> -</span>
-          {{ boundary.min }}% and above
+          {{ formatGradeRange(boundary) }}
         </span>
       </li>
     </ul>

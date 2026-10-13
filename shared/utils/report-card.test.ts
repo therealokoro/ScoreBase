@@ -5,6 +5,7 @@ import {
   computeReportCard,
   computeStudentTotals,
   computeSubjectClassData,
+  formatGradeRange,
   formatPosition,
   getGradeBoundary,
   toOrdinal
@@ -174,5 +175,22 @@ describe("computeSubjectClassData", () => {
     const orphaned = sheet("a", "A", [20, 20], 60, null)
 
     expect(computeSubjectClassData([orphaned])).toEqual([])
+  })
+})
+
+describe("formatGradeRange", () => {
+  it("words the top, middle and bottom of a scale the way the card prints them", () => {
+    expect(formatGradeRange({ min: 70, max: 100 })).toBe("70% and above")
+    expect(formatGradeRange({ min: 60, max: 69 })).toBe("60% - 69%")
+    expect(formatGradeRange({ min: 50, max: 59 })).toBe("50% - 59%")
+    expect(formatGradeRange({ min: 45, max: 49 })).toBe("45% - 49%")
+    expect(formatGradeRange({ min: 40, max: 44 })).toBe("40% - 44%")
+    expect(formatGradeRange({ min: 0, max: 39 })).toBe("Below 40%")
+  })
+
+  it("adapts to a differently configured scale", () => {
+    expect(formatGradeRange({ min: 80, max: 100 })).toBe("80% and above")
+    expect(formatGradeRange({ min: 1, max: 99 })).toBe("1% - 99%")
+    expect(formatGradeRange({ min: 0, max: 99 })).toBe("Below 100%")
   })
 })
