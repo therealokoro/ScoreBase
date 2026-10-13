@@ -110,7 +110,8 @@ const footerRows = computed<FooterRow[]>(() => {
         zoom: String(scale),
         width: '210mm',
         minHeight: '297mm',
-        fontFamily: template.fontFamily
+        fontFamily: template.fontFamily,
+        '--rc-radius': `${template.borderRadius}px`
       }"
     >
       <!-- Watermark (single: centred logo/image; tiled: repeated background) -->

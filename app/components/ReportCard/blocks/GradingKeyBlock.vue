@@ -26,25 +26,24 @@ const boundaries = computed(() =>
     <!-- Bulleted list: "● A  Distinction - 70% and above" -->
     <ul
       v-if="config.displayStyle === 'list'"
-      class="border-border w-fit space-y-0.5 rounded border px-2 py-1.5"
+      class="border-border w-fit space-y-0.5 rounded-[var(--rc-radius)] border px-2 py-1.5"
     >
       <li
         v-for="boundary in boundaries"
         :key="boundary.label"
-        class="flex gap-1.5 text-[10px] leading-snug"
+        class="flex items-baseline gap-2 text-[10px] leading-snug"
       >
-        <span aria-hidden="true">●</span>
-        <span>
-          <span class="font-semibold">{{ boundary.label }}</span>
-          <span v-if="boundary.remark"> {{ boundary.remark }} -</span>
-          <span v-else> -</span>
-          {{ formatGradeRange(boundary) }}
+        <span aria-hidden="true" class="shrink-0">●</span>
+        <!-- Fixed-width grade column keeps the definitions aligned and off the grade letter -->
+        <span class="w-3 shrink-0 font-semibold">{{ boundary.label }}</span>
+        <span class="flex-1">
+          {{ boundary.remark ? `${boundary.remark} - ` : "- " }}{{ formatGradeRange(boundary) }}
         </span>
       </li>
     </ul>
 
     <!-- Two-column table: chosen value, then the range on the right -->
-    <div v-else class="border-border w-fit overflow-hidden rounded border">
+    <div v-else class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border">
       <UiTable class="w-fit text-[10px]">
         <UiTableBody>
           <UiTableRow v-for="boundary in boundaries" :key="boundary.label">

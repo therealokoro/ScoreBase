@@ -16,7 +16,12 @@ const layoutOptions = [
 ]
 
 function addRow() {
-  config.value.rows.push({ id: typeid("row").toString(), label: "New row", value: "" })
+  config.value.rows.push({
+    id: typeid("row").toString(),
+    label: "New row",
+    value: "",
+    newLine: false
+  })
 }
 
 function removeRow(index: number) {
@@ -119,6 +124,19 @@ function moveRow(index: number, direction: -1 | 1) {
         </div>
 
         <UiInput v-if="config.variant === 'static'" v-model="row.value" placeholder="Value" />
+
+        <!-- Only the inline layout has lines to break: it keeps every pair on one row otherwise. -->
+        <label
+          v-if="config.layout === 'inline'"
+          class="flex cursor-pointer items-center gap-2 text-[11px]"
+        >
+          <UiCheckbox
+            :model-value="row.newLine"
+            :aria-label="`Start a new line at row ${index + 1}`"
+            @update:model-value="(value) => (row.newLine = value === true)"
+          />
+          Start a new line
+        </label>
       </div>
     </div>
   </div>

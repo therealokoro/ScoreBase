@@ -52,17 +52,14 @@ function comment(role: "teacher" | "principal"): string {
             </div>
           </div>
 
-          <div
-            class="min-w-0 flex-1 text-right"
-            :class="
-              config.teacher.commentLabelPlacement === 'side'
-                ? 'flex items-baseline justify-end gap-2'
-                : ''
-            "
-          >
-            <p :style="textStyle(config.teacher.label.style)">{{ config.teacher.label.value }}</p>
-            <p class="min-h-5 text-[11px] font-medium">{{ comment("teacher") }}</p>
-          </div>
+          <!-- Label and comment share one line, separated by the label's own colon and a single
+               space, so the signature and the comment sit at opposite ends of the same row. -->
+          <p class="min-w-0 flex-1 text-right">
+            <span :style="textStyle(config.teacher.label.style)">{{
+              config.teacher.label.value
+            }}</span
+            >{{ " " }}<span class="text-[11px] font-medium">{{ comment("teacher") }}</span>
+          </p>
         </div>
 
         <!-- Stacked (label/comment, then signature) -->

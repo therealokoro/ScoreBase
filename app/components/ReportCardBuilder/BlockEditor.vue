@@ -100,6 +100,25 @@ const watermarkMode = computed<WatermarkMode>({
         </p>
       </div>
 
+      <div class="space-y-1.5">
+        <UiLabel class="text-xs">Corner radius</UiLabel>
+        <div class="flex items-center gap-2">
+          <UiSlider
+            :model-value="[template.borderRadius]"
+            :min="0"
+            :max="16"
+            :step="1"
+            @update:model-value="(value) => (template.borderRadius = value?.[0] ?? 0)"
+          />
+          <span class="w-8 text-right text-[10px] tabular-nums">
+            {{ template.borderRadius }}px
+          </span>
+        </div>
+        <p class="text-muted-foreground text-[10px]">
+          Applies to the card's bordered boxes. 0 prints square corners, like a paper report card.
+        </p>
+      </div>
+
       <UiSeparator />
 
       <div class="space-y-3">

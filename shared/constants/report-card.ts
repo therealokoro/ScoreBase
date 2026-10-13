@@ -178,8 +178,10 @@ export interface ReportCardTemplate {
   fontFamily: string
   // Sidebar layout is derived: it kicks in whenever `sidebar` has blocks.
   sidebarPosition: SidebarPosition
-  /** Footer flow — see `FooterLayout`. */
+  /** Footer flow - see `FooterLayout`. */
   footerLayout: FooterLayout
+  /** Corner radius in px applied to the card's bordered boxes (0 = square, like a paper card). */
+  borderRadius: number
   watermark: Watermark | null
   header: ReportCardBlock[]
   studentInfo: ReportCardBlock[]
@@ -291,6 +293,15 @@ export interface ScoresConfig {
   columns: ScoreColumnId[]
   /** Optional header overrides, keyed by column id. Missing entries use the built-in labels. */
   columnLabels: Record<string, string>
+  /** Table text size in px (the heads scale with it). */
+  fontSize: number
+  /** Table text weight; the heads keep their own emphasis. */
+  fontWeight: FontWeight
+  /**
+   * Shows each column's maximum in brackets under its heading ("Term Exam" over "(70)"), so every
+   * head lines up. Off hides the brackets everywhere at once.
+   */
+  showScoreMax: boolean
 }
 
 // -- custom-table -----------------------------------------------------------
@@ -304,6 +315,11 @@ export interface CustomTableRow {
   id: string // typeid("row")
   label: string
   value: string // only used when variant is "static"
+  /**
+   * Starts a new line when `layout` is `"inline"`, so several label/value pairs can share one
+   * bordered table (e.g. the fee strip on line 1 and the next-term date on line 2).
+   */
+  newLine: boolean
 }
 
 export interface CustomTableConfig {
@@ -479,7 +495,10 @@ export function createDefaultScoresConfig(): ScoresConfig {
   return {
     caDisplay: "summed",
     columnLabels: {},
-    columns: ["subject", "exam", "total", "grade", "remark"]
+    columns: ["subject", "exam", "total", "grade", "remark"],
+    fontSize: 12,
+    fontWeight: "normal",
+    showScoreMax: true
   }
 }
 
@@ -488,7 +507,7 @@ export function createDefaultCustomTableConfig(): CustomTableConfig {
     variant: "static",
     layout: "stacked",
     title: { value: "Custom Table", style: { ...DEFAULT_TEXT_STYLE, fontSize: 12 } },
-    rows: [{ id: typeid("row").toString(), label: "Label", value: "" }]
+    rows: [{ id: typeid("row").toString(), label: "Label", value: "", newLine: false }]
   }
 }
 
@@ -566,6 +585,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
     fontFamily: DEFAULT_FONT_FAMILY,
     sidebarPosition: "right",
     footerLayout: "stacked",
+    borderRadius: 8,
     watermark: null,
     header: [
       {

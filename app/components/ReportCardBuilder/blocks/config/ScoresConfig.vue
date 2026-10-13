@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import { ICONS } from "~~/shared/constants/icons"
 import type { ScoreColumnId, ScoresCaDisplay, ScoresConfig } from "~~/shared/constants/report-card"
+import { FONT_WEIGHTS } from "~~/shared/constants/report-card"
 
 const config = defineModel<ScoresConfig>({ required: true })
+
+const weightOptions = FONT_WEIGHTS.map((weight) => ({ label: weight.label, value: weight.value }))
 
 // The number of CA slots comes from result settings, never hardcoded here.
 const { data: resultSettings } = useGetResultSettings()
@@ -141,6 +144,42 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
         <span>
           "Position" needs per-subject rankings, which are not available yet, so it prints a dash.
         </span>
+      </p>
+    </div>
+
+    <UiSeparator />
+
+    <div class="space-y-3">
+      <UiLabel class="text-xs">Table text</UiLabel>
+
+      <div class="flex items-center gap-2">
+        <span class="text-muted-foreground w-10 text-[10px]">Size</span>
+        <UiSlider
+          :model-value="[config.fontSize]"
+          :min="8"
+          :max="20"
+          :step="1"
+          @update:model-value="(value) => (config.fontSize = value?.[0] ?? 12)"
+        />
+        <span class="w-5 text-right text-[10px] tabular-nums">{{ config.fontSize }}</span>
+      </div>
+
+      <div class="space-y-1.5">
+        <UiLabel class="text-xs">Weight</UiLabel>
+        <ReportCardBuilderSmallSelect
+          v-model="config.fontWeight"
+          :options="weightOptions"
+          class="max-w-32"
+        />
+      </div>
+
+      <label class="flex cursor-pointer items-center gap-2 text-xs">
+        <UiSwitch v-model="config.showScoreMax" />
+        Show column maximums
+      </label>
+      <p class="text-muted-foreground text-[10px]">
+        Prints each column's maximum in brackets on its own line under the heading — "Term Exam"
+        over "(70)" — so every head lines up. Turning it off hides all of them at once.
       </p>
     </div>
 

@@ -10,6 +10,7 @@ import {
   ReportCardTemplateSchema,
   ScoresConfigSchema,
   CustomTableConfigSchema,
+  CustomTableRowSchema,
   GradingKeyConfigSchema,
   RemarksConfigSchema,
   ReportCardBlockSchema,
@@ -374,6 +375,39 @@ describe("backward compatibility defaults", () => {
     const parsed = ReportCardTemplateSchema.safeParse(withoutFooterLayout)
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.footerLayout).toBe("stacked")
+  })
+
+  it("fills in a missing border radius", () => {
+    const template = createDefaultReportCardTemplate()
+    const { borderRadius, ...withoutRadius } = template
+
+    expect(borderRadius).toBe(8)
+    const parsed = ReportCardTemplateSchema.safeParse(withoutRadius)
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && parsed.data.borderRadius).toBe(8)
+  })
+
+  it("fills in the missing scores text settings and the maximum switch", () => {
+    const parsed = ScoresConfigSchema.safeParse({
+      caDisplay: "summed",
+      columns: ["subject", "total"]
+    })
+
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && parsed.data.fontSize).toBe(12)
+    expect(parsed.success && parsed.data.fontWeight).toBe("normal")
+    expect(parsed.success && parsed.data.showScoreMax).toBe(true)
+  })
+
+  it("fills in a missing custom-table row line break", () => {
+    const parsed = CustomTableRowSchema.safeParse({
+      id: typeid("row").toString(),
+      label: "Tuition Fee",
+      value: "N68,000"
+    })
+
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && parsed.data.newLine).toBe(false)
   })
 
   it("fills in a missing grading-key displayStyle", () => {

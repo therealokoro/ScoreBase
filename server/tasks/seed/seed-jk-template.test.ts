@@ -64,15 +64,14 @@ describe("buildJkTemplate", () => {
     expect(studentInfo.config.fields).toHaveLength(8)
     expect(scores.config.caDisplay).toBe("breakdown-grouped-total")
     expect(scores.config.columns).not.toContain("ca1")
-    expect(scores.config.columnLabels.exam).toBe("Term Exam (70)")
+    expect(scores.config.columnLabels.exam).toBe("Term Exam")
   })
 
-  it("seeds the remarks, grading key and fee/next-term footer", () => {
+  it("seeds the remarks, grading key and joined fee/next-term table", () => {
     const template = buildJkTemplate()
     expect(template.footer.map((block) => block.type)).toEqual([
       "remarks",
       "grading-key",
-      "custom-table",
       "custom-table",
       "remarks"
     ])
@@ -89,22 +88,40 @@ describe("buildJkTemplate", () => {
     if (gradingKey?.type !== "grading-key") throw new Error("grading-key block missing")
     expect(gradingKey.config.displayStyle).toBe("list")
 
-    const director = template.footer[4]
+    const termInfo = template.footer[2]
+    if (termInfo?.type !== "custom-table") throw new Error("custom-table block missing")
+    expect(termInfo.config.layout).toBe("inline")
+    // Three fee pairs on line one, the next-term date on line two of the same table.
+    expect(termInfo.config.rows.map((row) => row.label)).toEqual([
+      "Tuition Fee",
+      "P.T.A",
+      "Total",
+      "Next Term Begins"
+    ])
+    expect(termInfo.config.rows.map((row) => row.newLine)).toEqual([false, false, false, true])
+
+    const director = template.footer[3]
     if (director?.type !== "remarks") throw new Error("director remarks block missing")
     expect(director.config.teacher.visible).toBe(false)
     expect(director.config.director.visible).toBe(true)
   })
 
+  it("uses square corners and prints the score maximums under the headings", () => {
+    const template = buildJkTemplate()
+    expect(template.borderRadius).toBe(0)
+
+    const scores = template.main[0]
+    if (scores?.type !== "scores") throw new Error("scores block missing")
+    expect(scores.config.showScoreMax).toBe(true)
+    // Maximums are never baked into the heading text; the switch controls the brackets.
+    expect(scores.config.columnLabels.exam).toBe("Term Exam")
+    expect(scores.config.columnLabels.total).toBe("Term Total")
+  })
+
   it("lays the footer out in two columns: grading key left, term info and director right", () => {
     const template = buildJkTemplate()
     expect(template.footerLayout).toBe("columns")
-    expect(template.footer.map((block) => block.column)).toEqual([
-      "full",
-      "left",
-      "right",
-      "right",
-      "right"
-    ])
+    expect(template.footer.map((block) => block.column)).toEqual(["full", "left", "right", "right"])
   })
 
   it("gives every block a unique id", () => {

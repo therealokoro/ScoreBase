@@ -19,8 +19,8 @@ function jkConfig(): ScoresConfig {
     columns: ["subject", "exam", "total", "grade", "classAverage", "subjectPosition", "remark"],
     columnLabels: {
       subject: "Subjects",
-      exam: "Term Exam (70)",
-      total: "Term Total (100)",
+      exam: "Term Exam",
+      total: "Term Total",
       grade: "Term Grade",
       classAverage: "Class Avg.",
       subjectPosition: "Subject Position",
@@ -93,16 +93,16 @@ describe("ReportCard/ScoresBlock grouped header", () => {
     )
   })
 
-  it("spans every non-CA head across both header rows", () => {
+  it("spans every non-CA head across both header rows, with the maximum under the label", () => {
     const { heads } = mountScores(3)
 
     // "Assessments" is the only head that is not a two-row head or a CA child.
     const spanned = heads.filter((head) => head.rowspan === "2")
     expect(spanned.map((head) => head.text)).toEqual([
       "Subjects",
-      "CA Total",
-      "Term Exam (70)",
-      "Term Total (100)",
+      "CA Total(30)",
+      "Term Exam(70)",
+      "Term Total(100)",
       "Term Grade",
       "Class Avg.",
       "Subject Position",
@@ -111,6 +111,15 @@ describe("ReportCard/ScoresBlock grouped header", () => {
     expect(
       heads.filter((head) => head.rowspan === "1" && head.text !== "Assessments")
     ).toHaveLength(3)
+  })
+
+  it("hides every bracketed maximum at once when the switch is off", () => {
+    const { heads } = mountScores(3, { ...jkConfig(), showScoreMax: false })
+
+    expect(heads.some((head) => head.text.includes("("))).toBe(false)
+    // The group and its child labels survive; only the brackets go.
+    expect(heads.some((head) => head.text === "Assessments")).toBe(true)
+    expect(heads.some((head) => head.text === "1st")).toBe(true)
   })
 
   it("uses a fixed layout with one width per column that sums to 100%", () => {
@@ -136,9 +145,9 @@ describe("ReportCard/ScoresBlock grouped header", () => {
 
     expect(heads.some((head) => head.text === "Assessments")).toBe(false)
     expect(heads.filter((head) => head.text.startsWith("CA ")).map((head) => head.text)).toEqual([
-      "CA 1 (10)",
-      "CA 2 (10)",
-      "CA 3 (10)"
+      "CA 1(10)",
+      "CA 2(10)",
+      "CA 3(10)"
     ])
     expect(heads.filter((head) => head.rowspan === "2")).toHaveLength(0)
   })

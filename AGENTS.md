@@ -285,7 +285,18 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
 - The scores table is a plain semantic `<table>` with a two-row `<thead>` (`rowspan="2"` outer
   heads, `colspan` on the "Assessments" group derived from the result's `caCount`), a `<colgroup>`
   of normalised widths and `table-fixed`. It is deliberately **not** TanStack Table: the card is
-  print-critical and must never scroll or clip.
+  print-critical and must never scroll or clip. Headings render through
+  `ReportCard/blocks/ScoreColumnHead.vue`, which always puts a column's maximum on its own line
+  under the label — `ScoresConfig.showScoreMax` turns every bracket on or off at once, and
+  maximums are never baked into `columnLabels`. Table text size/weight come from
+  `ScoresConfig.fontSize` / `fontWeight` (heads scale in `em`).
+- `template.borderRadius` (px) drives the `--rc-radius` custom property on the print root, which
+  the card's bordered boxes consume via `rounded-[var(--rc-radius)]`. 0 prints square corners.
+- The builder is **locked** on this branch: `BlockSlotList.vue` lists the existing blocks with
+  hide/reorder/font/column/config controls only — there is no add, duplicate or delete. The J.K.
+  template must stay structurally identical to its reference PDF.
+- Inline `custom-table` rows carry `newLine`; a row with it set starts a fresh line inside the
+  same bordered table (the fee strip and the next-term date are one table, two lines).
 - The J.K. People's Comprehensive Academy template is seeded by the
   `seed:seed-jk-template` task (`server/tasks/seed/seed-jk-template.ts`, which also exports
   `buildJkTemplate()` for tests). Nitro derives the runnable name from the path
@@ -479,6 +490,16 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-13 — J.K. report card review round 2. Layout: the teacher signature and the comment now
+  share one row at opposite ends, with the comment label and value separated by the label's colon
+  and a single space; the grading key gives each grade a fixed-width column so the definitions
+  line up; the fee strip and next-term date are **one** inline `custom-table` (rows gained
+  `newLine`); inline label cells and the grading-key box are tinted. New settings:
+  `template.borderRadius` (via `--rc-radius`), `ScoresConfig.fontSize` / `fontWeight`, and
+  `ScoresConfig.showScoreMax` with headings always printing the maximum on its own line
+  (`ReportCard/blocks/ScoreColumnHead.vue`). The builder block list is **locked** (no add,
+  duplicate or delete) and the full-view toolbar is sticky. The J.K. seed now sets
+  `borderRadius: 0`, unbracketed column labels and the joined term-info table.
 - 2026-10-13 — J.K. People's Comprehensive Academy template (Phases 1–7). Model: `TextStyle.italic`;
   school-info `paragraphs[]` + `showGovernmentApprovedBadge`/`badgeAfterParagraph`; scores
   `caDisplay: breakdown-grouped-total` and `columnLabels` (CA ids are no longer accepted in

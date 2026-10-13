@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
-import type { CustomTableConfig } from "~~/shared/constants/report-card"
+import type { CustomTableConfig, CustomTableRow } from "~~/shared/constants/report-card"
 
 import { textStyle } from "./text"
 
@@ -18,6 +18,21 @@ function rowValue(rowId: string): string {
   // TODO Phase 11: read from manualValues — data.manualValues?.[blockId]?.[rowId]
   return "—"
 }
+
+/**
+ * Groups the rows into printed lines for the inline layout. A row with `newLine` starts a fresh
+ * line, so several label/value pairs can share one bordered table (fee strip on line 1, the
+ * next-term date on line 2) instead of rendering as separate tables.
+ */
+const inlineLines = computed<CustomTableRow[][]>(() => {
+  const lines: CustomTableRow[][] = []
+  for (const row of props.config.rows) {
+    const current = lines.at(-1)
+    if (!current || row.newLine) lines.push([row])
+    else current.push(row)
+  }
+  return lines
+})
 </script>
 
 <template>
@@ -26,19 +41,25 @@ function rowValue(rowId: string): string {
       {{ config.title.value }}
     </p>
 
-    <!-- Inline strip: alternating label/value cells across one row -->
+    <!-- Inline: label/value pairs across one or more lines inside a single bordered table -->
     <div
       v-if="config.layout === 'inline'"
-      class="border-border w-fit overflow-hidden rounded-lg border"
+      class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border"
     >
-      <div class="flex flex-wrap">
-        <template v-for="row in config.rows" :key="row.id">
-          <div
-            class="border-border bg-muted/40 border-r px-2 py-1 text-[10px] font-medium last:border-r-0"
-          >
+      <div
+        v-for="(line, lineIndex) in inlineLines"
+        :key="lineIndex"
+        class="flex w-full"
+        :class="lineIndex > 0 ? 'border-border border-t' : ''"
+      >
+        <template v-for="(row, rowIndex) in line" :key="row.id">
+          <div class="border-border bg-muted/40 border-r px-2 py-1 text-[10px] font-medium">
             {{ row.label }}
           </div>
-          <div class="border-border border-r px-2 py-1 text-[10px] last:border-r-0">
+          <div
+            class="border-border px-2 py-1 text-[10px]"
+            :class="rowIndex === line.length - 1 ? 'flex-1' : 'border-r'"
+          >
             {{ rowValue(row.id) }}
           </div>
         </template>
@@ -46,7 +67,7 @@ function rowValue(rowId: string): string {
     </div>
 
     <!-- Stacked: one label/value row per entry -->
-    <div v-else class="border-border w-fit overflow-hidden rounded-lg border">
+    <div v-else class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border">
       <UiTable class="w-fit text-xs" aria-label="Custom table">
         <UiTableBody>
           <UiTableRow v-for="row in config.rows" :key="row.id">

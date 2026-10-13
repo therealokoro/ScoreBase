@@ -157,7 +157,11 @@ export const ScoresConfigSchema = z
     ]),
     columns: z.array(ScoreColumnIdSchema),
     // Header overrides; missing entries fall back to the built-in labels.
-    columnLabels: z.record(z.string(), z.string()).default({})
+    columnLabels: z.record(z.string(), z.string()).default({}),
+    // Defaulted so templates saved before these existed still validate.
+    fontSize: z.number().int().min(8).max(20).default(12),
+    fontWeight: z.enum(FONT_WEIGHTS).default("normal"),
+    showScoreMax: z.boolean().default(true)
   })
   .refine((config) => config.columns[0] === "subject", {
     message: "The subject column must come first",
@@ -175,7 +179,9 @@ export type ScoresConfig = z.infer<typeof ScoresConfigSchema>
 export const CustomTableRowSchema = z.object({
   id: RowIdSchema,
   label: z.string().min(1),
-  value: z.string()
+  value: z.string(),
+  // Starts a new line in the inline layout; defaulted for older saved rows.
+  newLine: z.boolean().default(false)
 })
 
 export type CustomTableRow = z.infer<typeof CustomTableRowSchema>
@@ -364,6 +370,7 @@ export const ReportCardTemplateSchema = z.object({
   sidebarPosition: z.enum(["left", "right"]),
   // Defaulted so templates saved before the two-column footer existed still validate.
   footerLayout: z.enum(["stacked", "columns"]).default("stacked"),
+  borderRadius: z.number().int().min(0).max(24).default(8),
   watermark: WatermarkSchema.nullable(),
   header: z.array(ReportCardBlockSchema),
   studentInfo: z.array(ReportCardBlockSchema),

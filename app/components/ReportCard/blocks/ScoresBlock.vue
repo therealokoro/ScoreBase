@@ -5,6 +5,7 @@ import type { ComputedSubjectRow, SubjectClassData } from "~~/shared/utils/repor
 import { toOrdinal } from "~~/shared/utils/report-card"
 
 import { resolveView } from "./placeholder"
+import ScoreColumnHead from "./ScoreColumnHead.vue"
 
 const props = defineProps<{
   config: ScoresConfig
@@ -15,6 +16,8 @@ const props = defineProps<{
 interface Column {
   key: ScoreColumnId
   label: string
+  /** The column's maximum, printed in brackets under the heading when `showScoreMax` is on. */
+  max: string | null
 }
 
 const DEFAULT_LABELS: Record<string, string> = {
@@ -32,13 +35,25 @@ const DEFAULT_LABELS: Record<string, string> = {
 
 const scoreConfig = computed(() => resolveView(props.data).scoreConfig)
 
-/** A configured label wins; otherwise the built-in label (with the max appended where useful). */
+/** A configured label wins; otherwise the built-in label. Maximums are never baked into it. */
 function labelFor(key: ScoreColumnId): string {
-  const override = props.config.columnLabels[key]
-  if (override) return override
-  if (key === "exam") return `${DEFAULT_LABELS.exam} (${scoreConfig.value.examMax})`
-  return DEFAULT_LABELS[key] ?? key
+  return props.config.columnLabels[key] ?? DEFAULT_LABELS[key] ?? key
 }
+
+/** Maximum a column can score, or null when the column has no total to bracket. */
+function maxFor(key: ScoreColumnId): string | null {
+  switch (key) {
+    case "exam":
+      return String(scoreConfig.value.examMax)
+    case "total":
+      return String(grandMax.value)
+    default:
+      return null
+  }
+}
+
+const caTotalMax = computed(() => scoreConfig.value.caMaxScores.reduce((sum, max) => sum + max, 0))
+const grandMax = computed(() => caTotalMax.value + scoreConfig.value.examMax)
 
 const groupedCa = computed(
   () =>
@@ -49,26 +64,25 @@ const caColumns = computed<Column[]>(() => {
   if (props.config.caDisplay === "summed") return []
   return Array.from({ length: scoreConfig.value.caCount }, (_, index) => {
     const slot = index + 1
-    const max = scoreConfig.value.caMaxScores[index] ?? "?"
     return {
       key: `ca${slot}` as ScoreColumnId,
-      // `|` separates the two lines of the grouped head: "1st" over "(10)".
-      label: groupedCa.value ? `${toOrdinal(slot)}|(${max})` : `CA ${slot} (${max})`
+      label: groupedCa.value ? toOrdinal(slot) : `CA ${slot}`,
+      max: String(scoreConfig.value.caMaxScores[index] ?? "?")
     }
   })
 })
 
 const caTotalColumn = computed<Column | null>(() =>
   props.config.caDisplay === "breakdown-grouped-total" || props.config.caDisplay === "summed"
-    ? { key: "caTotal", label: labelFor("caTotal") }
+    ? { key: "caTotal", label: labelFor("caTotal"), max: String(caTotalMax.value) }
     : null
 )
 
 /** Subject first, then the CA block (+ CA Total where configured), then the rest. */
 const displayColumns = computed<Column[]>(() => {
   const [first, ...rest] = props.config.columns
-  const head: Column[] = first ? [{ key: first, label: labelFor(first) }] : []
-  const tail: Column[] = rest.map((key) => ({ key, label: labelFor(key) }))
+  const head: Column[] = first ? [{ key: first, label: labelFor(first), max: maxFor(first) }] : []
+  const tail: Column[] = rest.map((key) => ({ key, label: labelFor(key), max: maxFor(key) }))
   const caTotal = caTotalColumn.value
   return [...head, ...caColumns.value, ...(caTotal ? [caTotal] : []), ...tail]
 })
@@ -182,9 +196,12 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
 
 <template>
   <div data-block-type="scores">
-    <div class="border-border overflow-hidden rounded-lg border">
+    <div class="border-border overflow-hidden rounded-[var(--rc-radius)] border">
       <!-- No scroll: fixed column widths keep the table inside the A4 width; heads wrap. -->
-      <table class="w-full table-fixed text-xs">
+      <table
+        class="w-full table-fixed"
+        :style="{ fontSize: `${config.fontSize}px`, fontWeight: config.fontWeight }"
+      >
         <colgroup>
           <col
             v-for="column in displayColumns"
@@ -199,42 +216,55 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
               v-for="column in columnsBeforeCa"
               :key="column.key"
               rowspan="2"
-              class="border-border border-r px-1 py-1 align-middle text-[10px] font-medium break-words text-muted-foreground"
+              class="border-border border-r px-1 py-1 align-middle text-[0.85em] font-medium break-words text-muted-foreground"
             >
-              {{ column.label }}
+              <ScoreColumnHead
+                :label="column.label"
+                :max="column.max"
+                :show-max="config.showScoreMax"
+              />
             </th>
             <th
               :colspan="caColumns.length"
-              class="border-border border-r px-1 py-1 text-center text-[10px] font-semibold"
+              class="border-border border-r px-1 py-1 text-center text-[0.85em] font-semibold"
             >
               Assessments
             </th>
             <th
               v-if="caTotalColumn"
               rowspan="2"
-              class="border-border border-r px-1 py-1 text-center align-middle text-[10px] font-medium break-words text-muted-foreground"
+              class="border-border border-r px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
             >
-              {{ caTotalColumn.label }}
+              <ScoreColumnHead
+                :label="caTotalColumn.label"
+                :max="caTotalColumn.max"
+                :show-max="config.showScoreMax"
+              />
             </th>
             <th
               v-for="column in columnsAfterCa"
               :key="column.key"
               rowspan="2"
-              class="border-border border-r px-1 py-1 text-center align-middle text-[10px] font-medium break-words text-muted-foreground"
+              class="border-border border-r px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
             >
-              {{ column.label }}
+              <ScoreColumnHead
+                :label="column.label"
+                :max="column.max"
+                :show-max="config.showScoreMax"
+              />
             </th>
           </tr>
           <tr v-if="groupedCa" class="border-b border-border">
             <th
               v-for="column in caColumns"
               :key="column.key"
-              class="border-border border-r px-1 py-0.5 text-center text-[10px] font-medium"
+              class="border-border border-r px-1 py-0.5 text-center text-[0.85em] font-medium"
             >
-              <span class="block">{{ column.label.split("|")[0] }}</span>
-              <span class="text-muted-foreground block text-[9px]">
-                {{ column.label.split("|")[1] }}
-              </span>
+              <ScoreColumnHead
+                :label="column.label"
+                :max="column.max"
+                :show-max="config.showScoreMax"
+              />
             </th>
           </tr>
 
@@ -243,10 +273,14 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
             <th
               v-for="column in displayColumns"
               :key="column.key"
-              class="border-border border-r px-1 py-1 text-[10px] font-medium break-words text-muted-foreground"
+              class="border-border border-r px-1 py-1 text-[0.85em] font-medium break-words text-muted-foreground"
               :class="column.key === 'subject' ? '' : 'text-center'"
             >
-              {{ column.label }}
+              <ScoreColumnHead
+                :label="column.label"
+                :max="column.max"
+                :show-max="config.showScoreMax"
+              />
             </th>
           </tr>
         </thead>

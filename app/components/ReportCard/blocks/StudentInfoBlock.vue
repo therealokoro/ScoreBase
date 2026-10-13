@@ -49,11 +49,11 @@ const gridStyle = computed(() => ({
 const containerClass = computed(() => {
   switch (props.config.borderStyle) {
     case "outlined":
-      return "border-foreground rounded-lg border p-3"
+      return "border-foreground rounded-[var(--rc-radius)] border p-3"
     case "bordered":
       // Outer border comes from the wrapper; cells draw the inner grid lines. `border-foreground`
       // keeps the print output black like a paper report card.
-      return "border-foreground overflow-hidden rounded-lg border"
+      return "border-foreground overflow-hidden rounded-[var(--rc-radius)] border"
     default:
       return ""
   }

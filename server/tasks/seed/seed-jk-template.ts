@@ -37,6 +37,8 @@ export function buildJkTemplate(): ReportCardTemplate {
     sidebarPosition: "right",
     // Grading key bottom-left, term info + director bottom-right.
     footerLayout: "columns",
+    // Square corners, like the school's printed card.
+    borderRadius: 0,
     watermark: null,
 
     header: [
@@ -157,13 +159,17 @@ export function buildJkTemplate(): ReportCardTemplate {
           ],
           columnLabels: {
             subject: "Subjects",
-            exam: "Term Exam (70)",
-            total: "Term Total (100)",
+            exam: "Term Exam",
+            total: "Term Total",
             grade: "Term Grade",
             classAverage: "Class Avg.",
             subjectPosition: "Subject Position",
             remark: "Remarks"
-          }
+          },
+          // The maximums come from the result settings and print under each heading.
+          fontSize: 12,
+          fontWeight: "normal",
+          showScoreMax: true
         }
       }
     ],
@@ -225,25 +231,7 @@ export function buildJkTemplate(): ReportCardTemplate {
         }
       },
       {
-        // Tuition / P.T.A / Total strip — static values the admin edits each term.
-        id: typeid("block").toString(),
-        type: "custom-table",
-        hidden: false,
-        fontFamily: null,
-        column: "right",
-        config: {
-          variant: "static",
-          layout: "inline",
-          title: text(""),
-          rows: [
-            { id: typeid("row").toString(), label: "Tuition Fee", value: "N68,000" },
-            { id: typeid("row").toString(), label: "P.T.A", value: "N1,000" },
-            { id: typeid("row").toString(), label: "Total", value: "N69,000" }
-          ]
-        }
-      },
-      {
-        // Next term resumption date — also edited each term.
+        // Tuition / P.T.A / Total on the first line, the next-term date on the second — one table.
         id: typeid("block").toString(),
         type: "custom-table",
         hidden: false,
@@ -256,8 +244,17 @@ export function buildJkTemplate(): ReportCardTemplate {
           rows: [
             {
               id: typeid("row").toString(),
+              label: "Tuition Fee",
+              value: "N68,000",
+              newLine: false
+            },
+            { id: typeid("row").toString(), label: "P.T.A", value: "N1,000", newLine: false },
+            { id: typeid("row").toString(), label: "Total", value: "N69,000", newLine: false },
+            {
+              id: typeid("row").toString(),
               label: "Next Term Begins",
-              value: "September 7, 2026"
+              value: "September 7, 2026",
+              newLine: true
             }
           ]
         }
