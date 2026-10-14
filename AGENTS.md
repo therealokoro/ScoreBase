@@ -292,6 +292,10 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
   `ScoresConfig.fontSize` / `fontWeight` (heads scale in `em`).
 - `template.borderRadius` (px) drives the `--rc-radius` custom property on the print root, which
   the card's bordered boxes consume via `rounded-[var(--rc-radius)]`. 0 prints square corners.
+- Appearance knobs live on the block configs, all schema-defaulted: `StudentInfoConfig.borderWidth`
+  and `ScoresConfig.borderWidth` (px) set each grid's rule thickness independently and are applied
+  as widths (never utility classes) so the single-rule edge holds at any thickness; the scores
+  table's text size/weight and `showScoreMax` are described above.
 - The builder is **locked** on this branch: `BlockSlotList.vue` lists the existing blocks with
   hide/reorder/font/column/config controls only — there is no add, duplicate or delete. The J.K.
   template must stay structurally identical to its reference PDF.
@@ -490,6 +494,11 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-14 — J.K. report card review round 3. Per-block border thickness: `StudentInfoConfig.borderWidth`
+  and `ScoresConfig.borderWidth` (px, 0-4, default 1) scale the student grid and the scores table
+  rules independently, applied as widths so the last column/row still drops its inner rule (this
+  also fixed a doubled rule at the scores header's right edge). Student-info cells tightened from
+  `p-2` to `p-1.5`. Both settings are editable in their block panels.
 - 2026-10-13 — J.K. report card review round 2. Layout: the teacher signature and the comment now
   share one row at opposite ends, with the comment label and value separated by the label's colon
   and a single space; the grading key gives each grade a fixed-width column so the definitions

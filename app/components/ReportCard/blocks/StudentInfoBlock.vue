@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { CSSProperties } from "vue"
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
 import type { StudentInfoConfig, StudentInfoField } from "~~/shared/constants/report-card"
 
@@ -61,20 +62,31 @@ const containerClass = computed(() => {
 
 const bordered = computed(() => props.config.borderStyle === "bordered")
 
+const borderWidth = computed(() => `${props.config.borderWidth}px`)
+
+/** The wrapper draws the outer rule for the outlined and bordered styles. */
+const containerStyle = computed<CSSProperties>(() =>
+  props.config.borderStyle === "borderless" ? {} : { borderWidth: borderWidth.value }
+)
+
 /**
  * Cell classes for the bordered grid. The wrapper already draws the outer border, so the last
  * column and last row drop their inner lines — otherwise those edges print as a double rule.
  */
-function cellClass(index: number): string[] {
-  if (!bordered.value) return []
+function cellClass(): string[] {
+  return bordered.value ? ["border-foreground border-r border-b p-1.5"] : []
+}
+
+/** Same edge rule as `cellClass`, expressed as widths so `borderWidth` can scale them. */
+function cellStyle(index: number): CSSProperties {
+  if (!bordered.value) return {}
   const columns = props.config.columns
   const rows = Math.ceil(items.value.length / columns)
   const row = Math.floor(index / columns)
-  return [
-    "border-foreground border-r border-b p-2",
-    (index + 1) % columns === 0 ? "border-r-0" : "",
-    row === rows - 1 ? "border-b-0" : ""
-  ]
+  return {
+    borderRightWidth: (index + 1) % columns === 0 ? "0px" : borderWidth.value,
+    borderBottomWidth: row === rows - 1 ? "0px" : borderWidth.value
+  }
 }
 
 const valueStyle = computed(() => ({
@@ -84,7 +96,7 @@ const valueStyle = computed(() => ({
 </script>
 
 <template>
-  <div data-block-type="student-info" :class="containerClass">
+  <div data-block-type="student-info" :class="containerClass" :style="containerStyle">
     <div
       v-if="items.length"
       class="grid"
@@ -95,10 +107,11 @@ const valueStyle = computed(() => ({
         v-for="(item, index) in items"
         :key="item.id"
         :class="[
-          ...cellClass(index),
+          ...cellClass(),
           !bordered && config.labelPlacement === 'side' ? 'flex items-baseline gap-2' : '',
           !bordered && config.labelPlacement === 'top' ? 'space-y-0.5' : ''
         ]"
+        :style="cellStyle(index)"
       >
         <p class="text-muted-foreground text-[10px] break-words">{{ item.label }}</p>
         <p class="break-words" :style="valueStyle">{{ item.value }}</p>

@@ -85,6 +85,20 @@ function moveField(index: number, direction: -1 | 1) {
       <ReportCardBuilderSmallSelect v-model="config.borderStyle" :options="borderOptions" />
     </div>
 
+    <div v-if="config.borderStyle !== 'borderless'" class="space-y-1.5">
+      <UiLabel class="text-xs">Border thickness</UiLabel>
+      <div class="flex items-center gap-2">
+        <UiSlider
+          :model-value="[config.borderWidth]"
+          :min="0"
+          :max="4"
+          :step="1"
+          @update:model-value="(value) => (config.borderWidth = value?.[0] ?? 1)"
+        />
+        <span class="w-8 text-right text-[10px] tabular-nums">{{ config.borderWidth }}px</span>
+      </div>
+    </div>
+
     <div class="space-y-1.5">
       <UiLabel class="text-xs">Labels</UiLabel>
       <ReportCardBuilderSmallSelect v-model="config.labelPlacement" :options="labelOptions" />

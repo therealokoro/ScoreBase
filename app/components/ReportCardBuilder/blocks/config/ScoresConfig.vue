@@ -164,6 +164,18 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
         <span class="w-5 text-right text-[10px] tabular-nums">{{ config.fontSize }}</span>
       </div>
 
+      <div class="flex items-center gap-2">
+        <span class="text-muted-foreground w-10 text-[10px]">Border</span>
+        <UiSlider
+          :model-value="[config.borderWidth]"
+          :min="0"
+          :max="4"
+          :step="1"
+          @update:model-value="(value) => (config.borderWidth = value?.[0] ?? 1)"
+        />
+        <span class="w-5 text-right text-[10px] tabular-nums">{{ config.borderWidth }}</span>
+      </div>
+
       <div class="space-y-1.5">
         <UiLabel class="text-xs">Weight</UiLabel>
         <ReportCardBuilderSmallSelect

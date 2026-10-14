@@ -116,6 +116,8 @@ export type StudentInfoFieldRow = z.infer<typeof StudentInfoFieldRowSchema>
 export const StudentInfoConfigSchema = z.object({
   columns: z.union([z.literal(2), z.literal(3), z.literal(4)]),
   borderStyle: z.enum(["outlined", "borderless", "bordered"]),
+  // Defaulted so templates saved before the setting existed still validate.
+  borderWidth: z.number().int().min(0).max(4).default(1),
   labelPlacement: LabelPlacementSchema,
   valueFontSize: z.number().int().min(8).max(20),
   valueFontWeight: z.enum(FONT_WEIGHTS),
@@ -161,6 +163,7 @@ export const ScoresConfigSchema = z
     // Defaulted so templates saved before these existed still validate.
     fontSize: z.number().int().min(8).max(20).default(12),
     fontWeight: z.enum(FONT_WEIGHTS).default("normal"),
+    borderWidth: z.number().int().min(0).max(4).default(1),
     showScoreMax: z.boolean().default(true)
   })
   .refine((config) => config.columns[0] === "subject", {

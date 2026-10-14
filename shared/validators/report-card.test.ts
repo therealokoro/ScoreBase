@@ -396,7 +396,22 @@ describe("backward compatibility defaults", () => {
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.fontSize).toBe(12)
     expect(parsed.success && parsed.data.fontWeight).toBe("normal")
+    expect(parsed.success && parsed.data.borderWidth).toBe(1)
     expect(parsed.success && parsed.data.showScoreMax).toBe(true)
+  })
+
+  it("fills in a missing student-info border thickness", () => {
+    const parsed = StudentInfoConfigSchema.safeParse({
+      columns: 4,
+      borderStyle: "bordered",
+      labelPlacement: "top",
+      valueFontSize: 11,
+      valueFontWeight: "600",
+      fields: []
+    })
+
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && parsed.data.borderWidth).toBe(1)
   })
 
   it("fills in a missing custom-table row line break", () => {

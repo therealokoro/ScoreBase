@@ -252,6 +252,8 @@ export type StudentInfoBorderStyle = "outlined" | "borderless" | "bordered"
 export interface StudentInfoConfig {
   columns: 2 | 3 | 4
   borderStyle: StudentInfoBorderStyle
+  /** Grid line thickness in px (0 hides them); ignored when `borderStyle` is "borderless". */
+  borderWidth: number
   labelPlacement: LabelPlacement
   /** Font size / weight for the values (labels stay small and muted). */
   valueFontSize: number
@@ -297,6 +299,8 @@ export interface ScoresConfig {
   fontSize: number
   /** Table text weight; the heads keep their own emphasis. */
   fontWeight: FontWeight
+  /** Border thickness in px for the table's outer and inner rules (0 hides them). */
+  borderWidth: number
   /**
    * Shows each column's maximum in brackets under its heading ("Term Exam" over "(70)"), so every
    * head lines up. Off hides the brackets everywhere at once.
@@ -478,6 +482,7 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
   return {
     columns: 3,
     borderStyle: "outlined",
+    borderWidth: 1,
     labelPlacement: "top",
     valueFontSize: 11,
     valueFontWeight: "600",
@@ -498,6 +503,7 @@ export function createDefaultScoresConfig(): ScoresConfig {
     columns: ["subject", "exam", "total", "grade", "remark"],
     fontSize: 12,
     fontWeight: "normal",
+    borderWidth: 1,
     showScoreMax: true
   }
 }
