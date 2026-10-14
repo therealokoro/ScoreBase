@@ -44,21 +44,29 @@ const inlineLines = computed<CustomTableRow[][]>(() => {
     <!-- Inline: label/value pairs across one or more lines inside a single bordered table -->
     <div
       v-if="config.layout === 'inline'"
-      class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border"
+      class="border-[color:var(--rc-border-color)] border-[length:var(--rc-outline-width)] w-fit overflow-hidden rounded-[var(--rc-radius)]"
     >
       <div
         v-for="(line, lineIndex) in inlineLines"
         :key="lineIndex"
         class="flex w-full"
-        :class="lineIndex > 0 ? 'border-border border-t' : ''"
+        :class="
+          lineIndex > 0
+            ? 'border-[color:var(--rc-border-color)] border-t-[length:var(--rc-border-width)]'
+            : ''
+        "
       >
         <template v-for="(row, rowIndex) in line" :key="row.id">
-          <div class="border-border bg-muted/40 border-r px-2 py-1 text-[10px] font-medium">
+          <div
+            class="border-[color:var(--rc-border-color)] bg-muted/40 border-r-[length:var(--rc-border-width)] px-2 py-1 text-[10px] font-medium"
+          >
             {{ row.label }}
           </div>
           <div
-            class="border-border px-2 py-1 text-[10px]"
-            :class="rowIndex === line.length - 1 ? 'flex-1' : 'border-r'"
+            class="border-[color:var(--rc-border-color)] px-2 py-1 text-[10px]"
+            :class="
+              rowIndex === line.length - 1 ? 'flex-1' : 'border-r-[length:var(--rc-border-width)]'
+            "
           >
             {{ rowValue(row.id) }}
           </div>
@@ -67,7 +75,10 @@ const inlineLines = computed<CustomTableRow[][]>(() => {
     </div>
 
     <!-- Stacked: one label/value row per entry -->
-    <div v-else class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border">
+    <div
+      v-else
+      class="border-[color:var(--rc-border-color)] border-[length:var(--rc-outline-width)] w-fit overflow-hidden rounded-[var(--rc-radius)]"
+    >
       <UiTable class="w-fit text-xs" aria-label="Custom table">
         <UiTableBody>
           <UiTableRow v-for="row in config.rows" :key="row.id">

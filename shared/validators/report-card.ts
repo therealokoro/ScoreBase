@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { DEFAULT_TABLE_BORDERS } from "#shared/constants/report-card"
+
 // ---------------------------------------------------------------------------
 // Report Card Template — Zod schemas for the slot + block shape.
 // Types live in shared/constants/report-card.ts; every block config interface
@@ -23,6 +25,13 @@ const FieldIdSchema = z
 const RowIdSchema = z
   .string()
   .regex(/^row_[0-9a-hjkmnp-tv-z]{26}$/, "Must be a typeid with prefix 'row'")
+
+/** Rules shared by every table and grid on the card (see `TableBorderSettings`). */
+export const TableBorderSettingsSchema = z.object({
+  color: HexColorSchema,
+  width: z.number().int().min(0).max(4),
+  outlineWidth: z.number().int().min(0).max(4)
+})
 
 // ---------------------------------------------------------------------------
 // Text styling
@@ -116,8 +125,6 @@ export type StudentInfoFieldRow = z.infer<typeof StudentInfoFieldRowSchema>
 export const StudentInfoConfigSchema = z.object({
   columns: z.union([z.literal(2), z.literal(3), z.literal(4)]),
   borderStyle: z.enum(["outlined", "borderless", "bordered"]),
-  // Defaulted so templates saved before the setting existed still validate.
-  borderWidth: z.number().int().min(0).max(4).default(1),
   labelPlacement: LabelPlacementSchema,
   valueFontSize: z.number().int().min(8).max(20),
   valueFontWeight: z.enum(FONT_WEIGHTS),
@@ -163,7 +170,6 @@ export const ScoresConfigSchema = z
     // Defaulted so templates saved before these existed still validate.
     fontSize: z.number().int().min(8).max(20).default(12),
     fontWeight: z.enum(FONT_WEIGHTS).default("normal"),
-    borderWidth: z.number().int().min(0).max(4).default(1),
     showScoreMax: z.boolean().default(true)
   })
   .refine((config) => config.columns[0] === "subject", {
@@ -250,8 +256,6 @@ export type SummaryConfig = z.infer<typeof SummaryConfigSchema>
 export const RemarksSignatureConfigSchema = z.object({
   visible: z.boolean(),
   label: StyledTextSchema,
-  commentLabelPlacement: LabelPlacementSchema,
-  layout: z.enum(["stacked", "signature-comment"]).default("stacked"),
   showSignature: z.boolean(),
   signatureMode: z.enum(["blank", "image"]),
   signatureImage: z.string().nullable(),
@@ -289,8 +293,8 @@ const DEFAULT_DIRECTOR_CONFIG = {
 
 export const RemarksConfigSchema = z.object({
   teacher: RemarksSignatureConfigSchema,
-  principal: RemarksSignatureConfigSchema,
-  // Defaulted so templates saved before the director existed still validate.
+  // The head signature (principal or director — the same person). Defaulted so templates saved
+  // before the sections were merged still validate; a legacy `principal` key is dropped.
   director: RemarksSignatureOnlyConfigSchema.default(DEFAULT_DIRECTOR_CONFIG)
 })
 
@@ -374,6 +378,8 @@ export const ReportCardTemplateSchema = z.object({
   // Defaulted so templates saved before the two-column footer existed still validate.
   footerLayout: z.enum(["stacked", "columns"]).default("stacked"),
   borderRadius: z.number().int().min(0).max(24).default(8),
+  // Defaulted so templates saved before the setting existed still validate.
+  tableBorders: TableBorderSettingsSchema.default({ ...DEFAULT_TABLE_BORDERS }),
   watermark: WatermarkSchema.nullable(),
   header: z.array(ReportCardBlockSchema),
   studentInfo: z.array(ReportCardBlockSchema),

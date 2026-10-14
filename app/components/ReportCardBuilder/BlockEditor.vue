@@ -119,6 +119,52 @@ const watermarkMode = computed<WatermarkMode>({
         </p>
       </div>
 
+      <div class="space-y-2">
+        <UiLabel class="text-xs">Table borders</UiLabel>
+        <p class="text-muted-foreground text-[10px]">
+          Every table and grid on the card: the scores table, the student details grid, the grading
+          key and custom tables.
+        </p>
+
+        <div class="flex items-center gap-2">
+          <span class="text-muted-foreground w-16 text-[10px]">Outline</span>
+          <UiSlider
+            :model-value="[template.tableBorders.outlineWidth]"
+            :min="0"
+            :max="4"
+            :step="1"
+            @update:model-value="(value) => (template.tableBorders.outlineWidth = value?.[0] ?? 1)"
+          />
+          <span class="w-6 text-right text-[10px] tabular-nums">
+            {{ template.tableBorders.outlineWidth }}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-muted-foreground w-16 text-[10px]">Inner lines</span>
+          <UiSlider
+            :model-value="[template.tableBorders.width]"
+            :min="0"
+            :max="4"
+            :step="1"
+            @update:model-value="(value) => (template.tableBorders.width = value?.[0] ?? 1)"
+          />
+          <span class="w-6 text-right text-[10px] tabular-nums">
+            {{ template.tableBorders.width }}
+          </span>
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-muted-foreground text-[10px]">Colour</span>
+          <UiColorPicker
+            v-model="template.tableBorders.color"
+            :show-format-toggle="false"
+            :show-result="false"
+            :show-presets="false"
+          />
+        </div>
+      </div>
+
       <UiSeparator />
 
       <div class="space-y-3">

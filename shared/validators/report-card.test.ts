@@ -396,22 +396,17 @@ describe("backward compatibility defaults", () => {
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.fontSize).toBe(12)
     expect(parsed.success && parsed.data.fontWeight).toBe("normal")
-    expect(parsed.success && parsed.data.borderWidth).toBe(1)
     expect(parsed.success && parsed.data.showScoreMax).toBe(true)
   })
 
-  it("fills in a missing student-info border thickness", () => {
-    const parsed = StudentInfoConfigSchema.safeParse({
-      columns: 4,
-      borderStyle: "bordered",
-      labelPlacement: "top",
-      valueFontSize: 11,
-      valueFontWeight: "600",
-      fields: []
-    })
+  it("fills in the missing table border settings", () => {
+    const template = createDefaultReportCardTemplate()
+    const { tableBorders, ...withoutBorders } = template
 
+    expect(tableBorders).toEqual({ color: "#000000", width: 1, outlineWidth: 1 })
+    const parsed = ReportCardTemplateSchema.safeParse(withoutBorders)
     expect(parsed.success).toBe(true)
-    expect(parsed.success && parsed.data.borderWidth).toBe(1)
+    expect(parsed.success && parsed.data.tableBorders).toEqual(tableBorders)
   })
 
   it("fills in a missing custom-table row line break", () => {
@@ -446,21 +441,21 @@ describe("backward compatibility defaults", () => {
     expect(parsed.success && parsed.data.layout).toBe("stacked")
   })
 
-  it("fills in a missing director section", () => {
+  it("fills in a missing head signature and drops a legacy principal section", () => {
     const teacher = {
       visible: true,
       label: styled("Remark"),
-      commentLabelPlacement: "top",
-      layout: "stacked",
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
       signatureLabel: styled("Teacher")
     }
 
+    // principal predates the merge into one head slot; it is ignored, not carried over.
     const parsed = RemarksConfigSchema.safeParse({ teacher, principal: teacher })
 
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.director.visible).toBe(false)
+    expect(parsed.success && "principal" in parsed.data).toBe(false)
   })
 })

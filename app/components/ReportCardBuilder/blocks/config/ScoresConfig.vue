@@ -68,10 +68,11 @@ const checklist = computed<{ key: ScoreColumnId; label: string }[]>(() =>
   CANONICAL_ORDER.map((key) => ({ key, label: COLUMN_LABELS[key] ?? key }))
 )
 
-function sortColumns() {
-  config.value.columns = [...new Set(config.value.columns)].sort(
-    (a, b) => CANONICAL_ORDER.indexOf(a) - CANONICAL_ORDER.indexOf(b)
-  )
+/** The subject column always leads; every other column keeps the order the admin sets. */
+function ensureSubjectFirst() {
+  const columns = config.value.columns
+  if (columns[0] === "subject") return
+  config.value.columns = ["subject", ...columns.filter((column) => column !== "subject")]
 }
 
 function toggleColumn(key: ScoreColumnId, checked: boolean) {
@@ -81,7 +82,24 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
   } else {
     config.value.columns = columns.filter((column) => column !== key)
   }
-  sortColumns()
+  ensureSubjectFirst()
+}
+
+/** Whether a column can move one place up (-1) or down (1). Subject stays pinned to the front. */
+function canMove(key: ScoreColumnId, direction: -1 | 1): boolean {
+  const columns = config.value.columns
+  const index = columns.indexOf(key)
+  if (index <= 0) return false
+  const target = index + direction
+  return target > 0 && target < columns.length
+}
+
+function moveColumn(key: ScoreColumnId, direction: -1 | 1) {
+  if (!canMove(key, direction)) return
+  const columns = config.value.columns
+  const index = columns.indexOf(key)
+  const [item] = columns.splice(index, 1)
+  if (item) columns.splice(index + direction, 0, item)
 }
 </script>
 
@@ -136,14 +154,32 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
           >
             {{ column.label }}
           </button>
+
+          <!-- Reorder the visible columns; the subject column stays first. -->
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :icon="ICONS.up"
+            :label="`Move ${column.label} up`"
+            :disabled="!canMove(column.key, -1)"
+            @click="moveColumn(column.key, -1)"
+          />
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :icon="ICONS.down"
+            :label="`Move ${column.label} down`"
+            :disabled="!canMove(column.key, 1)"
+            @click="moveColumn(column.key, 1)"
+          />
         </div>
       </div>
 
-      <p class="text-muted-foreground flex gap-2 text-[10px]">
-        <Icon :name="ICONS.info" class="mt-0.5 size-3 shrink-0" />
-        <span>
-          "Position" needs per-subject rankings, which are not available yet, so it prints a dash.
-        </span>
+      <p class="text-muted-foreground text-[10px]">
+        Order the columns with the arrows. The Subject column is always first, and the CA columns
+        are inserted after it from your CA display setting.
       </p>
     </div>
 
@@ -164,17 +200,9 @@ function toggleColumn(key: ScoreColumnId, checked: boolean) {
         <span class="w-5 text-right text-[10px] tabular-nums">{{ config.fontSize }}</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <span class="text-muted-foreground w-10 text-[10px]">Border</span>
-        <UiSlider
-          :model-value="[config.borderWidth]"
-          :min="0"
-          :max="4"
-          :step="1"
-          @update:model-value="(value) => (config.borderWidth = value?.[0] ?? 1)"
-        />
-        <span class="w-5 text-right text-[10px] tabular-nums">{{ config.borderWidth }}</span>
-      </div>
+      <p class="text-muted-foreground text-[10px]">
+        Table and grid rules are set for the whole card under General → Table borders.
+      </p>
 
       <div class="space-y-1.5">
         <UiLabel class="text-xs">Weight</UiLabel>

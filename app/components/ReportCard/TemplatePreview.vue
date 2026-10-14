@@ -111,7 +111,10 @@ const footerRows = computed<FooterRow[]>(() => {
         width: '210mm',
         minHeight: '297mm',
         fontFamily: template.fontFamily,
-        '--rc-radius': `${template.borderRadius}px`
+        '--rc-radius': `${template.borderRadius}px`,
+        '--rc-border-color': template.tableBorders.color,
+        '--rc-border-width': `${template.tableBorders.width}px`,
+        '--rc-outline-width': `${template.tableBorders.outlineWidth}px`
       }"
     >
       <!-- Watermark (single: centred logo/image; tiled: repeated background) -->

@@ -50,11 +50,11 @@ const gridStyle = computed(() => ({
 const containerClass = computed(() => {
   switch (props.config.borderStyle) {
     case "outlined":
-      return "border-foreground rounded-[var(--rc-radius)] border p-3"
+      return "border-[color:var(--rc-border-color)] rounded-[var(--rc-radius)] border p-3"
     case "bordered":
-      // Outer border comes from the wrapper; cells draw the inner grid lines. `border-foreground`
-      // keeps the print output black like a paper report card.
-      return "border-foreground overflow-hidden rounded-[var(--rc-radius)] border"
+      // Outer border comes from the wrapper; cells draw the inner grid lines. The template's table
+      // border colour keeps the print output like a paper report card.
+      return "border-[color:var(--rc-border-color)] overflow-hidden rounded-[var(--rc-radius)] border"
     default:
       return ""
   }
@@ -62,31 +62,33 @@ const containerClass = computed(() => {
 
 const bordered = computed(() => props.config.borderStyle === "bordered")
 
-const borderWidth = computed(() => `${props.config.borderWidth}px`)
-
 /** The wrapper draws the outer rule for the outlined and bordered styles. */
 const containerStyle = computed<CSSProperties>(() =>
-  props.config.borderStyle === "borderless" ? {} : { borderWidth: borderWidth.value }
+  props.config.borderStyle === "borderless" ? {} : { borderWidth: "var(--rc-outline-width)" }
 )
 
-/**
- * Cell classes for the bordered grid. The wrapper already draws the outer border, so the last
- * column and last row drop their inner lines — otherwise those edges print as a double rule.
- */
+/** Cell classes for the bordered grid; widths come from the template's table border settings. */
 function cellClass(): string[] {
-  return bordered.value ? ["border-foreground border-r border-b p-1.5"] : []
+  return bordered.value
+    ? [
+        "border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] border-b-[length:var(--rc-border-width)] p-1.5"
+      ]
+    : []
 }
 
-/** Same edge rule as `cellClass`, expressed as widths so `borderWidth` can scale them. */
+/**
+ * The wrapper already draws the outer border, so the last column and last row drop their inner
+ * lines — otherwise those edges print as a double rule.
+ */
 function cellStyle(index: number): CSSProperties {
   if (!bordered.value) return {}
   const columns = props.config.columns
   const rows = Math.ceil(items.value.length / columns)
   const row = Math.floor(index / columns)
-  return {
-    borderRightWidth: (index + 1) % columns === 0 ? "0px" : borderWidth.value,
-    borderBottomWidth: row === rows - 1 ? "0px" : borderWidth.value
-  }
+  const style: CSSProperties = {}
+  if ((index + 1) % columns === 0) style.borderRightWidth = "0px"
+  if (row === rows - 1) style.borderBottomWidth = "0px"
+  return style
 }
 
 const valueStyle = computed(() => ({

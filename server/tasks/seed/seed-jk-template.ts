@@ -39,6 +39,8 @@ export function buildJkTemplate(): ReportCardTemplate {
     footerLayout: "columns",
     // Square corners, like the school's printed card.
     borderRadius: 0,
+    // Black 1px rules everywhere, like the school's printed card.
+    tableBorders: { color: "#000000", width: 1, outlineWidth: 1 },
     watermark: null,
 
     header: [
@@ -178,7 +180,7 @@ export function buildJkTemplate(): ReportCardTemplate {
 
     footer: [
       {
-        // Teacher comment row — full width, above the two footer columns.
+        // One remarks block: the class teacher's row, with the head signature beneath it.
         id: typeid("block").toString(),
         type: "remarks",
         hidden: false,
@@ -188,27 +190,14 @@ export function buildJkTemplate(): ReportCardTemplate {
           teacher: {
             visible: true,
             label: text("Class Teacher's Comment:", { fontSize: 11, fontWeight: "bold" }),
-            commentLabelPlacement: "top",
-            // Signature on the left, comment on the right.
-            layout: "signature-comment",
             showSignature: true,
             signatureMode: "blank",
             signatureImage: null,
             signatureLabel: text("Class Teacher:", { fontSize: 11, fontWeight: "bold" })
           },
-          principal: {
-            visible: false,
-            label: text("Principal's Remark", { fontSize: 11 }),
-            commentLabelPlacement: "top",
-            layout: "stacked",
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: text("Principal", { fontSize: 10 })
-          },
-          // The director signature is its own block below the term-info table.
+          // Principal and director are the same person; this school calls them the director.
           director: {
-            visible: false,
+            visible: true,
             showSignature: true,
             signatureMode: "blank",
             signatureImage: null,
@@ -257,43 +246,6 @@ export function buildJkTemplate(): ReportCardTemplate {
               newLine: true
             }
           ]
-        }
-      },
-      {
-        // Bottom-right, below the term info — a remarks block showing only the director line.
-        id: typeid("block").toString(),
-        type: "remarks",
-        hidden: false,
-        fontFamily: null,
-        column: "right",
-        config: {
-          teacher: {
-            visible: false,
-            label: text("Class Teacher's Comment:", { fontSize: 11, fontWeight: "bold" }),
-            commentLabelPlacement: "top",
-            layout: "signature-comment",
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: text("Class Teacher:", { fontSize: 11, fontWeight: "bold" })
-          },
-          principal: {
-            visible: false,
-            label: text("Principal's Remark", { fontSize: 11 }),
-            commentLabelPlacement: "top",
-            layout: "stacked",
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: text("Principal", { fontSize: 10 })
-          },
-          director: {
-            visible: true,
-            showSignature: true,
-            signatureMode: "blank",
-            signatureImage: null,
-            signatureLabel: text("Director:", { fontSize: 11, fontWeight: "bold" })
-          }
         }
       }
     ]

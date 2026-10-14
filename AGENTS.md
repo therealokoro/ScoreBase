@@ -292,10 +292,17 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
   `ScoresConfig.fontSize` / `fontWeight` (heads scale in `em`).
 - `template.borderRadius` (px) drives the `--rc-radius` custom property on the print root, which
   the card's bordered boxes consume via `rounded-[var(--rc-radius)]`. 0 prints square corners.
-- Appearance knobs live on the block configs, all schema-defaulted: `StudentInfoConfig.borderWidth`
-  and `ScoresConfig.borderWidth` (px) set each grid's rule thickness independently and are applied
-  as widths (never utility classes) so the single-rule edge holds at any thickness; the scores
-  table's text size/weight and `showScoreMax` are described above.
+- Appearance knobs: `template.borderRadius` and `template.tableBorders` (`color`, `width` for inner
+  lines, `outlineWidth`) are set once on the template and published as `--rc-radius`,
+  `--rc-border-color`, `--rc-border-width` and `--rc-outline-width` on the print root, so every
+  table and grid — scores, student info, grading key, custom table — reads the same rules. The
+  widths are applied as utilities/widths rather than colours, which keeps the single-rule edge
+  (last column/row drops its inner rule) working at any thickness. Per-block knobs:
+  `StudentInfoConfig.borderStyle` and `ScoresConfig.fontSize` / `fontWeight` / `showScoreMax`.
+- `RemarksConfig` has exactly two sections: `teacher` (label + signature) and `director`, the head
+  signature — principal and director are the same person, and `signatureLabel` names the slot per
+  school. There is no layout or comment-label-placement option: the teacher row always prints the
+  signature at the far left and the comment at the far right of one line.
 - The builder is **locked** on this branch: `BlockSlotList.vue` lists the existing blocks with
   hide/reorder/font/column/config controls only — there is no add, duplicate or delete. The J.K.
   template must stay structurally identical to its reference PDF.
@@ -494,6 +501,13 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-14 — J.K. report card review round 4. `RemarksConfig` merged: one remarks block holds the
+  class teacher's row plus the head signature (`director` = principal or director, labelled per
+  school); `layout` and `commentLabelPlacement` are gone (the row is always signature-left /
+  comment-right), and a legacy `principal` key is dropped on read. The scores table's columns are
+  reorderable in the panel (subject pinned first; `sortColumns` no longer forces canonical order).
+  Per-block border widths were replaced by the template-level `tableBorders` (colour + inner width
+  + outline width) published as CSS variables to every table/grid.
 - 2026-10-14 — J.K. report card review round 3. Per-block border thickness: `StudentInfoConfig.borderWidth`
   and `ScoresConfig.borderWidth` (px, 0-4, default 1) scale the student grid and the scores table
   rules independently, applied as widths so the last column/row still drops its inner rule (this

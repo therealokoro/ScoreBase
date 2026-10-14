@@ -67,22 +67,21 @@ describe("buildJkTemplate", () => {
     expect(scores.config.columnLabels.exam).toBe("Term Exam")
   })
 
-  it("seeds the remarks, grading key and joined fee/next-term table", () => {
+  it("seeds one remarks block, the grading key and the joined fee/next-term table", () => {
     const template = buildJkTemplate()
     expect(template.footer.map((block) => block.type)).toEqual([
       "remarks",
       "grading-key",
-      "custom-table",
-      "remarks"
+      "custom-table"
     ])
 
+    // One remarks block carries both signature rows: the class teacher's comment and the head.
     const remarks = template.footer[0]
     if (remarks?.type !== "remarks") throw new Error("remarks block missing")
     expect(remarks.config.teacher.visible).toBe(true)
-    expect(remarks.config.teacher.layout).toBe("signature-comment")
-    expect(remarks.config.principal.visible).toBe(false)
-    // The director lives in its own block so it can sit under the term-info table.
-    expect(remarks.config.director.visible).toBe(false)
+    expect(remarks.config.teacher.label.value).toBe("Class Teacher's Comment:")
+    expect(remarks.config.director.visible).toBe(true)
+    expect(remarks.config.director.signatureLabel.value).toBe("Director:")
 
     const gradingKey = template.footer[1]
     if (gradingKey?.type !== "grading-key") throw new Error("grading-key block missing")
@@ -99,16 +98,12 @@ describe("buildJkTemplate", () => {
       "Next Term Begins"
     ])
     expect(termInfo.config.rows.map((row) => row.newLine)).toEqual([false, false, false, true])
-
-    const director = template.footer[3]
-    if (director?.type !== "remarks") throw new Error("director remarks block missing")
-    expect(director.config.teacher.visible).toBe(false)
-    expect(director.config.director.visible).toBe(true)
   })
 
-  it("uses square corners and prints the score maximums under the headings", () => {
+  it("uses square corners, black rules and unbracketed score headings", () => {
     const template = buildJkTemplate()
     expect(template.borderRadius).toBe(0)
+    expect(template.tableBorders).toEqual({ color: "#000000", width: 1, outlineWidth: 1 })
 
     const scores = template.main[0]
     if (scores?.type !== "scores") throw new Error("scores block missing")
@@ -118,10 +113,10 @@ describe("buildJkTemplate", () => {
     expect(scores.config.columnLabels.total).toBe("Term Total")
   })
 
-  it("lays the footer out in two columns: grading key left, term info and director right", () => {
+  it("lays the footer out in two columns: grading key left, term info right", () => {
     const template = buildJkTemplate()
     expect(template.footerLayout).toBe("columns")
-    expect(template.footer.map((block) => block.column)).toEqual(["full", "left", "right", "right"])
+    expect(template.footer.map((block) => block.column)).toEqual(["full", "left", "right"])
   })
 
   it("gives every block a unique id", () => {

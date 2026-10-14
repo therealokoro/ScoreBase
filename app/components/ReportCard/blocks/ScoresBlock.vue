@@ -125,8 +125,8 @@ const columnWidths = computed<Record<string, string>>(() => {
   )
 })
 
-/** Border thickness in px for the table's outer and inner rules. */
-const borderWidth = computed(() => `${props.config.borderWidth}px`)
+/** Inner rule thickness, read from the template's table border settings on the print root. */
+const innerRule = "var(--rc-border-width)"
 
 const lastColumnKey = computed(() => displayColumns.value.at(-1)?.key)
 
@@ -135,12 +135,12 @@ const lastColumnKey = computed(() => displayColumns.value.at(-1)?.key)
  * rule there would print as a double line.
  */
 function headStyle(column: Column): CSSProperties {
-  return { borderRightWidth: column.key === lastColumnKey.value ? "0px" : borderWidth.value }
+  return { borderRightWidth: column.key === lastColumnKey.value ? "0px" : innerRule }
 }
 
 /** Same edge rule for the body cells. */
 function cellRightWidth(index: number): string {
-  return index === displayColumns.value.length - 1 ? "0px" : borderWidth.value
+  return index === displayColumns.value.length - 1 ? "0px" : innerRule
 }
 
 // ----------------------------------- Class data -----------------------------------
@@ -216,8 +216,8 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
 <template>
   <div data-block-type="scores">
     <div
-      class="border-border overflow-hidden rounded-[var(--rc-radius)] border"
-      :style="{ borderWidth }"
+      class="border-[color:var(--rc-border-color)] overflow-hidden rounded-[var(--rc-radius)] border"
+      :style="{ borderWidth: 'var(--rc-outline-width)' }"
     >
       <!-- No scroll: fixed column widths keep the table inside the A4 width; heads wrap. -->
       <table
@@ -235,14 +235,14 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
           <!-- Grouped: one "Assessments" head spanning the CA columns -->
           <tr
             v-if="groupedCa"
-            class="border-b border-border"
-            :style="{ borderBottomWidth: borderWidth }"
+            class="border-b-[length:var(--rc-border-width)] border-[color:var(--rc-border-color)]"
+            :style="{ borderBottomWidth: innerRule }"
           >
             <th
               v-for="column in columnsBeforeCa"
               :key="column.key"
               rowspan="2"
-              class="border-border border-r px-1 py-1 align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 align-middle text-[0.85em] font-medium break-words text-muted-foreground"
               :style="headStyle(column)"
             >
               <ScoreColumnHead
@@ -253,15 +253,15 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
             </th>
             <th
               :colspan="caColumns.length"
-              class="border-border border-r px-1 py-1 text-center text-[0.85em] font-semibold"
-              :style="{ borderRightWidth: borderWidth }"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center text-[0.85em] font-semibold"
+              :style="{ borderRightWidth: `var(--rc-border-width)` }"
             >
               Assessments
             </th>
             <th
               v-if="caTotalColumn"
               rowspan="2"
-              class="border-border border-r px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
               :style="headStyle(caTotalColumn)"
             >
               <ScoreColumnHead
@@ -274,7 +274,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
               v-for="column in columnsAfterCa"
               :key="column.key"
               rowspan="2"
-              class="border-border border-r px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
               :style="headStyle(column)"
             >
               <ScoreColumnHead
@@ -286,13 +286,13 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
           </tr>
           <tr
             v-if="groupedCa"
-            class="border-b border-border"
-            :style="{ borderBottomWidth: borderWidth }"
+            class="border-b-[length:var(--rc-border-width)] border-[color:var(--rc-border-color)]"
+            :style="{ borderBottomWidth: innerRule }"
           >
             <th
               v-for="column in caColumns"
               :key="column.key"
-              class="border-border border-r px-1 py-0.5 text-center text-[0.85em] font-medium"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-0.5 text-center text-[0.85em] font-medium"
               :style="headStyle(column)"
             >
               <ScoreColumnHead
@@ -304,11 +304,15 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
           </tr>
 
           <!-- Single columns / summed -->
-          <tr v-else class="border-b border-border" :style="{ borderBottomWidth: borderWidth }">
+          <tr
+            v-else
+            class="border-b-[length:var(--rc-border-width)] border-[color:var(--rc-border-color)]"
+            :style="{ borderBottomWidth: innerRule }"
+          >
             <th
               v-for="column in displayColumns"
               :key="column.key"
-              class="border-border border-r px-1 py-1 text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-[0.85em] font-medium break-words text-muted-foreground"
               :class="column.key === 'subject' ? '' : 'text-center'"
               :style="headStyle(column)"
             >
@@ -325,15 +329,16 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
           <tr
             v-for="(row, rowIndex) in subjectRows"
             :key="row.id"
-            class="border-b border-border"
+            class="border-b-[length:var(--rc-border-width)] border-[color:var(--rc-border-color)]"
             :style="{
-              borderBottomWidth: rowIndex === subjectRows.length - 1 ? '0px' : borderWidth
+              borderBottomWidth:
+                rowIndex === subjectRows.length - 1 ? '0px' : 'var(--rc-border-width)'
             }"
           >
             <td
               v-for="(column, columnIndex) in displayColumns"
               :key="column.key"
-              class="border-border border-r px-1.5 py-1 align-middle break-words"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1.5 py-1 align-middle break-words"
               :class="[
                 column.key === 'subject' ? 'font-medium' : 'text-center',
                 isBlank(row, column.key) ? 'text-muted-foreground' : ''

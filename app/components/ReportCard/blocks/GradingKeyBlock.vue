@@ -26,7 +26,7 @@ const boundaries = computed(() =>
     <!-- Bulleted list: "● A  Distinction - 70% and above" -->
     <ul
       v-if="config.displayStyle === 'list'"
-      class="border-border w-fit space-y-0.5 rounded-[var(--rc-radius)] border px-2 py-1.5"
+      class="border-[color:var(--rc-border-color)] border-[length:var(--rc-outline-width)] w-fit space-y-0.5 rounded-[var(--rc-radius)] px-2 py-1.5"
     >
       <li
         v-for="boundary in boundaries"
@@ -43,7 +43,10 @@ const boundaries = computed(() =>
     </ul>
 
     <!-- Two-column table: chosen value, then the range on the right -->
-    <div v-else class="border-border w-fit overflow-hidden rounded-[var(--rc-radius)] border">
+    <div
+      v-else
+      class="border-[color:var(--rc-border-color)] border-[length:var(--rc-outline-width)] w-fit overflow-hidden rounded-[var(--rc-radius)]"
+    >
       <UiTable class="w-fit text-[10px]">
         <UiTableBody>
           <UiTableRow v-for="boundary in boundaries" :key="boundary.label">

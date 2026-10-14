@@ -172,6 +172,26 @@ export type FooterLayout = "stacked" | "columns"
 /** Column placement for a footer block under the `"columns"` footer layout. */
 export type BlockColumn = "full" | "left" | "right"
 
+/**
+ * Rules shared by every table and grid on the card — the scores table, the student-info grid, the
+ * grading key and custom tables. Set once on the template; blocks read them from CSS variables.
+ */
+export interface TableBorderSettings {
+  /** Rule colour (hex). */
+  color: string
+  /** Inner rule thickness in px (0 hides them). */
+  width: number
+  /** Outer border thickness in px (0 hides it). */
+  outlineWidth: number
+}
+
+export const DEFAULT_TABLE_BORDERS: TableBorderSettings = {
+  // Black rules print like the paper report cards these templates reproduce.
+  color: "#000000",
+  width: 1,
+  outlineWidth: 1
+}
+
 export interface ReportCardTemplate {
   id: string // typeid("template")
   /** Global font family for all report card text (blocks can override it). */
@@ -182,6 +202,8 @@ export interface ReportCardTemplate {
   footerLayout: FooterLayout
   /** Corner radius in px applied to the card's bordered boxes (0 = square, like a paper card). */
   borderRadius: number
+  /** Rules for every table and grid on the card. */
+  tableBorders: TableBorderSettings
   watermark: Watermark | null
   header: ReportCardBlock[]
   studentInfo: ReportCardBlock[]
@@ -252,8 +274,6 @@ export type StudentInfoBorderStyle = "outlined" | "borderless" | "bordered"
 export interface StudentInfoConfig {
   columns: 2 | 3 | 4
   borderStyle: StudentInfoBorderStyle
-  /** Grid line thickness in px (0 hides them); ignored when `borderStyle` is "borderless". */
-  borderWidth: number
   labelPlacement: LabelPlacement
   /** Font size / weight for the values (labels stay small and muted). */
   valueFontSize: number
@@ -299,8 +319,6 @@ export interface ScoresConfig {
   fontSize: number
   /** Table text weight; the heads keep their own emphasis. */
   fontWeight: FontWeight
-  /** Border thickness in px for the table's outer and inner rules (0 hides them). */
-  borderWidth: number
   /**
    * Shows each column's maximum in brackets under its heading ("Term Exam" over "(70)"), so every
    * head lines up. Off hides the brackets everywhere at once.
@@ -398,25 +416,17 @@ export interface SummaryConfig {
 export type SignatureMode = "blank" | "image"
 
 /** How a remarks section arranges its signature and comment. */
-export type RemarksLayout = "stacked" | "signature-comment"
-
+/** A comment + signature section (e.g. the class teacher's remark). */
 export interface RemarksSignatureConfig {
   visible: boolean
-  label: StyledText // e.g. "Class Teacher's Remark"
-  /** Whether the label sits above the comment or beside it. */
-  commentLabelPlacement: LabelPlacement
-  /**
-   * "stacked" = label/comment/signature in a column; "signature-comment" = signature left, comment
-   * right.
-   */
-  layout: RemarksLayout
+  label: StyledText // e.g. "Class Teacher's Comment:"
   showSignature: boolean
   signatureMode: SignatureMode
   signatureImage: string | null // NuxtHub Blob pathname
-  signatureLabel: StyledText // e.g. "Class Teacher"
+  signatureLabel: StyledText // e.g. "Class Teacher:"
 }
 
-/** A signature-only section (no comment), e.g. the director's. */
+/** A signature-only section (no comment), e.g. the head of the school. */
 export interface RemarksSignatureOnlyConfig {
   visible: boolean
   showSignature: boolean
@@ -427,7 +437,10 @@ export interface RemarksSignatureOnlyConfig {
 
 export interface RemarksConfig {
   teacher: RemarksSignatureConfig
-  principal: RemarksSignatureConfig
+  /**
+   * The head signature. Principal and director are the same person — this is that one slot, and
+   * `signatureLabel` names it per school ("Director:" for J.K., "Principal:" elsewhere).
+   */
   director: RemarksSignatureOnlyConfig
 }
 
@@ -482,7 +495,6 @@ export function createDefaultStudentInfoConfig(): StudentInfoConfig {
   return {
     columns: 3,
     borderStyle: "outlined",
-    borderWidth: 1,
     labelPlacement: "top",
     valueFontSize: 11,
     valueFontWeight: "600",
@@ -503,7 +515,6 @@ export function createDefaultScoresConfig(): ScoresConfig {
     columns: ["subject", "exam", "total", "grade", "remark"],
     fontSize: 12,
     fontWeight: "normal",
-    borderWidth: 1,
     showScoreMax: true
   }
 }
@@ -548,30 +559,19 @@ export function createDefaultRemarksConfig(): RemarksConfig {
   return {
     teacher: {
       visible: true,
-      label: { value: "Class Teacher's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
-      commentLabelPlacement: "top",
-      layout: "stacked",
+      label: { value: "Class Teacher's Comment:", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
-      signatureLabel: { value: "Class Teacher", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
+      signatureLabel: { value: "Class Teacher:", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
     },
-    principal: {
-      visible: true,
-      label: { value: "Principal's Remark", style: { ...DEFAULT_TEXT_STYLE, fontSize: 11 } },
-      commentLabelPlacement: "top",
-      layout: "stacked",
-      showSignature: true,
-      signatureMode: "blank",
-      signatureImage: null,
-      signatureLabel: { value: "Principal", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
-    },
+    // The head signature (principal or director — name it in the builder).
     director: {
       visible: false,
       showSignature: true,
       signatureMode: "blank",
       signatureImage: null,
-      signatureLabel: { value: "Director", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
+      signatureLabel: { value: "Director:", style: { ...DEFAULT_TEXT_STYLE, fontSize: 10 } }
     }
   }
 }
@@ -592,6 +592,7 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
     sidebarPosition: "right",
     footerLayout: "stacked",
     borderRadius: 8,
+    tableBorders: { ...DEFAULT_TABLE_BORDERS },
     watermark: null,
     header: [
       {
