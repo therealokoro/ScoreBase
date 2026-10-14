@@ -314,11 +314,16 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
   template must stay structurally identical to its reference PDF.
 - Inline `custom-table` rows carry `newLine`; a row with it set starts a fresh line inside the
   same bordered table (the fee strip and the next-term date are one table, two lines).
-- The J.K. People's Comprehensive Academy template is seeded by the
-  `seed:seed-jk-template` task (`server/tasks/seed/seed-jk-template.ts`, which also exports
-  `buildJkTemplate()` for tests). Nitro derives the runnable name from the path
-  (`<dir>:<file>`), so it is `seed:seed-jk-template` regardless of `meta.name`. Seeding
-  overwrites the single saved template, like "Reset to default".
+- **The app's default report card template IS the J.K. card**: `createDefaultReportCardTemplate()`
+  in `shared/constants/report-card.ts` builds it, and that is what a fresh KV, "Reset to default"
+  and the builder's loading placeholder all use. The seed task
+  `seed:seed-jk-template` (`server/tasks/seed/seed-jk-template.ts`, which re-exports
+  `buildJkTemplate()` for its tests) just writes that same default over the saved template. Nitro
+  derives the runnable name from the path (`<dir>:<file>`), so it is `seed:seed-jk-template`
+  regardless of `meta.name`. Seeding overwrites the single saved template, like "Reset to default".
+  Because the builder is locked (no add), the default's blocks — school info, student details,
+  scores, remarks, grading key, custom table — are the whole palette in practice; `summary` and
+  `psychomotor` remain in the registry but are not reachable from the default.
 
 ### Auto-imports
 
@@ -507,6 +512,11 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-14 — The J.K. card became the app's **default** template: `createDefaultReportCardTemplate()`
+  now builds it (moved out of the seed task), so a fresh KV, "Reset to default" and the builder's
+  placeholder all open on the school's real layout. `seed:seed-jk-template` is now a thin re-writer
+  of that default. Two store/KV tests that had been passing only because their fixtures failed
+  validation now use valid fixtures.
 - 2026-10-14 — J.K. report card review round 5. `ScoresConfig.textColor` gives the scores table one
   text colour for headings and body alike (the muted heading/dash styling is gone); the heading
   maximum line inherits it too. Every builder colour picker now hides behind

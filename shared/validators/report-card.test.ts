@@ -371,7 +371,9 @@ describe("backward compatibility defaults", () => {
     const template = createDefaultReportCardTemplate()
     const { footerLayout, ...withoutFooterLayout } = template
 
-    expect(footerLayout).toBe("stacked")
+    // The default template uses the two-column footer; a template saved without the field
+    // still falls back to the older stacked flow.
+    expect(footerLayout).toBe("columns")
     const parsed = ReportCardTemplateSchema.safeParse(withoutFooterLayout)
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.footerLayout).toBe("stacked")
@@ -381,7 +383,8 @@ describe("backward compatibility defaults", () => {
     const template = createDefaultReportCardTemplate()
     const { borderRadius, ...withoutRadius } = template
 
-    expect(borderRadius).toBe(8)
+    // The default card is square; a template saved without the field keeps the 8px fallback.
+    expect(borderRadius).toBe(0)
     const parsed = ReportCardTemplateSchema.safeParse(withoutRadius)
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.borderRadius).toBe(8)

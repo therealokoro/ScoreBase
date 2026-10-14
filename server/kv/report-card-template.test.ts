@@ -57,7 +57,11 @@ describe("getReportCardTemplate", () => {
 
     expect(template.sidebarPosition).toBe("left")
     // Sibling fields survive the merge.
-    expect(template.footer[1]?.type).toBe("remarks")
+    expect(template.footer.map((block) => block.type)).toEqual([
+      "remarks",
+      "grading-key",
+      "custom-table"
+    ])
   })
 
   it("replaces slot arrays wholesale instead of concatenating them", async () => {
@@ -72,14 +76,14 @@ describe("getReportCardTemplate", () => {
   })
 
   it("falls back to the defaults when the merged value is corrupt", async () => {
-    // A grading-key block without rows fails validation, so the merge result is corrupt.
+    // An invalid grading-key display fails validation, so the merge result is corrupt.
     vi.mocked(kv.get).mockResolvedValue({
       sidebar: [
         {
           id: "block_abcdefghjkmnpqrstvwxyz0001",
           type: "grading-key",
           hidden: false,
-          config: { title: styled("g"), rows: "nope" }
+          config: { title: styled("g"), display: "nope" }
         }
       ]
     })
@@ -95,8 +99,10 @@ function scoresBlock() {
     id: "block_abcdefghjkmnpqrstvwxyz0000",
     type: "scores",
     hidden: false,
+    fontFamily: null,
+    column: "full",
     config: {
-      caMode: "summed",
+      caDisplay: "summed",
       columns: ["subject", "caTotal", "exam", "total", "grade", "remark"]
     }
   }

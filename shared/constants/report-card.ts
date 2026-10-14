@@ -583,20 +583,40 @@ export function createDefaultRemarksConfig(): RemarksConfig {
 // Default template
 // ---------------------------------------------------------------------------
 
+// Colours sampled from the school's own printed report card.
+const JK_RED = "#CC0000" // school name
+const JK_GREEN = "#80AE7F" // ministry / inspectorate lines
+const JK_SLATE = "#5C697D" // descriptor, address, tel, PO box
+const JK_MOTTO_RED = "#EF4444" // motto text
+
+/** A `StyledText` with the default style plus overrides — keeps the template literal readable. */
+function styledText(value: string, style: Partial<StyledText["style"]> = {}): StyledText {
+  return { value, style: { ...DEFAULT_TEXT_STYLE, ...style } }
+}
+
+const CENTRED = { align: "center" } as const
+
 /**
- * Builds the default template with fresh IDs on every call. It is a function (not a constant)
- * because `typeid()` must not hand the same ID to two blocks, and because callers treat the result
- * as an owned working copy.
+ * Builds the app's default report card template — the J.K. People's Comprehensive Academy card. A
+ * fresh install, a reset, and the builder's loading placeholder all start from this, so the builder
+ * opens on the school's real layout rather than an empty one.
+ *
+ * It is a function (not a constant) because `typeid()` must not hand the same ID to two blocks, and
+ * because callers treat the result as an owned working copy. Every value is a default the admin can
+ * change in the builder — nothing here is hard-coded in the renderers.
  */
 export function createDefaultReportCardTemplate(): ReportCardTemplate {
   return {
     id: typeid("template").toString(),
     fontFamily: DEFAULT_FONT_FAMILY,
     sidebarPosition: "right",
-    footerLayout: "stacked",
-    borderRadius: 8,
-    tableBorders: { ...DEFAULT_TABLE_BORDERS },
+    // Grading key bottom-left, term info + head signature bottom-right.
+    footerLayout: "columns",
+    // Square corners and black 1px rules, like the school's printed card.
+    borderRadius: 0,
+    tableBorders: { color: "#000000", width: 1, outlineWidth: 1 },
     watermark: null,
+
     header: [
       {
         id: typeid("block").toString(),
@@ -604,9 +624,67 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         hidden: false,
         fontFamily: null,
         column: "full",
-        config: createDefaultSchoolInfoConfig()
+        config: {
+          logoPlacement: "left-right",
+          logoSize: "medium",
+          // Upload the coat of arms (left) and the school crest (right) in the builder.
+          logoPrimary: null,
+          logoSecondary: null,
+          schoolName: styledText("J.K. PEOPLE'S COMPREHENSIVE ACADEMY", {
+            fontSize: 22,
+            fontWeight: "bold",
+            color: JK_RED,
+            ...CENTRED
+          }),
+          // Free-form header lines, in printed order. The badge sits after the 3rd.
+          paragraphs: [
+            styledText("NASARAWA STATE MINISTRY OF EDUCATION", {
+              fontSize: 13,
+              fontWeight: "bold",
+              color: JK_GREEN,
+              ...CENTRED
+            }),
+            styledText("KARU EDUCATION INSPECTORATE AREA", {
+              fontSize: 10,
+              fontWeight: "bold",
+              color: JK_GREEN,
+              ...CENTRED
+            }),
+            styledText("(JUNIOR & SENIOR SECONDARY, SCIENCE & VOCATIONAL INSTITUTE)", {
+              fontSize: 13,
+              fontWeight: "bold",
+              color: JK_SLATE,
+              ...CENTRED
+            }),
+            styledText("Nyanya/Mararaba Boundary, New Karu L.G.A, Nasarawa State, Nigeria", {
+              fontSize: 10,
+              color: JK_SLATE,
+              ...CENTRED
+            }),
+            styledText("Tel: 09-2903303, 08036466111, 08036458122, 08058046033", {
+              fontSize: 10,
+              color: JK_SLATE,
+              ...CENTRED
+            }),
+            styledText("P.O.Box 477 Mararaba, Nasarawa State", {
+              fontSize: 10,
+              color: JK_SLATE,
+              ...CENTRED
+            }),
+            styledText("MOTTO: Contentment Follows Enlightenment", {
+              fontSize: 10,
+              fontWeight: "bold",
+              italic: true,
+              color: JK_MOTTO_RED,
+              ...CENTRED
+            })
+          ],
+          showGovernmentApprovedBadge: true,
+          badgeAfterParagraph: 3
+        }
       }
     ],
+
     studentInfo: [
       {
         id: typeid("block").toString(),
@@ -614,9 +692,27 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         hidden: false,
         fontFamily: null,
         column: "full",
-        config: createDefaultStudentInfoConfig()
+        config: {
+          columns: 4,
+          // Per-cell grid lines, matching the paper original.
+          borderStyle: "bordered",
+          labelPlacement: "top",
+          valueFontSize: 11,
+          valueFontWeight: "bold",
+          fields: [
+            { id: typeid("field").toString(), field: "session.name", label: "Session:" },
+            { id: typeid("field").toString(), field: "term.name", label: "Term:" },
+            { id: typeid("field").toString(), field: "student.id", label: "Student ID:" },
+            { id: typeid("field").toString(), field: "student.name", label: "Name:" },
+            { id: typeid("field").toString(), field: "student.class", label: "Class:" },
+            { id: typeid("field").toString(), field: "result.average", label: "Avg:" },
+            { id: typeid("field").toString(), field: "class.size", label: "No. In Class:" },
+            { id: typeid("field").toString(), field: "result.position", label: "Position:" }
+          ]
+        }
       }
     ],
+
     main: [
       {
         id: typeid("block").toString(),
@@ -624,26 +720,108 @@ export function createDefaultReportCardTemplate(): ReportCardTemplate {
         hidden: false,
         fontFamily: null,
         column: "full",
-        config: createDefaultScoresConfig()
+        config: {
+          // CA breakdown grouped under "Assessments" plus a separate CA Total column.
+          caDisplay: "breakdown-grouped-total",
+          // CA columns are inserted after the subject automatically.
+          columns: [
+            "subject",
+            "exam",
+            "total",
+            "grade",
+            "classAverage",
+            "subjectPosition",
+            "remark"
+          ],
+          columnLabels: {
+            subject: "Subjects",
+            exam: "Term Exam",
+            total: "Term Total",
+            grade: "Term Grade",
+            classAverage: "Class Avg.",
+            subjectPosition: "Subject Position",
+            remark: "Remarks"
+          },
+          // The maximums come from the result settings and print under each heading.
+          fontSize: 12,
+          fontWeight: "normal",
+          textColor: "#000000",
+          showScoreMax: true
+        }
       }
     ],
+
     sidebar: [],
+
     footer: [
       {
-        id: typeid("block").toString(),
-        type: "summary",
-        hidden: false,
-        fontFamily: null,
-        column: "full",
-        config: createDefaultSummaryConfig()
-      },
-      {
+        // One remarks block: the class teacher's row, with the head signature beneath it.
         id: typeid("block").toString(),
         type: "remarks",
         hidden: false,
         fontFamily: null,
         column: "full",
-        config: createDefaultRemarksConfig()
+        config: {
+          teacher: {
+            visible: true,
+            label: styledText("Class Teacher's Comment:", { fontSize: 11, fontWeight: "bold" }),
+            showSignature: true,
+            signatureMode: "blank",
+            signatureImage: null,
+            signatureLabel: styledText("Class Teacher:", { fontSize: 11, fontWeight: "bold" })
+          },
+          // Principal and director are the same person; this school calls them the director.
+          director: {
+            visible: true,
+            showSignature: true,
+            signatureMode: "blank",
+            signatureImage: null,
+            signatureLabel: styledText("Director:", { fontSize: 11, fontWeight: "bold" })
+          }
+        }
+      },
+      {
+        // Bottom-left.
+        id: typeid("block").toString(),
+        type: "grading-key",
+        hidden: false,
+        fontFamily: null,
+        column: "left",
+        config: {
+          title: styledText("Grading Keys", { fontSize: 11, fontWeight: "bold" }),
+          display: "grade",
+          // Bulleted list ("● A Distinction - 70% and above") rather than a table.
+          displayStyle: "list"
+        }
+      },
+      {
+        // Tuition / P.T.A / Total on the first line, the next-term date on the second — one table.
+        id: typeid("block").toString(),
+        type: "custom-table",
+        hidden: false,
+        fontFamily: null,
+        column: "right",
+        config: {
+          variant: "static",
+          layout: "inline",
+          title: styledText(""),
+          rows: [
+            {
+              id: typeid("row").toString(),
+              label: "Tuition Fee",
+              value: "N68,000",
+              newLine: false
+            },
+            { id: typeid("row").toString(), label: "P.T.A", value: "N1,000", newLine: false },
+            { id: typeid("row").toString(), label: "Total", value: "N69,000", newLine: false },
+            {
+              id: typeid("row").toString(),
+              label: "Next Term Begins",
+              value: "September 7, 2026",
+              newLine: true
+            }
+          ]
+        }
       }
     ]
   }
