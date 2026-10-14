@@ -5,11 +5,20 @@ import type { RemarksConfig } from "~~/shared/constants/report-card"
 import { resolveView } from "./placeholder"
 import { textStyle } from "./text"
 
-const props = defineProps<{
-  config: RemarksConfig
-  data?: ReportCardData | null
-  blockId?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    config: RemarksConfig
+    data?: ReportCardData | null
+    blockId?: string
+    /**
+     * Which row to draw. The two-column footer renders the teacher row across the full width and
+     * the head signature at the end of the right column (so it prints under the term-info table);
+     * everywhere else the block draws both rows itself.
+     */
+    part?: "all" | "teacher" | "director"
+  }>(),
+  { part: "all" }
+)
 
 function assetUrl(pathname: string | null): string | undefined {
   return pathname ? `/images/${pathname}` : undefined
@@ -30,7 +39,10 @@ function comment(role: "teacher" | "director"): string {
       comment follows it after a single space. The head signature (principal/director) sits below,
       right-aligned.
     -->
-    <div v-if="config.teacher.visible" class="flex items-end justify-between gap-4">
+    <div
+      v-if="config.teacher.visible && part !== 'director'"
+      class="flex items-end justify-between gap-4"
+    >
       <div v-if="config.teacher.showSignature" class="space-y-0.5">
         <img
           v-if="config.teacher.signatureMode === 'image' && config.teacher.signatureImage"
@@ -56,7 +68,7 @@ function comment(role: "teacher" | "director"): string {
     </div>
 
     <!-- Head signature: the same person whether the school calls them principal or director. -->
-    <div v-if="config.director.visible" class="flex justify-end">
+    <div v-if="config.director.visible && part !== 'teacher'" class="flex justify-end">
       <div
         v-if="config.director.signatureMode === 'image' && config.director.signatureImage"
         class="space-y-0.5 text-right"

@@ -170,6 +170,7 @@ export const ScoresConfigSchema = z
     // Defaulted so templates saved before these existed still validate.
     fontSize: z.number().int().min(8).max(20).default(12),
     fontWeight: z.enum(FONT_WEIGHTS).default("normal"),
+    textColor: HexColorSchema.default("#000000"),
     showScoreMax: z.boolean().default(true)
   })
   .refine((config) => config.columns[0] === "subject", {

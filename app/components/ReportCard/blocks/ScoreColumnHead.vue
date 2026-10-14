@@ -13,5 +13,5 @@ defineProps<{
 
 <template>
   <span class="block">{{ label }}</span>
-  <span v-if="showMax && max" class="text-muted-foreground block text-[0.9em]">({{ max }})</span>
+  <span v-if="showMax && max" class="block text-[0.9em]">({{ max }})</span>
 </template>

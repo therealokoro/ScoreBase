@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
-import type { ReportCardBlock, ReportCardTemplate } from "~~/shared/constants/report-card"
+import type {
+  RemarksBlock as RemarksBlockType,
+  ReportCardBlock,
+  ReportCardTemplate
+} from "~~/shared/constants/report-card"
 import { REPORT_CARD_SLOTS } from "~~/shared/constants/report-card"
 
 import { getBlockDefinition } from "./blocks/registry"
+import RemarksBlock from "./blocks/RemarksBlock.vue"
 
 const props = withDefaults(
   defineProps<{
@@ -100,6 +105,22 @@ const footerRows = computed<FooterRow[]>(() => {
   }
   return rows
 })
+
+/**
+ * Full-width remarks blocks in a two-column footer. Their head signature is drawn at the end of the
+ * right column instead of under the teacher row, so it prints below the term-info table — the block
+ * still owns one config, it is just rendered in two places.
+ */
+const splitRemarksBlocks = computed<RemarksBlockType[]>(() => {
+  if (props.template.footerLayout !== "columns") return []
+  if (!footerRows.value.some((row) => row.kind === "columns")) return []
+  return props.template.footer.filter(
+    (block): block is RemarksBlockType =>
+      block.type === "remarks" && !block.hidden && block.column === "full"
+  )
+})
+
+const splitRemarks = computed(() => splitRemarksBlocks.value.length > 0)
 </script>
 
 <template>
@@ -212,7 +233,17 @@ const footerRows = computed<FooterRow[]>(() => {
             <div v-if="row.kind === 'full'" class="space-y-4">
               <template v-for="block in row.blocks" :key="block.id">
                 <div :style="{ fontFamily: block.fontFamily ?? undefined }">
+                  <!-- Split remarks: the teacher row keeps the full width here, its head signature
+                       closes the right column so it prints under the term-info table. -->
+                  <RemarksBlock
+                    v-if="splitRemarks && block.type === 'remarks'"
+                    :config="block.config"
+                    :data="data ?? null"
+                    :block-id="block.id"
+                    part="teacher"
+                  />
                   <component
+                    v-else
                     :is="getBlockDefinition(block.type).component"
                     :config="block.config"
                     :data="data ?? null"
@@ -244,6 +275,18 @@ const footerRows = computed<FooterRow[]>(() => {
                       :config="block.config"
                       :data="data ?? null"
                       :block-id="block.id"
+                    />
+                  </div>
+                </template>
+
+                <!-- Head signatures of the split remarks blocks, under the right column's content -->
+                <template v-for="block in splitRemarksBlocks" :key="`head-${block.id}`">
+                  <div :style="{ fontFamily: block.fontFamily ?? undefined }">
+                    <RemarksBlock
+                      :config="block.config"
+                      :data="data ?? null"
+                      :block-id="block.id"
+                      part="director"
                     />
                   </div>
                 </template>

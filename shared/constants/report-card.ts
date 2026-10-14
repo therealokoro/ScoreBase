@@ -319,6 +319,8 @@ export interface ScoresConfig {
   fontSize: number
   /** Table text weight; the heads keep their own emphasis. */
   fontWeight: FontWeight
+  /** One text colour for the whole table — headings and body cells alike (hex). */
+  textColor: string
   /**
    * Shows each column's maximum in brackets under its heading ("Term Exam" over "(70)"), so every
    * head lines up. Off hides the brackets everywhere at once.
@@ -515,6 +517,7 @@ export function createDefaultScoresConfig(): ScoresConfig {
     columns: ["subject", "exam", "total", "grade", "remark"],
     fontSize: 12,
     fontWeight: "normal",
+    textColor: "#000000",
     showScoreMax: true
   }
 }

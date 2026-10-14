@@ -206,10 +206,6 @@ function cellValue(row: ComputedSubjectRow, key: ScoreColumnId): string | number
   }
 }
 
-function isBlank(row: ComputedSubjectRow, key: ScoreColumnId): boolean {
-  return cellValue(row, key) === "—"
-}
-
 const subjectRows = computed(() => resolveView(props.data).subjectRows)
 </script>
 
@@ -222,7 +218,11 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
       <!-- No scroll: fixed column widths keep the table inside the A4 width; heads wrap. -->
       <table
         class="w-full table-fixed"
-        :style="{ fontSize: `${config.fontSize}px`, fontWeight: config.fontWeight }"
+        :style="{
+          fontSize: `${config.fontSize}px`,
+          fontWeight: config.fontWeight,
+          color: config.textColor
+        }"
       >
         <colgroup>
           <col
@@ -242,7 +242,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
               v-for="column in columnsBeforeCa"
               :key="column.key"
               rowspan="2"
-              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 align-middle text-[0.85em] font-medium break-words"
               :style="headStyle(column)"
             >
               <ScoreColumnHead
@@ -261,7 +261,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
             <th
               v-if="caTotalColumn"
               rowspan="2"
-              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words"
               :style="headStyle(caTotalColumn)"
             >
               <ScoreColumnHead
@@ -274,7 +274,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
               v-for="column in columnsAfterCa"
               :key="column.key"
               rowspan="2"
-              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-center align-middle text-[0.85em] font-medium break-words"
               :style="headStyle(column)"
             >
               <ScoreColumnHead
@@ -312,7 +312,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
             <th
               v-for="column in displayColumns"
               :key="column.key"
-              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-[0.85em] font-medium break-words text-muted-foreground"
+              class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1 py-1 text-[0.85em] font-medium break-words"
               :class="column.key === 'subject' ? '' : 'text-center'"
               :style="headStyle(column)"
             >
@@ -339,10 +339,7 @@ const subjectRows = computed(() => resolveView(props.data).subjectRows)
               v-for="(column, columnIndex) in displayColumns"
               :key="column.key"
               class="border-[color:var(--rc-border-color)] border-r-[length:var(--rc-border-width)] px-1.5 py-1 align-middle break-words"
-              :class="[
-                column.key === 'subject' ? 'font-medium' : 'text-center',
-                isBlank(row, column.key) ? 'text-muted-foreground' : ''
-              ]"
+              :class="column.key === 'subject' ? 'font-medium' : 'text-center'"
               :style="{ borderRightWidth: cellRightWidth(columnIndex) }"
             >
               {{ cellValue(row, column.key) }}

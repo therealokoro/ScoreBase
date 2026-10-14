@@ -396,6 +396,7 @@ describe("backward compatibility defaults", () => {
     expect(parsed.success).toBe(true)
     expect(parsed.success && parsed.data.fontSize).toBe(12)
     expect(parsed.success && parsed.data.fontWeight).toBe("normal")
+    expect(parsed.success && parsed.data.textColor).toBe("#000000")
     expect(parsed.success && parsed.data.showScoreMax).toBe(true)
   })
 

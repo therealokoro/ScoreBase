@@ -213,6 +213,14 @@ function moveColumn(key: ScoreColumnId, direction: -1 | 1) {
         />
       </div>
 
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-muted-foreground text-[10px]">Text colour</span>
+        <ReportCardBuilderColorPickerPopover
+          v-model="config.textColor"
+          label="Score table text colour"
+        />
+      </div>
+
       <label class="flex cursor-pointer items-center gap-2 text-xs">
         <UiSwitch v-model="config.showScoreMax" />
         Show column maximums

@@ -154,13 +154,11 @@ const watermarkMode = computed<WatermarkMode>({
           </span>
         </div>
 
-        <div class="space-y-1">
+        <div class="flex items-center justify-between gap-2">
           <span class="text-muted-foreground text-[10px]">Colour</span>
-          <UiColorPicker
+          <ReportCardBuilderColorPickerPopover
             v-model="template.tableBorders.color"
-            :show-format-toggle="false"
-            :show-result="false"
-            :show-presets="false"
+            label="Table border colour"
           />
         </div>
       </div>

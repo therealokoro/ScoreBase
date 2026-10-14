@@ -171,6 +171,7 @@ export function buildJkTemplate(): ReportCardTemplate {
           // The maximums come from the result settings and print under each heading.
           fontSize: 12,
           fontWeight: "normal",
+          textColor: "#000000",
           showScoreMax: true
         }
       }

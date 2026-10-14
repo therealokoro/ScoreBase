@@ -107,22 +107,9 @@ onClickOutside(root, () => (styleOpen.value = false))
             @click="text.style.align = option.value"
           />
 
-          <button
-            type="button"
-            class="border-border size-6 shrink-0 rounded border shadow-xs"
-            :style="{ backgroundColor: text.style.color }"
-            aria-label="Text colour"
-            @click="styleOpen = false"
-          />
+          <ReportCardBuilderColorPickerPopover v-model="text.style.color" label="Text colour" />
         </div>
       </div>
-
-      <UiColorPicker
-        v-model="text.style.color"
-        :show-format-toggle="false"
-        :show-result="false"
-        :show-presets="false"
-      />
     </div>
   </div>
 </template>

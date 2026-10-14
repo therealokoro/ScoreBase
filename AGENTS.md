@@ -302,7 +302,13 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
 - `RemarksConfig` has exactly two sections: `teacher` (label + signature) and `director`, the head
   signature — principal and director are the same person, and `signatureLabel` names the slot per
   school. There is no layout or comment-label-placement option: the teacher row always prints the
-  signature at the far left and the comment at the far right of one line.
+  signature at the far left and the comment at the far right of one line. In a two-column footer,
+  `TemplatePreview` renders the block in two parts (`part="teacher"` full width, `part="director"`
+  at the end of the right column) so the head signature prints under the term-info table while the
+  config stays a single block. With no column row, or outside the two-column footer, the block
+  draws both rows itself.
+- Colour controls in the builder hide behind `ReportCardBuilder/ColorPickerPopover.vue` (a swatch
+  that reveals `UiColorPicker` in a popover) — never render a picker inline in a panel.
 - The builder is **locked** on this branch: `BlockSlotList.vue` lists the existing blocks with
   hide/reorder/font/column/config controls only — there is no add, duplicate or delete. The J.K.
   template must stay structurally identical to its reference PDF.
@@ -501,6 +507,11 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-14 — J.K. report card review round 5. `ScoresConfig.textColor` gives the scores table one
+  text colour for headings and body alike (the muted heading/dash styling is gone); the heading
+  maximum line inherits it too. Every builder colour picker now hides behind
+  `ReportCardBuilder/ColorPickerPopover.vue`. In the two-column footer the remarks block renders in
+  two parts so the head signature prints below the term-info table without becoming a second block.
 - 2026-10-14 — J.K. report card review round 4. `RemarksConfig` merged: one remarks block holds the
   class teacher's row plus the head signature (`director` = principal or director, labelled per
   school); `layout` and `commentLabelPlacement` are gone (the row is always signature-left /
