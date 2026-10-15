@@ -2,6 +2,8 @@
 import { createDefaultReportCardTemplate } from "~~/shared/constants/report-card"
 
 import { ICONS } from "#shared/constants/icons"
+import { normalizeReportCardData } from "~/components/ReportCard/blocks/placeholder"
+import { buildReportCardCsv, safeFileName } from "~/utils/report-card-export"
 
 definePageMeta({ layout: "fullscreen" })
 
@@ -14,6 +16,21 @@ const { isAdmin } = useAuth()
 const { data, isPending } = useGetReportCard(scoresheetId)
 const card = computed(() => data.value)
 
+/** The normalised view model the renderer reads — the export uses the same values. */
+const view = computed(() => (card.value ? normalizeReportCardData(card.value) : null))
+
+/**
+ * The document title, so printing to PDF or saving the page carries a meaningful name (browsers use
+ * it as the default filename): "Adewumi Ajibola Victory's 2025/2026 3rd Term Result".
+ */
+const cardTitle = computed(() => {
+  const current = view.value
+  if (!current) return "Report Card"
+  return `${current.studentName}'s ${current.sessionName} ${current.termName} Result`
+})
+
+useHead({ title: cardTitle })
+
 const { template, editorTab, selectedBlockId, saveStatus, isResetting, resetToDefault } =
   useReportCardTemplateEditor()
 
@@ -24,6 +41,23 @@ const sheetOpen = ref(false)
 // the bar is print:hidden, leaving only the A4 document for window.print().
 function initPrintAction() {
   window.print()
+}
+
+/** Spreadsheet export: a UTF-8 CSV, which Excel opens directly. */
+function exportSpreadsheet() {
+  const current = view.value
+  if (!current) return
+
+  // The BOM makes Excel read the file as UTF-8 (the card prints "—" and other non-ASCII glyphs).
+  const blob = new Blob([`\uFEFF${buildReportCardCsv(current)}`], {
+    type: "text/csv;charset=utf-8"
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = `${safeFileName(cardTitle.value)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 </script>
 
@@ -61,8 +95,18 @@ function initPrintAction() {
             />
           </UiDropdownMenuTrigger>
           <UiDropdownMenuContent align="end">
-            <UiDropdownMenuItem :icon="ICONS.spreadsheet" title="Excel spreadsheet" />
-            <UiDropdownMenuItem :icon="ICONS.document" title="PDF document" />
+            <UiDropdownMenuItem
+              :icon="ICONS.spreadsheet"
+              title="Excel (CSV)"
+              :disabled="!view"
+              @select="exportSpreadsheet()"
+            />
+            <UiDropdownMenuItem
+              :icon="ICONS.document"
+              title="PDF (opens the print dialog)"
+              :disabled="!view"
+              @select="initPrintAction()"
+            />
           </UiDropdownMenuContent>
         </UiDropdownMenu>
 

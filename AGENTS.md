@@ -271,6 +271,12 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
 
 - The viewer page calls `window.print()`; dashboard chrome (sidebar, header, action bar)
   is hidden with Tailwind `print:hidden`.
+- The full view sets its own document title from the student's data
+  ("Aminu Obiora's 2026/2027 Session 1st Term Result"), which is what a printed/saved PDF is
+  named after. Its "Export As" menu is real: Excel downloads a UTF-8 CSV built by
+  `app/utils/report-card-export.ts` (from the same normalised view the renderer reads, so the
+  numbers match the card; headings there are the export's own, not the template's column labels),
+  and PDF reuses the print path.
 - The report card wrapper is tagged `report-card-print-root`, and
   `app/assets/css/tailwind.css` sets `@page { size: A4 }`.
 - The renderer is `app/components/ReportCard/TemplatePreview.vue`. It scales the A4 canvas to
@@ -512,6 +518,10 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-15 — The full report card view is titled from the student's data and its "Export As" menu
+  works: Excel writes a CSV (`app/utils/report-card-export.ts`), PDF opens the print dialog. Class
+  average and subject position moved into `shared/utils/report-card.ts`
+  (`subjectClassAverage`, `subjectClassRank`) so the card and the export share one formula.
 - 2026-10-14 — The J.K. card became the app's **default** template: `createDefaultReportCardTemplate()`
   now builds it (moved out of the seed task), so a fresh KV, "Reset to default" and the builder's
   placeholder all open on the school's real layout. `seed:seed-jk-template` is now a thin re-writer

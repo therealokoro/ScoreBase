@@ -3,7 +3,7 @@ import type { CSSProperties } from "vue"
 import type { ReportCardData } from "~~/server/queries/reportCard.query"
 import type { ScoreColumnId, ScoresConfig } from "~~/shared/constants/report-card"
 import type { ComputedSubjectRow, SubjectClassData } from "~~/shared/utils/report-card"
-import { toOrdinal } from "~~/shared/utils/report-card"
+import { subjectClassAverage, subjectClassRank, toOrdinal } from "~~/shared/utils/report-card"
 
 import { resolveView } from "./placeholder"
 import ScoreColumnHead from "./ScoreColumnHead.vue"
@@ -161,20 +161,14 @@ function classLowest(row: ComputedSubjectRow): string {
 }
 
 function classAverage(row: ComputedSubjectRow): string {
-  const totals = classDataFor(row)?.totals ?? []
-  if (totals.length === 0) return "—"
-  const average = totals.reduce((sum, total) => sum + total, 0) / totals.length
-  return `${average.toFixed(2)}%`
+  const average = subjectClassAverage(classDataFor(row)?.totals ?? [])
+  return average === null ? "—" : `${average.toFixed(2)}%`
 }
 
 /** Dense rank of this student's subject total, matching the overall position logic. */
 function subjectPosition(row: ComputedSubjectRow): string {
-  if (row.total === null) return "—"
-  const totals = classDataFor(row)?.totals ?? []
-  if (totals.length === 0) return "—"
-  const sorted = [...new Set(totals)].sort((a, b) => b - a)
-  const rank = sorted.indexOf(row.total) + 1
-  return rank > 0 ? toOrdinal(rank) : "—"
+  const rank = subjectClassRank(row.total, classDataFor(row)?.totals ?? [])
+  return rank === null ? "—" : toOrdinal(rank)
 }
 
 function cellValue(row: ComputedSubjectRow, key: ScoreColumnId): string | number {

@@ -8,6 +8,8 @@ import {
   formatGradeRange,
   formatPosition,
   getGradeBoundary,
+  subjectClassAverage,
+  subjectClassRank,
   toOrdinal
 } from "./report-card"
 import type { ScoresheetInput } from "./report-card"
@@ -175,6 +177,29 @@ describe("computeSubjectClassData", () => {
     const orphaned = sheet("a", "A", [20, 20], 60, null)
 
     expect(computeSubjectClassData([orphaned])).toEqual([])
+  })
+})
+
+describe("subjectClassAverage / subjectClassRank", () => {
+  const pool = [88, 79, 71, 64, 55, 48]
+
+  it("averages the subject's class pool and ranks one student's total in it", () => {
+    expect(subjectClassAverage(pool)).toBeCloseTo(67.5)
+    expect(subjectClassRank(88, pool)).toBe(1)
+    expect(subjectClassRank(48, pool)).toBe(6)
+  })
+
+  it("returns null rather than faking a value when the pool or total is missing", () => {
+    expect(subjectClassAverage([])).toBeNull()
+    expect(subjectClassRank(50, [])).toBeNull()
+    expect(subjectClassRank(null, pool)).toBeNull()
+    // A total that is not in the pool has no rank.
+    expect(subjectClassRank(90, pool)).toBeNull()
+  })
+
+  it("gives tied totals the same dense rank", () => {
+    expect(subjectClassRank(70, [80, 70, 70, 60])).toBe(2)
+    expect(subjectClassRank(60, [80, 70, 70, 60])).toBe(3)
   })
 })
 

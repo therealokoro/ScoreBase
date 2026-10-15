@@ -92,6 +92,23 @@ export function formatGradeRange(boundary: { min: number; max: number }): string
   return `${boundary.min}% - ${boundary.max}%`
 }
 
+/** Mean of a subject's class-wide total pool, or null when the pool is empty. */
+export function subjectClassAverage(totals: number[]): number | null {
+  if (totals.length === 0) return null
+  return totals.reduce((sum, total) => sum + total, 0) / totals.length
+}
+
+/**
+ * Dense rank (1-based) of one student's subject total within the class pool for that subject, or
+ * null when the student has no total or the pool is empty. Ties share a rank.
+ */
+export function subjectClassRank(total: number | null, totals: number[]): number | null {
+  if (total === null || totals.length === 0) return null
+  const sorted = [...new Set(totals)].sort((a, b) => b - a)
+  const rank = sorted.indexOf(total) + 1
+  return rank > 0 ? rank : null
+}
+
 /**
  * Formats a position rank for display, applying positionDisplayMode and positionTopN rules. Returns
  * an empty string when the position should not be shown on this student's report card.
