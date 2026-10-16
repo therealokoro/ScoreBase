@@ -8,9 +8,9 @@ Reactive Storage with async support.
 ## Usage
 
 ```ts
-import { useStorageAsync } from '@vueuse/core'
+import { useStorageAsync } from "@vueuse/core"
 
-const accessToken = useStorageAsync('access.token', '', SomeAsyncStorage)
+const accessToken = useStorageAsync("access.token", "", SomeAsyncStorage)
 
 // accessToken.value may be empty before the async storage is ready
 console.log(accessToken.value) // ""
@@ -23,10 +23,10 @@ setTimeout(() => {
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| serializer | `SerializerAsync&lt;T&gt;` | - | Custom data serialization |
-| onReady | `(value: T) =&gt; void` | - | On first value loaded hook. |
+| Option     | Type                       | Default | Description                 |
+| ---------- | -------------------------- | ------- | --------------------------- |
+| serializer | `SerializerAsync&lt;T&gt;` | -       | Custom data serialization   |
+| onReady    | `(value: T) =&gt; void`    | -       | On first value loaded hook. |
 
 ## Reference
 

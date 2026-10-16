@@ -74,7 +74,9 @@ const addSubjectScore = os.addSubjectScore.handler(async ({ input, errors, conte
     const [customCount] = await db
       .select({ value: count() })
       .from(subjectScores)
-      .where(and(eq(subjectScores.scoresheetId, input.scoresheetId), isNull(subjectScores.subjectId)))
+      .where(
+        and(eq(subjectScores.scoresheetId, input.scoresheetId), isNull(subjectScores.subjectId))
+      )
 
     if ((customCount?.value ?? 0) >= MAX_CUSTOM_SUBJECTS) {
       throw errors.PRECONDITION_FAILED({ message: "This scoresheet has too many custom subjects" })
@@ -276,7 +278,9 @@ const bulkUpdateSubjectScores = os.bulkUpdateSubjectScores.handler(
 
       if (examEntries.length > 0) {
         const cases = sql.join(
-          examEntries.map((entry) => sql`when ${subjectScores.id} = ${entry.id} then ${entry.exam}`),
+          examEntries.map(
+            (entry) => sql`when ${subjectScores.id} = ${entry.id} then ${entry.exam}`
+          ),
           sql` `
         )
         await tx.run(

@@ -28,40 +28,40 @@
 </template>
 
 <script lang="ts" setup generic="T extends any">
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<{
-    class?: HTMLAttributes["class"];
-    id?: string;
-    name?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    modelValue?: any;
-    multiple?: boolean;
-    size?: number;
-    autofocus?: boolean;
-    trailingIcon?: string;
-  }>();
-  const styles = tv({
-    base: "peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 inline-flex w-full cursor-pointer appearance-none items-center rounded-md border bg-transparent text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-    variants: {
-      multiple: {
-        true: "[&_option:checked]:bg-accent py-1 *:px-3 *:py-1",
-        false: "h-9 ps-3 pe-8",
-      },
-    },
-  });
-
-  defineOptions({ inheritAttrs: false });
-  const select = ref<HTMLSelectElement | null>(null);
-  defineEmits<{ "update:modelValue": [value: T] }>();
-  const localModel = defineModel<T>();
-
-  onMounted(() => {
-    if (props.autofocus) {
-      select.value?.focus();
+const props = defineProps<{
+  class?: HTMLAttributes["class"]
+  id?: string
+  name?: string
+  placeholder?: string
+  disabled?: boolean
+  required?: boolean
+  modelValue?: any
+  multiple?: boolean
+  size?: number
+  autofocus?: boolean
+  trailingIcon?: string
+}>()
+const styles = tv({
+  base: "peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 inline-flex w-full cursor-pointer appearance-none items-center rounded-md border bg-transparent text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+  variants: {
+    multiple: {
+      true: "[&_option:checked]:bg-accent py-1 *:px-3 *:py-1",
+      false: "h-9 ps-3 pe-8"
     }
-  });
+  }
+})
+
+defineOptions({ inheritAttrs: false })
+const select = ref<HTMLSelectElement | null>(null)
+defineEmits<{ "update:modelValue": [value: T] }>()
+const localModel = defineModel<T>()
+
+onMounted(() => {
+  if (props.autofocus) {
+    select.value?.focus()
+  }
+})
 </script>

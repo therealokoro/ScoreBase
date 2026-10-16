@@ -1,5 +1,5 @@
 ---
-category: '@Math'
+category: "@Math"
 ---
 
 # useRound
@@ -9,7 +9,7 @@ Reactive `Math.round`.
 ## Usage
 
 ```ts
-import { useRound } from '@vueuse/math'
+import { useRound } from "@vueuse/math"
 
 const value = ref(20.49)
 const result = useRound(value) // 20
@@ -25,7 +25,5 @@ const result = useRound(value) // 20
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useRound(
-  value: MaybeRefOrGetter<number>,
-): ComputedRef<number>
+export declare function useRound(value: MaybeRefOrGetter<number>): ComputedRef<number>
 ```

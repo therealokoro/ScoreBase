@@ -8,7 +8,7 @@ Watch for an array with additions and removals.
 ## Usage
 
 ```ts
-import { watchArray } from '@vueuse/core'
+import { watchArray } from "@vueuse/core"
 
 const list = ref([1, 2, 3])
 

@@ -9,7 +9,7 @@ A boolean switcher with utility functions.
 ## Usage
 
 ```ts
-import { useToggle } from '@vueuse/core'
+import { useToggle } from "@vueuse/core"
 
 const [value, toggle] = useToggle()
 ```
@@ -17,7 +17,7 @@ const [value, toggle] = useToggle()
 When you pass a ref, `useToggle` will return a simple toggle function instead:
 
 ```ts
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark, useToggle } from "@vueuse/core"
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
@@ -42,11 +42,11 @@ const newValue = toggle() // returns the new value after toggling
 You can use custom truthy and falsy values instead of `true` and `false`:
 
 ```ts
-import { useToggle } from '@vueuse/core'
+import { useToggle } from "@vueuse/core"
 
-const [value, toggle] = useToggle('on', {
-  truthyValue: 'on',
-  falsyValue: 'off',
+const [value, toggle] = useToggle("on", {
+  truthyValue: "on",
+  falsyValue: "off"
 })
 
 toggle() // 'off'
@@ -56,15 +56,15 @@ toggle() // 'on'
 The custom values can also be reactive:
 
 ```ts
-import { useToggle } from '@vueuse/core'
-import { ref } from 'vue'
+import { useToggle } from "@vueuse/core"
+import { ref } from "vue"
 
-const truthy = ref('yes')
-const falsy = ref('no')
+const truthy = ref("yes")
+const falsy = ref("no")
 
-const [value, toggle] = useToggle('yes', {
+const [value, toggle] = useToggle("yes", {
   truthyValue: truthy,
-  falsyValue: falsy,
+  falsyValue: falsy
 })
 ```
 
@@ -90,14 +90,10 @@ export interface UseToggleOptions<Truthy, Falsy> {
 }
 export declare function useToggle<Truthy, Falsy, T = Truthy | Falsy>(
   initialValue: Ref<T>,
-  options?: UseToggleOptions<Truthy, Falsy>,
+  options?: UseToggleOptions<Truthy, Falsy>
 ): (value?: T) => T
-export declare function useToggle<
-  Truthy = true,
-  Falsy = false,
-  T = Truthy | Falsy,
->(
+export declare function useToggle<Truthy = true, Falsy = false, T = Truthy | Falsy>(
   initialValue?: T,
-  options?: UseToggleOptions<Truthy, Falsy>,
+  options?: UseToggleOptions<Truthy, Falsy>
 ): [ShallowRef<T>, (value?: T) => T]
 ```

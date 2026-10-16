@@ -8,16 +8,16 @@ Utility for authoring disposable directives. Reactive effects created within dir
 ## Usage
 
 ```ts
-import { useMouse } from '@vueuse/core'
-import { createDisposableDirective } from '@vueuse/shared'
+import { useMouse } from "@vueuse/core"
+import { createDisposableDirective } from "@vueuse/shared"
 
 export const VDirective = createDisposableDirective({
   mounted(el, binding) {
     const value = binding.value
-    if (typeof value === 'function') {
+    if (typeof value === "function") {
       // `useMouse` event listener will be removed automatically when directive is unmounted
       const { x, y } = useMouse()
-      watch(x, val => value(val))
+      watch(x, (val) => value(val))
     }
   }
 })
@@ -25,14 +25,14 @@ export const VDirective = createDisposableDirective({
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| binding | `Ref` |
-| string | `Ref` |
-| vNode | `Ref` |
+| Name     | Type  |
+| -------- | ----- |
+| binding  | `Ref` |
+| string   | `Ref` |
+| vNode    | `Ref` |
 | prevNode | `Ref` |
-| binding | `Ref` |
-| vNode | `Ref` |
+| binding  | `Ref` |
+| vNode    | `Ref` |
 
 ## Reference
 

@@ -10,23 +10,23 @@
 </template>
 
 <script lang="ts">
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const itemGroupStyles = tv({
-    base: "group/item-group flex flex-col",
-  });
+export const itemGroupStyles = tv({
+  base: "group/item-group flex flex-col"
+})
 
-  export type ItemGroupProps = PrimitiveProps & {
-    /** Additional classes to apply to the parent element. */
-    class?: HTMLAttributes["class"];
-  };
+export type ItemGroupProps = PrimitiveProps & {
+  /** Additional classes to apply to the parent element. */
+  class?: HTMLAttributes["class"]
+}
 </script>
 
 <script lang="ts" setup>
-  const props = withDefaults(defineProps<ItemGroupProps>(), {});
+const props = withDefaults(defineProps<ItemGroupProps>(), {})
 
-  const forwarded = reactiveOmit(props, ["class"]);
+const forwarded = reactiveOmit(props, ["class"])
 </script>

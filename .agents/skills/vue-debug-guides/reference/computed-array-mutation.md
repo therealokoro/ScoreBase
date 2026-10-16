@@ -18,14 +18,15 @@ tags: [vue3, computed, arrays, mutation, sort, reverse]
 - [ ] Be aware which array methods mutate vs return new arrays
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 
 const items = ref([3, 1, 4, 1, 5, 9, 2, 6])
 const users = ref([
-  { name: 'Alice', age: 30 },
-  { name: 'Bob', age: 25 }
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 25 }
 ])
 
 // BAD: sort() mutates the original array!
@@ -56,14 +57,15 @@ const sortedUsers = computed(() => {
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 
 const items = ref([3, 1, 4, 1, 5, 9, 2, 6])
 const users = ref([
-  { name: 'Alice', age: 30 },
-  { name: 'Bob', age: 25 }
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 25 }
 ])
 
 // GOOD: Spread operator creates a copy first
@@ -102,16 +104,16 @@ const reversedItemsModern = computed(() => {
 
 ## Mutating vs Non-Mutating Array Methods
 
-| Mutating (Avoid in Computed) | Non-Mutating (Safe) |
-|------------------------------|---------------------|
-| `sort()` | `toSorted()` (ES2023) |
-| `reverse()` | `toReversed()` (ES2023) |
-| `splice()` | `toSpliced()` (ES2023) |
-| `push()` | `concat()` |
-| `pop()` | `slice(0, -1)` |
-| `shift()` | `slice(1)` |
-| `unshift()` | `[item, ...array]` |
-| `fill()` | `map()` with new values |
+| Mutating (Avoid in Computed) | Non-Mutating (Safe)     |
+| ---------------------------- | ----------------------- |
+| `sort()`                     | `toSorted()` (ES2023)   |
+| `reverse()`                  | `toReversed()` (ES2023) |
+| `splice()`                   | `toSpliced()` (ES2023)  |
+| `push()`                     | `concat()`              |
+| `pop()`                      | `slice(0, -1)`          |
+| `shift()`                    | `slice(1)`              |
+| `unshift()`                  | `[item, ...array]`      |
+| `fill()`                     | `map()` with new values |
 
 ## ES2023 Non-Mutating Alternatives
 
@@ -121,8 +123,8 @@ Modern JavaScript (ES2023) provides non-mutating versions of common array method
 // These return NEW arrays, safe for computed properties
 const sorted = array.toSorted((a, b) => a - b)
 const reversed = array.toReversed()
-const spliced = array.toSpliced(1, 2, 'new')
-const withReplaced = array.with(0, 'newFirst')
+const spliced = array.toSpliced(1, 2, "new")
+const withReplaced = array.with(0, "newFirst")
 ```
 
 ## Deep Copy for Nested Arrays
@@ -130,7 +132,7 @@ const withReplaced = array.with(0, 'newFirst')
 For arrays of objects where you might mutate nested properties:
 
 ```javascript
-const items = ref([{ name: 'A', values: [1, 2, 3] }])
+const items = ref([{ name: "A", values: [1, 2, 3] }])
 
 // Shallow copy - nested arrays still shared
 const copied = computed(() => [...items.value])
@@ -144,5 +146,6 @@ const deepCopied = computed(() => {
 ```
 
 ## Reference
+
 - [Vue.js Computed Properties - Avoid Mutating Computed Value](https://vuejs.org/guide/essentials/computed.html#avoid-mutating-computed-value)
 - [MDN Array Methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)

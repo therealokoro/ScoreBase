@@ -9,7 +9,7 @@ Mounted state in ref.
 ## Usage
 
 ```ts
-import { useMounted } from '@vueuse/core'
+import { useMounted } from "@vueuse/core"
 
 const isMounted = useMounted()
 ```

@@ -8,12 +8,12 @@ Reactive wrapper for .
 ## Usage
 
 ```ts
-import { useChangeCase } from '@vueuse/integrations/useChangeCase'
+import { useChangeCase } from "@vueuse/integrations/useChangeCase"
 
 // `changeCase` will be a computed
-const changeCase = useChangeCase('hello world', 'camelCase')
+const changeCase = useChangeCase("hello world", "camelCase")
 changeCase.value // helloWorld
-changeCase.value = 'vue use'
+changeCase.value = "vue use"
 changeCase.value // vueUse
 // Supported methods
 // export {

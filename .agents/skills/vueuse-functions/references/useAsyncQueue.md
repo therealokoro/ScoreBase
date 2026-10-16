@@ -9,7 +9,7 @@ Executes each asynchronous task sequentially and passes the current task result 
 ## Usage
 
 ```ts
-import { useAsyncQueue } from '@vueuse/core'
+import { useAsyncQueue } from "@vueuse/core"
 
 function p1() {
   return new Promise((resolve) => {
@@ -40,7 +40,7 @@ Each task in the result array has a `state` and `data` property:
 
 ```ts
 interface UseAsyncQueueResult<T> {
-  state: 'aborted' | 'fulfilled' | 'pending' | 'rejected'
+  state: "aborted" | "fulfilled" | "pending" | "rejected"
   data: T | null
 }
 ```
@@ -51,7 +51,7 @@ By default, if a task fails, subsequent tasks will not be executed. Set `interru
 
 ```ts
 const { result } = useAsyncQueue([p1, p2], {
-  interrupt: false, // continue even if p1 fails
+  interrupt: false // continue even if p1 fails
 })
 ```
 
@@ -60,11 +60,11 @@ const { result } = useAsyncQueue([p1, p2], {
 ```ts
 const { result } = useAsyncQueue([p1, p2], {
   onError() {
-    console.log('A task failed')
+    console.log("A task failed")
   },
   onFinished() {
-    console.log('All tasks completed (or interrupted)')
-  },
+    console.log("All tasks completed (or interrupted)")
+  }
 })
 ```
 
@@ -76,7 +76,7 @@ You can pass an `AbortSignal` to cancel the queue execution.
 const controller = new AbortController()
 
 const { result } = useAsyncQueue([p1, p2], {
-  signal: controller.signal,
+  signal: controller.signal
 })
 
 // Later, abort the queue
@@ -129,7 +129,7 @@ export interface UseAsyncQueueOptions {
  */
 export declare function useAsyncQueue<T extends any[], S = MapQueueTask<T>>(
   tasks: S & Array<UseAsyncQueueTask<any>>,
-  options?: UseAsyncQueueOptions,
+  options?: UseAsyncQueueOptions
 ): UseAsyncQueueReturn<{
   [P in keyof T]: UseAsyncQueueResult<T[P]>
 }>

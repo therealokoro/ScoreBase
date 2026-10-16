@@ -10,13 +10,13 @@ Reactive `document.activeElement`. Returns a shallow ref that updates when focus
 
 ```vue
 <script setup lang="ts">
-import { useActiveElement } from '@vueuse/core'
-import { watch } from 'vue'
+import { useActiveElement } from "@vueuse/core"
+import { watch } from "vue"
 
 const activeElement = useActiveElement()
 
 watch(activeElement, (el) => {
-  console.log('focus changed to', el)
+  console.log("focus changed to", el)
 })
 </script>
 ```
@@ -26,7 +26,7 @@ watch(activeElement, (el) => {
 By default, `useActiveElement` will traverse into shadow DOM to find the deeply active element. Set `deep: false` to disable this behavior.
 
 ```ts
-import { useActiveElement } from '@vueuse/core'
+import { useActiveElement } from "@vueuse/core"
 
 // Only get the shadow host, not the element inside shadow DOM
 const activeElement = useActiveElement({ deep: false })
@@ -37,7 +37,7 @@ const activeElement = useActiveElement({ deep: false })
 Set `triggerOnRemoval: true` to update the active element when the currently active element is removed from the DOM. This uses a `MutationObserver` under the hood.
 
 ```ts
-import { useActiveElement } from '@vueuse/core'
+import { useActiveElement } from "@vueuse/core"
 
 const activeElement = useActiveElement({ triggerOnRemoval: true })
 ```
@@ -70,8 +70,9 @@ export interface UseActiveElementOptions
    */
   triggerOnRemoval?: boolean
 }
-export type UseActiveElementReturn<T extends HTMLElement = HTMLElement> =
-  ShallowRef<T | null | undefined>
+export type UseActiveElementReturn<T extends HTMLElement = HTMLElement> = ShallowRef<
+  T | null | undefined
+>
 /**
  * Reactive `document.activeElement`
  *
@@ -81,6 +82,6 @@ export type UseActiveElementReturn<T extends HTMLElement = HTMLElement> =
  * @__NO_SIDE_EFFECTS__
  */
 export declare function useActiveElement<T extends HTMLElement>(
-  options?: UseActiveElementOptions,
+  options?: UseActiveElementOptions
 ): UseActiveElementReturn<T>
 ```

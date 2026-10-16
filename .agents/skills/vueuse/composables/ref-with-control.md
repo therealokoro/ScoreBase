@@ -8,7 +8,7 @@ Fine-grained controls over ref and its reactivity.
 ## Usage
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 
 const num = refWithControl(0)
 const doubled = computed(() => num.value * 2)

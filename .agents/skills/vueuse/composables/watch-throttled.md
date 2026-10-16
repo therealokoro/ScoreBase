@@ -8,12 +8,14 @@ Throttled watch. The callback will be invoked at most once per specified duratio
 ## Usage
 
 ```ts
-import { watchThrottled } from '@vueuse/core'
+import { watchThrottled } from "@vueuse/core"
 
 watchThrottled(
   source,
-  () => { console.log('changed!') },
-  { throttle: 500 },
+  () => {
+    console.log("changed!")
+  },
+  { throttle: 500 }
 )
 ```
 

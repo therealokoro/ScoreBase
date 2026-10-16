@@ -8,7 +8,7 @@ Shorthand for watching value with
 ## Usage
 
 ```ts
-import { watchDeep } from '@vueuse/core'
+import { watchDeep } from "@vueuse/core"
 
 const nestedObject = ref({ foo: { bar: { deep: 5 } } })
 

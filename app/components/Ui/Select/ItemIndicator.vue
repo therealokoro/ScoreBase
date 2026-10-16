@@ -14,21 +14,21 @@
 </template>
 
 <script lang="ts" setup>
-  import { SelectItemIndicator } from "reka-ui";
-  import type { SelectItemIndicatorProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { SelectItemIndicator } from "reka-ui"
+import type { SelectItemIndicatorProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<
-    SelectItemIndicatorProps & {
-      /** Icon to render. */
-      icon?: string;
-      /** Custom class(es) to add to the parent. */
-      class?: HTMLAttributes["class"];
-    }
-  >();
-  const forwarded = reactiveOmit(props, "class", "icon");
-  const styles = tv({
-    base: "size-4",
-  });
+const props = defineProps<
+  SelectItemIndicatorProps & {
+    /** Icon to render. */
+    icon?: string
+    /** Custom class(es) to add to the parent. */
+    class?: HTMLAttributes["class"]
+  }
+>()
+const forwarded = reactiveOmit(props, "class", "icon")
+const styles = tv({
+  base: "size-4"
+})
 </script>

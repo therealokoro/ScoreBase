@@ -6,7 +6,7 @@
       :class="
         styles({
           translucent: props.translucent,
-          class: normalizeClass(props.class) || undefined,
+          class: normalizeClass(props.class) || undefined
         })
       "
       v-bind="{ ...forwarded, ...$attrs }"
@@ -38,42 +38,42 @@
 </template>
 
 <script lang="ts" setup>
-  import { DialogContent, useForwardPropsEmits } from "reka-ui";
-  import type { DialogContentEmits, DialogContentProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { DialogContent, useForwardPropsEmits } from "reka-ui"
+import type { DialogContentEmits, DialogContentProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  defineOptions({ inheritAttrs: false });
-  const props = defineProps<
-    DialogContentProps & {
-      /** Icon to display in the close button. */
-      icon?: string;
-      /** Title text. */
-      title?: string;
-      /** Description text. */
-      description?: string;
-      /** Custom class(es) to add to the parent. */
-      class?: HTMLAttributes["class"];
-      /** Whether to hide the close button. */
-      hideClose?: boolean;
-      /** Where to render the dialog. */
-      to?: string | HTMLElement;
-      /** Whether to render the content with a translucent surface. */
-      translucent?: boolean;
+defineOptions({ inheritAttrs: false })
+const props = defineProps<
+  DialogContentProps & {
+    /** Icon to display in the close button. */
+    icon?: string
+    /** Title text. */
+    title?: string
+    /** Description text. */
+    description?: string
+    /** Custom class(es) to add to the parent. */
+    class?: HTMLAttributes["class"]
+    /** Whether to hide the close button. */
+    hideClose?: boolean
+    /** Where to render the dialog. */
+    to?: string | HTMLElement
+    /** Whether to render the content with a translucent surface. */
+    translucent?: boolean
+  }
+>()
+const emits = defineEmits<DialogContentEmits>()
+const forwarded = useForwardPropsEmits(
+  reactiveOmit(props, "icon", "title", "description", "class", "hideClose", "to", "translucent"),
+  emits
+)
+
+const styles = tv({
+  base: "bg-background data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100%-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border p-6 shadow-lg duration-200 sm:max-w-100",
+  variants: {
+    translucent: {
+      true: getTranslucentFloatingPanelClasses("background")
     }
-  >();
-  const emits = defineEmits<DialogContentEmits>();
-  const forwarded = useForwardPropsEmits(
-    reactiveOmit(props, "icon", "title", "description", "class", "hideClose", "to", "translucent"),
-    emits
-  );
-
-  const styles = tv({
-    base: "bg-background data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100%-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border p-6 shadow-lg duration-200 sm:max-w-100",
-    variants: {
-      translucent: {
-        true: getTranslucentFloatingPanelClasses("background"),
-      },
-    },
-  });
+  }
+})
 </script>

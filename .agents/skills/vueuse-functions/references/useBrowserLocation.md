@@ -11,7 +11,7 @@ Reactive browser location
 ## Usage
 
 ```ts
-import { useBrowserLocation } from '@vueuse/core'
+import { useBrowserLocation } from "@vueuse/core"
 
 const location = useBrowserLocation()
 ```
@@ -51,6 +51,6 @@ export type UseBrowserLocationReturn = Ref<BrowserLocationState>
  * @__NO_SIDE_EFFECTS__
  */
 export declare function useBrowserLocation(
-  options?: UseBrowserLocationOptions,
+  options?: UseBrowserLocationOptions
 ): UseBrowserLocationReturn
 ```

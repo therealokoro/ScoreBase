@@ -12,11 +12,11 @@ Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/e
 
 ```vue
 <script setup lang="ts">
-import { useGamepad } from '@vueuse/core'
-import { computed } from 'vue'
+import { useGamepad } from "@vueuse/core"
+import { computed } from "vue"
 
 const { isSupported, gamepads } = useGamepad()
-const gamepad = computed(() => gamepads.value.find(g => g.mapping === 'standard'))
+const gamepad = computed(() => gamepads.value.find((g) => g.mapping === "standard"))
 </script>
 
 <template>
@@ -31,7 +31,7 @@ const gamepad = computed(() => gamepads.value.find(g => g.mapping === 'standard'
 Currently the Gamepad API does not have event support to update the state of the gamepad. To update the gamepad state, `requestAnimationFrame` is used to poll for gamepad changes. You can control this polling by using the `pause` and `resume` functions provided by `useGamepad`
 
 ```ts
-import { useGamepad } from '@vueuse/core'
+import { useGamepad } from "@vueuse/core"
 
 const { pause, resume, gamepads } = useGamepad()
 
@@ -49,7 +49,7 @@ resume()
 The `onConnected` and `onDisconnected` events will trigger when a gamepad is connected or disconnected.
 
 ```ts
-import { useGamepad } from '@vueuse/core'
+import { useGamepad } from "@vueuse/core"
 // ---cut---
 const { gamepads, onConnected, onDisconnected } = useGamepad()
 
@@ -69,22 +69,22 @@ onDisconnected((index) => {
 <!-- eslint-disable import/first -->
 
 ```ts
-import { useGamepad } from '@vueuse/core'
+import { useGamepad } from "@vueuse/core"
 
 const { gamepads, onConnected, onDisconnected } = useGamepad()
 const gamepad = gamepads.value[0]!
 // ---cut---
-import { computed } from 'vue'
+import { computed } from "vue"
 
 const supportsVibration = computed(() => gamepad.hapticActuators.length > 0)
 function vibrate() {
   if (supportsVibration.value) {
     const actuator = gamepad.hapticActuators[0]
-    actuator.playEffect('dual-rumble', {
+    actuator.playEffect("dual-rumble", {
       startDelay: 0,
       duration: 1000,
       weakMagnitude: 1,
-      strongMagnitude: 1,
+      strongMagnitude: 1
     })
   }
 }
@@ -98,7 +98,7 @@ To make the Gamepad API easier to use, we provide mappings to map a controller t
 
 ```vue
 <script setup>
-import { mapGamepadToXbox360Controller } from '@vueuse/core'
+import { mapGamepadToXbox360Controller } from "@vueuse/core"
 
 const controller = mapGamepadToXbox360Controller(gamepad)
 </script>
@@ -124,8 +124,7 @@ In other frameworks or plain Vue, you can wrap your usage component with a `<Cli
 ## Type Declarations
 
 ```ts
-export interface UseGamepadOptions
-  extends ConfigurableWindow, ConfigurableNavigator {}
+export interface UseGamepadOptions extends ConfigurableWindow, ConfigurableNavigator {}
 export interface UseGamepadReturn extends Supportable, Pausable {
   onConnected: EventHookOn<number>
   onDisconnected: EventHookOn<number>
@@ -135,7 +134,7 @@ export interface UseGamepadReturn extends Supportable, Pausable {
  * Maps a standard standard gamepad to an Xbox 360 Controller.
  */
 export declare function mapGamepadToXbox360Controller(
-  gamepad: Ref<Gamepad | undefined>,
+  gamepad: Ref<Gamepad | undefined>
 ): ComputedRef<{
   buttons: {
     a: GamepadButton
@@ -172,7 +171,5 @@ export declare function mapGamepadToXbox360Controller(
   back: GamepadButton
   start: GamepadButton
 } | null>
-export declare function useGamepad(
-  options?: UseGamepadOptions,
-): UseGamepadReturn
+export declare function useGamepad(options?: UseGamepadOptions): UseGamepadReturn
 ```

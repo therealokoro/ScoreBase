@@ -8,16 +8,16 @@ Reactive FPS (frames per second).
 ## Usage
 
 ```ts
-import { useFps } from '@vueuse/core'
+import { useFps } from "@vueuse/core"
 
 const fps = useFps()
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| every | `number` | 10 | Calculate the FPS on every x frames. |
+| Option | Type     | Default | Description                          |
+| ------ | -------- | ------- | ------------------------------------ |
+| every  | `number` | 10      | Calculate the FPS on every x frames. |
 
 ## Reference
 

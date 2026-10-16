@@ -48,7 +48,7 @@ defineProps(['label'])
 ```vue
 <!-- BaseInput.vue - CORRECT: attrs bound to input element -->
 <script setup>
-defineProps(['label'])
+defineProps(["label"])
 
 defineOptions({
   inheritAttrs: false
@@ -111,7 +111,7 @@ export default {
 ```vue
 <script>
 export default {
-  inheritAttrs: false,
+  inheritAttrs: false
   // other options...
 }
 </script>
@@ -123,7 +123,7 @@ export default {
 
 ```vue
 <script setup>
-import { useAttrs, computed } from 'vue'
+import { useAttrs, computed } from "vue"
 
 defineProps({
   label: String,
@@ -160,7 +160,7 @@ defineProps({
   icon: String,
   iconPosition: {
     type: String,
-    default: 'left'
+    default: "left"
   }
 })
 
@@ -193,13 +193,7 @@ defineOptions({
 </script>
 
 <template>
-  <a
-    v-if="external"
-    :href="to"
-    target="_blank"
-    rel="noopener noreferrer"
-    v-bind="$attrs"
-  >
+  <a v-if="external" :href="to" target="_blank" rel="noopener noreferrer" v-bind="$attrs">
     <slot />
   </a>
   <router-link v-else :to="to" v-bind="$attrs">

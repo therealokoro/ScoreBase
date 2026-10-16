@@ -20,14 +20,15 @@ When you modify reactive state, Vue doesn't update the DOM synchronously. Instea
 - [ ] Consider if you really need DOM access - often you can work with reactive data instead
 
 **Incorrect:**
-```javascript
-import { ref } from 'vue'
 
-const message = ref('Hello')
+```javascript
+import { ref } from "vue"
+
+const message = ref("Hello")
 const messageEl = ref(null)
 
 function updateMessage() {
-  message.value = 'Updated!'
+  message.value = "Updated!"
 
   // WRONG: DOM still shows "Hello" at this point
   console.log(messageEl.value.textContent) // "Hello" - stale!
@@ -38,14 +39,15 @@ function updateMessage() {
 ```
 
 **Correct:**
-```javascript
-import { ref, nextTick } from 'vue'
 
-const message = ref('Hello')
+```javascript
+import { ref, nextTick } from "vue"
+
+const message = ref("Hello")
 const messageEl = ref(null)
 
 async function updateMessage() {
-  message.value = 'Updated!'
+  message.value = "Updated!"
 
   // CORRECT: Wait for DOM to update
   await nextTick()
@@ -59,7 +61,7 @@ async function updateMessage() {
 
 // Alternative: callback syntax
 function updateWithCallback() {
-  message.value = 'Updated!'
+  message.value = "Updated!"
 
   nextTick(() => {
     console.log(messageEl.value.textContent) // "Updated!"
@@ -69,22 +71,23 @@ function updateWithCallback() {
 
 ```vue
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick } from "vue"
 
 const items = ref([])
 const listRef = ref(null)
 
 async function addItem() {
-  items.value.push({ id: Date.now(), text: 'New item' })
+  items.value.push({ id: Date.now(), text: "New item" })
 
   await nextTick()
 
   // Now we can safely scroll to the new item
-  listRef.value.lastElementChild?.scrollIntoView({ behavior: 'smooth' })
+  listRef.value.lastElementChild?.scrollIntoView({ behavior: "smooth" })
 }
 </script>
 ```
 
 ## Reference
+
 - [Vue.js Reactivity Fundamentals - DOM Update Timing](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#dom-update-timing)
 - [Vue.js nextTick API](https://vuejs.org/api/general.html#nexttick)

@@ -10,36 +10,36 @@ Throttle changing of a ref value.
 ## Usage
 
 ```ts
-import { refThrottled } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refThrottled } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const input = shallowRef('')
+const input = shallowRef("")
 const throttled = refThrottled(input, 1000)
 ```
 
 An example with object ref.
 
 ```js
-import { refThrottled } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refThrottled } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const data = shallowRef({
   count: 0,
-  name: 'foo',
+  name: "foo"
 })
 const throttled = refThrottled(data, 1000)
 
-data.value = { count: 1, name: 'foo' }
+data.value = { count: 1, name: "foo" }
 console.log(throttled.value) // { count: 1, name: 'foo' } (immediate)
 
-data.value = { count: 2, name: 'bar' }
-data.value = { count: 3, name: 'baz' }
-data.value = { count: 4, name: 'qux' }
+data.value = { count: 2, name: "bar" }
+data.value = { count: 3, name: "baz" }
+data.value = { count: 4, name: "qux" }
 console.log(throttled.value) // { count: 1, name: 'foo' } (still first value)
 
 // After 1000ms, next change will be applied
 await sleep(1100)
-data.value = { count: 5, name: 'final' }
+data.value = { count: 5, name: "final" }
 await nextTick()
 console.log(throttled.value) // { count: 5, name: 'final' } (updated)
 ```
@@ -49,10 +49,10 @@ console.log(throttled.value) // { count: 5, name: 'final' } (updated)
 If you don't want to watch trailing changes, set 3rd param `false` (it's `true` by default):
 
 ```ts
-import { refThrottled } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refThrottled } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const input = shallowRef('')
+const input = shallowRef("")
 const throttled = refThrottled(input, 1000, false)
 ```
 
@@ -61,10 +61,10 @@ const throttled = refThrottled(input, 1000, false)
 Allows the callback to be invoked immediately (on the leading edge of the `ms` timeout). If you don't want this behavior, set the 4th param `false` (it's `true` by default):
 
 ```ts
-import { refThrottled } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refThrottled } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const input = shallowRef('')
+const input = shallowRef("")
 const throttled = refThrottled(input, 1000, undefined, false)
 ```
 
@@ -90,7 +90,7 @@ export declare function refThrottled<T = any>(
   value: Ref<T>,
   delay?: number,
   trailing?: boolean,
-  leading?: boolean,
+  leading?: boolean
 ): RefThrottledReturn<T>
 /** @deprecated use `refThrottled` instead */
 export declare const throttledRef: typeof refThrottled

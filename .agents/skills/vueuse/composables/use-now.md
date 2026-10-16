@@ -8,24 +8,24 @@ Reactive current Date instance.
 ## Usage
 
 ```ts
-import { useNow } from '@vueuse/core'
+import { useNow } from "@vueuse/core"
 
 const now = useNow()
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| controls | `Controls` | false | Expose more controls |
-| immediate | `boolean` | true | Start the clock immediately |
-| interval | `'requestAnimationFrame' \| number` | requestAnimationFrame | Update interval in milliseconds, or use requestAnimationFrame |
+| Option    | Type                                | Default               | Description                                                   |
+| --------- | ----------------------------------- | --------------------- | ------------------------------------------------------------- |
+| controls  | `Controls`                          | false                 | Expose more controls                                          |
+| immediate | `boolean`                           | true                  | Start the clock immediately                                   |
+| interval  | `'requestAnimationFrame' \| number` | requestAnimationFrame | Update interval in milliseconds, or use requestAnimationFrame |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| now | `shallowRef` |
+| Name | Type         |
+| ---- | ------------ |
+| now  | `shallowRef` |
 
 ## Reference
 

@@ -9,24 +9,24 @@
 </template>
 
 <script lang="ts" setup>
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = withDefaults(
-    defineProps<
-      PrimitiveProps & {
-        /** Custom class(es) to add to parent element. */
-        class?: HTMLAttributes["class"];
-      }
-    >(),
-    {
-      as: "div",
+const props = withDefaults(
+  defineProps<
+    PrimitiveProps & {
+      /** Custom class(es) to add to parent element. */
+      class?: HTMLAttributes["class"]
     }
-  );
-  const forwarded = reactiveOmit(props, "class");
-  const styles = tv({
-    base: "mt-auto flex flex-col gap-2 p-4",
-  });
+  >(),
+  {
+    as: "div"
+  }
+)
+const forwarded = reactiveOmit(props, "class")
+const styles = tv({
+  base: "mt-auto flex flex-col gap-2 p-4"
+})
 </script>

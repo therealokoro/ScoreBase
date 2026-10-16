@@ -8,7 +8,7 @@ Reactively clamp a value between two other values.
 ## Usage
 
 ```ts
-import { useClamp } from '@vueuse/math'
+import { useClamp } from "@vueuse/math"
 
 const min = shallowRef(0)
 const max = shallowRef(10)

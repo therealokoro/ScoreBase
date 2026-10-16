@@ -12,8 +12,8 @@ description: Vue 3 script setup syntax and compiler macros for defining props, e
 ```vue
 <script setup lang="ts">
 // Top-level bindings are exposed to template
-import { ref } from 'vue'
-import MyComponent from './MyComponent.vue'
+import { ref } from "vue"
+import MyComponent from "./MyComponent.vue"
 
 const count = ref(0)
 const increment = () => count.value++
@@ -44,12 +44,15 @@ const { title, count = 0 } = defineProps<{
 }>()
 
 // With defaults (Vue 3.4 and below)
-const props = withDefaults(defineProps<{
-  title: string
-  items?: string[]
-}>(), {
-  items: () => []  // Use factory for arrays/objects
-})
+const props = withDefaults(
+  defineProps<{
+    title: string
+    items?: string[]
+  }>(),
+  {
+    items: () => [] // Use factory for arrays/objects
+  }
+)
 ```
 
 ## defineEmits
@@ -64,9 +67,9 @@ const emit = defineEmits<{
   close: []
 }>()
 
-emit('update', 'new value')
-emit('change', 1, 'name')
-emit('close')
+emit("update", "new value")
+emit("change", 1, "name")
+emit("close")
 ```
 
 ## defineModel
@@ -76,10 +79,10 @@ Two-way binding prop consumed via `v-model`. Available in Vue 3.4+.
 ```ts
 // Basic usage - creates "modelValue" prop
 const model = defineModel<string>()
-model.value = 'hello'  // Emits "update:modelValue"
+model.value = "hello" // Emits "update:modelValue"
 
 // Named model - consumed via v-model:name
-const count = defineModel<number>('count', { default: 0 })
+const count = defineModel<number>("count", { default: 0 })
 
 // With modifiers
 const [value, modifiers] = defineModel<string>()
@@ -89,12 +92,17 @@ if (modifiers.trim) {
 
 // With transformers
 const [value, modifiers] = defineModel({
-  get(val) { return val?.toLowerCase() },
-  set(val) { return modifiers.trim ? val?.trim() : val }
+  get(val) {
+    return val?.toLowerCase()
+  },
+  set(val) {
+    return modifiers.trim ? val?.trim() : val
+  }
 })
 ```
 
 Parent usage:
+
 ```vue
 <Child v-model="name" />
 <Child v-model:count="total" />
@@ -106,10 +114,12 @@ Parent usage:
 Explicitly expose properties to parent via template refs. Components are closed by default.
 
 ```ts
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const count = ref(0)
-const reset = () => { count.value = 0 }
+const reset = () => {
+  count.value = 0
+}
 
 defineExpose({
   count,
@@ -118,6 +128,7 @@ defineExpose({
 ```
 
 Parent access:
+
 ```ts
 const childRef = ref<{ count: number; reset: () => void }>()
 childRef.value?.reset()
@@ -130,7 +141,7 @@ Declare component options without a separate `<script>` block. Available in Vue 
 ```ts
 defineOptions({
   inheritAttrs: false,
-  name: 'CustomName'
+  name: "CustomName"
 })
 ```
 
@@ -159,9 +170,10 @@ defineProps<{
 ```
 
 Multiple generics with constraints:
+
 ```vue
 <script setup lang="ts" generic="T, U extends Record<string, T>">
-import type { Item } from './types'
+import type { Item } from "./types"
 defineProps<{
   data: U
   key: keyof U
@@ -179,7 +191,7 @@ const vFocus = {
 }
 
 // Or import and rename
-import { myDirective as vMyDirective } from './directives'
+import { myDirective as vMyDirective } from "./directives"
 ```
 
 ```vue
@@ -194,7 +206,7 @@ Use `await` directly in `<script setup>`. The component becomes async and must b
 
 ```vue
 <script setup lang="ts">
-const data = await fetch('/api/data').then(r => r.json())
+const data = await fetch("/api/data").then((r) => r.json())
 </script>
 ```
 

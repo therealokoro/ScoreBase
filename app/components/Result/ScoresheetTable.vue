@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { createColumnHelper } from "@tanstack/vue-table"
 import { breakpointsTailwind } from "@vueuse/core"
-import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 import type { ResultWithDetail } from "~~/shared/validators/scoresheet"
 
 import UiButton from "~/components/Ui/Button.vue"
 import UiProgress from "~/components/Ui/Progress/Progress.vue"
+import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 type ScoresheetRow = {
   id: string

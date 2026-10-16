@@ -5,7 +5,12 @@ import { count, eq } from "drizzle-orm"
 import type { APiContext } from "../context"
 import { teacherContract } from "../contracts/teacher.contract"
 import { classes, students, user } from "../db/schema"
-import { fetchTeachersClass, fetchSingleTeacher, listAllTeachers, listTeachersPaginated } from "../queries/teacher.query"
+import {
+  fetchTeachersClass,
+  fetchSingleTeacher,
+  listAllTeachers,
+  listTeachersPaginated
+} from "../queries/teacher.query"
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
 
@@ -39,7 +44,10 @@ async function syncTeacherClass(
   }
 
   // Write the authoritative session-scoping field
-  await db.update(user).set({ classId: classId ?? null }).where(eq(user.id, teacherId))
+  await db
+    .update(user)
+    .set({ classId: classId ?? null })
+    .where(eq(user.id, teacherId))
 
   return selectedClass
 }

@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DEFAULT_RESULT_SETTINGS } from "#shared/constants/kv-settings"
 
-import {
-  getResultScoreConfig,
-  getResultSettings,
-  setResultSettings
-} from "./result-settings"
+import { getResultScoreConfig, getResultSettings, setResultSettings } from "./result-settings"
 
 vi.mock("@nuxthub/kv", () => ({
   kv: { get: vi.fn(), set: vi.fn(), del: vi.fn() }

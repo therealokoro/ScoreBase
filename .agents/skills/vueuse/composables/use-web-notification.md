@@ -8,7 +8,7 @@ Reactive Notification
 ## Usage
 
 ```ts
-import { useWebNotification } from '@vueuse/core'
+import { useWebNotification } from "@vueuse/core"
 
 const {
   isSupported,
@@ -19,39 +19,38 @@ const {
   onClick,
   onShow,
   onError,
-  onClose,
+  onClose
 } = useWebNotification({
-  title: 'Hello, VueUse world!',
-  dir: 'auto',
-  lang: 'en',
+  title: "Hello, VueUse world!",
+  dir: "auto",
+  lang: "en",
   renotify: true,
-  tag: 'test',
+  tag: "test"
 })
 
-if (isSupported.value && permissionGranted.value)
-  show()
+if (isSupported.value && permissionGranted.value) show()
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| requestPermissions | `boolean` | true | Request for permissions onMounted if it's not granted. |
+| Option             | Type      | Default | Description                                            |
+| ------------------ | --------- | ------- | ------------------------------------------------------ |
+| requestPermissions | `boolean` | true    | Request for permissions onMounted if it's not granted. |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| notification | `shallowRef&lt;Notification \| null&gt;` |
-| ensurePermissions | `Ref` |
-| permissionGranted | `shallowRef` |
-| show | `Ref` |
-| close | `Ref` |
-| onClick | `Ref` |
-| onShow | `Ref` |
-| onError | `Ref` |
-| onClose | `Ref` |
+| Name              | Type                                     |
+| ----------------- | ---------------------------------------- |
+| isSupported       | `useSupported`                           |
+| notification      | `shallowRef&lt;Notification \| null&gt;` |
+| ensurePermissions | `Ref`                                    |
+| permissionGranted | `shallowRef`                             |
+| show              | `Ref`                                    |
+| close             | `Ref`                                    |
+| onClick           | `Ref`                                    |
+| onShow            | `Ref`                                    |
+| onError           | `Ref`                                    |
+| onClose           | `Ref`                                    |
 
 ## Reference
 

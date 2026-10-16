@@ -10,20 +10,20 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactiveOmit } from "@vueuse/core";
-  import { PaginationList } from "reka-ui";
-  import type { PaginationListProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { reactiveOmit } from "@vueuse/core"
+import { PaginationList } from "reka-ui"
+import type { PaginationListProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<
-    PaginationListProps & {
-      /** Custom class(es) to add to the parent. */
-      class?: HTMLAttributes["class"];
-    }
-  >();
-  const forwarded = reactiveOmit(props, "class");
-  const styles = tv({
-    base: "flex flex-row items-center gap-1",
-  });
+const props = defineProps<
+  PaginationListProps & {
+    /** Custom class(es) to add to the parent. */
+    class?: HTMLAttributes["class"]
+  }
+>()
+const forwarded = reactiveOmit(props, "class")
+const styles = tv({
+  base: "flex flex-row items-center gap-1"
+})
 </script>

@@ -8,20 +8,20 @@ Reactive Battery Status API, more often referred to as the Battery API, provides
 ## Usage
 
 ```ts
-import { useBattery } from '@vueuse/core'
+import { useBattery } from "@vueuse/core"
 
 const { isSupported, charging, chargingTime, dischargingTime, level } = useBattery()
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| charging | `shallowRef` |
-| chargingTime | `shallowRef` |
-| dischargingTime | `shallowRef` |
-| level | `shallowRef` |
+| Name            | Type           |
+| --------------- | -------------- |
+| isSupported     | `useSupported` |
+| charging        | `shallowRef`   |
+| chargingTime    | `shallowRef`   |
+| dischargingTime | `shallowRef`   |
+| level           | `shallowRef`   |
 
 ## Reference
 

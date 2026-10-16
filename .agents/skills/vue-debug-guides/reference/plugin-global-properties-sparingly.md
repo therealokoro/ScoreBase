@@ -32,7 +32,7 @@ app.config.globalProperties.$logger = logger
 // In component - where did all these come from?
 export default {
   mounted() {
-    this.$logger.info('Mounted')
+    this.$logger.info("Mounted")
     const data = await this.$http.get(this.$config.apiUrl)
     this.$api.process(this.$utils.transform(data))
   }

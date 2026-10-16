@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 import { ICONS } from "~~/shared/constants/icons"
 import type { ReportCardTemplate } from "~~/shared/constants/report-card"
+
+import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 
 const open = defineModel<boolean>("open", { default: false })
 const tab = defineModel<ReportCardEditorTab>("tab", { required: true })

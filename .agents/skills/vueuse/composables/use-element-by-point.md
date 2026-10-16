@@ -8,25 +8,25 @@ Reactive element by point.
 ## Usage
 
 ```ts
-import { useElementByPoint, useMouse } from '@vueuse/core'
+import { useElementByPoint, useMouse } from "@vueuse/core"
 
-const { x, y } = useMouse({ type: 'client' })
+const { x, y } = useMouse({ type: "client" })
 const { element } = useElementByPoint({ x, y })
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| immediate | `boolean` | - |  |
-| interval | `'requestAnimationFrame' \| number` | - |  |
+| Option    | Type                                | Default | Description |
+| --------- | ----------------------------------- | ------- | ----------- |
+| immediate | `boolean`                           | -       |             |
+| interval  | `'requestAnimationFrame' \| number` | -       |             |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| element | `shallowRef&lt;any&gt;` |
+| Name        | Type                    |
+| ----------- | ----------------------- |
+| isSupported | `useSupported`          |
+| element     | `shallowRef&lt;any&gt;` |
 
 ## Reference
 

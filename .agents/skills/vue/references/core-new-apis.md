@@ -10,16 +10,16 @@ description: Vue 3 reactivity system, lifecycle hooks, and composable patterns
 ### ref vs shallowRef
 
 ```ts
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef } from "vue"
 
 // ref - deep reactivity (tracks nested changes)
-const user = ref({ name: 'John', profile: { age: 30 } })
-user.value.profile.age = 31  // Triggers reactivity
+const user = ref({ name: "John", profile: { age: 30 } })
+user.value.profile.age = 31 // Triggers reactivity
 
 // shallowRef - only .value assignment triggers reactivity (better performance)
 const data = shallowRef({ items: [] })
-data.value.items.push('new')  // Does NOT trigger reactivity
-data.value = { items: ['new'] }  // Triggers reactivity
+data.value.items.push("new") // Does NOT trigger reactivity
+data.value = { items: ["new"] } // Triggers reactivity
 ```
 
 **Prefer `shallowRef`** for large data structures or when deep reactivity is unnecessary.
@@ -27,7 +27,7 @@ data.value = { items: ['new'] }  // Triggers reactivity
 ### computed
 
 ```ts
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 
 const count = ref(0)
 
@@ -37,20 +37,22 @@ const doubled = computed(() => count.value * 2)
 // Writable computed
 const plusOne = computed({
   get: () => count.value + 1,
-  set: (val) => { count.value = val - 1 }
+  set: (val) => {
+    count.value = val - 1
+  }
 })
 ```
 
 ### reactive & readonly
 
 ```ts
-import { reactive, readonly } from 'vue'
+import { reactive, readonly } from "vue"
 
 const state = reactive({ count: 0, nested: { value: 1 } })
-state.count++  // Reactive
+state.count++ // Reactive
 
 const readonlyState = readonly(state)
-readonlyState.count++  // Warning, mutation blocked
+readonlyState.count++ // Warning, mutation blocked
 ```
 
 Note: `reactive()` loses reactivity on destructuring. Use `ref()` or `toRefs()`.
@@ -60,7 +62,7 @@ Note: `reactive()` loses reactivity on destructuring. Use `ref()` or `toRefs()`.
 ### watch
 
 ```ts
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
 const count = ref(0)
 
@@ -93,16 +95,16 @@ watch(source, callback, { once: true })
 Runs immediately and auto-tracks dependencies.
 
 ```ts
-import { ref, watchEffect, onWatcherCleanup } from 'vue'
+import { ref, watchEffect, onWatcherCleanup } from "vue"
 
 const id = ref(1)
 
 watchEffect(async () => {
   const controller = new AbortController()
-  
+
   // Cleanup on re-run or unmount (Vue 3.5+)
   onWatcherCleanup(() => controller.abort())
-  
+
   const res = await fetch(`/api/${id.value}`, { signal: controller.signal })
   data.value = await res.json()
 })
@@ -121,8 +123,8 @@ stop()
 // 'post' - after component update (access updated DOM)
 // 'sync' - immediate, use with caution
 
-watch(source, callback, { flush: 'post' })
-watchPostEffect(() => {})  // Alias for flush: 'post'
+watch(source, callback, { flush: "post" })
+watchPostEffect(() => {}) // Alias for flush: 'post'
 ```
 
 ## Lifecycle Hooks
@@ -136,13 +138,13 @@ import {
   onBeforeUnmount,
   onUnmounted,
   onErrorCaptured,
-  onActivated,      // KeepAlive
-  onDeactivated,    // KeepAlive
-  onServerPrefetch  // SSR only
-} from 'vue'
+  onActivated, // KeepAlive
+  onDeactivated, // KeepAlive
+  onServerPrefetch // SSR only
+} from "vue"
 
 onMounted(() => {
-  console.log('DOM is ready')
+  console.log("DOM is ready")
 })
 
 onUnmounted(() => {
@@ -152,7 +154,7 @@ onUnmounted(() => {
 // Error boundary
 onErrorCaptured((err, instance, info) => {
   console.error(err)
-  return false  // Stop propagation
+  return false // Stop propagation
 })
 ```
 
@@ -161,19 +163,19 @@ onErrorCaptured((err, instance, info) => {
 Group reactive effects for batch disposal.
 
 ```ts
-import { effectScope, onScopeDispose } from 'vue'
+import { effectScope, onScopeDispose } from "vue"
 
 const scope = effectScope()
 
 scope.run(() => {
   const count = ref(0)
   const doubled = computed(() => count.value * 2)
-  
+
   watch(count, () => console.log(count.value))
-  
+
   // Cleanup when scope stops
   onScopeDispose(() => {
-    console.log('Scope disposed')
+    console.log("Scope disposed")
   })
 })
 
@@ -193,7 +195,7 @@ Composables are functions that encapsulate stateful logic using Composition API.
 
 ```ts
 // composables/useMouse.ts
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue"
 
 export function useMouse() {
   const x = ref(0)
@@ -204,8 +206,8 @@ export function useMouse() {
     y.value = e.pageY
   }
 
-  onMounted(() => window.addEventListener('mousemove', update))
-  onUnmounted(() => window.removeEventListener('mousemove', update))
+  onMounted(() => window.addEventListener("mousemove", update))
+  onUnmounted(() => window.removeEventListener("mousemove", update))
 
   return { x, y }
 }
@@ -216,7 +218,7 @@ export function useMouse() {
 Use `toValue()` (Vue 3.3+) to normalize refs, getters, or plain values.
 
 ```ts
-import { ref, watchEffect, toValue, type MaybeRefOrGetter } from 'vue'
+import { ref, watchEffect, toValue, type MaybeRefOrGetter } from "vue"
 
 export function useFetch(url: MaybeRefOrGetter<string>) {
   const data = ref(null)
@@ -225,7 +227,7 @@ export function useFetch(url: MaybeRefOrGetter<string>) {
   watchEffect(async () => {
     data.value = null
     error.value = null
-    
+
     try {
       const res = await fetch(toValue(url))
       data.value = await res.json()
@@ -238,7 +240,7 @@ export function useFetch(url: MaybeRefOrGetter<string>) {
 }
 
 // Usage - all work:
-useFetch('/api/users')
+useFetch("/api/users")
 useFetch(urlRef)
 useFetch(() => `/api/users/${props.id}`)
 ```

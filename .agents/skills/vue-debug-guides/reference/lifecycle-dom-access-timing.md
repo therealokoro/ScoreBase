@@ -21,16 +21,17 @@ The component's DOM is only available starting from the `mounted` hook (Options 
 - [ ] Use `$nextTick` if you need DOM after reactive data changes
 
 **Incorrect:**
+
 ```javascript
 // WRONG: Accessing DOM in created hook
 export default {
   created() {
     // DOM doesn't exist yet!
     console.log(this.$el) // undefined
-    this.$el.querySelector('.chart') // Error: Cannot read property 'querySelector' of undefined
+    this.$el.querySelector(".chart") // Error: Cannot read property 'querySelector' of undefined
 
     // Third-party library initialization fails
-    new Chart(document.getElementById('myChart')) // Element doesn't exist yet
+    new Chart(document.getElementById("myChart")) // Element doesn't exist yet
   }
 }
 ```
@@ -49,7 +50,7 @@ export default {
 ```vue
 <!-- WRONG: Accessing template ref synchronously in setup -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const myInput = ref(null)
 
@@ -63,6 +64,7 @@ myInput.value.focus() // Error: Cannot read property 'focus' of null
 ```
 
 **Correct:**
+
 ```javascript
 // CORRECT: Use created for data, mounted for DOM
 export default {
@@ -88,7 +90,7 @@ export default {
 ```vue
 <!-- CORRECT: Access template refs in onMounted -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue"
 
 const myInput = ref(null)
 
@@ -124,14 +126,14 @@ export default {
 
 ```vue
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from "vue"
 
 const listRef = ref(null)
 const items = ref([])
 
 onMounted(() => {
   // Safe to access DOM here
-  listRef.value.style.height = '400px'
+  listRef.value.style.height = "400px"
 })
 </script>
 ```
@@ -140,10 +142,10 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { useTemplateRef, onMounted } from 'vue'
+import { useTemplateRef, onMounted } from "vue"
 
 // Vue 3.5+ recommended approach - decouples ref name from variable name
-const input = useTemplateRef('my-input')
+const input = useTemplateRef("my-input")
 
 onMounted(() => {
   input.value.focus()
@@ -159,7 +161,7 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick } from "vue"
 
 const listRef = ref(null)
 const items = ref([])
@@ -211,6 +213,7 @@ export default {
 ```
 
 ## Reference
+
 - [Vue.js Lifecycle Hooks](https://vuejs.org/guide/essentials/lifecycle.html)
 - [Vue.js Template Refs](https://vuejs.org/guide/essentials/template-refs.html)
 - [Vue.js nextTick](https://vuejs.org/api/general.html#nexttick)

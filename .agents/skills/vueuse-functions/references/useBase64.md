@@ -9,10 +9,10 @@ Reactive base64 transforming. Supports plain text, buffer, files, canvas, object
 ## Usage
 
 ```ts
-import { useBase64 } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useBase64 } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const text = shallowRef('')
+const text = shallowRef("")
 
 const { base64, promise, execute } = useBase64(text)
 ```
@@ -48,11 +48,11 @@ const { base64 } = useBase64(text, { dataUrl: false })
 When transforming canvas or image elements, you can specify the MIME type and quality.
 
 ```ts
-const canvas = document.querySelector('canvas')
+const canvas = document.querySelector("canvas")
 
 const { base64 } = useBase64(canvas, {
-  type: 'image/jpeg', // MIME type
-  quality: 0.8, // Image quality (0-1, for jpeg/webp)
+  type: "image/jpeg", // MIME type
+  quality: 0.8 // Image quality (0-1, for jpeg/webp)
 })
 ```
 
@@ -61,10 +61,10 @@ const { base64 } = useBase64(canvas, {
 For objects, arrays, maps and sets, you can provide a custom serializer. Otherwise, the data will be serialized using `JSON.stringify` (maps are converted to objects, sets to arrays).
 
 ```ts
-const data = shallowRef({ foo: 'bar' })
+const data = shallowRef({ foo: "bar" })
 
 const { base64 } = useBase64(data, {
-  serializer: v => JSON.stringify(v, null, 2),
+  serializer: (v) => JSON.stringify(v, null, 2)
 })
 ```
 
@@ -99,38 +99,38 @@ export interface UseBase64Return {
 }
 export declare function useBase64(
   target: MaybeRefOrGetter<string | undefined>,
-  options?: UseBase64Options,
+  options?: UseBase64Options
 ): UseBase64Return
 export declare function useBase64(
   target: MaybeRefOrGetter<Blob | undefined>,
-  options?: UseBase64Options,
+  options?: UseBase64Options
 ): UseBase64Return
 export declare function useBase64(
   target: MaybeRefOrGetter<ArrayBuffer | undefined>,
-  options?: UseBase64Options,
+  options?: UseBase64Options
 ): UseBase64Return
 export declare function useBase64(
   target: MaybeRefOrGetter<HTMLCanvasElement | undefined>,
-  options?: ToDataURLOptions,
+  options?: ToDataURLOptions
 ): UseBase64Return
 export declare function useBase64(
   target: MaybeRefOrGetter<HTMLImageElement | undefined>,
-  options?: ToDataURLOptions,
+  options?: ToDataURLOptions
 ): UseBase64Return
 export declare function useBase64<T extends Record<string, unknown>>(
   target: MaybeRefOrGetter<T>,
-  options?: UseBase64ObjectOptions<T>,
+  options?: UseBase64ObjectOptions<T>
 ): UseBase64Return
 export declare function useBase64<T extends Map<string, unknown>>(
   target: MaybeRefOrGetter<T>,
-  options?: UseBase64ObjectOptions<T>,
+  options?: UseBase64ObjectOptions<T>
 ): UseBase64Return
 export declare function useBase64<T extends Set<unknown>>(
   target: MaybeRefOrGetter<T>,
-  options?: UseBase64ObjectOptions<T>,
+  options?: UseBase64ObjectOptions<T>
 ): UseBase64Return
 export declare function useBase64<T>(
   target: MaybeRefOrGetter<T[]>,
-  options?: UseBase64ObjectOptions<T[]>,
+  options?: UseBase64ObjectOptions<T[]>
 ): UseBase64Return
 ```

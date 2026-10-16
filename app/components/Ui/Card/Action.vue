@@ -10,22 +10,22 @@
 </template>
 
 <script lang="ts" setup>
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = withDefaults(
-    defineProps<
-      PrimitiveProps & {
-        /** Custom class(es) to add to the element. */
-        class?: HTMLAttributes["class"];
-      }
-    >(),
-    { as: "div" }
-  );
+const props = withDefaults(
+  defineProps<
+    PrimitiveProps & {
+      /** Custom class(es) to add to the element. */
+      class?: HTMLAttributes["class"]
+    }
+  >(),
+  { as: "div" }
+)
 
-  const styles = tv({
-    base: "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-  });
+const styles = tv({
+  base: "col-start-2 row-span-2 row-start-1 self-start justify-self-end"
+})
 </script>

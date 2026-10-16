@@ -9,9 +9,9 @@ SSR compatible and reactive [`CSS.supports`](https://developer.mozilla.org/docs/
 ## Usage
 
 ```ts
-import { useCssSupports } from '@vueuse/core'
+import { useCssSupports } from "@vueuse/core"
 
-const { isSupported } = useCssSupports('container-type', 'scroll-state')
+const { isSupported } = useCssSupports("container-type", "scroll-state")
 ```
 
 ## Type Declarations
@@ -24,10 +24,10 @@ export interface UseCssSupportsReturn extends Supportable {}
 export declare function useCssSupports(
   property: MaybeRefOrGetter<string>,
   value: MaybeRefOrGetter<string>,
-  options?: UseCssSupportsOptions,
+  options?: UseCssSupportsOptions
 ): UseCssSupportsReturn
 export declare function useCssSupports(
   conditionText: MaybeRefOrGetter<string>,
-  options?: UseCssSupportsOptions,
+  options?: UseCssSupportsOptions
 ): UseCssSupportsReturn
 ```

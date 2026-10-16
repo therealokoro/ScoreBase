@@ -2,7 +2,6 @@ import { ORPCError } from "@orpc/server"
 import { describe, expect, it } from "vitest"
 
 import type { APiContext } from "../context"
-
 import { requireAdmin, requireClassAccess, requireSelf, requireSession } from "./auth-guard"
 
 type FakeUser = { id: string; role: string; classId?: string | null }
@@ -55,11 +54,15 @@ describe("requireAdmin", () => {
 
 describe("requireSelf", () => {
   it("throws UNAUTHORIZED without a session", () => {
-    expect(captureError(() => requireSelf(contextWith(null), "user_admin")).code).toBe("UNAUTHORIZED")
+    expect(captureError(() => requireSelf(contextWith(null), "user_admin")).code).toBe(
+      "UNAUTHORIZED"
+    )
   })
 
   it("throws FORBIDDEN when the id does not match the caller", () => {
-    expect(captureError(() => requireSelf(contextWith(teacher), "someone_else")).code).toBe("FORBIDDEN")
+    expect(captureError(() => requireSelf(contextWith(teacher), "someone_else")).code).toBe(
+      "FORBIDDEN"
+    )
   })
 
   it("does not throw when the id matches the caller", () => {
@@ -91,15 +94,17 @@ describe("requireClassAccess", () => {
   })
 
   it("throws FORBIDDEN when the classId is null or undefined", () => {
-    expect(captureError(() => requireClassAccess(contextWith(teacher), null)).code).toBe("FORBIDDEN")
+    expect(captureError(() => requireClassAccess(contextWith(teacher), null)).code).toBe(
+      "FORBIDDEN"
+    )
     expect(captureError(() => requireClassAccess(contextWith(teacher), undefined)).code).toBe(
       "FORBIDDEN"
     )
   })
 
   it("throws FORBIDDEN when the teacher has no assigned class", () => {
-    expect(captureError(() => requireClassAccess(contextWith(teacherWithoutClass), "class_1")).code).toBe(
-      "FORBIDDEN"
-    )
+    expect(
+      captureError(() => requireClassAccess(contextWith(teacherWithoutClass), "class_1")).code
+    ).toBe("FORBIDDEN")
   })
 })

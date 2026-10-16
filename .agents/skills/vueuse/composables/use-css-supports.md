@@ -8,15 +8,15 @@ SSR compatible and reactive .
 ## Usage
 
 ```ts
-import { useCssSupports } from '@vueuse/core'
+import { useCssSupports } from "@vueuse/core"
 
-const { isSupported } = useCssSupports('container-type', 'scroll-state')
+const { isSupported } = useCssSupports("container-type", "scroll-state")
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
+| Name        | Type  |
+| ----------- | ----- |
 | isSupported | `Ref` |
 
 ## Reference

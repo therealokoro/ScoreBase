@@ -11,28 +11,28 @@ Shorthand for v-model binding, props + emit -> ref
 ## Usage
 
 ```ts
-import { useVModel } from '@vueuse/core'
+import { useVModel } from "@vueuse/core"
 
 const props = defineProps<{
   modelValue: string
 }>()
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"])
 
-const data = useVModel(props, 'modelValue', emit)
+const data = useVModel(props, "modelValue", emit)
 ```
 
 ### Options API
 
 ```ts
-import { useVModel } from '@vueuse/core'
+import { useVModel } from "@vueuse/core"
 
 export default {
   setup(props, { emit }) {
-    const data = useVModel(props, 'data', emit)
+    const data = useVModel(props, "data", emit)
 
     console.log(data.value) // props.data
-    data.value = 'foo' // emit('update:data', 'foo')
-  },
+    data.value = "foo" // emit('update:data', 'foo')
+  }
 }
 ```
 
@@ -43,7 +43,7 @@ export default {
 By default, `useVModel` returns a computed ref. In passive mode, it creates a local ref that syncs with the prop via `watch`, allowing deep reactivity tracking.
 
 ```ts
-const data = useVModel(props, 'modelValue', emit, { passive: true })
+const data = useVModel(props, "modelValue", emit, { passive: true })
 ```
 
 ### Deep Watching
@@ -51,9 +51,9 @@ const data = useVModel(props, 'modelValue', emit, { passive: true })
 When using `passive: true`, you can enable deep watching for nested object changes:
 
 ```ts
-const data = useVModel(props, 'modelValue', emit, {
+const data = useVModel(props, "modelValue", emit, {
   passive: true,
-  deep: true,
+  deep: true
 })
 ```
 
@@ -62,8 +62,8 @@ const data = useVModel(props, 'modelValue', emit, {
 Clone the prop value to avoid mutating the original object. Set to `true` to use `JSON.parse(JSON.stringify())` or provide a custom clone function.
 
 ```ts
-const data = useVModel(props, 'modelValue', emit, {
-  clone: true,
+const data = useVModel(props, "modelValue", emit, {
+  clone: true
   // or provide custom clone function
   // clone: (val) => structuredClone(val),
 })
@@ -74,8 +74,8 @@ const data = useVModel(props, 'modelValue', emit, {
 Provide a default value when the prop is undefined:
 
 ```ts
-const data = useVModel(props, 'modelValue', emit, {
-  defaultValue: 'default',
+const data = useVModel(props, "modelValue", emit, {
+  defaultValue: "default"
 })
 ```
 
@@ -84,8 +84,8 @@ const data = useVModel(props, 'modelValue', emit, {
 Override the default `update:propName` event name:
 
 ```ts
-const data = useVModel(props, 'value', emit, {
-  eventName: 'change',
+const data = useVModel(props, "value", emit, {
+  eventName: "change"
 })
 ```
 
@@ -94,11 +94,11 @@ const data = useVModel(props, 'value', emit, {
 Use `shouldEmit` to validate before emitting. Return `false` to prevent the emit:
 
 ```ts
-const data = useVModel(props, 'modelValue', emit, {
+const data = useVModel(props, "modelValue", emit, {
   shouldEmit: (value) => {
     // Only emit if value is valid
     return value.length > 0
-  },
+  }
 })
 ```
 
@@ -159,24 +159,16 @@ export interface UseVModelOptions<T, Passive extends boolean = false> {
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useVModel<
-  P extends object,
-  K extends keyof P,
-  Name extends string,
->(
+export declare function useVModel<P extends object, K extends keyof P, Name extends string>(
   props: P,
   key?: K,
   emit?: (name: Name, ...args: any[]) => void,
-  options?: UseVModelOptions<P[K], false>,
+  options?: UseVModelOptions<P[K], false>
 ): WritableComputedRef<P[K]>
-export declare function useVModel<
-  P extends object,
-  K extends keyof P,
-  Name extends string,
->(
+export declare function useVModel<P extends object, K extends keyof P, Name extends string>(
   props: P,
   key?: K,
   emit?: (name: Name, ...args: any[]) => void,
-  options?: UseVModelOptions<P[K], true>,
+  options?: UseVModelOptions<P[K], true>
 ): Ref<UnwrapRef<P[K]>>
 ```

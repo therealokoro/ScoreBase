@@ -19,21 +19,16 @@ Messages are broadcasted via a message event fired at all BroadcastChannel
 objects listening to the channel.
 
 ```ts
-import { useBroadcastChannel } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useBroadcastChannel } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const {
-  isSupported,
-  channel,
-  post,
-  close,
-  error,
-  isClosed,
-} = useBroadcastChannel({ name: 'vueuse-demo-channel' })
+const { isSupported, channel, post, close, error, isClosed } = useBroadcastChannel({
+  name: "vueuse-demo-channel"
+})
 
-const message = shallowRef('')
+const message = shallowRef("")
 
-message.value = 'Hello, VueUse World!'
+message.value = "Hello, VueUse World!"
 
 // Post the message to the broadcast channel:
 post(message.value)
@@ -60,7 +55,7 @@ export interface UseBroadcastChannelOptions extends ConfigurableWindow {
  *
  */
 export declare function useBroadcastChannel<D, P>(
-  options: UseBroadcastChannelOptions,
+  options: UseBroadcastChannelOptions
 ): UseBroadcastChannelReturn<D, P>
 export interface UseBroadcastChannelReturn<D, P> extends Supportable {
   channel: Ref<BroadcastChannel | undefined>

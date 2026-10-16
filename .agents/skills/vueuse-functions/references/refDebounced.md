@@ -10,13 +10,13 @@ Debounce execution of a ref value.
 ## Usage
 
 ```ts {5}
-import { refDebounced } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refDebounced } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const input = shallowRef('foo')
+const input = shallowRef("foo")
 const debounced = refDebounced(input, 1000)
 
-input.value = 'bar'
+input.value = "bar"
 console.log(debounced.value) // 'foo'
 
 await sleep(1100)
@@ -24,26 +24,26 @@ await sleep(1100)
 console.log(debounced.value) // 'bar'
 // ---cut-after---
 function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 ```
 
 An example with object ref.
 
 ```js
-import { refDebounced } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refDebounced } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const data = shallowRef({
-  name: 'foo',
-  age: 18,
+  name: "foo",
+  age: 18
 })
 const debounced = refDebounced(data, 1000)
 
 function update() {
   data.value = {
     ...data.value,
-    name: 'bar',
+    name: "bar"
   }
 }
 
@@ -72,7 +72,7 @@ export type RefDebouncedReturn<T = any> = Readonly<Ref<T>>
 export declare function refDebounced<T>(
   value: Ref<T>,
   ms?: MaybeRefOrGetter<number>,
-  options?: DebounceFilterOptions,
+  options?: DebounceFilterOptions
 ): RefDebouncedReturn<T>
 /** @deprecated use `refDebounced` instead */
 export declare const debouncedRef: typeof refDebounced

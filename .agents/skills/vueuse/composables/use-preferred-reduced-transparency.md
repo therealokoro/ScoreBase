@@ -8,7 +8,7 @@ Reactive prefers-reduced-transparency media query.
 ## Usage
 
 ```ts
-import { usePreferredReducedTransparency } from '@vueuse/core'
+import { usePreferredReducedTransparency } from "@vueuse/core"
 
 const preferredTransparency = usePreferredReducedTransparency()
 ```

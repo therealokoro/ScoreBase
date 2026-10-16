@@ -8,7 +8,7 @@ Reactive navigator.language.
 ## Usage
 
 ```ts
-import { useNavigatorLanguage } from '@vueuse/core'
+import { useNavigatorLanguage } from "@vueuse/core"
 
 const { language } = useNavigatorLanguage()
 
@@ -19,10 +19,10 @@ watch(language, () => {
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| language | `shallowRef&lt;string \| undefined&gt;` |
+| Name        | Type                                    |
+| ----------- | --------------------------------------- |
+| isSupported | `useSupported`                          |
+| language    | `shallowRef&lt;string \| undefined&gt;` |
 
 ## Reference
 

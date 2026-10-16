@@ -8,33 +8,33 @@ Reactive enumerateDevices listing available input/output devices.
 ## Usage
 
 ```ts
-import { useDevicesList } from '@vueuse/core'
+import { useDevicesList } from "@vueuse/core"
 
 const {
   devices,
   videoInputs: cameras,
   audioInputs: microphones,
-  audioOutputs: speakers,
+  audioOutputs: speakers
 } = useDevicesList()
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| requestPermissions | `boolean` | false | Request for permissions immediately if it's not granted, |
+| Option             | Type      | Default | Description                                              |
+| ------------------ | --------- | ------- | -------------------------------------------------------- |
+| requestPermissions | `boolean` | false   | Request for permissions immediately if it's not granted, |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| devices | `shallowRef&lt;MediaDeviceInfo[]&gt;` |
-| ensurePermissions | `Ref` |
-| permissionGranted | `shallowRef` |
-| videoInputs | `computed` |
-| audioInputs | `computed` |
-| audioOutputs | `computed` |
-| isSupported | `useSupported` |
+| Name              | Type                                  |
+| ----------------- | ------------------------------------- |
+| devices           | `shallowRef&lt;MediaDeviceInfo[]&gt;` |
+| ensurePermissions | `Ref`                                 |
+| permissionGranted | `shallowRef`                          |
+| videoInputs       | `computed`                            |
+| audioInputs       | `computed`                            |
+| audioOutputs      | `computed`                            |
+| isSupported       | `useSupported`                        |
 
 ## Reference
 

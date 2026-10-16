@@ -27,10 +27,11 @@ Vue components are objects with internal properties that should not be made reac
 4. Impacts performance
 
 **Incorrect - Using ref() for components:**
+
 ```typescript
-import { ref } from 'vue'
-import ComponentA from './ComponentA.vue'
-import ComponentB from './ComponentB.vue'
+import { ref } from "vue"
+import ComponentA from "./ComponentA.vue"
+import ComponentB from "./ComponentB.vue"
 
 // BAD: Vue will warn about making component reactive
 const currentComponent = ref(ComponentA)
@@ -41,6 +42,7 @@ function switchComponent() {
 ```
 
 **Console warning:**
+
 ```
 [Vue warn]: Vue received a Component that was made a reactive object.
 This can lead to unnecessary performance overhead and should be avoided
@@ -52,9 +54,9 @@ by marking the component with `markRaw` or using `shallowRef` instead of `ref`.
 `shallowRef` only makes the `.value` reference reactive, not the contents:
 
 ```typescript
-import { shallowRef, type Component } from 'vue'
-import ComponentA from './ComponentA.vue'
-import ComponentB from './ComponentB.vue'
+import { shallowRef, type Component } from "vue"
+import ComponentA from "./ComponentA.vue"
+import ComponentB from "./ComponentB.vue"
 
 // CORRECT: shallowRef doesn't deep-proxy the component
 const currentComponent = shallowRef<Component>(ComponentA)
@@ -75,10 +77,10 @@ function switchComponent() {
 When components are part of a larger reactive object:
 
 ```typescript
-import { reactive, markRaw, type Component } from 'vue'
-import TabHome from './TabHome.vue'
-import TabProfile from './TabProfile.vue'
-import TabSettings from './TabSettings.vue'
+import { reactive, markRaw, type Component } from "vue"
+import TabHome from "./TabHome.vue"
+import TabProfile from "./TabProfile.vue"
+import TabSettings from "./TabSettings.vue"
 
 interface Tab {
   name: string
@@ -87,9 +89,9 @@ interface Tab {
 
 // CORRECT: markRaw prevents reactivity on component objects
 const tabs = reactive<Tab[]>([
-  { name: 'Home', component: markRaw(TabHome) },
-  { name: 'Profile', component: markRaw(TabProfile) },
-  { name: 'Settings', component: markRaw(TabSettings) }
+  { name: "Home", component: markRaw(TabHome) },
+  { name: "Profile", component: markRaw(TabProfile) },
+  { name: "Settings", component: markRaw(TabSettings) }
 ])
 
 const activeTab = shallowRef<Tab>(tabs[0])
@@ -98,11 +100,7 @@ const activeTab = shallowRef<Tab>(tabs[0])
 ```vue
 <template>
   <div class="tabs">
-    <button
-      v-for="tab in tabs"
-      :key="tab.name"
-      @click="activeTab = tab"
-    >
+    <button v-for="tab in tabs" :key="tab.name" @click="activeTab = tab">
       {{ tab.name }}
     </button>
   </div>
@@ -115,7 +113,7 @@ const activeTab = shallowRef<Tab>(tabs[0])
 For proper TypeScript support with dynamic components:
 
 ```typescript
-import { shallowRef, type Component, type DefineComponent } from 'vue'
+import { shallowRef, type Component, type DefineComponent } from "vue"
 
 // Generic component type
 const currentComponent = shallowRef<Component | null>(null)
@@ -133,14 +131,12 @@ const currentComponent = shallowRef<DefineComponent<MyComponentProps> | null>(nu
 When using dynamic imports for code splitting:
 
 ```typescript
-import { shallowRef, defineAsyncComponent, type Component } from 'vue'
+import { shallowRef, defineAsyncComponent, type Component } from "vue"
 
 const currentComponent = shallowRef<Component | null>(null)
 
 async function loadComponent(name: string) {
-  const component = defineAsyncComponent(
-    () => import(`./components/${name}.vue`)
-  )
+  const component = defineAsyncComponent(() => import(`./components/${name}.vue`))
   currentComponent.value = component
 }
 ```
@@ -150,18 +146,18 @@ async function loadComponent(name: string) {
 For tab systems or wizard-like interfaces:
 
 ```typescript
-import { shallowRef, markRaw, type Component } from 'vue'
+import { shallowRef, markRaw, type Component } from "vue"
 
 // Type-safe component registry
 const componentRegistry = {
-  home: markRaw(defineAsyncComponent(() => import('./Home.vue'))),
-  about: markRaw(defineAsyncComponent(() => import('./About.vue'))),
-  contact: markRaw(defineAsyncComponent(() => import('./Contact.vue')))
+  home: markRaw(defineAsyncComponent(() => import("./Home.vue"))),
+  about: markRaw(defineAsyncComponent(() => import("./About.vue"))),
+  contact: markRaw(defineAsyncComponent(() => import("./Contact.vue")))
 } as const
 
 type ComponentKey = keyof typeof componentRegistry
 
-const currentView = shallowRef<ComponentKey>('home')
+const currentView = shallowRef<ComponentKey>("home")
 
 // Computed to get current component
 const currentComponent = computed(() => componentRegistry[currentView.value])
@@ -175,12 +171,12 @@ const currentComponent = computed(() => componentRegistry[currentView.value])
 
 ## When to Use Each Approach
 
-| Scenario | Solution |
-|----------|----------|
-| Single dynamic component reference | `shallowRef` |
-| Component in reactive array/object | `markRaw` on component |
-| Component map/registry | `markRaw` each component |
-| Async components | `defineAsyncComponent` + `shallowRef` |
+| Scenario                           | Solution                              |
+| ---------------------------------- | ------------------------------------- |
+| Single dynamic component reference | `shallowRef`                          |
+| Component in reactive array/object | `markRaw` on component                |
+| Component map/registry             | `markRaw` each component              |
+| Async components                   | `defineAsyncComponent` + `shallowRef` |
 
 ## Common Mistakes
 
@@ -199,16 +195,20 @@ const components = shallowRef([ComponentA, ComponentB])
 
 ```typescript
 // BAD: Components in map become reactive
-const routes = reactive(new Map([
-  ['home', HomeComponent],
-  ['about', AboutComponent]
-]))
+const routes = reactive(
+  new Map([
+    ["home", HomeComponent],
+    ["about", AboutComponent]
+  ])
+)
 
 // GOOD: Mark each component as raw
-const routes = reactive(new Map([
-  ['home', markRaw(HomeComponent)],
-  ['about', markRaw(AboutComponent)]
-]))
+const routes = reactive(
+  new Map([
+    ["home", markRaw(HomeComponent)],
+    ["about", markRaw(AboutComponent)]
+  ])
+)
 ```
 
 ## Reference

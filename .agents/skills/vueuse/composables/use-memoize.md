@@ -8,11 +8,10 @@ Cache results of functions depending on arguments and keep it reactive. It can a
 ## Usage
 
 ```ts
-import { useMemoize } from '@vueuse/core'
+import { useMemoize } from "@vueuse/core"
 
-const getUser = useMemoize(
-  async (userId: number): Promise<UserData> =>
-    axios.get(`users/${userId}`).then(({ data }) => data),
+const getUser = useMemoize(async (userId: number): Promise<UserData> =>
+  axios.get(`users/${userId}`).then(({ data }) => data)
 )
 
 const user1 = await getUser(1) // Request users/1

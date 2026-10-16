@@ -8,24 +8,24 @@ Reactive Permissions API. The Permissions API provides the tools to allow develo
 ## Usage
 
 ```ts
-import { usePermission } from '@vueuse/core'
+import { usePermission } from "@vueuse/core"
 
-const microphoneAccess = usePermission('microphone')
+const microphoneAccess = usePermission("microphone")
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| controls | `Controls` | false | Expose more controls |
+| Option   | Type       | Default | Description          |
+| -------- | ---------- | ------- | -------------------- |
+| controls | `Controls` | false   | Expose more controls |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| state | `shallowRef&lt;PermissionState \| undefined&gt;` |
-| isSupported | `useSupported` |
-| query | `createSingletonPromise` |
+| Name        | Type                                             |
+| ----------- | ------------------------------------------------ |
+| state       | `shallowRef&lt;PermissionState \| undefined&gt;` |
+| isSupported | `useSupported`                                   |
+| query       | `createSingletonPromise`                         |
 
 ## Reference
 

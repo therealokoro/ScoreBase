@@ -8,17 +8,17 @@ Reactively track
 ## Usage
 
 ```ts
-import { useDevicePixelRatio } from '@vueuse/core'
+import { useDevicePixelRatio } from "@vueuse/core"
 
 const { pixelRatio } = useDevicePixelRatio()
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
+| Name       | Type         |
+| ---------- | ------------ |
 | pixelRatio | `shallowRef` |
-| stop | `Ref` |
+| stop       | `Ref`        |
 
 ## Reference
 

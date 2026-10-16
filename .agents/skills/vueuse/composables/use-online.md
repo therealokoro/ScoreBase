@@ -8,7 +8,7 @@ Reactive online state. A wrapper of .
 ## Usage
 
 ```ts
-import { useOnline } from '@vueuse/core'
+import { useOnline } from "@vueuse/core"
 
 const online = useOnline()
 ```

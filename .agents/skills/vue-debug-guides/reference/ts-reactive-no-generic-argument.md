@@ -21,24 +21,24 @@ tags: [vue3, typescript, reactive, ref-unwrapping, composition-api]
 
 ```vue
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref } from "vue"
 
 interface Book {
   title: string
   year: number
-  author: Ref<string>  // Nested ref
+  author: Ref<string> // Nested ref
 }
 
 // WRONG: Generic argument doesn't account for ref unwrapping
 const book = reactive<Book>({
-  title: 'Vue 3 Guide',
+  title: "Vue 3 Guide",
   year: 2024,
-  author: ref('John Doe')
+  author: ref("John Doe")
 })
 
 // TypeScript thinks book.author is Ref<string>
 // But at runtime, it's unwrapped to just string!
-book.author.value  // TypeScript: OK, Runtime: ERROR (author is a string, not a ref)
+book.author.value // TypeScript: OK, Runtime: ERROR (author is a string, not a ref)
 </script>
 ```
 
@@ -46,7 +46,7 @@ book.author.value  // TypeScript: OK, Runtime: ERROR (author is a string, not a 
 
 ```vue
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref } from "vue"
 
 interface Book {
   title: string
@@ -55,11 +55,11 @@ interface Book {
 
 // CORRECT: Annotate the variable, not the generic
 const book: Book = reactive({
-  title: 'Vue 3 Guide'
+  title: "Vue 3 Guide"
 })
 
-book.title = 'New Title'  // TypeScript knows this is string
-book.year = 2024         // TypeScript knows this is number | undefined
+book.title = "New Title" // TypeScript knows this is string
+book.year = 2024 // TypeScript knows this is number | undefined
 </script>
 ```
 
@@ -68,15 +68,15 @@ book.year = 2024         // TypeScript knows this is number | undefined
 When you use `reactive()`, Vue automatically unwraps any nested refs:
 
 ```typescript
-import { reactive, ref, Ref } from 'vue'
+import { reactive, ref, Ref } from "vue"
 
-const name = ref('John')
+const name = ref("John")
 const state = reactive({
-  name: name  // This is a Ref<string>
+  name: name // This is a Ref<string>
 })
 
 // At runtime, state.name is 'John' (string), NOT a Ref
-console.log(state.name)       // 'John' (not ref object)
+console.log(state.name) // 'John' (not ref object)
 console.log(state.name.value) // Runtime error: .value doesn't exist
 
 // The ACTUAL return type is different from what you'd expect
@@ -97,8 +97,8 @@ interface FormState {
 }
 
 const form: FormState = reactive({
-  name: '',
-  email: '',
+  name: "",
+  email: "",
   age: 0
 })
 </script>
@@ -118,8 +118,8 @@ interface User {
 const user: Partial<User> = reactive({})
 
 // Fill in later
-user.id = '123'
-user.name = 'John'
+user.id = "123"
+user.name = "John"
 </script>
 ```
 
@@ -136,12 +136,12 @@ interface User {
 
 // ref() works well with generics
 const user = ref<User>({
-  id: '1',
-  name: 'John'
+  id: "1",
+  name: "John"
 })
 
 // Access with .value - clear and predictable
-user.value.name = 'Jane'
+user.value.name = "Jane"
 </script>
 ```
 
@@ -152,8 +152,8 @@ When working with generic type parameters in composables:
 ```typescript
 // PROBLEM: Generic T with ref() causes UnwrapRef issues
 function useBroken<T>(initial: T) {
-  const state = ref(initial)  // Type becomes Ref<UnwrapRef<T>>
-  state.value = initial       // Error: T is not assignable to UnwrapRef<T>
+  const state = ref(initial) // Type becomes Ref<UnwrapRef<T>>
+  state.value = initial // Error: T is not assignable to UnwrapRef<T>
   return state
 }
 
@@ -165,7 +165,7 @@ function useFixed1<T>(initial: T) {
 
 // SOLUTION 2: Use shallowRef (no unwrapping)
 function useFixed2<T>(initial: T) {
-  const state = shallowRef(initial)  // Properly typed as ShallowRef<T>
+  const state = shallowRef(initial) // Properly typed as ShallowRef<T>
   return state
 }
 ```
@@ -178,7 +178,7 @@ For simple non-ref values without nested reactivity, the generic is safe:
 // Safe: no nested refs
 const state = reactive<{ count: number; name: string }>({
   count: 0,
-  name: ''
+  name: ""
 })
 
 // Also safe: explicit simple types
@@ -187,10 +187,12 @@ const map = reactive<Map<string, number>>(new Map())
 ```
 
 The issue only arises when:
+
 1. You have nested Ref types in your interface
 2. You're using generic type parameters that might contain refs
 
 ## Reference
+
 - [Vue.js TypeScript with Composition API - Typing reactive()](https://vuejs.org/guide/typescript/composition-api.html#typing-reactive)
 - [GitHub Issue: ref with generic type](https://github.com/vuejs/core/discussions/9564)
 - [Vue TypeScript Caveats Gist](https://gist.github.com/LinusBorg/e041ff635994b50b7cec9383c3a067f1)

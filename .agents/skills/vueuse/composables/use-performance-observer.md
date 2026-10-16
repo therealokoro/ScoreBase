@@ -8,23 +8,26 @@ Observe performance metrics.
 ## Usage
 
 ```ts
-import { usePerformanceObserver } from '@vueuse/core'
+import { usePerformanceObserver } from "@vueuse/core"
 
 const entrys = ref<PerformanceEntry[]>([])
-usePerformanceObserver({
-  entryTypes: ['paint'],
-}, (list) => {
-  entrys.value = list.getEntries()
-})
+usePerformanceObserver(
+  {
+    entryTypes: ["paint"]
+  },
+  (list) => {
+    entrys.value = list.getEntries()
+  }
+)
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
+| Name        | Type           |
+| ----------- | -------------- |
 | isSupported | `useSupported` |
-| start | `Ref` |
-| stop | `Ref` |
+| start       | `Ref`          |
+| stop        | `Ref`          |
 
 ## Reference
 

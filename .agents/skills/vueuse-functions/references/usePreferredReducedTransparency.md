@@ -9,7 +9,7 @@ Reactive [prefers-reduced-transparency](https://developer.mozilla.org/en-US/docs
 ## Usage
 
 ```ts
-import { usePreferredReducedTransparency } from '@vueuse/core'
+import { usePreferredReducedTransparency } from "@vueuse/core"
 
 const preferredTransparency = usePreferredReducedTransparency()
 ```
@@ -37,6 +37,6 @@ export type ReducedTransparencyType = "reduce" | "no-preference"
  * @__NO_SIDE_EFFECTS__
  */
 export declare function usePreferredReducedTransparency(
-  options?: ConfigurableWindow,
+  options?: ConfigurableWindow
 ): ComputedRef<ReducedTransparencyType>
 ```

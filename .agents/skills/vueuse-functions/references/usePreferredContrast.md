@@ -9,7 +9,7 @@ Reactive [prefers-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/@me
 ## Usage
 
 ```ts
-import { usePreferredContrast } from '@vueuse/core'
+import { usePreferredContrast } from "@vueuse/core"
 
 const preferredContrast = usePreferredContrast()
 ```
@@ -37,6 +37,6 @@ export type ContrastType = "more" | "less" | "custom" | "no-preference"
  * @__NO_SIDE_EFFECTS__
  */
 export declare function usePreferredContrast(
-  options?: ConfigurableWindow,
+  options?: ConfigurableWindow
 ): ComputedRef<ContrastType>
 ```

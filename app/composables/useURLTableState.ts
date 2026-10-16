@@ -187,7 +187,8 @@ function useServerState(opts: Required<BaseOptions> & { debounce: number }) {
 
   function onPaginationChange(p: { pageIndex: number; pageSize: number }) {
     // Guard against no-op updates (e.g. the URL watcher echoing the same page back).
-    if (p.pageIndex === pagination.value.pageIndex && p.pageSize === pagination.value.pageSize) return
+    if (p.pageIndex === pagination.value.pageIndex && p.pageSize === pagination.value.pageSize)
+      return
     pagination.value = p
   }
 

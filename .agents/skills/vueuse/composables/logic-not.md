@@ -8,13 +8,13 @@ condition for ref.
 ## Usage
 
 ```ts
-import { whenever } from '@vueuse/core'
-import { logicNot } from '@vueuse/math'
+import { whenever } from "@vueuse/core"
+import { logicNot } from "@vueuse/math"
 
 const a = ref(true)
 
 whenever(logicNot(a), () => {
-  console.log('a is now falsy!')
+  console.log("a is now falsy!")
 })
 ```
 

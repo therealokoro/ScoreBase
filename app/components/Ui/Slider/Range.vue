@@ -9,19 +9,19 @@
 </template>
 
 <script lang="ts" setup>
-  import { SliderRange } from "reka-ui";
-  import type { SliderRangeProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { SliderRange } from "reka-ui"
+import type { SliderRangeProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<
-    SliderRangeProps & {
-      /** Custom class(es) to add to parent element. */
-      class?: HTMLAttributes["class"];
-    }
-  >();
-  const forwarded = reactiveOmit(props, "class");
-  const styles = tv({
-    base: "bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full",
-  });
+const props = defineProps<
+  SliderRangeProps & {
+    /** Custom class(es) to add to parent element. */
+    class?: HTMLAttributes["class"]
+  }
+>()
+const forwarded = reactiveOmit(props, "class")
+const styles = tv({
+  base: "bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+})
 </script>

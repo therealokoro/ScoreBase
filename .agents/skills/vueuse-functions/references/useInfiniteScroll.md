@@ -10,10 +10,10 @@ Infinite scrolling of the element.
 
 ```vue
 <script setup lang="ts">
-import { useInfiniteScroll } from '@vueuse/core'
-import { ref, useTemplateRef } from 'vue'
+import { useInfiniteScroll } from "@vueuse/core"
+import { ref, useTemplateRef } from "vue"
 
-const el = useTemplateRef('el')
+const el = useTemplateRef("el")
 const data = ref([1, 2, 3, 4, 5, 6])
 
 const { reset } = useInfiniteScroll(
@@ -28,7 +28,7 @@ const { reset } = useInfiniteScroll(
       // inidicate when there is no more content to load so onLoadMore stops triggering
       // if (noMoreContent) return false
       return true // for demo purposes
-    },
+    }
   }
 )
 
@@ -44,9 +44,7 @@ function resetList() {
       {{ item }}
     </div>
   </div>
-  <button @click="resetList()">
-    Reset
-  </button>
+  <button @click="resetList()">Reset</button>
 </template>
 ```
 
@@ -69,8 +67,8 @@ Make sure to indicate when there is no more content to load with `canLoadMore`, 
 
 ```vue
 <script setup lang="ts">
-import { vInfiniteScroll } from '@vueuse/components'
-import { ref } from 'vue'
+import { vInfiniteScroll } from "@vueuse/components"
+import { ref } from "vue"
 
 const data = ref([1, 2, 3, 4, 5, 6])
 
@@ -104,15 +102,9 @@ function canLoadMore() {
 ## Type Declarations
 
 ```ts
-type InfiniteScrollElement =
-  | HTMLElement
-  | SVGElement
-  | Window
-  | Document
-  | null
-  | undefined
+type InfiniteScrollElement = HTMLElement | SVGElement | Window | Document | null | undefined
 export interface UseInfiniteScrollOptions<
-  T extends InfiniteScrollElement = InfiniteScrollElement,
+  T extends InfiniteScrollElement = InfiniteScrollElement
 > extends UseScrollOptions {
   /**
    * The minimum distance between the bottom of the element and the bottom of the viewport
@@ -151,6 +143,6 @@ export interface UseInfiniteScrollReturn {
 export declare function useInfiniteScroll<T extends InfiniteScrollElement>(
   element: MaybeRefOrGetter<T>,
   onLoadMore: (state: UnwrapNestedRefs<UseScrollReturn>) => Awaitable<void>,
-  options?: UseInfiniteScrollOptions<T>,
+  options?: UseInfiniteScrollOptions<T>
 ): UseInfiniteScrollReturn
 ```

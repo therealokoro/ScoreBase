@@ -8,7 +8,7 @@ Wrapper for with controls
 ## Usage
 
 ```ts
-import { useIntervalFn } from '@vueuse/core'
+import { useIntervalFn } from "@vueuse/core"
 
 const { pause, resume, isActive } = useIntervalFn(() => {
   /* your function */
@@ -17,18 +17,18 @@ const { pause, resume, isActive } = useIntervalFn(() => {
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| immediate | `boolean` | true | Start the timer immediately |
-| immediateCallback | `boolean` | false | Execute the callback immediately after calling `resume` |
+| Option            | Type      | Default | Description                                             |
+| ----------------- | --------- | ------- | ------------------------------------------------------- |
+| immediate         | `boolean` | true    | Start the timer immediately                             |
+| immediateCallback | `boolean` | false   | Execute the callback immediately after calling `resume` |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
+| Name     | Type         |
+| -------- | ------------ |
 | isActive | `shallowRef` |
-| pause | `Ref` |
-| resume | `Ref` |
+| pause    | `Ref`        |
+| resume   | `Ref`        |
 
 ## Reference
 

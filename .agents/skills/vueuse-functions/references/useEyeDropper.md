@@ -9,7 +9,7 @@ Reactive [EyeDropper API](https://developer.mozilla.org/en-US/docs/Web/API/EyeDr
 ## Usage
 
 ```ts
-import { useEyeDropper } from '@vueuse/core'
+import { useEyeDropper } from "@vueuse/core"
 
 const { isSupported, open, sRGBHex } = useEyeDropper()
 ```
@@ -19,9 +19,7 @@ const { isSupported, open, sRGBHex } = useEyeDropper()
 ```vue
 <template>
   <UseEyeDropper v-slot="{ isSupported, sRGBHex, open }">
-    <button :disabled="!isSupported" @click="() => open()">
-      sRGBHex: {{ sRGBHex }}
-    </button>
+    <button :disabled="!isSupported" @click="() => open()">sRGBHex: {{ sRGBHex }}</button>
   </UseEyeDropper>
 </template>
 ```
@@ -66,7 +64,5 @@ export interface UseEyeDropperReturn extends Supportable {
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useEyeDropper(
-  options?: UseEyeDropperOptions,
-): UseEyeDropperReturn
+export declare function useEyeDropper(options?: UseEyeDropperOptions): UseEyeDropperReturn
 ```

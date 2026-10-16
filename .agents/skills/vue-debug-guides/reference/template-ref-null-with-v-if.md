@@ -20,9 +20,10 @@ This is especially tricky with `watchEffect` since it runs automatically and may
 - [ ] Use optional chaining (?.) when accessing ref properties in uncertain contexts
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const inputEl = ref(null)
 const showInput = ref(true)
@@ -40,9 +41,10 @@ watchEffect(() => {
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const inputEl = ref(null)
 const showInput = ref(true)
@@ -53,7 +55,7 @@ watchEffect(() => {
     inputEl.value.focus()
   } else {
     // Element not mounted yet, or unmounted by v-if
-    console.log('Input element not available')
+    console.log("Input element not available")
   }
 })
 </script>
@@ -66,7 +68,7 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
 const inputEl = ref(null)
 const showInput = ref(true)
@@ -86,10 +88,10 @@ watch(inputEl, (el) => {
 
 ```vue
 <script setup>
-import { useTemplateRef, watchEffect } from 'vue'
+import { useTemplateRef, watchEffect } from "vue"
 
 // Vue 3.5+ approach
-const input = useTemplateRef('my-input')
+const input = useTemplateRef("my-input")
 
 // CORRECT: Use optional chaining for safe access
 watchEffect(() => {
@@ -104,7 +106,7 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue"
 
 const inputEl = ref(null)
 const showInput = ref(true)
@@ -120,4 +122,5 @@ const showInput = ref(true)
 ```
 
 ## Reference
+
 - [Vue.js Template Refs](https://vuejs.org/guide/essentials/template-refs.html)

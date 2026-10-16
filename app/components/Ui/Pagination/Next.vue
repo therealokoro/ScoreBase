@@ -10,28 +10,28 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactiveOmit } from "@vueuse/core";
-  import { PaginationNext } from "reka-ui";
-  import type { PaginationNextProps } from "reka-ui";
+import { reactiveOmit } from "@vueuse/core"
+import { PaginationNext } from "reka-ui"
+import type { PaginationNextProps } from "reka-ui"
 
-  import type { ButtonProps } from "~/components/Ui/Button.vue";
+import type { ButtonProps } from "~/components/Ui/Button.vue"
 
-  const props = withDefaults(
-    defineProps<
-      PaginationNextProps & {
-        /** Icon to show. */
-        icon?: string;
-        /** The variant of the button. */
-        variant?: ButtonProps["variant"];
-        /** The size of the button. */
-        size?: ButtonProps["size"];
-      }
-    >(),
-    {
-      variant: "ghost",
-      size: "icon-sm",
+const props = withDefaults(
+  defineProps<
+    PaginationNextProps & {
+      /** Icon to show. */
+      icon?: string
+      /** The variant of the button. */
+      variant?: ButtonProps["variant"]
+      /** The size of the button. */
+      size?: ButtonProps["size"]
     }
-  );
+  >(),
+  {
+    variant: "ghost",
+    size: "icon-sm"
+  }
+)
 
-  const forwarded = reactiveOmit(props, "icon");
+const forwarded = reactiveOmit(props, "icon")
 </script>

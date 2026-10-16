@@ -8,25 +8,20 @@ Reactive
 ## Usage
 
 ```ts
-import { useScreenSafeArea } from '@vueuse/core'
+import { useScreenSafeArea } from "@vueuse/core"
 
-const {
-  top,
-  right,
-  bottom,
-  left,
-} = useScreenSafeArea()
+const { top, right, bottom, left } = useScreenSafeArea()
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| top | `shallowRef` |
-| right | `shallowRef` |
+| Name   | Type         |
+| ------ | ------------ |
+| top    | `shallowRef` |
+| right  | `shallowRef` |
 | bottom | `shallowRef` |
-| left | `shallowRef` |
-| update | `Ref` |
+| left   | `shallowRef` |
+| update | `Ref`        |
 
 ## Reference
 

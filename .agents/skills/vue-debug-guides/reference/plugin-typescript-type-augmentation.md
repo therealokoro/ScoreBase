@@ -19,7 +19,7 @@ When creating Vue plugins that add global properties, you MUST properly augment 
 ```typescript
 // BAD - This OVERWRITES Vue types instead of augmenting!
 // types/vue.d.ts
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
     $translate: (key: string) => string
   }
@@ -27,9 +27,9 @@ declare module 'vue' {
 
 // GOOD - The export {} makes this a module, so it AUGMENTS types
 // types/vue.d.ts
-export {}  // This line is CRITICAL!
+export {} // This line is CRITICAL!
 
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
     $translate: (key: string) => string
   }
@@ -40,7 +40,7 @@ declare module 'vue' {
 
 ```typescript
 // plugins/i18n.ts
-import type { App, InjectionKey } from 'vue'
+import type { App, InjectionKey } from "vue"
 
 export interface I18nOptions {
   locale: string
@@ -52,7 +52,7 @@ export interface I18nInstance {
   locale: string
 }
 
-export const i18nInjectionKey: InjectionKey<I18nInstance> = Symbol('i18n')
+export const i18nInjectionKey: InjectionKey<I18nInstance> = Symbol("i18n")
 
 export function createI18n(options: I18nOptions) {
   const i18n: I18nInstance = {
@@ -77,7 +77,7 @@ export function createI18n(options: I18nOptions) {
 // types/i18n.d.ts (or in the same file after export)
 export {}
 
-declare module 'vue' {
+declare module "vue" {
   interface ComponentCustomProperties {
     $t: (key: string) => string
     $i18n: I18nInstance
@@ -93,7 +93,7 @@ Some plugins augment `@vue/runtime-core` instead of `vue`:
 // types/global.d.ts
 export {}
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
   interface ComponentCustomProperties {
     $myPlugin: MyPluginInstance
   }
@@ -112,7 +112,7 @@ Both approaches work, but `'vue'` is more common in application code.
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
-    "types/**/*.d.ts"  // Include your declaration files
+    "types/**/*.d.ts" // Include your declaration files
   ]
 }
 ```

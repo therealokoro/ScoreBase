@@ -77,7 +77,7 @@ defineOptions({
 
 ```vue
 <script setup>
-import { computed, useAttrs } from 'vue'
+import { computed, useAttrs } from "vue"
 
 defineOptions({
   inheritAttrs: false
@@ -105,7 +105,7 @@ const filteredAttrs = computed(() => {
 const props = defineProps({
   dataTestid: {
     type: String,
-    default: 'submit-btn'
+    default: "submit-btn"
   }
 })
 

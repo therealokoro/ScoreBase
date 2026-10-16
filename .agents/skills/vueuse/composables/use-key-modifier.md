@@ -8,9 +8,9 @@ Reactive Modifier State. Tracks state of any of the supported modifiers - see Br
 ## Usage
 
 ```ts
-import { useKeyModifier } from '@vueuse/core'
+import { useKeyModifier } from "@vueuse/core"
 
-const capsLockState = useKeyModifier('CapsLock')
+const capsLockState = useKeyModifier("CapsLock")
 
 console.log(capsLockState.value)
 ```

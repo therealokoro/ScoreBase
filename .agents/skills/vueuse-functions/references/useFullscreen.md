@@ -9,7 +9,7 @@ Reactive [Fullscreen API](https://developer.mozilla.org/en-US/docs/Web/API/Fulls
 ## Usage
 
 ```ts
-import { useFullscreen } from '@vueuse/core'
+import { useFullscreen } from "@vueuse/core"
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen()
 ```
@@ -18,10 +18,10 @@ Fullscreen specified element. Some platforms (like iOS's Safari) only allow full
 
 ```vue
 <script setup lang="ts">
-import { useFullscreen } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
+import { useFullscreen } from "@vueuse/core"
+import { useTemplateRef } from "vue"
 
-const el = useTemplateRef('el')
+const el = useTemplateRef("el")
 const { isFullscreen, enter, exit, toggle } = useFullscreen(el)
 </script>
 
@@ -36,9 +36,7 @@ const { isFullscreen, enter, exit, toggle } = useFullscreen(el)
 <template>
   <UseFullscreen v-slot="{ toggle }">
     <video />
-    <button @click="toggle">
-      Go Fullscreen
-    </button>
+    <button @click="toggle">Go Fullscreen</button>
   </UseFullscreen>
 </template>
 ```
@@ -69,6 +67,6 @@ export interface UseFullscreenReturn extends Supportable {
  */
 export declare function useFullscreen(
   target?: MaybeElementRef,
-  options?: UseFullscreenOptions,
+  options?: UseFullscreenOptions
 ): UseFullscreenReturn
 ```

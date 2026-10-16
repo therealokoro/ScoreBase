@@ -8,9 +8,9 @@ A basic event bus.
 ## Usage
 
 ```ts
-import { useEventBus } from '@vueuse/core'
+import { useEventBus } from "@vueuse/core"
 
-const bus = useEventBus<string>('news')
+const bus = useEventBus<string>("news")
 
 function listener(event: string) {
   console.log(`news: ${event}`)
@@ -20,7 +20,7 @@ function listener(event: string) {
 const unsubscribe = bus.on(listener)
 
 // fire an event
-bus.emit('The Tokyo Olympics has begun')
+bus.emit("The Tokyo Olympics has begun")
 
 // unregister the listener
 unsubscribe()
@@ -33,12 +33,12 @@ bus.reset()
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| on | `Ref` |
-| once | `Ref` |
-| off | `Ref` |
-| emit | `Ref` |
+| Name  | Type  |
+| ----- | ----- |
+| on    | `Ref` |
+| once  | `Ref` |
+| off   | `Ref` |
+| emit  | `Ref` |
 | reset | `Ref` |
 
 ## Reference

@@ -8,8 +8,8 @@ Shorthand for with debounced filter.
 ## Usage
 
 ```ts
-import { useDebouncedRefHistory } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useDebouncedRefHistory } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const counter = shallowRef(0)
 const { history, undo, redo } = useDebouncedRefHistory(counter, { deep: true, debounce: 1000 })

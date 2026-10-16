@@ -9,7 +9,7 @@ Reactive [prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS
 ## Usage
 
 ```ts
-import { usePreferredColorScheme } from '@vueuse/core'
+import { usePreferredColorScheme } from "@vueuse/core"
 
 const preferredColor = usePreferredColorScheme()
 ```
@@ -37,6 +37,6 @@ export type ColorSchemeType = "dark" | "light" | "no-preference"
  * @__NO_SIDE_EFFECTS__
  */
 export declare function usePreferredColorScheme(
-  options?: ConfigurableWindow,
+  options?: ConfigurableWindow
 ): ComputedRef<ColorSchemeType>
 ```

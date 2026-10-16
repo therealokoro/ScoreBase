@@ -8,7 +8,7 @@ Make a composable function usable with multiple Vue instances.
 ## Usage
 
 ```ts
-import { createSharedComposable, useMouse } from '@vueuse/core'
+import { createSharedComposable, useMouse } from "@vueuse/core"
 
 const useSharedMouse = createSharedComposable(useMouse)
 

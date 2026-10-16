@@ -8,7 +8,7 @@ Reactive .
 ## Usage
 
 ```ts
-import { useTrunc } from '@vueuse/math'
+import { useTrunc } from "@vueuse/math"
 
 const value1 = ref(0.95)
 const value2 = ref(-2.34)

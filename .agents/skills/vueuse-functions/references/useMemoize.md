@@ -13,11 +13,10 @@ The results are not cleared automatically. Call `clear()` in case you no longer 
 ## Usage
 
 ```ts
-import { useMemoize } from '@vueuse/core'
+import { useMemoize } from "@vueuse/core"
 
-const getUser = useMemoize(
-  async (userId: number): Promise<UserData> =>
-    axios.get(`users/${userId}`).then(({ data }) => data),
+const getUser = useMemoize(async (userId: number): Promise<UserData> =>
+  axios.get(`users/${userId}`).then(({ data }) => data)
 )
 
 const user1 = await getUser(1) // Request users/1
@@ -36,11 +35,10 @@ getUser.clear() // Clear full cache
 Combine with `computed` or `computedAsync` to achieve reactivity:
 
 ```ts
-import { computedAsync, useMemoize } from '@vueuse/core'
+import { computedAsync, useMemoize } from "@vueuse/core"
 
-const getUser = useMemoize(
-  async (userId: number): Promise<UserData> =>
-    axios.get(`users/${userId}`).then(({ data }) => data),
+const getUser = useMemoize(async (userId: number): Promise<UserData> =>
+  axios.get(`users/${userId}`).then(({ data }) => data)
 )
 // ---cut---
 const user1 = computedAsync(() => getUser(1))
@@ -60,15 +58,15 @@ Using `JSON.stringify` as the default key generator can be **slow for large or c
 #### Basic Example
 
 ```ts
-import { useMemoize } from '@vueuse/core'
+import { useMemoize } from "@vueuse/core"
 // ---cut---
 const getUser = useMemoize(
   async (userId: number, headers: AxiosRequestHeaders): Promise<UserData> =>
     axios.get(`users/${userId}`, { headers }).then(({ data }) => data),
   {
     // Use only userId to get/set cache and ignore headers
-    getKey: (userId, headers) => userId,
-  },
+    getKey: (userId, headers) => userId
+  }
 )
 ```
 
@@ -170,6 +168,6 @@ export interface UseMemoizeOptions<Result, Args extends unknown[]> {
  */
 export declare function useMemoize<Result, Args extends unknown[]>(
   resolver: (...args: Args) => Result,
-  options?: UseMemoizeOptions<Result, Args>,
+  options?: UseMemoizeOptions<Result, Args>
 ): UseMemoizeReturn<Result, Args>
 ```

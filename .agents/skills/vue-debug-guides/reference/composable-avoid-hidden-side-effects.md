@@ -21,18 +21,19 @@ When a composable has unexpected side effects, consumers can't reason about what
 - [ ] Keep composables focused on returning reactive state and methods
 
 **Incorrect:**
+
 ```javascript
 // WRONG: Hidden provide/inject dependency
 export function useTheme() {
   // Consumer has no idea this depends on a provided theme
-  const theme = inject('theme')  // What if nothing provides this?
+  const theme = inject("theme") // What if nothing provides this?
 
-  const isDark = computed(() => theme?.mode === 'dark')
+  const isDark = computed(() => theme?.mode === "dark")
   return { isDark }
 }
 
 // WRONG: Modifying global store internally
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user"
 
 export function useLogin() {
   const userStore = useUserStore()
@@ -52,7 +53,7 @@ export function useLogin() {
 export function useFocusTrap() {
   onMounted(() => {
     // Which element? Consumer has no control
-    document.querySelector('.modal')?.focus()
+    document.querySelector(".modal")?.focus()
   })
 }
 
@@ -60,24 +61,25 @@ export function useFocusTrap() {
 export function useFormContext() {
   const form = reactive({ values: {}, errors: {} })
   // Components calling this have no idea it provides something
-  provide('form-context', form)
+  provide("form-context", form)
   return form
 }
 ```
 
 **Correct:**
+
 ```javascript
 // CORRECT: Explicit dependency injection
 export function useTheme(injectedTheme) {
   // If no theme passed, consumer must handle it
-  const theme = injectedTheme ?? { mode: 'light' }
+  const theme = injectedTheme ?? { mode: "light" }
 
-  const isDark = computed(() => theme.mode === 'dark')
+  const isDark = computed(() => theme.mode === "dark")
   return { isDark }
 }
 
 // Usage - dependency is explicit
-const theme = inject('theme', { mode: 'light' })
+const theme = inject("theme", { mode: "light" })
 const { isDark } = useTheme(theme)
 
 // CORRECT: Return actions, let consumer decide when to call them
@@ -140,7 +142,7 @@ export function useFormContext() {
 
 // In parent component - explicit provide
 const form = useFormContext()
-provide('form-context', form)
+provide("form-context", form)
 ```
 
 ## Acceptable Side Effects (With Documentation)
@@ -162,8 +164,8 @@ export function useMouse() {
 
   // This side effect is the whole point of the composable
   // and is properly cleaned up
-  onMounted(() => window.addEventListener('mousemove', update))
-  onUnmounted(() => window.removeEventListener('mousemove', update))
+  onMounted(() => window.addEventListener("mousemove", update))
+  onUnmounted(() => window.removeEventListener("mousemove", update))
 
   function update(event) {
     x.value = event.pageX
@@ -198,11 +200,12 @@ export function useDataFetcher(apiClient, cache = null) {
 }
 
 // Usage - dependencies are explicit and testable
-const apiClient = inject('apiClient')
-const cache = inject('cache', null)
+const apiClient = inject("apiClient")
+const cache = inject("cache", null)
 const { data, fetch } = useDataFetcher(apiClient, cache)
 ```
 
 ## Reference
+
 - [Vue.js Composables](https://vuejs.org/guide/reusability/composables.html)
 - [Common Mistakes Creating Composition Functions](https://www.telerik.com/blogs/common-mistakes-creating-composition-functions-vue)

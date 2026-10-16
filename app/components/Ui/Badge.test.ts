@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { mount } from "@vue/test-utils"
 import { tv } from "tailwind-variants"
-import { computed, resolveComponent } from "vue"
 import { describe, expect, it, vi } from "vitest"
+import { computed, resolveComponent } from "vue"
 
 // Badge.vue relies on Nuxt auto-imports (`computed`, `resolveComponent`, `tv`). Vitest has
 // no Nuxt/unimport transform, so expose them on the global scope before the component

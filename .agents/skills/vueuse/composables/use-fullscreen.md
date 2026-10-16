@@ -8,26 +8,26 @@ Reactive Fullscreen API. It adds methods to present a specific Element (and its 
 ## Usage
 
 ```ts
-import { useFullscreen } from '@vueuse/core'
+import { useFullscreen } from "@vueuse/core"
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen()
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| autoExit | `boolean` | false | Automatically exit fullscreen when component is unmounted |
+| Option   | Type      | Default | Description                                               |
+| -------- | --------- | ------- | --------------------------------------------------------- |
+| autoExit | `boolean` | false   | Automatically exit fullscreen when component is unmounted |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| isFullscreen | `shallowRef` |
-| enter | `Ref` |
-| exit | `Ref` |
-| toggle | `Ref` |
+| Name         | Type           |
+| ------------ | -------------- |
+| isSupported  | `useSupported` |
+| isFullscreen | `shallowRef`   |
+| enter        | `Ref`          |
+| exit         | `Ref`          |
+| toggle       | `Ref`          |
 
 ## Reference
 

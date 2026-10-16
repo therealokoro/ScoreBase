@@ -1,5 +1,5 @@
 ---
-category: '@Integrations'
+category: "@Integrations"
 ---
 
 # useChangeCase
@@ -17,12 +17,12 @@ npm i change-case@^5
 ## Usage
 
 ```ts
-import { useChangeCase } from '@vueuse/integrations/useChangeCase'
+import { useChangeCase } from "@vueuse/integrations/useChangeCase"
 
 // `changeCase` will be a computed
-const changeCase = useChangeCase('hello world', 'camelCase')
+const changeCase = useChangeCase("hello world", "camelCase")
 changeCase.value // helloWorld
-changeCase.value = 'vue use'
+changeCase.value = "vue use"
 changeCase.value // vueUse
 // Supported methods
 // export {
@@ -45,15 +45,15 @@ or passing a `ref` to it, the returned `computed` will change along with the sou
 Can be passed into `options` for customization
 
 ```ts
-import { useChangeCase } from '@vueuse/integrations/useChangeCase'
-import { shallowRef } from 'vue'
+import { useChangeCase } from "@vueuse/integrations/useChangeCase"
+import { shallowRef } from "vue"
 
-const input = shallowRef('helloWorld')
-const changeCase = useChangeCase(input, 'camelCase', {
-  delimiter: '-',
+const input = shallowRef("helloWorld")
+const changeCase = useChangeCase(input, "camelCase", {
+  delimiter: "-"
 })
 changeCase.value // hello-World
-input.value = 'vue use'
+input.value = "vue use"
 changeCase.value // vue-Use
 ```
 
@@ -69,11 +69,11 @@ export type ChangeCaseType = ChangeCaseKeys[keyof ChangeCaseKeys]
 export declare function useChangeCase(
   input: MaybeRef<string>,
   type: MaybeRefOrGetter<ChangeCaseType>,
-  options?: MaybeRefOrGetter<Options> | undefined,
+  options?: MaybeRefOrGetter<Options> | undefined
 ): WritableComputedRef<string>
 export declare function useChangeCase(
   input: MaybeRefOrGetter<string>,
   type: MaybeRefOrGetter<ChangeCaseType>,
-  options?: MaybeRefOrGetter<Options> | undefined,
+  options?: MaybeRefOrGetter<Options> | undefined
 ): ComputedRef<string>
 ```

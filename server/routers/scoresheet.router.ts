@@ -34,10 +34,7 @@ const createScoresheets = os.createScoresheets.handler(async ({ input, errors, c
   // Scope to the result's class so a caller cannot attach a scoresheet for a
   // student who is not enrolled in that class.
   const studentRecords = await db.query.students.findMany({
-    where: and(
-      inArray(students.id, input.studentIds),
-      eq(students.classId, result.classId)
-    )
+    where: and(inArray(students.id, input.studentIds), eq(students.classId, result.classId))
   })
 
   // Verify all supplied IDs resolved to real students in this class

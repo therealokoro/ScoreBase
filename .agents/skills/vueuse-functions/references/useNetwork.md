@@ -9,7 +9,7 @@ Reactive [Network status](https://developer.mozilla.org/en-US/docs/Web/API/Netwo
 ## Usage
 
 ```ts
-import { useNetwork } from '@vueuse/core'
+import { useNetwork } from "@vueuse/core"
 
 const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, type } = useNetwork()
 
@@ -19,9 +19,9 @@ console.log(isOnline.value)
 To use as an object, wrap it with `reactive()`
 
 ```ts
-import { useNetwork } from '@vueuse/core'
+import { useNetwork } from "@vueuse/core"
 // ---cut---
-import { reactive } from 'vue'
+import { reactive } from "vue"
 
 const network = reactive(useNetwork())
 
@@ -32,10 +32,7 @@ console.log(network.isOnline)
 
 ```vue
 <template>
-  <UseNetwork v-slot="{ isOnline, type }">
-    Is Online: {{ isOnline }}
-    Type: {{ type }}
-  </UseNetwork>
+  <UseNetwork v-slot="{ isOnline, type }"> Is Online: {{ isOnline }} Type: {{ type }} </UseNetwork>
 </template>
 ```
 
@@ -44,14 +41,7 @@ console.log(network.isOnline)
 ```ts
 export interface UseNetworkOptions extends ConfigurableWindow {}
 export type NetworkType =
-  | "bluetooth"
-  | "cellular"
-  | "ethernet"
-  | "none"
-  | "wifi"
-  | "wimax"
-  | "other"
-  | "unknown"
+  "bluetooth" | "cellular" | "ethernet" | "none" | "wifi" | "wimax" | "other" | "unknown"
 export type NetworkEffectiveType = "slow-2g" | "2g" | "3g" | "4g" | undefined
 export interface NetworkState extends Supportable {
   /**
@@ -100,7 +90,5 @@ export type UseNetworkReturn = Readonly<NetworkState>
  *
  * @__NO_SIDE_EFFECTS__
  */
-export declare function useNetwork(
-  options?: UseNetworkOptions,
-): UseNetworkReturn
+export declare function useNetwork(options?: UseNetworkOptions): UseNetworkReturn
 ```

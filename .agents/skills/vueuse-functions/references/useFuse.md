@@ -1,5 +1,5 @@
 ---
-category: '@Integrations'
+category: "@Integrations"
 ---
 
 # useFuse
@@ -29,18 +29,12 @@ yarn add fuse.js
 ## Usage
 
 ```ts
-import { useFuse } from '@vueuse/integrations/useFuse'
-import { shallowRef } from 'vue'
+import { useFuse } from "@vueuse/integrations/useFuse"
+import { shallowRef } from "vue"
 
-const data = [
-  'John Smith',
-  'John Doe',
-  'Jane Doe',
-  'Phillip Green',
-  'Peter Brown',
-]
+const data = ["John Smith", "John Doe", "Jane Doe", "Phillip Green", "Peter Brown"]
 
-const input = shallowRef('Jhon D')
+const input = shallowRef("Jhon D")
 
 const { results } = useFuse(input, data)
 
@@ -70,6 +64,6 @@ export interface UseFuseReturn<DataItem> {
 export declare function useFuse<DataItem>(
   search: MaybeRefOrGetter<string>,
   data: MaybeRefOrGetter<DataItem[]>,
-  options?: MaybeRefOrGetter<UseFuseOptions<DataItem>>,
+  options?: MaybeRefOrGetter<UseFuseOptions<DataItem>>
 ): UseFuseReturn<DataItem>
 ```

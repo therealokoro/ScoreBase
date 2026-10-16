@@ -192,14 +192,15 @@ client-side; teacher lists were unbounded too.
 **Why it was slow:** the whole result set was downloaded and held in memory to show page 1, growing
 with each session/term/class over time.
 **What changed:**
+
 - `result.list` is now paginated (`{ page, pageSize, search }` → `{ data, total, pageCount }`) with
   an indexed `createdAt` order and a name search; `Result/ListTable.vue` uses server-mode URL state.
 - Added a paginated `teacher.query` (+ search) used by `Teacher/List.vue`; `teacher.list` is kept for
   the class-form select, which legitimately needs all teachers.
 - Teacher mutations now invalidate `$orpc.teacher.key()` so both list flavours refresh.
-**Expected impact:** Lists fetch only the visible page instead of the entire table.
-**Note:** `teacher.list` remains unbounded by design (select options); it is a small set for a
-single school. Tests could not be added on this branch (the Vitest harness lives in PR #5).
+  **Expected impact:** Lists fetch only the visible page instead of the entire table.
+  **Note:** `teacher.list` remains unbounded by design (select options); it is a small set for a
+  single school. Tests could not be added on this branch (the Vitest harness lives in PR #5).
 
 ## Fix 12 — Batch the score-config CA resize (final-audit #1)
 
@@ -267,13 +268,14 @@ new computed that `JSON.stringify`s every row.
 renders neither remark; and every score mutation refetched the list/`getByTerm` shapes, which don't
 render scores either.
 **What changed:**
+
 - Remarks: invalidate only `scoresheet.key()` (scoresheet + report card, which do render remarks).
 - Subject-score mutations + create-scoresheets + score-config: invalidate `scoresheet.key()` +
   `result.getOne.key()` (procedure base key) instead of the whole `result` tree.
 - `delete` still invalidates `result.key()` (the list must drop the row); status already used
   `setQueryData` + `result.list.key()` (Fix 4b).
-**Expected impact:** Subject/remark/score-config mutations no longer invalidate the results list or
-the entire result tree; remarks no longer refetch the nested result at all.
+  **Expected impact:** Subject/remark/score-config mutations no longer invalidate the results list or
+  the entire result tree; remarks no longer refetch the nested result at all.
 
 ## Fix 18 — Overlap report-card settings read with the lookup (final-audit #6)
 
@@ -335,6 +337,7 @@ skeleton that mirrors the final shape; it also hid chrome that was already avail
 (`AppEntitySkeleton` for the dashboard grid; `UiSkeleton` rows for the report-card roster;
 `UiSkeleton` block for the report-card document).
 **Not done from #12 (deliberate):**
+
 - (a) Per-RPC `getSession` (`server/routes/rpc/[...].ts`): inherent to stateless auth; the only way
   to remove it is to batch RPCs, and no page has a clear batchable multi-call that wouldn't hurt
   pagination/caching. Left as-is.

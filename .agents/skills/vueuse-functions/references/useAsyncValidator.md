@@ -1,5 +1,5 @@
 ---
-category: '@Integrations'
+category: "@Integrations"
 ---
 
 # useAsyncValidator
@@ -15,7 +15,7 @@ npm i async-validator@^4
 ## Usage
 
 ```ts
-import { useAsyncValidator } from '@vueuse/integrations/useAsyncValidator'
+import { useAsyncValidator } from "@vueuse/integrations/useAsyncValidator"
 ```
 
 ## Type Declarations
@@ -65,6 +65,6 @@ export interface UseAsyncValidatorOptions {
 export declare function useAsyncValidator(
   value: MaybeRefOrGetter<Record<string, any>>,
   rules: MaybeRefOrGetter<Rules>,
-  options?: UseAsyncValidatorOptions,
+  options?: UseAsyncValidatorOptions
 ): UseAsyncValidatorReturn & PromiseLike<UseAsyncValidatorReturn>
 ```

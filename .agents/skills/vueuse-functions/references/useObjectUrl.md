@@ -12,8 +12,8 @@ Creates an URL for the provided `File`, `Blob`, or `MediaSource` via [URL.create
 
 ```vue
 <script setup lang="ts">
-import { useObjectUrl } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useObjectUrl } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const file = shallowRef()
 const url = useObjectUrl(file)
@@ -24,7 +24,7 @@ function onFileChange(event) {
 </script>
 
 <template>
-  <input type="file" @change="onFileChange">
+  <input type="file" @change="onFileChange" />
 
   <a :href="url">Open file</a>
 </template>
@@ -50,6 +50,6 @@ function onFileChange(event) {
  * @param object
  */
 export declare function useObjectUrl(
-  object: MaybeRefOrGetter<Blob | MediaSource | null | undefined>,
+  object: MaybeRefOrGetter<Blob | MediaSource | null | undefined>
 ): Readonly<Ref<string | undefined, string | undefined>>
 ```

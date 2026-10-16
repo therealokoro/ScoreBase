@@ -16,19 +16,19 @@ When using with Nuxt 3, this function will **NOT** be auto imported in favor of 
 :::
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 
 // bind object
-const state = useStorage('my-store', { hello: 'hi', greeting: 'Hello' })
+const state = useStorage("my-store", { hello: "hi", greeting: "Hello" })
 
 // bind boolean
-const flag = useStorage('my-flag', true) // returns Ref<boolean>
+const flag = useStorage("my-flag", true) // returns Ref<boolean>
 
 // bind number
-const count = useStorage('my-count', 0) // returns Ref<number>
+const count = useStorage("my-count", 0) // returns Ref<number>
 
 // bind string with SessionStorage
-const id = useStorage('my-id', 'some-string-id', sessionStorage) // returns Ref<string>
+const id = useStorage("my-id", "some-string-id", sessionStorage) // returns Ref<string>
 
 // delete data from storage
 state.value = null
@@ -39,11 +39,11 @@ state.value = null
 By default, `useStorage` will use the value from storage if it is present and ignores the default value. Be aware that when you are adding more properties to the default value, the key might be `undefined` if client's storage does not have that key.
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 // ---cut---
-localStorage.setItem('my-store', '{"hello": "hello"}')
+localStorage.setItem("my-store", '{"hello": "hello"}')
 
-const state = useStorage('my-store', { hello: 'hi', greeting: 'hello' }, localStorage)
+const state = useStorage("my-store", { hello: "hi", greeting: "hello" }, localStorage)
 
 console.log(state.value.greeting) // undefined, since the value is not presented in storage
 ```
@@ -51,13 +51,13 @@ console.log(state.value.greeting) // undefined, since the value is not presented
 To solve that, you can enable `mergeDefaults` option.
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 // ---cut---
-localStorage.setItem('my-store', '{"hello": "nihao"}')
+localStorage.setItem("my-store", '{"hello": "nihao"}')
 
 const state = useStorage(
-  'my-store',
-  { hello: 'hi', greeting: 'hello' },
+  "my-store",
+  { hello: "hi", greeting: "hello" },
   localStorage,
   { mergeDefaults: true } // <--
 )
@@ -69,11 +69,11 @@ console.log(state.value.greeting) // 'hello', from merged default value
 When setting it to true, it will perform a **shallow merge** for objects. You can pass a function to perform custom merge (e.g. deep merge), for example:
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 // ---cut---
 const state = useStorage(
-  'my-store',
-  { hello: 'hi', greeting: 'hello' },
+  "my-store",
+  { hello: "hi", greeting: "hello" },
   localStorage,
   { mergeDefaults: (storageValue, defaults) => deepMerge(defaults, storageValue) } // <--
 )
@@ -86,28 +86,23 @@ By default, `useStorage` will smartly use the corresponding serializer based on 
 You can also provide your own serialization function to `useStorage`:
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 
-useStorage(
-  'key',
-  {},
-  undefined,
-  {
-    serializer: {
-      read: (v: any) => v ? JSON.parse(v) : null,
-      write: (v: any) => JSON.stringify(v),
-    },
-  },
-)
+useStorage("key", {}, undefined, {
+  serializer: {
+    read: (v: any) => (v ? JSON.parse(v) : null),
+    write: (v: any) => JSON.stringify(v)
+  }
+})
 ```
 
 Please note when you provide `null` as the default value, `useStorage` can't assume the data type from it. In this case, you can provide a custom serializer or reuse the built-in ones explicitly.
 
 ```ts
-import { StorageSerializers, useStorage } from '@vueuse/core'
+import { StorageSerializers, useStorage } from "@vueuse/core"
 
-const objectLike = useStorage('key', null, undefined, { serializer: StorageSerializers.object })
-objectLike.value = { foo: 'bar' }
+const objectLike = useStorage("key", null, undefined, { serializer: StorageSerializers.object })
+objectLike.value = { foo: "bar" }
 ```
 
 ### Built-in Serializers
@@ -126,17 +121,17 @@ The following serializers are available via `StorageSerializers`:
 | `any`     | Raw string passthrough                |
 
 ```ts
-import { StorageSerializers, useStorage } from '@vueuse/core'
+import { StorageSerializers, useStorage } from "@vueuse/core"
 
-const myMap = useStorage('my-map', new Map(), undefined, {
-  serializer: StorageSerializers.map,
+const myMap = useStorage("my-map", new Map(), undefined, {
+  serializer: StorageSerializers.map
 })
 ```
 
 ## Options
 
 ```ts
-useStorage('key', defaults, storage, {
+useStorage("key", defaults, storage, {
   // Watch for deep changes in objects/arrays (default: true)
   deep: true,
   // Sync across tabs via storage events (default: true)
@@ -148,9 +143,9 @@ useStorage('key', defaults, storage, {
   // Initialize only after component is mounted (default: false)
   initOnMounted: false,
   // Custom error handler (default: console.error)
-  onError: e => console.error(e),
+  onError: (e) => console.error(e),
   // Watch flush timing (default: 'pre')
-  flush: 'pre',
+  flush: "pre"
 })
 ```
 
@@ -159,16 +154,13 @@ useStorage('key', defaults, storage, {
 The storage key can be a ref or getter, and the data will be updated when the key changes:
 
 ```ts
-import { useStorage } from '@vueuse/core'
+import { useStorage } from "@vueuse/core"
 
-const userId = ref('user-1')
-const userData = useStorage(
-  () => `user-data-${userId.value}`,
-  { name: '' },
-)
+const userId = ref("user-1")
+const userData = useStorage(() => `user-data-${userId.value}`, { name: "" })
 
 // Changing the key will read from the new storage location
-userId.value = 'user-2'
+userId.value = "user-2"
 ```
 
 ## Type Declarations
@@ -249,30 +241,30 @@ export declare function useStorage(
   key: MaybeRefOrGetter<string>,
   defaults: MaybeRefOrGetter<string>,
   storage?: StorageLike,
-  options?: UseStorageOptions<string>,
+  options?: UseStorageOptions<string>
 ): RemovableRef<string>
 export declare function useStorage(
   key: MaybeRefOrGetter<string>,
   defaults: MaybeRefOrGetter<boolean>,
   storage?: StorageLike,
-  options?: UseStorageOptions<boolean>,
+  options?: UseStorageOptions<boolean>
 ): RemovableRef<boolean>
 export declare function useStorage(
   key: MaybeRefOrGetter<string>,
   defaults: MaybeRefOrGetter<number>,
   storage?: StorageLike,
-  options?: UseStorageOptions<number>,
+  options?: UseStorageOptions<number>
 ): RemovableRef<number>
 export declare function useStorage<T>(
   key: MaybeRefOrGetter<string>,
   defaults: MaybeRefOrGetter<T>,
   storage?: StorageLike,
-  options?: UseStorageOptions<T>,
+  options?: UseStorageOptions<T>
 ): RemovableRef<T>
 export declare function useStorage<T = unknown>(
   key: MaybeRefOrGetter<string>,
   defaults: MaybeRefOrGetter<null>,
   storage?: StorageLike,
-  options?: UseStorageOptions<T>,
+  options?: UseStorageOptions<T>
 ): RemovableRef<T>
 ```

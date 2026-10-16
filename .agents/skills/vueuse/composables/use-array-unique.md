@@ -8,7 +8,7 @@ reactive unique array
 ## Usage
 
 ```ts
-import { useArrayUnique } from '@vueuse/core'
+import { useArrayUnique } from "@vueuse/core"
 
 const item1 = ref(0)
 const item2 = ref(1)

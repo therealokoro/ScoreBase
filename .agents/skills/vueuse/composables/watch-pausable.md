@@ -8,38 +8,35 @@ Pausable watch
 ## Usage
 
 ```ts
-import { watchPausable } from '@vueuse/core'
-import { nextTick, shallowRef } from 'vue'
+import { watchPausable } from "@vueuse/core"
+import { nextTick, shallowRef } from "vue"
 
-const source = shallowRef('foo')
+const source = shallowRef("foo")
 
-const { stop, pause, resume } = watchPausable(
-  source,
-  v => console.log(`Changed to ${v}!`),
-)
+const { stop, pause, resume } = watchPausable(source, (v) => console.log(`Changed to ${v}!`))
 
-source.value = 'bar'
+source.value = "bar"
 await nextTick() // Changed to bar!
 
 pause()
 
-source.value = 'foobar'
+source.value = "foobar"
 await nextTick() // (nothing happend)
 
 resume()
 
-source.value = 'hello'
+source.value = "hello"
 await nextTick() // Changed to hello!
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| stop | `watchWithFilter` |
-| pause | `Ref` |
-| resume | `Ref` |
-| isActive | `Ref` |
+| Name     | Type              |
+| -------- | ----------------- |
+| stop     | `watchWithFilter` |
+| pause    | `Ref`             |
+| resume   | `Ref`             |
+| isActive | `Ref`             |
 
 ## Reference
 

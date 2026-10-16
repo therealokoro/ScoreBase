@@ -13,7 +13,7 @@ Fine-grained controls over ref and its reactivity.
 `refWithControl` uses `extendRef` to provide two extra functions `get` and `set` to have better control over when it should track/trigger the reactivity.
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 
 const num = refWithControl(0)
 const doubled = computed(() => num.value * 2)
@@ -42,15 +42,15 @@ console.log(doubled.value) // 100 (updated again since it's a reactive set)
 We also provide some shorthands for doing the get/set without track/triggering the reactivity system. The following lines are equivalent.
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 // ---cut---
-const foo = refWithControl('foo')
+const foo = refWithControl("foo")
 ```
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 
-const foo = refWithControl('foo')
+const foo = refWithControl("foo")
 // ---cut---
 // getting
 foo.get(false)
@@ -59,14 +59,14 @@ foo.peek() // an alias for `untrackedGet`
 ```
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 
-const foo = refWithControl('foo')
+const foo = refWithControl("foo")
 // ---cut---
 // setting
-foo.set('bar', false)
-foo.silentSet('bar')
-foo.lay('bar') // an alias for `silentSet`
+foo.set("bar", false)
+foo.silentSet("bar")
+foo.lay("bar") // an alias for `silentSet`
 ```
 
 ## Configurations
@@ -76,14 +76,13 @@ foo.lay('bar') // an alias for `silentSet`
 `onBeforeChange` option is offered to give control over if a new value should be accepted. For example:
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 // ---cut---
 const num = refWithControl(0, {
   onBeforeChange(value, oldValue) {
     // disallow changes larger then ±5 in one operation
-    if (Math.abs(value - oldValue) > 5)
-      return false // returning `false` to dismiss the change
-  },
+    if (Math.abs(value - oldValue) > 5) return false // returning `false` to dismiss the change
+  }
 })
 
 num.value += 1
@@ -98,12 +97,12 @@ console.log(num.value) // 1 (change been dismissed)
 `onChanged` option offers a similar functionally as Vue's `watch` but being synchronized with less overhead compared to `watch`.
 
 ```ts
-import { refWithControl } from '@vueuse/core'
+import { refWithControl } from "@vueuse/core"
 // ---cut---
 const num = refWithControl(0, {
   onChanged(value, oldValue) {
     console.log(value)
-  },
+  }
 })
 ```
 
@@ -131,7 +130,7 @@ export interface ControlledRefOptions<T> {
  */
 export declare function refWithControl<T>(
   initial: T,
-  options?: ControlledRefOptions<T>,
+  options?: ControlledRefOptions<T>
 ): ShallowUnwrapRef<{
   get: (tracking?: boolean) => T
   set: (value: T, triggering?: boolean) => void

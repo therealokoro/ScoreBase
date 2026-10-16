@@ -78,7 +78,7 @@ Star rating input (v2.8.0)
 
 ```vue
 <script setup>
-import { RatingRoot, RatingItem, RatingItemIndicator } from 'reka-ui'
+import { RatingRoot, RatingItem, RatingItemIndicator } from "reka-ui"
 const rating = ref(3)
 </script>
 

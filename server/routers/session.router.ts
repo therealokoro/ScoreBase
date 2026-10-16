@@ -2,11 +2,12 @@ import { db } from "@nuxthub/db"
 import { implement } from "@orpc/server"
 import { eq } from "drizzle-orm"
 
+import { TERMS_PRESET } from "#shared/constants/kv-settings"
+
 import type { APiContext } from "../context"
 import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
-import { TERMS_PRESET } from "#shared/constants/kv-settings"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
 import { requireAdmin } from "../utils/auth-guard"
 

@@ -9,9 +9,9 @@ A basic event bus.
 ## Usage
 
 ```ts
-import { useEventBus } from '@vueuse/core'
+import { useEventBus } from "@vueuse/core"
 
-const bus = useEventBus<string>('news')
+const bus = useEventBus<string>("news")
 
 function listener(event: string) {
   console.log(`news: ${event}`)
@@ -21,7 +21,7 @@ function listener(event: string) {
 const unsubscribe = bus.on(listener)
 
 // fire an event
-bus.emit('The Tokyo Olympics has begun')
+bus.emit("The Tokyo Olympics has begun")
 
 // unregister the listener
 unsubscribe()
@@ -40,15 +40,15 @@ Using `EventBusKey` is the key to bind the event type to the key, similar to Vue
 
 ```ts
 // fooKey.ts
-import type { EventBusKey } from '@vueuse/core'
+import type { EventBusKey } from "@vueuse/core"
 
-export const fooKey: EventBusKey<{ name: foo }> = Symbol('symbol-key')
+export const fooKey: EventBusKey<{ name: foo }> = Symbol("symbol-key")
 ```
 
 ```ts
-import { useEventBus } from '@vueuse/core'
+import { useEventBus } from "@vueuse/core"
 
-import { fooKey } from './fooKey'
+import { fooKey } from "./fooKey"
 
 const bus = useEventBus(fooKey)
 
@@ -60,10 +60,7 @@ bus.on((e) => {
 ## Type Declarations
 
 ```ts
-export type EventBusListener<T = unknown, P = any> = (
-  event: T,
-  payload?: P,
-) => void
+export type EventBusListener<T = unknown, P = any> = (event: T, payload?: P) => void
 export type EventBusEvents<T, P = any> = Set<EventBusListener<T, P>>
 export interface EventBusKey<T> extends Symbol {}
 export type EventBusIdentifier<T = unknown> = EventBusKey<T> | string | number
@@ -96,6 +93,6 @@ export interface UseEventBusReturn<T, P> {
   reset: () => void
 }
 export declare function useEventBus<T = unknown, P = any>(
-  key: EventBusIdentifier<T>,
+  key: EventBusIdentifier<T>
 ): UseEventBusReturn<T, P>
 ```

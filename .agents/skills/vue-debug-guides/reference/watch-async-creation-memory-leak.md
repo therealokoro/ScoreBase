@@ -21,9 +21,10 @@ Always manually stop watchers that are created asynchronously, or restructure yo
 - [ ] Watch for this pattern in setTimeout, Promise callbacks, and after await
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, watch, watchEffect, onMounted } from 'vue'
+import { ref, watch, watchEffect, onMounted } from "vue"
 
 const data = ref(null)
 
@@ -31,7 +32,7 @@ const data = ref(null)
 onMounted(() => {
   setTimeout(() => {
     watchEffect(() => {
-      console.log(data.value)  // Keeps running after unmount!
+      console.log(data.value) // Keeps running after unmount!
     })
   }, 1000)
 })
@@ -42,12 +43,12 @@ onMounted(async () => {
 
   // This watcher is NOT bound to component lifecycle
   watch(data, (newVal) => {
-    processData(newVal)  // Memory leak!
+    processData(newVal) // Memory leak!
   })
 })
 
 // BAD: Watcher in Promise callback
-fetch('/api/config').then(() => {
+fetch("/api/config").then(() => {
   watch(data, () => {
     // Leaks memory!
   })
@@ -56,23 +57,21 @@ fetch('/api/config').then(() => {
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, watch, watchEffect, onMounted, onUnmounted } from 'vue'
+import { ref, watch, watchEffect, onMounted, onUnmounted } from "vue"
 
 const data = ref(null)
 const isDataLoaded = ref(false)
 let asyncWatcherCleanup = null
 
 // CORRECT: Synchronous watcher with conditional logic
-watch(
-  data,
-  (newVal) => {
-    if (isDataLoaded.value && newVal) {
-      processData(newVal)
-    }
+watch(data, (newVal) => {
+  if (isDataLoaded.value && newVal) {
+    processData(newVal)
   }
-)
+})
 
 onMounted(async () => {
   await loadInitialData()
@@ -104,21 +103,18 @@ onUnmounted(() => {
 
 ```vue
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from "vue"
 
 const config = ref(null)
 const userData = ref(null)
 
 // BEST: Create watcher synchronously, handle async condition inside
-watch(
-  userData,
-  (newData) => {
-    // Only process when config is loaded
-    if (config.value && newData) {
-      applyUserSettings(config.value, newData)
-    }
+watch(userData, (newData) => {
+  // Only process when config is loaded
+  if (config.value && newData) {
+    applyUserSettings(config.value, newData)
   }
-)
+})
 
 onMounted(async () => {
   config.value = await fetchConfig()
@@ -131,7 +127,7 @@ onMounted(async () => {
 
 ```vue
 <script setup>
-import { ref, watchEffect, onMounted } from 'vue'
+import { ref, watchEffect, onMounted } from "vue"
 
 const apiData = ref(null)
 const isReady = ref(false)
@@ -155,7 +151,7 @@ onMounted(async () => {
 
 ```vue
 <script setup>
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from "vue"
 
 const unwatchers = []
 
@@ -167,10 +163,11 @@ function createDynamicWatcher(source, callback) {
 
 // Clean up all dynamic watchers
 onUnmounted(() => {
-  unwatchers.forEach(unwatch => unwatch())
+  unwatchers.forEach((unwatch) => unwatch())
 })
 </script>
 ```
 
 ## Reference
+
 - [Vue.js Watchers - Stopping a Watcher](https://vuejs.org/guide/essentials/watchers.html#stopping-a-watcher)

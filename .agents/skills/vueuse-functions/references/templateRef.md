@@ -18,14 +18,14 @@ Shorthand for binding ref to template element.
 
 ```vue
 <script lang="ts">
-import { templateRef } from '@vueuse/core'
+import { templateRef } from "@vueuse/core"
 
 export default {
   setup() {
-    const target = templateRef('target')
+    const target = templateRef("target")
 
     // no need to return the `target`, it will bind to the ref magically
-  },
+  }
 }
 </script>
 
@@ -37,15 +37,15 @@ export default {
 ### With JSX/TSX
 
 ```tsx
-import { templateRef } from '@vueuse/core'
+import { templateRef } from "@vueuse/core"
 
 export default {
   setup() {
-    const target = templateRef<HTMLElement | null>('target', null)
+    const target = templateRef<HTMLElement | null>("target", null)
 
     // use string ref
     return () => <div ref="target"></div>
-  },
+  }
 }
 ```
 
@@ -55,7 +55,7 @@ There is no need for this when using with `<script setup>` since all the variabl
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const target = ref<HTMLElement | null>(null)
 </script>
@@ -81,6 +81,6 @@ const target = ref<HTMLElement | null>(null)
  */
 export declare function templateRef<
   T extends HTMLElement | SVGElement | Component | null,
-  Keys extends string = string,
+  Keys extends string = string
 >(key: Keys, initialValue?: T | null): Readonly<Ref<T>>
 ```

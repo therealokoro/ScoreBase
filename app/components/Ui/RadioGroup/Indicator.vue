@@ -15,21 +15,21 @@
 </template>
 
 <script lang="ts" setup>
-  import { RadioGroupIndicator } from "reka-ui";
-  import type { RadioGroupIndicatorProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { RadioGroupIndicator } from "reka-ui"
+import type { RadioGroupIndicatorProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const props = defineProps<
-    RadioGroupIndicatorProps & {
-      /** Custom class(es) to add to the parent. */
-      class?: HTMLAttributes["class"];
-      /** Icon to show. */
-      icon?: string;
-    }
-  >();
-  const forwarded = reactiveOmit(props, "class", "icon");
-  const styles = tv({
-    base: "relative flex items-center justify-center",
-  });
+const props = defineProps<
+  RadioGroupIndicatorProps & {
+    /** Custom class(es) to add to the parent. */
+    class?: HTMLAttributes["class"]
+    /** Icon to show. */
+    icon?: string
+  }
+>()
+const forwarded = reactiveOmit(props, "class", "icon")
+const styles = tv({
+  base: "relative flex items-center justify-center"
+})
 </script>

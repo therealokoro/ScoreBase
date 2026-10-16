@@ -9,7 +9,7 @@ Basic counter with utility functions.
 ## Basic Usage
 
 ```ts
-import { useCounter } from '@vueuse/core'
+import { useCounter } from "@vueuse/core"
 
 const { count, inc, dec, set, reset } = useCounter()
 ```
@@ -17,7 +17,7 @@ const { count, inc, dec, set, reset } = useCounter()
 ## Usage with options
 
 ```ts
-import { useCounter } from '@vueuse/core'
+import { useCounter } from "@vueuse/core"
 
 const { count, inc, dec, set, reset } = useCounter(1, { min: 0, max: 16 })
 ```
@@ -70,12 +70,10 @@ export interface UseCounterReturn {
  */
 export declare function useCounter(
   initialValue?: MaybeRef<number>,
-  options?: UseCounterOptions,
+  options?: UseCounterOptions
 ): {
   count: Readonly<
-    | Ref<number, number>
-    | ShallowRef<number, number>
-    | WritableComputedRef<number, number>
+    Ref<number, number> | ShallowRef<number, number> | WritableComputedRef<number, number>
   >
   inc: (delta?: number) => number
   dec: (delta?: number) => number

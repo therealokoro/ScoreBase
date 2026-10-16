@@ -21,17 +21,18 @@ Always use `onWatcherCleanup` or the `onCleanup` callback parameter to cancel pe
 - [ ] Consider debouncing rapid changes before fetching
 
 **Incorrect:**
-```javascript
-import { ref, watch } from 'vue'
 
-const searchQuery = ref('')
+```javascript
+import { ref, watch } from "vue"
+
+const searchQuery = ref("")
 const results = ref([])
 
 // BAD: Race condition - slow request for "a" can finish after fast request for "ab"
 watch(searchQuery, async (query) => {
   if (query) {
     const response = await fetch(`/api/search?q=${query}`)
-    results.value = await response.json()  // May overwrite newer results!
+    results.value = await response.json() // May overwrite newer results!
   }
 })
 
@@ -45,10 +46,11 @@ watch(searchQuery, (query) => {
 ```
 
 **Correct:**
-```javascript
-import { ref, watch, onWatcherCleanup } from 'vue'
 
-const searchQuery = ref('')
+```javascript
+import { ref, watch, onWatcherCleanup } from "vue"
+
+const searchQuery = ref("")
 const results = ref([])
 const loading = ref(false)
 
@@ -73,8 +75,8 @@ watch(searchQuery, async (query) => {
     })
     results.value = await response.json()
   } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.error('Search failed:', err)
+    if (err.name !== "AbortError") {
+      console.error("Search failed:", err)
     }
   } finally {
     loading.value = false
@@ -85,7 +87,7 @@ watch(searchQuery, async (query) => {
 ## Using onCleanup Parameter
 
 ```javascript
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
 const userId = ref(1)
 const userData = ref(null)
@@ -95,12 +97,12 @@ watch(userId, (newId, oldId, onCleanup) => {
   const controller = new AbortController()
 
   fetch(`/api/users/${newId}`, { signal: controller.signal })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       userData.value = data
     })
-    .catch(err => {
-      if (err.name !== 'AbortError') {
+    .catch((err) => {
+      if (err.name !== "AbortError") {
         console.error(err)
       }
     })
@@ -114,9 +116,9 @@ watch(userId, (newId, oldId, onCleanup) => {
 ## Cleanup with Timeouts
 
 ```javascript
-import { ref, watch, onWatcherCleanup } from 'vue'
+import { ref, watch, onWatcherCleanup } from "vue"
 
-const input = ref('')
+const input = ref("")
 
 // CORRECT: Cancel previous timeout on new input
 watch(input, (value) => {
@@ -133,7 +135,7 @@ watch(input, (value) => {
 ## Invalidation Flag Pattern
 
 ```javascript
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
 const id = ref(1)
 const data = ref(null)
@@ -158,9 +160,9 @@ watch(id, async (newId, oldId, onCleanup) => {
 ## watchEffect Cleanup
 
 ```javascript
-import { ref, watchEffect, onWatcherCleanup } from 'vue'
+import { ref, watchEffect, onWatcherCleanup } from "vue"
 
-const resourceId = ref('abc')
+const resourceId = ref("abc")
 
 watchEffect(async () => {
   const id = resourceId.value
@@ -176,5 +178,6 @@ watchEffect(async () => {
 ```
 
 ## Reference
+
 - [Vue.js Watchers - Callback Flush Timing](https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing)
 - [Vue.js Watchers - Side Effect Cleanup](https://vuejs.org/api/reactivity-core.html#watcheffect)

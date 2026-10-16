@@ -9,15 +9,14 @@ Reactive utility to track or set the focus state of a DOM element. State changes
 ## Basic Usage
 
 ```ts
-import { useFocus } from '@vueuse/core'
+import { useFocus } from "@vueuse/core"
 
 const target = shallowRef()
 const { focused } = useFocus(target)
 
 watch(focused, (focused) => {
-  if (focused)
-    console.log('input element has been focused')
-  else console.log('input element has lost focus')
+  if (focused) console.log("input element has been focused")
+  else console.log("input element has lost focus")
 })
 ```
 
@@ -26,7 +25,7 @@ watch(focused, (focused) => {
 To focus the element on its first render one can provide the `initialValue` option as `true`. This will trigger a `focus` event on the target element.
 
 ```ts
-import { useFocus } from '@vueuse/core'
+import { useFocus } from "@vueuse/core"
 
 const target = shallowRef()
 const { focused } = useFocus(target, { initialValue: true })
@@ -38,8 +37,8 @@ Changes of the `focused` reactive ref will automatically trigger `focus` and `bl
 
 ```vue
 <script setup lang="ts">
-import { useFocus } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useFocus } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const input = shallowRef()
 const { focused } = useFocus(input)
@@ -47,10 +46,8 @@ const { focused } = useFocus(input)
 
 <template>
   <div>
-    <button type="button" @click="focused = true">
-      Click me to focus input below
-    </button>
-    <input ref="input" type="text">
+    <button type="button" @click="focused = true">Click me to focus input below</button>
+    <input ref="input" type="text" />
   </div>
 </template>
 ```
@@ -92,8 +89,5 @@ export interface UseFocusReturn {
  * @param target The target element for the focus and blur events.
  * @param options
  */
-export declare function useFocus(
-  target: MaybeElementRef,
-  options?: UseFocusOptions,
-): UseFocusReturn
+export declare function useFocus(target: MaybeElementRef, options?: UseFocusOptions): UseFocusReturn
 ```

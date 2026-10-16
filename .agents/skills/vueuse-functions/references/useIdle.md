@@ -9,7 +9,7 @@ Tracks whether the user is being inactive.
 ## Usage
 
 ```ts
-import { useIdle } from '@vueuse/core'
+import { useIdle } from "@vueuse/core"
 
 const { idle, lastActive } = useIdle(5 * 60 * 1000) // 5 min
 
@@ -19,8 +19,8 @@ console.log(idle.value) // true or false
 Programatically resetting:
 
 ```ts
-import { useCounter, useIdle } from '@vueuse/core'
-import { watch } from 'vue'
+import { useCounter, useIdle } from "@vueuse/core"
+import { watch } from "vue"
 
 const { inc, count } = useCounter()
 
@@ -39,17 +39,14 @@ watch(idle, (idleValue) => {
 
 ```vue
 <template>
-  <UseIdle v-slot="{ idle }" :timeout="5 * 60 * 1000">
-    Is Idle: {{ idle }}
-  </UseIdle>
+  <UseIdle v-slot="{ idle }" :timeout="5 * 60 * 1000"> Is Idle: {{ idle }} </UseIdle>
 </template>
 ```
 
 ## Type Declarations
 
 ```ts
-export interface UseIdleOptions
-  extends ConfigurableWindow, ConfigurableEventFilter {
+export interface UseIdleOptions extends ConfigurableWindow, ConfigurableEventFilter {
   /**
    * Event names that listen to for detected user activity
    *
@@ -81,8 +78,5 @@ export interface UseIdleReturn extends Stoppable {
  * @param timeout default to 1 minute
  * @param options IdleOptions
  */
-export declare function useIdle(
-  timeout?: number,
-  options?: UseIdleOptions,
-): UseIdleReturn
+export declare function useIdle(timeout?: number, options?: UseIdleOptions): UseIdleReturn
 ```

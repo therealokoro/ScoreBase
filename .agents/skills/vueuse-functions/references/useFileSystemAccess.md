@@ -9,7 +9,7 @@ Create and read and write local files with [FileSystemAccessAPI](https://develop
 ## Usage
 
 ```ts
-import { useFileSystemAccess } from '@vueuse/core'
+import { useFileSystemAccess } from "@vueuse/core"
 
 const {
   isSupported,
@@ -85,11 +85,7 @@ interface FileSystemWritableFileStream extends WritableStream {
  */
 interface FileSystemWritableFileStreamWrite {
   (data: string | BufferSource | Blob): Promise<void>
-  (options: {
-    type: "write"
-    position: number
-    data: string | BufferSource | Blob
-  }): Promise<void>
+  (options: { type: "write"; position: number; data: string | BufferSource | Blob }): Promise<void>
   (options: { type: "seek"; position: number }): Promise<void>
   (options: { type: "truncate"; size: number }): Promise<void>
 }
@@ -99,10 +95,10 @@ interface FileSystemWritableFileStreamWrite {
  */
 export type FileSystemAccessWindow = Window & {
   showSaveFilePicker: (
-    options: FileSystemAccessShowSaveFileOptions,
+    options: FileSystemAccessShowSaveFileOptions
   ) => Promise<FileSystemFileHandle>
   showOpenFilePicker: (
-    options: FileSystemAccessShowOpenFileOptions,
+    options: FileSystemAccessShowOpenFileOptions
   ) => Promise<FileSystemFileHandle[]>
 }
 export type UseFileSystemAccessCommonOptions = Pick<
@@ -130,20 +126,20 @@ export declare function useFileSystemAccess(): UseFileSystemAccessReturn<
 export declare function useFileSystemAccess(
   options: UseFileSystemAccessOptions & {
     dataType: "Text"
-  },
+  }
 ): UseFileSystemAccessReturn<string>
 export declare function useFileSystemAccess(
   options: UseFileSystemAccessOptions & {
     dataType: "ArrayBuffer"
-  },
+  }
 ): UseFileSystemAccessReturn<ArrayBuffer>
 export declare function useFileSystemAccess(
   options: UseFileSystemAccessOptions & {
     dataType: "Blob"
-  },
+  }
 ): UseFileSystemAccessReturn<Blob>
 export declare function useFileSystemAccess(
-  options: UseFileSystemAccessOptions,
+  options: UseFileSystemAccessOptions
 ): UseFileSystemAccessReturn<string | ArrayBuffer | Blob>
 export interface UseFileSystemAccessReturn<T = string> extends Supportable {
   data: ShallowRef<T | undefined>

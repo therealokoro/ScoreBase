@@ -20,10 +20,11 @@ The compiler transforms top-level await, and code after await runs in a differen
 - [ ] Test parent ref access when using async setup
 
 **Incorrect:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const data = ref(null)
 const count = ref(0)
@@ -33,7 +34,7 @@ function increment() {
 }
 
 // WRONG: await before defineExpose
-const response = await fetch('/api/data')
+const response = await fetch("/api/data")
 data.value = await response.json()
 
 // BROKEN: This won't work - called after await!
@@ -52,8 +53,8 @@ defineExpose({
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
-import ChildComponent from './ChildComponent.vue'
+import { ref, onMounted } from "vue"
+import ChildComponent from "./ChildComponent.vue"
 
 const childRef = ref(null)
 
@@ -72,10 +73,11 @@ onMounted(() => {
 ```
 
 **Correct:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const data = ref(null)
 const count = ref(0)
@@ -92,7 +94,7 @@ defineExpose({
 })
 
 // Now safe to use await
-const response = await fetch('/api/data')
+const response = await fetch("/api/data")
 data.value = await response.json()
 </script>
 
@@ -104,7 +106,7 @@ data.value = await response.json()
 ```vue
 <!-- Alternative: Separate async logic from expose -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue"
 
 const data = ref(null)
 const loading = ref(true)
@@ -115,7 +117,7 @@ function getData() {
 
 async function refreshData() {
   loading.value = true
-  const response = await fetch('/api/data')
+  const response = await fetch("/api/data")
   data.value = await response.json()
   loading.value = false
 }
@@ -143,7 +145,7 @@ onMounted(() => {
 ```vue
 <!-- If you must use top-level await, define expose first -->
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const user = ref(null)
 const posts = ref([])
@@ -157,10 +159,7 @@ defineExpose({
 
 // Now safe to await
 async function loadData() {
-  const [userRes, postsRes] = await Promise.all([
-    fetch('/api/user'),
-    fetch('/api/posts')
-  ])
+  const [userRes, postsRes] = await Promise.all([fetch("/api/user"), fetch("/api/posts")])
   user.value = await userRes.json()
   posts.value = await postsRes.json()
 }
@@ -188,5 +187,6 @@ async setup() {
 ```
 
 ## Reference
+
 - [Vue.js Script Setup - defineExpose](https://vuejs.org/api/sfc-script-setup.html#defineexpose)
 - [Vue.js Async Components](https://vuejs.org/guide/components/async.html)

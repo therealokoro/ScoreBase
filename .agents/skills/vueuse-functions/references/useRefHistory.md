@@ -12,8 +12,8 @@ Track the change history of a ref, also provides undo and redo functionality
 ## Usage
 
 ```ts {5} twoslash include usage
-import { useRefHistory } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useRefHistory } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const counter = shallowRef(0)
 const { history, undo, redo } = useRefHistory(counter)
@@ -49,15 +49,15 @@ console.log(counter.value) // 0
 When working with objects or arrays, since changing their attributes does not change the reference, it will not trigger the committing. To track attribute changes, you would need to pass `deep: true`. It will create clones for each history record.
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const state = ref({
   foo: 1,
-  bar: 'bar',
+  bar: "bar"
 })
 
 const { history, undo, redo } = useRefHistory(state, {
-  deep: true,
+  deep: true
 })
 
 state.value.foo = 2
@@ -77,7 +77,7 @@ console.log(history.value)
 For example, using [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 
 const refHistory = useRefHistory(target, { clone: structuredClone })
 ```
@@ -85,8 +85,8 @@ const refHistory = useRefHistory(target, { clone: structuredClone })
 Or by using [lodash's `cloneDeep`](https://lodash.com/docs/4.17.15#cloneDeep):
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
-import { cloneDeep } from 'lodash-es'
+import { useRefHistory } from "@vueuse/core"
+import { cloneDeep } from "lodash-es"
 
 const refHistory = useRefHistory(target, { clone: cloneDeep })
 ```
@@ -94,8 +94,8 @@ const refHistory = useRefHistory(target, { clone: cloneDeep })
 Or a more lightweight [`klona`](https://github.com/lukeed/klona):
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
-import { klona } from 'klona'
+import { useRefHistory } from "@vueuse/core"
+import { klona } from "klona"
 
 const refHistory = useRefHistory(target, { clone: klona })
 ```
@@ -105,11 +105,11 @@ const refHistory = useRefHistory(target, { clone: klona })
 Instead of using the `clone` options, you can pass custom functions to control the serialization and parsing. In case you do not need history values to be objects, this can save an extra clone when undoing. It is also useful in case you want to have the snapshots already stringified to be saved to local storage for example.
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 
 const refHistory = useRefHistory(target, {
   dump: JSON.stringify,
-  parse: JSON.parse,
+  parse: JSON.parse
 })
 ```
 
@@ -118,10 +118,10 @@ const refHistory = useRefHistory(target, {
 We will keep all the history by default (unlimited) until you explicitly clear them up, you can set the maximal amount of history to be kept by `capacity` options.
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const refHistory = useRefHistory(target, {
-  capacity: 15, // limit to 15 history records
+  capacity: 15 // limit to 15 history records
 })
 
 refHistory.clear() // explicitly clear all the history
@@ -134,17 +134,17 @@ From [Vue's documentation](https://vuejs.org/guide/essentials/watchers.html#call
 In the same way as `watch`, you can modify the flush timing using the `flush` option.
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const refHistory = useRefHistory(target, {
-  flush: 'sync', // options 'pre' (default), 'post' and 'sync'
+  flush: "sync" // options 'pre' (default), 'post' and 'sync'
 })
 ```
 
 The default is `'pre'`, to align this composable with the default for Vue's watchers. This also helps to avoid common issues, like several history points generated as part of a multi-step update to a ref value that can break invariants of the app state. You can use `commit()` in case you need to create multiple history points in the same "tick"
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const r = shallowRef(0)
 const { history, commit } = useRefHistory(r)
@@ -166,13 +166,13 @@ console.log(history.value)
 On the other hand, when using flush `'sync'`, you can use `batch(fn)` to generate a single history point for several sync operations
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const r = ref({ names: [], version: 1 })
-const { history, batch } = useRefHistory(r, { flush: 'sync' })
+const { history, batch } = useRefHistory(r, { flush: "sync" })
 
 batch(() => {
-  r.value.names.push('Lena')
+  r.value.names.push("Lena")
   r.value.version++
 })
 
@@ -186,10 +186,10 @@ console.log(history.value)
 If `{ flush: 'sync', deep: true }` is used, `batch` is also useful when doing a mutable `splice` in an array. `splice` can generate up to three atomic operations that will be pushed to the ref history.
 
 ```ts
-import { useRefHistory } from '@vueuse/core'
+import { useRefHistory } from "@vueuse/core"
 // ---cut---
 const arr = ref([1, 2, 3])
-const { history, batch } = useRefHistory(arr, { deep: true, flush: 'sync' })
+const { history, batch } = useRefHistory(arr, { deep: true, flush: "sync" })
 
 batch(() => {
   arr.value.splice(1, 1) // batch ensures only one history point is generated
@@ -242,10 +242,10 @@ export interface UseRefHistoryOptions<Raw, Serialized = Raw>
    */
   shouldCommit?: (oldValue: Raw | undefined, newValue: Raw) => boolean
 }
-export interface UseRefHistoryReturn<
+export interface UseRefHistoryReturn<Raw, Serialized> extends UseManualRefHistoryReturn<
   Raw,
-  Serialized,
-> extends UseManualRefHistoryReturn<Raw, Serialized> {
+  Serialized
+> {
   /**
    * A ref representing if the tracking is enabled
    */
@@ -280,6 +280,6 @@ export interface UseRefHistoryReturn<
  */
 export declare function useRefHistory<Raw, Serialized = Raw>(
   source: Ref<Raw>,
-  options?: UseRefHistoryOptions<Raw, Serialized>,
+  options?: UseRefHistoryOptions<Raw, Serialized>
 ): UseRefHistoryReturn<Raw, Serialized>
 ```

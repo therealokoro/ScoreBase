@@ -1235,11 +1235,13 @@ n/a — documented decision retained.
 **Regression risk:** None (dev-only: no runtime dependencies added)
 
 ### Problem
+
 The repo had no test suite and no typecheck. `pnpm build` uses esbuild, which strips types
 without checking them, so type errors and business-rule regressions could reach main
 undetected — the audit's own fixes were only lint/build-verified.
 
 ### Fix
+
 Added `vitest` (`pnpm test`) and `vue-tsc` (`pnpm typecheck`), plus type-only devDeps
 `@iconify/vue` / `@iconify/utils` for the generated `Ui/Icon.vue`. Wrote 19 pure unit tests
 covering the business rules fixed by the audit: grade-boundary matching incl. gap fallback,
@@ -1248,6 +1250,7 @@ the result-settings sum-to-100 invariant, grade-boundary coverage validation, an
 array-replacement merge. Documented the conventions in AGENTS.md.
 
 ### Verification
+
 `pnpm test` → 19 passed; `pnpm typecheck` → 0 errors (was 13, see next entry); `pnpm lint` →
 0/0; `pnpm build` → success (10.4 MB / 2.38 MB gzip).
 
@@ -1264,7 +1267,9 @@ array-replacement merge. Documented the conventions in AGENTS.md.
 **Regression risk:** Low
 
 ### Problem
+
 The new `pnpm typecheck` reported 13 errors. Two were regressions from the merged audit PR:
+
 - `class.update` throws `errors.FORBIDDEN` (audit #8) but the contract never declared
   `FORBIDDEN`, so those calls did not type-check.
 - Typing the create-result form as `Partial<CreateResultInput>` (audit #45) was wrong: that
@@ -1275,6 +1280,7 @@ missing type declarations for the generated `Ui/Icon.vue` (`@iconify/vue` / `@ic
 and the dead `orpc.server.ts` router client missing a required `context`.
 
 ### Fix
+
 - Declared `FORBIDDEN` on the class `update` contract.
 - Gave the results form an explicit `CreateResultForm` type and typed the submit payload
   (also removed the `payload: any`).
@@ -1283,6 +1289,7 @@ and the dead `orpc.server.ts` router client missing a required `context`.
 - Passed a typed `context` to the (dead under `ssr: false`) server router client.
 
 ### Verification
+
 `pnpm typecheck` → 0 errors; `pnpm lint` → 0/0; `pnpm test` → 19 passed;
 `pnpm build` → success.
 
@@ -1296,6 +1303,7 @@ and the dead `orpc.server.ts` router client missing a required `context`.
 **Regression risk:** Low (relaxes a schema; existing callers already send full rows)
 
 ### Problem
+
 New unit tests proved the audit #17 fix did not work. In `drizzle-zod`,
 `createUpdateSchema(schema, { caScores, exam })` applies a non-function column override
 verbatim and returns early, so the update-`optional()` condition was never applied — both
@@ -1304,12 +1312,14 @@ verbatim and returns early, so the update-`optional()` condition was never appli
 could not reach.
 
 ### Fix
+
 Replaced both schemas with explicit `z.object({...})` definitions that mark `caScores`/`exam`
 `.optional()` (with `exam` also `.nullable()`), keeping the negative-exam guard and the
 "at least one field" refine. Updated the two tests that asserted the old (buggy) requirement
 to assert partial acceptance plus rejection when neither field is present.
 
 ### Verification
+
 `pnpm test` → 151 passed (the partial-entry cases now pass); `pnpm typecheck` → 0 errors.
 
 ---
@@ -1325,10 +1335,12 @@ new tests: `shared/validators/{results,academic,actors,auth,scoresheet}.test.ts`
 **Regression risk:** None (dev-only; no runtime deps)
 
 ### Problem
+
 Coverage was limited to three pure files; auth guards, the remaining validators, KV settings
 behaviour, formatting helpers, and the components changed by the audit had no tests.
 
 ### Fix
+
 Added Vitest alias mirroring + `@vitejs/plugin-vue` in `vitest.config.ts`, plus
 `@vue/test-utils` / `happy-dom` for SFC tests. Wrote coverage for every remaining validator,
 the access-control guards (exact `ORPCError` codes), KV settings read/merge/validate/write with
@@ -1336,6 +1348,7 @@ the access-control guards (exact `ORPCError` codes), KV settings read/merge/vali
 token-variant behaviour. Documented the component-test pattern in AGENTS.md.
 
 ### Verification
+
 `pnpm test` → 14 files / **151 passed**; `pnpm lint` → 0/0; `pnpm typecheck` → 0 errors;
 `pnpm build` → success.
 
@@ -1350,6 +1363,7 @@ token-variant behaviour. Documented the component-test pattern in AGENTS.md.
 **Regression risk:** Low (data backfill + a read-path fallback)
 
 ### Problem
+
 `seedClasses` set `classes.teacherId` but never wrote `user.classId`, so every seeded teacher had
 `class_id = NULL`. `student.query` returned `{ data: [], total: 0, pageCount: 1 }` whenever
 `user.classId` was missing, so a teacher's My Class table was empty even though the class had
@@ -1358,6 +1372,7 @@ students. The same drift also broke the other `requireClassAccess`-scoped teache
 path but not the seed path, so fresh seeds reproduced it.
 
 ### Fix
+
 - `seedClasses` now writes `user.classId` for each teacher it assigns.
 - `student.query` falls back to the authoritative class record (`classes.teacherId`) when
   `user.classId` is missing, instead of silently returning an empty page.
@@ -1365,5 +1380,6 @@ path but not the seed path, so fresh seeds reproduced it.
   `classes.teacher_id`.
 
 ### Verification
+
 DB inspection before: 6/6 teachers `class_id = NULL`. After `pnpm db:migrate`: every teacher maps to
 their class (10 students each), 0 teachers left with NULL. `pnpm lint` clean.

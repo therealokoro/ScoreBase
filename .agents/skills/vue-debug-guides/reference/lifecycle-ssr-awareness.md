@@ -21,13 +21,14 @@ On the server, only `beforeCreate`, `created`, and their Composition API equival
 - [ ] Check for browser environment before using browser APIs
 
 **Incorrect:**
+
 ```javascript
 // WRONG: Accessing browser APIs in created - breaks SSR
 export default {
   created() {
     // These don't exist on the server!
     this.width = window.innerWidth // ReferenceError: window is not defined
-    this.savedData = localStorage.getItem('data') // ReferenceError: localStorage is not defined
+    this.savedData = localStorage.getItem("data") // ReferenceError: localStorage is not defined
   }
 }
 ```
@@ -47,6 +48,7 @@ export default {
 ```
 
 **Correct:**
+
 ```javascript
 // CORRECT: Data fetching in created (runs on server), DOM in mounted
 export default {
@@ -63,10 +65,10 @@ export default {
   mounted() {
     // Browser-specific code safely in mounted
     this.windowWidth = window.innerWidth
-    window.addEventListener('resize', this.handleResize)
+    window.addEventListener("resize", this.handleResize)
   },
   unmounted() {
-    window.removeEventListener('resize', this.handleResize)
+    window.removeEventListener("resize", this.handleResize)
   }
 }
 ```
@@ -74,22 +76,22 @@ export default {
 ```vue
 <!-- CORRECT: Composition API with SSR awareness -->
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue"
 
 const user = ref(null)
 const windowWidth = ref(0)
 
 // This runs on both server and client (during setup)
-user.value = await useFetch('/api/user')
+user.value = await useFetch("/api/user")
 
 // These only run on client
 onMounted(() => {
   windowWidth.value = window.innerWidth
-  window.addEventListener('resize', handleResize)
+  window.addEventListener("resize", handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener("resize", handleResize)
 })
 
 function handleResize() {
@@ -104,12 +106,12 @@ function handleResize() {
 // CORRECT: Guard browser API access
 export default {
   data() {
-    return { theme: 'light' }
+    return { theme: "light" }
   },
   created() {
     // Check if we're in browser before accessing browser APIs
-    if (typeof window !== 'undefined') {
-      this.theme = localStorage.getItem('theme') || 'light'
+    if (typeof window !== "undefined") {
+      this.theme = localStorage.getItem("theme") || "light"
     }
   },
   mounted() {
@@ -159,7 +161,7 @@ export default {
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue"
 
 // Start with a value that matches what server renders
 const currentTime = ref(null)
@@ -179,6 +181,7 @@ onMounted(() => {
 ```
 
 ## Reference
+
 - [Vue.js SSR Guide](https://vuejs.org/guide/scaling-up/ssr.html)
 - [Nuxt.js Lifecycle](https://nuxt.com/docs/api/composables/use-nuxt-app#lifecycle-hooks)
 - [Vue SSR Hydration](https://vuejs.org/guide/scaling-up/ssr.html#client-hydration)

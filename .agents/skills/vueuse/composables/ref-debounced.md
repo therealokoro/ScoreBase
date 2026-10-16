@@ -8,19 +8,19 @@ Debounce execution of a ref value.
 ## Usage
 
 ```ts
-import { refDebounced } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refDebounced } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const data = shallowRef({
-  name: 'foo',
-  age: 18,
+  name: "foo",
+  age: 18
 })
 const debounced = refDebounced(data, 1000)
 
 function update() {
   data.value = {
     ...data.value,
-    name: 'bar',
+    name: "bar"
   }
 }
 

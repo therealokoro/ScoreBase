@@ -11,24 +11,24 @@ Transition between values
 Define a source value to follow, and when changed the output will transition to the new value. If the source changes while a transition is in progress, a new transition will begin from where the previous one was interrupted.
 
 ```ts
-import { TransitionPresets, useTransition } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { TransitionPresets, useTransition } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const source = shallowRef(0)
 
 const output = useTransition(source, {
   duration: 1000,
-  easing: TransitionPresets.easeInOutCubic,
+  easing: TransitionPresets.easeInOutCubic
 })
 ```
 
 Transition easing can be customized using [cubic bezier curves](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function/cubic-bezier#description).
 
 ```ts
-import { useTransition } from '@vueuse/core'
+import { useTransition } from "@vueuse/core"
 // ---cut---
 useTransition(source, {
-  easing: [0.75, 0, 0.25, 1],
+  easing: [0.75, 0, 0.25, 1]
 })
 ```
 
@@ -63,27 +63,27 @@ The following transitions are available via the `TransitionPresets` constant.
 For more complex easing, a custom function can be provided.
 
 ```ts
-import { useTransition } from '@vueuse/core'
+import { useTransition } from "@vueuse/core"
 // ---cut---
 function easeOutElastic(n) {
   return n === 0
     ? 0
     : n === 1
       ? 1
-      : (2 ** (-10 * n)) * Math.sin((n * 10 - 0.75) * ((2 * Math.PI) / 3)) + 1
+      : 2 ** (-10 * n) * Math.sin((n * 10 - 0.75) * ((2 * Math.PI) / 3)) + 1
 }
 
 useTransition(source, {
-  easing: easeOutElastic,
+  easing: easeOutElastic
 })
 ```
 
 By default the `source` must be a number, or array of numbers. For more complex values, define a custom `interpolation` function. For example, the following would transition a Three.js rotation.
 
 ```ts
-import { useTransition } from '@vueuse/core'
+import { useTransition } from "@vueuse/core"
 // ---cut---
-import { Quaternion } from 'three'
+import { Quaternion } from "three"
 
 const source = ref(new Quaternion())
 
@@ -95,7 +95,7 @@ const output = useTransition(source, {
 To control when a transition starts, set a `delay` value. To choreograph behavior around a transition, define `onStarted` or `onFinished` callbacks.
 
 ```ts
-import { useTransition } from '@vueuse/core'
+import { useTransition } from "@vueuse/core"
 // ---cut---
 useTransition(source, {
   delay: 1000,
@@ -104,7 +104,7 @@ useTransition(source, {
   },
   onFinished() {
     // called after the transition ends
-  },
+  }
 })
 ```
 
@@ -113,12 +113,11 @@ To stop transitioning, define a boolean `disabled` property. Be aware, this is n
 For even more control, transitions can be executed manually via the `transition` function. This function returns a promise that resolves when the transition is complete. Manual transitions can be cancelled by defining an `abort` function that returns a truthy value.
 
 ```ts
-import { transition } from '@vueuse/core'
+import { transition } from "@vueuse/core"
 
 await transition(source, from, to, {
   abort() {
-    if (shouldAbort)
-      return true
+    if (shouldAbort) return true
   }
 })
 ```
@@ -231,7 +230,7 @@ export declare function transition<T>(
   source: Ref<T>,
   from: MaybeRefOrGetter<T>,
   to: MaybeRefOrGetter<T>,
-  options?: TransitionOptions<T>,
+  options?: TransitionOptions<T>
 ): PromiseLike<void>
 /**
  * Transition from one value to another.
@@ -246,20 +245,20 @@ export declare function executeTransition<T>(
   source: Ref<T>,
   from: MaybeRefOrGetter<T>,
   to: MaybeRefOrGetter<T>,
-  options?: TransitionOptions<T>,
+  options?: TransitionOptions<T>
 ): PromiseLike<void>
 export declare function useTransition<T extends MaybeRefOrGetter<number>[]>(
   source: [...T],
-  options?: UseTransitionOptions<T>,
+  options?: UseTransitionOptions<T>
 ): ComputedRef<{
   [K in keyof T]: number
 }>
 export declare function useTransition<T extends MaybeRefOrGetter<number[]>>(
   source: T,
-  options?: UseTransitionOptions<T>,
+  options?: UseTransitionOptions<T>
 ): ComputedRef<number[]>
 export declare function useTransition<T>(
   source: MaybeRefOrGetter<T>,
-  options?: UseTransitionOptions<T>,
+  options?: UseTransitionOptions<T>
 ): ComputedRef<T>
 ```

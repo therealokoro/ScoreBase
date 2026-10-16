@@ -11,17 +11,17 @@ Cycle through a list of items.
 ## Usage
 
 ```ts
-import { useCycleList } from '@vueuse/core'
+import { useCycleList } from "@vueuse/core"
 
 const { state, next, prev, go } = useCycleList([
-  'Dog',
-  'Cat',
-  'Lizard',
-  'Shark',
-  'Whale',
-  'Dolphin',
-  'Octopus',
-  'Seal',
+  "Dog",
+  "Cat",
+  "Lizard",
+  "Shark",
+  "Whale",
+  "Dolphin",
+  "Octopus",
+  "Seal"
 ])
 
 console.log(state.value) // 'Dog'
@@ -60,7 +60,7 @@ export interface UseCycleListOptions<T> {
  */
 export declare function useCycleList<T>(
   list: MaybeRefOrGetter<T[]>,
-  options?: UseCycleListOptions<T>,
+  options?: UseCycleListOptions<T>
 ): UseCycleListReturn<T>
 export interface UseCycleListReturn<T> {
   state: ShallowRef<T>

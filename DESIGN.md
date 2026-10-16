@@ -10,19 +10,19 @@
 
 # 1. Theme Identity
 
-| Property          | Value                                                   |
-| ----------------- | ------------------------------------------------------- |
-| Theme Name        | Particle                                                |
-| CSS Framework     | Tailwind CSS v4 (`@import "tailwindcss"`)               |
-| Animation Library | `tw-animate-css`                                        |
+| Property          | Value                                                                  |
+| ----------------- | ---------------------------------------------------------------------- |
+| Theme Name        | Particle                                                               |
+| CSS Framework     | Tailwind CSS v4 (`@import "tailwindcss"`)                              |
+| Animation Library | `tw-animate-css`                                                       |
 | Component Library | shadcn-vue (CSS: `@import "tailwindcss"` / `@import "tw-animate-css"`) |
-| Dark Mode         | Class-based via `@custom-variant dark (&:is(.dark *))`  |
-| Color Model       | **OKLCH** throughout (perceptually uniform, wide gamut) |
-| Font — Sans       | `Inter, sans-serif`                                     |
-| Font — Serif      | `Source Serif 4, serif`                                 |
-| Font — Mono       | `Fira Code, monospace`                                  |
-| Base Radius       | `0.65rem` (~10.4px)                                     |
-| Letter Spacing    | `0em` (no tracking adjustment by default)               |
+| Dark Mode         | Class-based via `@custom-variant dark (&:is(.dark *))`                 |
+| Color Model       | **OKLCH** throughout (perceptually uniform, wide gamut)                |
+| Font — Sans       | `Inter, sans-serif`                                                    |
+| Font — Serif      | `Source Serif 4, serif`                                                |
+| Font — Mono       | `Fira Code, monospace`                                                 |
+| Base Radius       | `0.65rem` (~10.4px)                                                    |
+| Letter Spacing    | `0em` (no tracking adjustment by default)                              |
 
 ---
 
@@ -134,13 +134,13 @@ Always assign `chart-1` to the most important data series.
 
 # 3.2 Border Radius Tokens
 
-| Token       | Tailwind Class | Value                        | Usage                     |
-| ----------- | -------------- | ---------------------------- | ------------------------- |
-| `radius-sm` | `rounded-sm`   | `calc(var(--radius) - 4px)`  | Small badges, inline tags |
-| `radius-md` | `rounded-md`   | `calc(var(--radius) - 2px)`  | Buttons, inputs           |
-| `radius-lg` | `rounded-lg`   | `var(--radius)` (0.65rem)    | Cards, modals, popovers   |
-| `radius-xl` | `rounded-xl`   | `calc(var(--radius) + 4px)`  | Large overlays, sheets    |
-| Utility     | `rounded-full` | `9999px`                     | Pills, avatars            |
+| Token       | Tailwind Class | Value                       | Usage                     |
+| ----------- | -------------- | --------------------------- | ------------------------- |
+| `radius-sm` | `rounded-sm`   | `calc(var(--radius) - 4px)` | Small badges, inline tags |
+| `radius-md` | `rounded-md`   | `calc(var(--radius) - 2px)` | Buttons, inputs           |
+| `radius-lg` | `rounded-lg`   | `var(--radius)` (0.65rem)   | Cards, modals, popovers   |
+| `radius-xl` | `rounded-xl`   | `calc(var(--radius) + 4px)` | Large overlays, sheets    |
+| Utility     | `rounded-full` | `9999px`                    | Pills, avatars            |
 
 > All radius tokens derive from the single `--radius: 0.65rem` custom property in `tailwind.css`.
 
@@ -165,12 +165,12 @@ All shadows use low-opacity black and are designed to work in both light and dar
 
 # 3.4 Typography Tokens
 
-| Token          | Value                       | Usage                    |
-| -------------- | --------------------------- | ------------------------ |
-| `font-sans`    | `Inter, sans-serif`         | Default UI text          |
-| `font-serif`   | `Source Serif 4, serif`     | Long-form content        |
-| `font-mono`    | `Fira Code, monospace`      | IDs, codes, score values |
-| `font-heading` | Same as `font-sans`         | Headings                 |
+| Token          | Value                   | Usage                    |
+| -------------- | ----------------------- | ------------------------ |
+| `font-sans`    | `Inter, sans-serif`     | Default UI text          |
+| `font-serif`   | `Source Serif 4, serif` | Long-form content        |
+| `font-mono`    | `Fira Code, monospace`  | IDs, codes, score values |
+| `font-heading` | Same as `font-sans`     | Headings                 |
 
 ## Type Scale
 

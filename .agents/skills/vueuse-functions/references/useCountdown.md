@@ -9,16 +9,12 @@ Reactive countdown timer in seconds.
 ## Usage
 
 ```ts
-import { useCountdown } from '@vueuse/core'
+import { useCountdown } from "@vueuse/core"
 
 const countdownSeconds = 5
 const { remaining, start, stop, pause, resume } = useCountdown(countdownSeconds, {
-  onComplete() {
-
-  },
-  onTick() {
-
-  }
+  onComplete() {},
+  onTick() {}
 })
 ```
 
@@ -26,12 +22,11 @@ You can use a `ref` to change the initial countdown.
 `start()` and `resume()` also accept a new countdown value for the next countdown.
 
 ```ts
-import { useCountdown } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useCountdown } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const countdown = shallowRef(5)
-const { start, reset } = useCountdown(countdown, {
-})
+const { start, reset } = useCountdown(countdown, {})
 
 // change the countdown value
 countdown.value = 10
@@ -100,6 +95,6 @@ export interface UseCountdownReturn extends Pausable {
  */
 export declare function useCountdown(
   initialCountdown: MaybeRefOrGetter<number>,
-  options?: UseCountdownOptions,
+  options?: UseCountdownOptions
 ): UseCountdownReturn
 ```

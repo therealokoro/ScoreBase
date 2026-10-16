@@ -8,11 +8,11 @@ Promised one-time watch for changes
 ## Usage
 
 ```ts
-import { until, useAsyncState } from '@vueuse/core'
+import { until, useAsyncState } from "@vueuse/core"
 
 const { state, isReady } = useAsyncState(
-  fetch('https://jsonplaceholder.typicode.com/todos/1').then(t => t.json()),
-  {},
+  fetch("https://jsonplaceholder.typicode.com/todos/1").then((t) => t.json()),
+  {}
 )
 
 ;(async () => {

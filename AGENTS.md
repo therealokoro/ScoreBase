@@ -70,8 +70,8 @@ Versions come from `package.json`.
 | Validation      | Zod `^4.6.5`                                                                                            |
 | Icons           | `@nuxt/icon` with the `ICONS` map in `shared/constants/icons.ts`                                        |
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
-| Package manager | pnpm `11.5.2`                                                                                          |
-| Export          | `hucre` (xlsx), dynamically imported on first use                                                      |
+| Package manager | pnpm `11.5.2`                                                                                           |
+| Export          | `hucre` (xlsx), dynamically imported on first use                                                       |
 | Lint / format   | Oxlint, Oxfmt                                                                                           |
 | Testing         | Vitest `^5` + `@vue/test-utils` / `happy-dom`; typecheck with `vue-tsc`                                 |
 
@@ -550,7 +550,7 @@ _Convention changes logged here:_
   comment-right), and a legacy `principal` key is dropped on read. The scores table's columns are
   reorderable in the panel (subject pinned first; `sortColumns` no longer forces canonical order).
   Per-block border widths were replaced by the template-level `tableBorders` (colour + inner width
-  + outline width) published as CSS variables to every table/grid.
+  - outline width) published as CSS variables to every table/grid.
 - 2026-10-14 — J.K. report card review round 3. Per-block border thickness: `StudentInfoConfig.borderWidth`
   and `ScoresConfig.borderWidth` (px, 0-4, default 1) scale the student grid and the scores table
   rules independently, applied as widths so the last column/row still drops its inner rule (this

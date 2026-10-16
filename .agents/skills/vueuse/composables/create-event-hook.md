@@ -8,31 +8,31 @@ Utility for creating event hooks
 ## Usage
 
 ```ts
-import { createEventHook } from '@vueuse/core'
+import { createEventHook } from "@vueuse/core"
 
 export function useMyFetch(url) {
   const fetchResult = createEventHook<Response>()
   const fetchError = createEventHook<any>()
 
   fetch(url)
-    .then(result => fetchResult.trigger(result))
-    .catch(error => fetchError.trigger(error.message))
+    .then((result) => fetchResult.trigger(result))
+    .catch((error) => fetchError.trigger(error.message))
 
   return {
     onResult: fetchResult.on,
-    onError: fetchError.on,
+    onError: fetchError.on
   }
 }
 ```
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| on | `Ref` |
-| off | `Ref` |
+| Name    | Type  |
+| ------- | ----- |
+| on      | `Ref` |
+| off     | `Ref` |
 | trigger | `Ref` |
-| clear | `Ref` |
+| clear   | `Ref` |
 
 ## Reference
 

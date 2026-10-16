@@ -211,7 +211,7 @@ Calculated on the fly and cached until dependencies change:
 | Overall Score  | Total score obtained / Total score obtainable                          |
 | Average Score  | Used to determine class position                                       |
 | Class Position | Configurable display (e.g. show all, or top 3 only)                    |
-| Remarks        | Class teacher's comment and the head signature (principal or director)   |
+| Remarks        | Class teacher's comment and the head signature (principal or director) |
 
 ### 5.2 Configurable Options
 

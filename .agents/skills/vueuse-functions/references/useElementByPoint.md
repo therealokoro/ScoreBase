@@ -9,9 +9,9 @@ Reactive element by point.
 ## Usage
 
 ```ts
-import { useElementByPoint, useMouse } from '@vueuse/core'
+import { useElementByPoint, useMouse } from "@vueuse/core"
 
-const { x, y } = useMouse({ type: 'client' })
+const { x, y } = useMouse({ type: "client" })
 const { element } = useElementByPoint({ x, y })
 ```
 
@@ -30,9 +30,7 @@ export interface UseElementByPointOptions<Multiple extends boolean = false>
 }
 export interface UseElementByPointReturn<Multiple extends boolean = false>
   extends Supportable, Pausable {
-  element: ShallowRef<
-    Multiple extends true ? HTMLElement[] : HTMLElement | null
-  >
+  element: ShallowRef<Multiple extends true ? HTMLElement[] : HTMLElement | null>
 }
 /**
  * Reactive element by point.
@@ -41,6 +39,6 @@ export interface UseElementByPointReturn<Multiple extends boolean = false>
  * @param options - UseElementByPointOptions
  */
 export declare function useElementByPoint<M extends boolean = false>(
-  options: UseElementByPointOptions<M>,
+  options: UseElementByPointOptions<M>
 ): UseElementByPointReturn<M>
 ```

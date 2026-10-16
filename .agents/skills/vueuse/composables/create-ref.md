@@ -8,8 +8,8 @@ Returns a or depending on the param.
 ## Usage
 
 ```ts
-import { createRef } from '@vueuse/core'
-import { isShallow, ref } from 'vue'
+import { createRef } from "@vueuse/core"
+import { isShallow, ref } from "vue"
 
 const initialData = 1
 

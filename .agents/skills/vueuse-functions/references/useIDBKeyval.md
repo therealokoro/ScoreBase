@@ -1,5 +1,5 @@
 ---
-category: '@Integrations'
+category: "@Integrations"
 ---
 
 # useIDBKeyval
@@ -15,23 +15,26 @@ npm install idb-keyval@^6
 ## Usage
 
 ```ts
-import { useIDBKeyval } from '@vueuse/integrations/useIDBKeyval'
+import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval"
 
 // bind object
-const { data: storedObject, isFinished } = useIDBKeyval('my-idb-keyval-store', { hello: 'hi', greeting: 'Hello' })
+const { data: storedObject, isFinished } = useIDBKeyval("my-idb-keyval-store", {
+  hello: "hi",
+  greeting: "Hello"
+})
 
 // update object
-storedObject.value.hello = 'hola'
+storedObject.value.hello = "hola"
 
 // bind boolean
-const flag = useIDBKeyval('my-flag', true) // returns Ref<boolean>
+const flag = useIDBKeyval("my-flag", true) // returns Ref<boolean>
 
 // bind number
-const count = useIDBKeyval('my-count', 0) // returns Ref<number>
+const count = useIDBKeyval("my-count", 0) // returns Ref<number>
 
 // awaiting IDB transaction
 await count.set(10)
-console.log('IDB transaction finished!')
+console.log("IDB transaction finished!")
 
 // delete data from idb storage
 storedObject.value = null
@@ -88,6 +91,6 @@ export interface UseIDBKeyvalReturn<T> {
 export declare function useIDBKeyval<T>(
   key: IDBValidKey,
   initialValue: MaybeRefOrGetter<T>,
-  options?: UseIDBOptions<T>,
+  options?: UseIDBOptions<T>
 ): UseIDBKeyvalReturn<T>
 ```

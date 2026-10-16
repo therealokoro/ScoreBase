@@ -20,19 +20,20 @@ This timing issue is particularly confusing because the watcher runs, but the re
 - [ ] Consider using `watch` with explicit ref watching instead
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const inputEl = ref(null)
-const text = ref('')
+const text = ref("")
 
 // WRONG: Runs BEFORE DOM update - ref may be null or stale
 watchEffect(() => {
   // On first run: inputEl.value is null (DOM not rendered yet)
   // On updates: May reference old element state
   if (inputEl.value) {
-    console.log('Input value:', inputEl.value.value) // Stale!
+    console.log("Input value:", inputEl.value.value) // Stale!
     inputEl.value.focus()
   }
 })
@@ -45,39 +46,43 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const items = ref([1, 2, 3])
 const itemRefs = ref([])
 
 // WRONG: Refs array not yet populated when this runs
 watchEffect(() => {
-  console.log('Number of refs:', itemRefs.value.length) // Always 0!
+  console.log("Number of refs:", itemRefs.value.length) // Always 0!
 })
 </script>
 
 <template>
-  <div v-for="item in items" :key="item" :ref="el => itemRefs.value.push(el)">
+  <div v-for="item in items" :key="item" :ref="(el) => itemRefs.value.push(el)">
     {{ item }}
   </div>
 </template>
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const inputEl = ref(null)
-const text = ref('')
+const text = ref("")
 
 // CORRECT: flush: 'post' runs AFTER DOM update
-watchEffect(() => {
-  if (inputEl.value) {
-    console.log('Input value:', inputEl.value.value) // Current!
-    inputEl.value.focus()
-  }
-}, { flush: 'post' })
+watchEffect(
+  () => {
+    if (inputEl.value) {
+      console.log("Input value:", inputEl.value.value) // Current!
+      inputEl.value.focus()
+    }
+  },
+  { flush: "post" }
+)
 </script>
 
 <template>
@@ -87,7 +92,7 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { ref, watchPostEffect } from 'vue'
+import { ref, watchPostEffect } from "vue"
 
 const inputEl = ref(null)
 const showInput = ref(true)
@@ -107,16 +112,20 @@ watchPostEffect(() => {
 
 ```vue
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from "vue"
 
 const inputEl = ref(null)
 
 // ALTERNATIVE: Use watch on the ref directly
-watch(inputEl, (el) => {
-  if (el) {
-    el.focus()
-  }
-}, { flush: 'post' })
+watch(
+  inputEl,
+  (el) => {
+    if (el) {
+      el.focus()
+    }
+  },
+  { flush: "post" }
+)
 
 // ALTERNATIVE: For one-time setup, onMounted is sufficient
 onMounted(() => {
@@ -131,10 +140,10 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { useTemplateRef, watchPostEffect } from 'vue'
+import { useTemplateRef, watchPostEffect } from "vue"
 
 // Vue 3.5+ with useTemplateRef
-const input = useTemplateRef('my-input')
+const input = useTemplateRef("my-input")
 
 // CORRECT: watchPostEffect with useTemplateRef
 watchPostEffect(() => {
@@ -164,13 +173,14 @@ watchSyncEffect(() => { ... }) // Shorthand
 
 ## When to Use Each Flush Mode
 
-| Scenario | Recommended Flush |
-|----------|-------------------|
-| Accessing template refs | `post` |
-| Reading updated DOM | `post` |
-| Triggering before render | `pre` (default) |
+| Scenario                          | Recommended Flush     |
+| --------------------------------- | --------------------- |
+| Accessing template refs           | `post`                |
+| Reading updated DOM               | `post`                |
+| Triggering before render          | `pre` (default)       |
 | Performance-critical sync updates | `sync` (with caution) |
 
 ## Reference
+
 - [Vue.js Watchers - Callback Flush Timing](https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing)
 - [Vue.js watchEffect API](https://vuejs.org/api/reactivity-core.html#watcheffect)

@@ -8,12 +8,12 @@ Apply default value to a ref.
 ## Usage
 
 ```ts
-import { refDefault, useStorage } from '@vueuse/core'
+import { refDefault, useStorage } from "@vueuse/core"
 
-const raw = useStorage('key')
-const state = refDefault(raw, 'default')
+const raw = useStorage("key")
+const state = refDefault(raw, "default")
 
-raw.value = 'hello'
+raw.value = "hello"
 console.log(state.value) // hello
 
 raw.value = undefined

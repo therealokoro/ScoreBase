@@ -11,7 +11,7 @@ Provides helpers for building a multi-step wizard interface.
 ### Steps as array
 
 ```ts
-import { useStepper } from '@vueuse/core'
+import { useStepper } from "@vueuse/core"
 
 const {
   steps,
@@ -30,12 +30,8 @@ const {
   isPrevious,
   isCurrent,
   isBefore,
-  isAfter,
-} = useStepper([
-  'billing-address',
-  'terms',
-  'payment',
-])
+  isAfter
+} = useStepper(["billing-address", "terms", "payment"])
 
 // Access the step through `current`
 console.log(current.value) // 'billing-address'
@@ -44,7 +40,7 @@ console.log(current.value) // 'billing-address'
 ### Steps as object
 
 ```ts
-import { useStepper } from '@vueuse/core'
+import { useStepper } from "@vueuse/core"
 
 const {
   steps,
@@ -63,20 +59,20 @@ const {
   isPrevious,
   isCurrent,
   isBefore,
-  isAfter,
+  isAfter
 } = useStepper({
-  'user-information': {
-    title: 'User information',
+  "user-information": {
+    title: "User information"
   },
-  'billing-address': {
-    title: 'Billing address',
+  "billing-address": {
+    title: "Billing address"
   },
-  'terms': {
-    title: 'Terms',
+  terms: {
+    title: "Terms"
   },
-  'payment': {
-    title: 'Payment',
-  },
+  payment: {
+    title: "Payment"
+  }
 })
 
 // Access the step object through `current`
@@ -128,10 +124,10 @@ export interface UseStepperReturn<StepName, Steps, Step> {
 }
 export declare function useStepper<T extends string | number>(
   steps: MaybeRef<T[]>,
-  initialStep?: T,
+  initialStep?: T
 ): UseStepperReturn<T, T[], T>
 export declare function useStepper<T extends Record<string, any>>(
   steps: MaybeRef<T>,
-  initialStep?: keyof T,
+  initialStep?: keyof T
 ): UseStepperReturn<Exclude<keyof T, symbol>, T, T[keyof T]>
 ```

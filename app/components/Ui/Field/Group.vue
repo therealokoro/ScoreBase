@@ -9,22 +9,22 @@
   </Primitive>
 </template>
 <script lang="ts">
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const fieldGroupStyles = tv({
-    base: [
-      "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4",
-    ],
-  });
+export const fieldGroupStyles = tv({
+  base: [
+    "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4"
+  ]
+})
 </script>
 <script lang="ts" setup>
-  const props = defineProps<
-    PrimitiveProps & {
-      /** Additional classes to apply to the fieldset element. */
-      class?: HTMLAttributes["class"];
-    }
-  >();
+const props = defineProps<
+  PrimitiveProps & {
+    /** Additional classes to apply to the fieldset element. */
+    class?: HTMLAttributes["class"]
+  }
+>()
 </script>

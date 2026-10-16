@@ -9,7 +9,7 @@ Wrapper for `setInterval` with controls
 ## Usage
 
 ```ts
-import { useIntervalFn } from '@vueuse/core'
+import { useIntervalFn } from "@vueuse/core"
 
 const { pause, resume, isActive } = useIntervalFn(() => {
   /* your function */
@@ -45,6 +45,6 @@ export type UseIntervalFnReturn = Pausable
 export declare function useIntervalFn(
   cb: Fn,
   interval?: MaybeRefOrGetter<number>,
-  options?: UseIntervalFnOptions,
+  options?: UseIntervalFnOptions
 ): UseIntervalFnReturn
 ```

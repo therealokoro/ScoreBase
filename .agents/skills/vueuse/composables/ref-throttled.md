@@ -8,10 +8,10 @@ Throttle changing of a ref value.
 ## Usage
 
 ```ts
-import { refThrottled } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { refThrottled } from "@vueuse/core"
+import { shallowRef } from "vue"
 
-const input = shallowRef('')
+const input = shallowRef("")
 const throttled = refThrottled(input, 1000)
 ```
 

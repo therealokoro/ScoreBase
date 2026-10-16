@@ -21,13 +21,14 @@ Don't rely on comparing `newValue` to `oldValue` in deep watchers for detecting 
 - [ ] The values differ only when the entire object is replaced
 
 **Incorrect:**
+
 ```javascript
-import { reactive, watch } from 'vue'
+import { reactive, watch } from "vue"
 
 const state = reactive({
   user: {
-    name: 'John',
-    preferences: { theme: 'dark' }
+    name: "John",
+    preferences: { theme: "dark" }
   }
 })
 
@@ -37,30 +38,31 @@ watch(
   (newUser, oldUser) => {
     // This comparison is ALWAYS true for nested mutations!
     if (newUser === oldUser) {
-      console.log('Same reference!')  // Always logs for nested changes
+      console.log("Same reference!") // Always logs for nested changes
     }
 
     // This also won't work - they're the same object
     if (newUser.name !== oldUser.name) {
-      console.log('Name changed')  // Never logs for nested mutations
+      console.log("Name changed") // Never logs for nested mutations
     }
   },
   { deep: true }
 )
 
 // When this happens:
-state.user.name = 'Jane'
+state.user.name = "Jane"
 // Both newUser and oldUser are { name: 'Jane', preferences: { theme: 'dark' } }
 ```
 
 **Correct:**
+
 ```javascript
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch, ref } from "vue"
 
 const state = reactive({
   user: {
-    name: 'John',
-    preferences: { theme: 'dark' }
+    name: "John",
+    preferences: { theme: "dark" }
   }
 })
 
@@ -90,7 +92,7 @@ watch(
 ## Manual Snapshot Pattern
 
 ```javascript
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch, ref } from "vue"
 
 const state = reactive({ count: 0, items: [] })
 
@@ -104,8 +106,8 @@ watch(
 
     if (currentSnapshot !== previousSnapshot.value) {
       const oldData = JSON.parse(previousSnapshot.value)
-      console.log('Old:', oldData)
-      console.log('New:', newState)
+      console.log("Old:", oldData)
+      console.log("New:", newState)
 
       // Update snapshot for next comparison
       previousSnapshot.value = currentSnapshot
@@ -118,24 +120,24 @@ watch(
 ## When Old and New Values Differ
 
 ```javascript
-import { reactive, watch } from 'vue'
+import { reactive, watch } from "vue"
 
 const state = reactive({
-  currentUser: { name: 'John' }
+  currentUser: { name: "John" }
 })
 
 watch(
   () => state.currentUser,
   (newUser, oldUser) => {
     // THESE DIFFER when the object itself is replaced
-    console.log('Old:', oldUser)  // { name: 'John' }
-    console.log('New:', newUser)  // { name: 'Jane' }
+    console.log("Old:", oldUser) // { name: 'John' }
+    console.log("New:", newUser) // { name: 'Jane' }
   },
   { deep: true }
 )
 
 // Object replacement - old and new are different
-state.currentUser = { name: 'Jane' }
+state.currentUser = { name: "Jane" }
 
 // vs. Mutation - old and new are the same reference
 // state.currentUser.name = 'Jane'
@@ -144,22 +146,23 @@ state.currentUser = { name: 'Jane' }
 ## Using Getter Returns New Object
 
 ```javascript
-import { reactive, watch } from 'vue'
+import { reactive, watch } from "vue"
 
 const state = reactive({
-  user: { firstName: 'John', lastName: 'Doe' }
+  user: { firstName: "John", lastName: "Doe" }
 })
 
 // CORRECT: Getter returns new object, so old/new comparison works
 watch(
-  () => ({ ...state.user }),  // Shallow clone
+  () => ({ ...state.user }), // Shallow clone
   (newUser, oldUser) => {
     // Now these are different objects
-    console.log('Changed from', oldUser, 'to', newUser)
+    console.log("Changed from", oldUser, "to", newUser)
   },
   { deep: true }
 )
 ```
 
 ## Reference
+
 - [Vue.js Watchers - Deep Watchers](https://vuejs.org/guide/essentials/watchers.html#deep-watchers)

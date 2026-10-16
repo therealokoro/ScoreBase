@@ -9,7 +9,7 @@ Reactive value that becomes `true` after a given time.
 ## Usage
 
 ```ts
-import { useTimeout } from '@vueuse/core'
+import { useTimeout } from "@vueuse/core"
 
 const ready = useTimeout(1000)
 ```
@@ -19,7 +19,7 @@ After 1 second, `ready.value` becomes `true`.
 ### With Controls
 
 ```ts
-import { useTimeout } from '@vueuse/core'
+import { useTimeout } from "@vueuse/core"
 
 const { ready, start, stop, isPending } = useTimeout(1000, { controls: true })
 
@@ -44,12 +44,12 @@ start()
 ### Callback on Timeout
 
 ```ts
-import { useTimeout } from '@vueuse/core'
+import { useTimeout } from "@vueuse/core"
 
 useTimeout(1000, {
   callback: () => {
-    console.log('Timeout completed!')
-  },
+    console.log("Timeout completed!")
+  }
 })
 ```
 
@@ -58,7 +58,7 @@ useTimeout(1000, {
 The timeout duration can be reactive:
 
 ```ts
-import { useTimeout } from '@vueuse/core'
+import { useTimeout } from "@vueuse/core"
 
 const duration = ref(1000)
 const ready = useTimeout(duration)
@@ -70,9 +70,7 @@ duration.value = 2000
 ## Type Declarations
 
 ```ts
-export interface UseTimeoutOptions<
-  Controls extends boolean,
-> extends UseTimeoutFnOptions {
+export interface UseTimeoutOptions<Controls extends boolean> extends UseTimeoutFnOptions {
   /**
    * Expose more controls
    *
@@ -102,11 +100,11 @@ export type UseTimoutReturn = UseTimeoutReturn
  */
 export declare function useTimeout(
   interval?: MaybeRefOrGetter<number>,
-  options?: UseTimeoutOptions<false>,
+  options?: UseTimeoutOptions<false>
 ): ComputedRef<boolean>
 export declare function useTimeout(
   interval: MaybeRefOrGetter<number>,
-  options: UseTimeoutOptions<true>,
+  options: UseTimeoutOptions<true>
 ): {
   ready: ComputedRef<boolean>
 } & Stoppable

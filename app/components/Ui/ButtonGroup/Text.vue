@@ -9,23 +9,23 @@
 </template>
 
 <script lang="ts">
-  import { Primitive } from "reka-ui";
-  import type { PrimitiveProps } from "reka-ui";
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { Primitive } from "reka-ui"
+import type { PrimitiveProps } from "reka-ui"
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const buttonGroupTextStyles = tv({
-    base: "bg-muted flex items-center gap-2 rounded-md border px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
-  });
+export const buttonGroupTextStyles = tv({
+  base: "bg-muted flex items-center gap-2 rounded-md border px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
+})
 
-  export type ButtonGroupTextProps = PrimitiveProps & {
-    /** Additional classes to apply to the button group text. */
-    class?: HTMLAttributes["class"];
-  };
+export type ButtonGroupTextProps = PrimitiveProps & {
+  /** Additional classes to apply to the button group text. */
+  class?: HTMLAttributes["class"]
+}
 </script>
 
 <script lang="ts" setup>
-  const props = defineProps<ButtonGroupTextProps>();
+const props = defineProps<ButtonGroupTextProps>()
 
-  const forwarded = reactiveOmit(props, ["class"]);
+const forwarded = reactiveOmit(props, ["class"])
 </script>

@@ -9,13 +9,13 @@ Reactive clone of a ref. By default, it use `JSON.parse(JSON.stringify())` to do
 ## Usage
 
 ```ts
-import { useCloned } from '@vueuse/core'
+import { useCloned } from "@vueuse/core"
 
-const original = ref({ key: 'value' })
+const original = ref({ key: "value" })
 
 const { cloned } = useCloned(original)
 
-original.value.key = 'some new value'
+original.value.key = "some new value"
 
 console.log(cloned.value.key) // 'value'
 ```
@@ -23,19 +23,19 @@ console.log(cloned.value.key) // 'value'
 ## Manual cloning
 
 ```ts
-import { useCloned } from '@vueuse/core'
+import { useCloned } from "@vueuse/core"
 
-const original = ref({ key: 'value' })
+const original = ref({ key: "value" })
 
 const { cloned, sync } = useCloned(original, { manual: true })
 
-original.value.key = 'manual'
+original.value.key = "manual"
 
 console.log(cloned.value.key) // 'value'
 
 sync()
 
-console.log(cloned.value.key)// 'manual'
+console.log(cloned.value.key) // 'manual'
 ```
 
 ## Custom Clone Function
@@ -43,10 +43,10 @@ console.log(cloned.value.key)// 'manual'
 Using [`klona`](https://www.npmjs.com/package/klona) for example:
 
 ```ts
-import { useCloned } from '@vueuse/core'
-import { klona } from 'klona'
+import { useCloned } from "@vueuse/core"
+import { klona } from "klona"
 
-const original = ref({ key: 'value' })
+const original = ref({ key: "value" })
 
 const { cloned, isModified, sync } = useCloned(original, { clone: klona })
 ```
@@ -86,6 +86,6 @@ export type CloneFn<F, T = F> = (x: F) => T
 export declare function cloneFnJSON<T>(source: T): T
 export declare function useCloned<T>(
   source: MaybeRefOrGetter<T>,
-  options?: UseClonedOptions,
+  options?: UseClonedOptions
 ): UseClonedReturn<T>
 ```

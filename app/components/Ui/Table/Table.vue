@@ -11,13 +11,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  defineOptions({ inheritAttrs: false });
-  const props = defineProps<{
-    class?: HTMLAttributes["class"];
-  }>();
+defineOptions({ inheritAttrs: false })
+const props = defineProps<{
+  class?: HTMLAttributes["class"]
+}>()
 
-  const styles = tv({ base: "w-full caption-bottom text-sm" });
+const styles = tv({ base: "w-full caption-bottom text-sm" })
 </script>

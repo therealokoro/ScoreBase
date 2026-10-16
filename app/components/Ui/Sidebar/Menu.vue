@@ -8,16 +8,16 @@
   </ul>
 </template>
 <script lang="ts">
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const sideBarMenuStyles = tv({
-    base: "flex w-full min-w-0 flex-col gap-1",
-  });
+export const sideBarMenuStyles = tv({
+  base: "flex w-full min-w-0 flex-col gap-1"
+})
 </script>
 <script setup lang="ts">
-  const props = defineProps<{
-    /** Additional classes to apply to the parent element. */
-    class?: HTMLAttributes["class"];
-  }>();
+const props = defineProps<{
+  /** Additional classes to apply to the parent element. */
+  class?: HTMLAttributes["class"]
+}>()
 </script>

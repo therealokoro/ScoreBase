@@ -8,7 +8,7 @@ Reactive Vibration API
 ## Usage
 
 ```ts
-import { useVibrate } from '@vueuse/core'
+import { useVibrate } from "@vueuse/core"
 
 // This vibrates the device for 300 ms
 // then pauses for 100 ms before vibrating the device again for another 300 ms:
@@ -23,20 +23,20 @@ stop()
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| pattern | `MaybeRefOrGetter&lt;Arrayable&lt;number&gt;&gt;` | [] | * Vibration Pattern |
-| interval | `number` | 0 | Interval to run a persistent vibration, in ms |
+| Option   | Type                                              | Default | Description                                   |
+| -------- | ------------------------------------------------- | ------- | --------------------------------------------- |
+| pattern  | `MaybeRefOrGetter&lt;Arrayable&lt;number&gt;&gt;` | []      | * Vibration Pattern                           |
+| interval | `number`                                          | 0       | Interval to run a persistent vibration, in ms |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| isSupported | `useSupported` |
-| pattern | `Ref` |
-| intervalControls | `Ref` |
-| vibrate | `Ref` |
-| stop | `Ref` |
+| Name             | Type           |
+| ---------------- | -------------- |
+| isSupported      | `useSupported` |
+| pattern          | `Ref`          |
+| intervalControls | `Ref`          |
+| vibrate          | `Ref`          |
+| stop             | `Ref`          |
 
 ## Reference
 

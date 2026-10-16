@@ -10,10 +10,10 @@ Reactive mouse position related to an element
 
 ```vue
 <script setup lang="ts">
-import { useMouseInElement } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
+import { useMouseInElement } from "@vueuse/core"
+import { useTemplateRef } from "vue"
 
-const target = useTemplateRef('target')
+const target = useTemplateRef("target")
 
 const { x, y, isOutside } = useMouseInElement(target)
 </script>
@@ -30,9 +30,7 @@ const { x, y, isOutside } = useMouseInElement(target)
 ```vue
 <template>
   <UseMouseInElement v-slot="{ elementX, elementY, isOutside }">
-    x: {{ elementX }}
-    y: {{ elementY }}
-    Is Outside: {{ isOutside }}
+    x: {{ elementX }} y: {{ elementY }} Is Outside: {{ isOutside }}
   </UseMouseInElement>
 </template>
 ```
@@ -41,8 +39,8 @@ const { x, y, isOutside } = useMouseInElement(target)
 
 ```vue
 <script setup lang="ts">
-import { vMouseInElement } from '@vueuse/components'
-import { UseMouseSourceType } from '@vueuse/core'
+import { vMouseInElement } from "@vueuse/components"
+import { UseMouseSourceType } from "@vueuse/core"
 
 interface MouseInElementType {
   x: number
@@ -60,8 +58,30 @@ interface MouseInElementType {
 const options = {
   handleOutside: true
 }
-function onMouseInElement({ x, y, sourceType, elementX, elementY, elementPositionX, elementPositionY, elementHeight, elementWidth, isOutside }: MouseInElementType) {
-  console.log(x, y, sourceType, elementX, elementY, elementPositionX, elementPositionY, elementHeight, elementWidth, isOutside)
+function onMouseInElement({
+  x,
+  y,
+  sourceType,
+  elementX,
+  elementY,
+  elementPositionX,
+  elementPositionY,
+  elementHeight,
+  elementWidth,
+  isOutside
+}: MouseInElementType) {
+  console.log(
+    x,
+    y,
+    sourceType,
+    elementX,
+    elementY,
+    elementPositionX,
+    elementPositionY,
+    elementHeight,
+    elementWidth,
+    isOutside
+  )
 }
 </script>
 
@@ -115,7 +135,7 @@ export interface UseMouseInElementReturn extends UseMouseReturn {
  */
 export declare function useMouseInElement(
   target?: MaybeElementRef,
-  options?: MouseInElementOptions,
+  options?: MouseInElementOptions
 ): {
   x: ShallowRef<number>
   y: ShallowRef<number>

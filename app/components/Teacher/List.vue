@@ -9,14 +9,15 @@ import type { TanStackTableFeatures } from "~/components/Ui/TanStackTable.vue"
 
 const emit = defineEmits(["edit", "delete"])
 
-const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
-  mode: "server",
-  searchKey: "search",
-  pageKey: "page",
-  sizeKey: "pageSize",
-  defaultPageSize: 10,
-  debounce: 300
-})
+const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } =
+  useUrlTableState({
+    mode: "server",
+    searchKey: "search",
+    pageKey: "page",
+    sizeKey: "pageSize",
+    defaultPageSize: 10,
+    debounce: 300
+  })
 
 const { data, isPending } = useQueryTeachers(
   computed(() => ({

@@ -8,7 +8,7 @@ A boolean switcher with utility functions.
 ## Usage
 
 ```ts
-import { useToggle } from '@vueuse/core'
+import { useToggle } from "@vueuse/core"
 
 const [value, toggle] = useToggle()
 ```

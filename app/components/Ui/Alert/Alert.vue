@@ -124,12 +124,18 @@ export const alertStyles = tv({
     {
       filled: true,
       variant: "success",
-      class: { base: "bg-success text-success-foreground shadow-xs", icon: "text-success-foreground" }
+      class: {
+        base: "bg-success text-success-foreground shadow-xs",
+        icon: "text-success-foreground"
+      }
     },
     {
       filled: true,
       variant: "warning",
-      class: { base: "bg-warning text-warning-foreground shadow-xs", icon: "text-warning-foreground" }
+      class: {
+        base: "bg-warning text-warning-foreground shadow-xs",
+        icon: "text-warning-foreground"
+      }
     }
   ]
 })

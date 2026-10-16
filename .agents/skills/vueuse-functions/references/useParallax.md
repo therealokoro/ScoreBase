@@ -10,7 +10,7 @@ Create parallax effect easily. It uses `useDeviceOrientation` and fallback to `u
 
 ```vue
 <script setup lang="ts">
-import { useParallax } from '@vueuse/core'
+import { useParallax } from "@vueuse/core"
 
 const container = ref(null)
 const { tilt, roll, source } = useParallax(container)
@@ -53,6 +53,6 @@ export interface UseParallaxReturn {
  */
 export declare function useParallax(
   target: MaybeElementRef,
-  options?: UseParallaxOptions,
+  options?: UseParallaxOptions
 ): UseParallaxReturn
 ```

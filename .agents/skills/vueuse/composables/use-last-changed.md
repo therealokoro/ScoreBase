@@ -8,8 +8,8 @@ Records the timestamp of the last change
 ## Usage
 
 ```ts
-import { useLastChanged } from '@vueuse/core'
-import { nextTick } from 'vue'
+import { useLastChanged } from "@vueuse/core"
+import { nextTick } from "vue"
 
 const a = ref(0)
 const lastChanged = useLastChanged(a)

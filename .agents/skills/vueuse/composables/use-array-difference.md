@@ -8,7 +8,7 @@ Reactive get array difference of two arrays.
 ## Usage
 
 ```ts
-import { useArrayDifference } from '@vueuse/core'
+import { useArrayDifference } from "@vueuse/core"
 
 const list1 = ref([0, 1, 2, 3, 4, 5])
 const list2 = ref([4, 5, 6])
@@ -20,9 +20,9 @@ list2.value = [0, 1, 2]
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| symmetric | `boolean` | false | Returns asymmetric difference |
+| Option    | Type      | Default | Description                   |
+| --------- | --------- | ------- | ----------------------------- |
+| symmetric | `boolean` | false   | Returns asymmetric difference |
 
 ## Reference
 

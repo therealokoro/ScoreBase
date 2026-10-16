@@ -18,10 +18,10 @@ This caveat is not obvious and can cause hard-to-debug issues when you assume th
 >
 > ```ts
 > // Does NOT work with v-for - returns null
-> const itemRefs = useTemplateRef('items')
+> const itemRefs = useTemplateRef("items")
 >
 > // Works with v-for - use this pattern instead
-> const items = ref([])  // name must match ref="items" in template
+> const items = ref([]) // name must match ref="items" in template
 > ```
 >
 > The examples in this rule show `useTemplateRef()` for illustration, but in practice you should use the legacy `ref()` pattern for v-for scenarios until this limitation is addressed.
@@ -34,12 +34,13 @@ This caveat is not obvious and can cause hard-to-debug issues when you assume th
 - [ ] Test with dynamic list operations (add, remove, reorder) to verify behavior
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, useTemplateRef, onMounted } from 'vue'
+import { ref, useTemplateRef, onMounted } from "vue"
 
-const items = ref(['First', 'Second', 'Third'])
-const itemRefs = useTemplateRef('items')
+const items = ref(["First", "Second", "Third"])
+const itemRefs = useTemplateRef("items")
 
 onMounted(() => {
   // WRONG: Assuming itemRefs[0] corresponds to items[0]
@@ -60,22 +61,23 @@ onMounted(() => {
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, useTemplateRef, onMounted } from 'vue'
+import { ref, useTemplateRef, onMounted } from "vue"
 
 const items = ref([
-  { id: 1, text: 'First' },
-  { id: 2, text: 'Second' },
-  { id: 3, text: 'Third' }
+  { id: 1, text: "First" },
+  { id: 2, text: "Second" },
+  { id: 3, text: "Third" }
 ])
-const itemRefs = useTemplateRef('items')
+const itemRefs = useTemplateRef("items")
 
 onMounted(() => {
   // CORRECT: Use data attributes to identify elements
-  itemRefs.value.forEach(el => {
+  itemRefs.value.forEach((el) => {
     const id = el.dataset.id
-    const item = items.value.find(i => i.id === Number(id))
+    const item = items.value.find((i) => i.id === Number(id))
     console.log(`${item.text}: `, el)
   })
 })
@@ -83,12 +85,7 @@ onMounted(() => {
 
 <template>
   <ul>
-    <li
-      v-for="item in items"
-      ref="items"
-      :key="item.id"
-      :data-id="item.id"
-    >
+    <li v-for="item in items" ref="items" :key="item.id" :data-id="item.id">
       {{ item.text }}
     </li>
   </ul>
@@ -97,9 +94,9 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { ref, onMounted, onBeforeUpdate } from 'vue'
+import { ref, onMounted, onBeforeUpdate } from "vue"
 
-const items = ref(['First', 'Second', 'Third'])
+const items = ref(["First", "Second", "Third"])
 const itemRefs = ref(new Map())
 
 // CORRECT: Use function refs for precise control
@@ -118,7 +115,7 @@ onBeforeUpdate(() => {
 
 onMounted(() => {
   // Access refs by their associated data item
-  items.value.forEach(item => {
+  items.value.forEach((item) => {
     const el = itemRefs.value.get(item)
     console.log(`${item}: `, el)
   })
@@ -127,11 +124,7 @@ onMounted(() => {
 
 <template>
   <ul>
-    <li
-      v-for="item in items"
-      :key="item"
-      :ref="(el) => setItemRef(el, item)"
-    >
+    <li v-for="item in items" :key="item" :ref="(el) => setItemRef(el, item)">
       {{ item }}
     </li>
   </ul>
@@ -140,10 +133,10 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { ref, useTemplateRef, onMounted } from 'vue'
+import { ref, useTemplateRef, onMounted } from "vue"
 
-const items = ref(['First', 'Second', 'Third'])
-const itemRefs = useTemplateRef('items')
+const items = ref(["First", "Second", "Third"])
+const itemRefs = useTemplateRef("items")
 
 // CORRECT: If order matters, sort refs by DOM position
 onMounted(() => {
@@ -169,4 +162,5 @@ onMounted(() => {
 ```
 
 ## Reference
+
 - [Vue.js Template Refs - Refs inside v-for](https://vuejs.org/guide/essentials/template-refs.html#refs-inside-v-for)

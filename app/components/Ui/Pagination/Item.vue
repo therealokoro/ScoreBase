@@ -13,23 +13,23 @@
 </template>
 
 <script lang="ts" setup>
-  import { PaginationListItem } from "reka-ui";
-  import type { PaginationListItemProps } from "reka-ui";
+import { PaginationListItem } from "reka-ui"
+import type { PaginationListItemProps } from "reka-ui"
 
-  import type { ButtonProps } from "~/components/Ui/Button.vue";
+import type { ButtonProps } from "~/components/Ui/Button.vue"
 
-  const props = withDefaults(
-    defineProps<
-      PaginationListItemProps & {
-        /** The variant of the button. */
-        variant?: ButtonProps["variant"];
-        /** The size of the button. */
-        size?: ButtonProps["size"];
-      }
-    >(),
-    {
-      variant: "outline",
-      size: "icon-sm",
+const props = withDefaults(
+  defineProps<
+    PaginationListItemProps & {
+      /** The variant of the button. */
+      variant?: ButtonProps["variant"]
+      /** The size of the button. */
+      size?: ButtonProps["size"]
     }
-  );
+  >(),
+  {
+    variant: "outline",
+    size: "icon-sm"
+  }
+)
 </script>

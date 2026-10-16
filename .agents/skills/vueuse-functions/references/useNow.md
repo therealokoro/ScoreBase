@@ -9,13 +9,13 @@ Reactive current Date instance.
 ## Usage
 
 ```ts
-import { useNow } from '@vueuse/core'
+import { useNow } from "@vueuse/core"
 
 const now = useNow()
 ```
 
 ```ts
-import { useNow } from '@vueuse/core'
+import { useNow } from "@vueuse/core"
 // ---cut---
 const { now, pause, resume } = useNow({ controls: true })
 ```
@@ -26,12 +26,8 @@ const { now, pause, resume } = useNow({ controls: true })
 <template>
   <UseNow v-slot="{ now, pause, resume }">
     Now: {{ now }}
-    <button @click="pause()">
-      Pause
-    </button>
-    <button @click="resume()">
-      Resume
-    </button>
+    <button @click="pause()">Pause</button>
+    <button @click="resume()">Resume</button>
   </UseNow>
 </template>
 ```
@@ -39,9 +35,7 @@ const { now, pause, resume } = useNow({ controls: true })
 ## Type Declarations
 
 ```ts
-export interface UseNowOptions<
-  Controls extends boolean,
-> extends ConfigurableScheduler {
+export interface UseNowOptions<Controls extends boolean> extends ConfigurableScheduler {
   /**
    * Expose more controls
    *

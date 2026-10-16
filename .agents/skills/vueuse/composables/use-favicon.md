@@ -8,9 +8,9 @@ Reactive favicon
 ## Usage
 
 ```ts
-import { useFavicon } from '@vueuse/core'
+import { useFavicon } from "@vueuse/core"
 // ---cut---
-const source = shallowRef('icon.png')
+const source = shallowRef("icon.png")
 const icon = useFavicon(source)
 
 console.log(icon === source) // true

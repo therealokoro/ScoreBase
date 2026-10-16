@@ -41,9 +41,7 @@
       "indexes": {
         "academic_sessions_name_unique": {
           "name": "academic_sessions_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         }
       },
@@ -158,9 +156,7 @@
       "indexes": {
         "account_userId_idx": {
           "name": "account_userId_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -168,13 +164,9 @@
         "account_user_id_user_id_fk": {
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "user",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -234,16 +226,12 @@
       "indexes": {
         "classes_name_unique": {
           "name": "classes_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         },
         "classes_teacher_id_unique": {
           "name": "classes_teacher_id_unique",
-          "columns": [
-            "teacher_id"
-          ],
+          "columns": ["teacher_id"],
           "isUnique": true
         }
       },
@@ -251,26 +239,18 @@
         "classes_teacher_id_user_id_fk": {
           "name": "classes_teacher_id_user_id_fk",
           "tableFrom": "classes",
-          "columnsFrom": [
-            "teacher_id"
-          ],
+          "columnsFrom": ["teacher_id"],
           "tableTo": "user",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         },
         "classes_subject_list_id_subject_lists_id_fk": {
           "name": "classes_subject_list_id_subject_lists_id_fk",
           "tableFrom": "classes",
-          "columnsFrom": [
-            "subject_list_id"
-          ],
+          "columnsFrom": ["subject_list_id"],
           "tableTo": "subject_lists",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -380,24 +360,17 @@
       "indexes": {
         "results_term_class_unique": {
           "name": "results_term_class_unique",
-          "columns": [
-            "term_id",
-            "class_id"
-          ],
+          "columns": ["term_id", "class_id"],
           "isUnique": true
         },
         "results_class_id_index": {
           "name": "results_class_id_index",
-          "columns": [
-            "class_id"
-          ],
+          "columns": ["class_id"],
           "isUnique": false
         },
         "results_created_at_idx": {
           "name": "results_created_at_idx",
-          "columns": [
-            "createdAt"
-          ],
+          "columns": ["createdAt"],
           "isUnique": false
         }
       },
@@ -405,52 +378,36 @@
         "results_term_id_terms_id_fk": {
           "name": "results_term_id_terms_id_fk",
           "tableFrom": "results",
-          "columnsFrom": [
-            "term_id"
-          ],
+          "columnsFrom": ["term_id"],
           "tableTo": "terms",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "restrict"
         },
         "results_class_id_classes_id_fk": {
           "name": "results_class_id_classes_id_fk",
           "tableFrom": "results",
-          "columnsFrom": [
-            "class_id"
-          ],
+          "columnsFrom": ["class_id"],
           "tableTo": "classes",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "restrict"
         },
         "results_submitted_by_id_user_id_fk": {
           "name": "results_submitted_by_id_user_id_fk",
           "tableFrom": "results",
-          "columnsFrom": [
-            "submitted_by_id"
-          ],
+          "columnsFrom": ["submitted_by_id"],
           "tableTo": "user",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         },
         "results_reviewed_by_id_user_id_fk": {
           "name": "results_reviewed_by_id_user_id_fk",
           "tableFrom": "results",
-          "columnsFrom": [
-            "reviewed_by_id"
-          ],
+          "columnsFrom": ["reviewed_by_id"],
           "tableTo": "user",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -517,17 +474,12 @@
       "indexes": {
         "scoresheets_result_student_unique": {
           "name": "scoresheets_result_student_unique",
-          "columns": [
-            "result_id",
-            "student_id"
-          ],
+          "columns": ["result_id", "student_id"],
           "isUnique": true
         },
         "scoresheets_student_id_index": {
           "name": "scoresheets_student_id_index",
-          "columns": [
-            "student_id"
-          ],
+          "columns": ["student_id"],
           "isUnique": false
         }
       },
@@ -535,26 +487,18 @@
         "scoresheets_result_id_results_id_fk": {
           "name": "scoresheets_result_id_results_id_fk",
           "tableFrom": "scoresheets",
-          "columnsFrom": [
-            "result_id"
-          ],
+          "columnsFrom": ["result_id"],
           "tableTo": "results",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "scoresheets_student_id_students_id_fk": {
           "name": "scoresheets_student_id_students_id_fk",
           "tableFrom": "scoresheets",
-          "columnsFrom": [
-            "student_id"
-          ],
+          "columnsFrom": ["student_id"],
           "tableTo": "students",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "restrict"
         }
@@ -621,31 +565,22 @@
       "indexes": {
         "students_student_id_unique": {
           "name": "students_student_id_unique",
-          "columns": [
-            "student_id"
-          ],
+          "columns": ["student_id"],
           "isUnique": true
         },
         "students_class_id_index": {
           "name": "students_class_id_index",
-          "columns": [
-            "class_id"
-          ],
+          "columns": ["class_id"],
           "isUnique": false
         },
         "students_created_at_idx": {
           "name": "students_created_at_idx",
-          "columns": [
-            "createdAt"
-          ],
+          "columns": ["createdAt"],
           "isUnique": false
         },
         "students_class_id_created_at_idx": {
           "name": "students_class_id_created_at_idx",
-          "columns": [
-            "class_id",
-            "createdAt"
-          ],
+          "columns": ["class_id", "createdAt"],
           "isUnique": false
         }
       },
@@ -653,13 +588,9 @@
         "students_class_id_classes_id_fk": {
           "name": "students_class_id_classes_id_fk",
           "tableFrom": "students",
-          "columnsFrom": [
-            "class_id"
-          ],
+          "columnsFrom": ["class_id"],
           "tableTo": "classes",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "restrict"
         }
@@ -712,9 +643,7 @@
       "indexes": {
         "subject_lists_created_at_idx": {
           "name": "subject_lists_created_at_idx",
-          "columns": [
-            "createdAt"
-          ],
+          "columns": ["createdAt"],
           "isUnique": false
         }
       },
@@ -782,9 +711,7 @@
       "indexes": {
         "subject_scores_scoresheet_id_index": {
           "name": "subject_scores_scoresheet_id_index",
-          "columns": [
-            "scoresheet_id"
-          ],
+          "columns": ["scoresheet_id"],
           "isUnique": false
         }
       },
@@ -792,26 +719,18 @@
         "subject_scores_scoresheet_id_scoresheets_id_fk": {
           "name": "subject_scores_scoresheet_id_scoresheets_id_fk",
           "tableFrom": "subject_scores",
-          "columnsFrom": [
-            "scoresheet_id"
-          ],
+          "columnsFrom": ["scoresheet_id"],
           "tableTo": "scoresheets",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "subject_scores_subject_id_subjects_id_fk": {
           "name": "subject_scores_subject_id_subjects_id_fk",
           "tableFrom": "subject_scores",
-          "columnsFrom": [
-            "subject_id"
-          ],
+          "columnsFrom": ["subject_id"],
           "tableTo": "subjects",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -865,9 +784,7 @@
       "indexes": {
         "subjects_created_at_idx": {
           "name": "subjects_created_at_idx",
-          "columns": [
-            "createdAt"
-          ],
+          "columns": ["createdAt"],
           "isUnique": false
         }
       },
@@ -927,10 +844,7 @@
       "indexes": {
         "terms_session_position_unique": {
           "name": "terms_session_position_unique",
-          "columns": [
-            "session_id",
-            "position"
-          ],
+          "columns": ["session_id", "position"],
           "isUnique": true
         }
       },
@@ -938,13 +852,9 @@
         "terms_session_id_academic_sessions_id_fk": {
           "name": "terms_session_id_academic_sessions_id_fk",
           "tableFrom": "terms",
-          "columnsFrom": [
-            "session_id"
-          ],
+          "columnsFrom": ["session_id"],
           "tableTo": "academic_sessions",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1056,30 +966,22 @@
       "indexes": {
         "user_email_unique": {
           "name": "user_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "user_phone_number_unique": {
           "name": "user_phone_number_unique",
-          "columns": [
-            "phone_number"
-          ],
+          "columns": ["phone_number"],
           "isUnique": true
         },
         "user_class_id_unique": {
           "name": "user_class_id_unique",
-          "columns": [
-            "class_id"
-          ],
+          "columns": ["class_id"],
           "isUnique": true
         },
         "user_created_at_idx": {
           "name": "user_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -1087,13 +989,9 @@
         "user_class_id_classes_id_fk": {
           "name": "user_class_id_classes_id_fk",
           "tableFrom": "user",
-          "columnsFrom": [
-            "class_id"
-          ],
+          "columnsFrom": ["class_id"],
           "tableTo": "classes",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -1173,16 +1071,12 @@
       "indexes": {
         "user_session_token_unique": {
           "name": "user_session_token_unique",
-          "columns": [
-            "token"
-          ],
+          "columns": ["token"],
           "isUnique": true
         },
         "user_session_userId_idx": {
           "name": "user_session_userId_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -1190,13 +1084,9 @@
         "user_session_user_id_user_id_fk": {
           "name": "user_session_user_id_user_id_fk",
           "tableFrom": "user_session",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "user",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1256,9 +1146,7 @@
       "indexes": {
         "verification_identifier_idx": {
           "name": "verification_identifier_idx",
-          "columns": [
-            "identifier"
-          ],
+          "columns": ["identifier"],
           "isUnique": false
         }
       },

@@ -3,7 +3,19 @@ title: Reactivity Core Patterns (ref, reactive, shallowRef, computed, watch)
 impact: MEDIUM
 impactDescription: Clear reactivity choices keep state predictable and reduce unnecessary updates in Vue 3 apps
 type: efficiency
-tags: [vue3, reactivity, ref, reactive, shallowRef, computed, watch, watchEffect, external-state, best-practice]
+tags:
+  [
+    vue3,
+    reactivity,
+    ref,
+    reactive,
+    shallowRef,
+    computed,
+    watch,
+    watchEffect,
+    external-state,
+    best-practice
+  ]
 ---
 
 # Reactivity Core Patterns (ref, reactive, shallowRef, computed, watch)
@@ -34,14 +46,16 @@ This reference covers the core reactivity decisions for local state, external da
 ### Always use `shallowRef()` instead of `ref()` for primitive values (string, number, boolean, null, etc.) for better performance.
 
 **Incorrect:**
+
 ```ts
-import { ref } from 'vue'
+import { ref } from "vue"
 const count = ref(0)
 ```
 
 **Correct:**
+
 ```ts
-import { shallowRef } from 'vue'
+import { shallowRef } from "vue"
 const count = shallowRef(0)
 ```
 
@@ -58,11 +72,11 @@ Use `reactive()` when you mainly **mutate properties** and full replacement is u
 - Situations where you want to avoid `.value` and update nested fields in place.
 
 ```ts
-import { reactive } from 'vue'
+import { reactive } from "vue"
 
 const state = reactive({
   count: 0,
-  user: { name: 'Alice', age: 30 }
+  user: { name: "Alice", age: 30 }
 })
 
 state.count++ // ✅ reactive
@@ -77,12 +91,12 @@ Use `shallowRef()` when the value is **opaque / should not be proxied** (class i
 - Large data where you update by replacing the root reference (immutable-style updates).
 
 ```ts
-import { shallowRef } from 'vue'
+import { shallowRef } from "vue"
 
-const user = shallowRef({ name: 'Alice', age: 30 })
+const user = shallowRef({ name: "Alice", age: 30 })
 
 user.value.age = 31 // ❌ not reactive
-user.value = { name: 'Bob', age: 25 } // ✅ triggers update
+user.value = { name: "Bob", age: 25 } // ✅ triggers update
 ```
 
 Use `shallowReactive()` when you want **only top-level properties** reactive; nested objects remain raw, usually used for:
@@ -91,11 +105,11 @@ Use `shallowReactive()` when you want **only top-level properties** reactive; ne
 - Mixed structures where Vue tracks the wrapper object, but not deeply nested or foreign objects.
 
 ```ts
-import { shallowReactive } from 'vue'
+import { shallowReactive } from "vue"
 
 const state = shallowReactive({
   count: 0,
-  user: { name: 'Alice', age: 30 }
+  user: { name: "Alice", age: 30 }
 })
 
 state.count++ // ✅ reactive
@@ -109,7 +123,7 @@ state.user.age = 31 // ❌ not reactive
 **BAD:**
 
 ```ts
-import { reactive } from 'vue'
+import { reactive } from "vue"
 
 const state = reactive({ count: 0 })
 const { count } = state // ❌ disconnected from reactivity
@@ -122,12 +136,14 @@ const { count } = state // ❌ disconnected from reactivity
 passing a non-getter value into `watch()`
 
 ```ts
-import { reactive, watch } from 'vue'
+import { reactive, watch } from "vue"
 
 const state = reactive({ count: 0 })
 
 // ❌ watch expects a getter, ref, reactive object, or array of these
-watch(state.count, () => { /* ... */ })
+watch(state.count, () => {
+  /* ... */
+})
 ```
 
 **GOOD:**
@@ -135,13 +151,20 @@ watch(state.count, () => { /* ... */ })
 preserve reactivity with `toRefs()` and use a getter for `watch()`
 
 ```ts
-import { reactive, toRefs, watch } from 'vue'
+import { reactive, toRefs, watch } from "vue"
 
 const state = reactive({ count: 0 })
 const { count } = toRefs(state) // ✅ count is a ref
 
-watch(count, () => { /* ... */ }) // ✅
-watch(() => state.count, () => { /* ... */ }) // ✅
+watch(count, () => {
+  /* ... */
+}) // ✅
+watch(
+  () => state.count,
+  () => {
+    /* ... */
+  }
+) // ✅
 ```
 
 ## Best practices for `computed`
@@ -149,8 +172,9 @@ watch(() => state.count, () => { /* ... */ }) // ✅
 ### Prefer `computed` over watcher-assigned derived refs
 
 **BAD:**
+
 ```ts
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const items = ref([{ price: 10 }, { price: 20 }])
 const total = ref(0)
@@ -161,21 +185,21 @@ watchEffect(() => {
 ```
 
 **GOOD:**
+
 ```ts
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 
 const items = ref([{ price: 10 }, { price: 20 }])
-const total = computed(() =>
-  items.value.reduce((sum, item) => sum + item.price, 0)
-)
+const total = computed(() => items.value.reduce((sum, item) => sum + item.price, 0))
 ```
 
 ### Keep filtered/sorted derivations out of templates
 
 **BAD:**
+
 ```vue
 <template>
-  <li v-for="item in items.filter(item => item.active)" :key="item.id">
+  <li v-for="item in items.filter((item) => item.active)" :key="item.id">
     {{ item.name }}
   </li>
 
@@ -185,11 +209,11 @@ const total = computed(() =>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue"
 
 const items = ref([
-  { id: 1, name: 'B', active: true },
-  { id: 2, name: 'A', active: false }
+  { id: 1, name: "B", active: true },
+  { id: 2, name: "A", active: false }
 ])
 
 function getSortedItems() {
@@ -199,19 +223,18 @@ function getSortedItems() {
 ```
 
 **GOOD:**
+
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 
 const items = ref([
-  { id: 1, name: 'B', active: true },
-  { id: 2, name: 'A', active: false }
+  { id: 1, name: "B", active: true },
+  { id: 2, name: "A", active: false }
 ])
 
 const visibleItems = computed(() =>
-  items.value
-    .filter(item => item.active)
-    .sort((a, b) => a.name.localeCompare(b.name))
+  items.value.filter((item) => item.active).sort((a, b) => a.name.localeCompare(b.name))
 )
 </script>
 
@@ -225,21 +248,25 @@ const visibleItems = computed(() =>
 ### Use `computed` for reusable class/style logic
 
 **BAD:**
+
 ```vue
 <template>
-  <button :class="{ btn: true, 'btn-primary': type === 'primary' && !disabled, 'btn-disabled': disabled }">
+  <button
+    :class="{ btn: true, 'btn-primary': type === 'primary' && !disabled, 'btn-disabled': disabled }"
+  >
     {{ label }}
   </button>
 </template>
 ```
 
 **GOOD:**
+
 ```vue
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue"
 
 const props = defineProps({
-  type: { type: String, default: 'primary' },
+  type: { type: String, default: "primary" },
   disabled: Boolean,
   label: String
 })
@@ -247,7 +274,7 @@ const props = defineProps({
 const buttonClasses = computed(() => ({
   btn: true,
   [`btn-${props.type}`]: !props.disabled,
-  'btn-disabled': props.disabled
+  "btn-disabled": props.disabled
 }))
 </script>
 
@@ -272,7 +299,7 @@ const count = ref(0)
 
 const doubled = computed(() => {
   // ❌ side effect
-  if (count.value > 10) console.warn('Too big!')
+  if (count.value > 10) console.warn("Too big!")
   return count.value * 2
 })
 ```
@@ -286,7 +313,7 @@ const count = ref(0)
 const doubled = computed(() => count.value * 2)
 
 watch(count, (value) => {
-  if (value > 10) console.warn('Too big!')
+  if (value > 10) console.warn("Too big!")
 })
 ```
 
@@ -295,8 +322,9 @@ watch(count, (value) => {
 ### Use `immediate: true` instead of duplicate initial calls
 
 **BAD:**
+
 ```ts
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from "vue"
 
 const userId = ref(1)
 
@@ -309,16 +337,13 @@ watch(userId, (id) => loadUser(id))
 ```
 
 **GOOD:**
+
 ```ts
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
 const userId = ref(1)
 
-watch(
-  userId,
-  (id) => loadUser(id),
-  { immediate: true }
-)
+watch(userId, (id) => loadUser(id), { immediate: true })
 ```
 
 ### Clean up async effects for watchers
@@ -328,7 +353,7 @@ When reacting to rapid changes (search boxes, filters), cancel the previous requ
 **GOOD:**
 
 ```ts
-const query = ref('')
+const query = ref("")
 const results = ref<string[]>([])
 
 watch(query, async (q, _prev, onCleanup) => {
@@ -336,7 +361,7 @@ watch(query, async (q, _prev, onCleanup) => {
   onCleanup(() => controller.abort())
 
   const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
-    signal: controller.signal,
+    signal: controller.signal
   })
 
   results.value = await res.json()

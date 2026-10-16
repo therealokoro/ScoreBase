@@ -8,7 +8,7 @@ Run expensive functions without blocking the UI, using a simple syntax that make
 ## Usage
 
 ```ts
-import { useWebWorkerFn } from '@vueuse/core'
+import { useWebWorkerFn } from "@vueuse/core"
 
 const { workerFn } = useWebWorkerFn(() => {
   // some heavy works to do in web worker
@@ -17,11 +17,11 @@ const { workerFn } = useWebWorkerFn(() => {
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| workerFn | `Ref` |
-| workerStatus | `shallowRef&lt;WebWorkerStatus&gt;` |
-| workerTerminate | `Ref` |
+| Name            | Type                                |
+| --------------- | ----------------------------------- |
+| workerFn        | `Ref`                               |
+| workerStatus    | `shallowRef&lt;WebWorkerStatus&gt;` |
+| workerTerminate | `Ref`                               |
 
 ## Reference
 

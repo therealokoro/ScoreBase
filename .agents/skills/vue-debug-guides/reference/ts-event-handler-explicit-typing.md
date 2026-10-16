@@ -22,13 +22,14 @@ tags: [vue3, typescript, events, dom-events, composition-api]
 ```vue
 <script setup lang="ts">
 // WRONG: event has implicit 'any' type
-function handleChange(event) {  // Error in strict mode!
-  console.log(event.target.value)  // Also error: target might be null
+function handleChange(event) {
+  // Error in strict mode!
+  console.log(event.target.value) // Also error: target might be null
 }
 
 // WRONG: Missing type assertion for element access
 function handleInput(event: Event) {
-  console.log(event.target.value)  // Error: 'value' doesn't exist on EventTarget
+  console.log(event.target.value) // Error: 'value' doesn't exist on EventTarget
 }
 </script>
 
@@ -53,7 +54,7 @@ function handleClick(event: MouseEvent) {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter') {
+  if (event.key === "Enter") {
     submitForm()
   }
 }
@@ -74,16 +75,16 @@ function handleSubmit(event: SubmitEvent) {
 
 ## Common Event Types
 
-| Event | Type | Common Properties |
-|-------|------|-------------------|
-| click, dblclick | `MouseEvent` | clientX, clientY, button |
+| Event                    | Type            | Common Properties            |
+| ------------------------ | --------------- | ---------------------------- |
+| click, dblclick          | `MouseEvent`    | clientX, clientY, button     |
 | keydown, keyup, keypress | `KeyboardEvent` | key, code, ctrlKey, shiftKey |
-| input, change | `Event` | target (needs assertion) |
-| focus, blur | `FocusEvent` | relatedTarget |
-| submit | `SubmitEvent` | submitter |
-| drag, dragstart, drop | `DragEvent` | dataTransfer |
-| wheel, scroll | `WheelEvent` | deltaX, deltaY |
-| touch events | `TouchEvent` | touches, changedTouches |
+| input, change            | `Event`         | target (needs assertion)     |
+| focus, blur              | `FocusEvent`    | relatedTarget                |
+| submit                   | `SubmitEvent`   | submitter                    |
+| drag, dragstart, drop    | `DragEvent`     | dataTransfer                 |
+| wheel, scroll            | `WheelEvent`    | deltaX, deltaY               |
+| touch events             | `TouchEvent`    | touches, changedTouches      |
 
 ## Element-Specific Type Assertions
 
@@ -156,15 +157,15 @@ export function getCheckboxChecked(event: Event): boolean {
 
 ```vue
 <script setup lang="ts">
-import { getInputValue, getCheckboxChecked } from '@/utils/events'
+import { getInputValue, getCheckboxChecked } from "@/utils/events"
 
-const name = ref('')
+const name = ref("")
 const agreed = ref(false)
 </script>
 
 <template>
-  <input @input="e => name = getInputValue(e)" />
-  <input type="checkbox" @change="e => agreed = getCheckboxChecked(e)" />
+  <input @input="(e) => (name = getInputValue(e))" />
+  <input type="checkbox" @change="(e) => (agreed = getCheckboxChecked(e))" />
 </template>
 ```
 
@@ -175,7 +176,7 @@ For Vue component events (not DOM events), use `defineEmits` for type safety:
 ```vue
 <script setup lang="ts">
 const emit = defineEmits<{
-  'custom-event': [data: { id: number; name: string }]
+  "custom-event": [data: { id: number; name: string }]
 }>()
 
 // Handler for child component event
@@ -201,13 +202,14 @@ function handleClick(event: MouseEvent) {
   const currentTarget = event.currentTarget as HTMLButtonElement
 
   // Be explicit about which you need
-  if (target.tagName === 'SPAN') {
+  if (target.tagName === "SPAN") {
     // Clicked on span inside button
   }
 }
 ```
 
 ## Reference
+
 - [Vue.js TypeScript with Composition API - Event Handlers](https://vuejs.org/guide/typescript/composition-api.html#typing-event-handlers)
 - [MDN Event Reference](https://developer.mozilla.org/en-US/docs/Web/Events)
 - [TypeScript DOM Types](https://github.com/microsoft/TypeScript/blob/main/lib/lib.dom.d.ts)

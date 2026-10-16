@@ -8,8 +8,8 @@ Call function on every . With controls of pausing and resuming.
 ## Usage
 
 ```ts
-import { useRafFn } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { useRafFn } from "@vueuse/core"
+import { shallowRef } from "vue"
 
 const count = shallowRef(0)
 
@@ -21,19 +21,19 @@ const { pause, resume } = useRafFn(() => {
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| immediate | `boolean` | true | Start the requestAnimationFrame loop immediately on creation |
-| fpsLimit | `MaybeRefOrGetter&lt;number \| null&gt;` | null | The maximum frame per second to execute the function. |
-| once | `boolean` | false | After the requestAnimationFrame loop executed once, it will be automatically stopped. |
+| Option    | Type                                     | Default | Description                                                                           |
+| --------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------------------- |
+| immediate | `boolean`                                | true    | Start the requestAnimationFrame loop immediately on creation                          |
+| fpsLimit  | `MaybeRefOrGetter&lt;number \| null&gt;` | null    | The maximum frame per second to execute the function.                                 |
+| once      | `boolean`                                | false   | After the requestAnimationFrame loop executed once, it will be automatically stopped. |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
+| Name     | Type         |
+| -------- | ------------ |
 | isActive | `shallowRef` |
-| pause | `Ref` |
-| resume | `Ref` |
+| pause    | `Ref`        |
+| resume   | `Ref`        |
 
 ## Reference
 

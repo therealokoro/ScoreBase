@@ -9,7 +9,7 @@ Reactive mouse position
 ## Basic Usage
 
 ```ts twoslash
-import { useMouse } from '@vueuse/core'
+import { useMouse } from "@vueuse/core"
 
 const { x, y, sourceType } = useMouse()
 ```
@@ -18,7 +18,7 @@ Touch is enabled by default. To only detect mouse changes, set `touch` to `false
 The `dragover` event is used to track mouse position while dragging.
 
 ```ts twoslash
-import { useMouse } from '@vueuse/core'
+import { useMouse } from "@vueuse/core"
 // ---cut---
 const { x, y } = useMouse({ touch: false })
 ```
@@ -28,16 +28,13 @@ const { x, y } = useMouse({ touch: false })
 It's also possible to provide a custom extractor function to get the position from the event.
 
 ```ts twoslash
-import type { UseMouseEventExtractor } from '@vueuse/core'
-import { useMouse, useParentElement } from '@vueuse/core'
+import type { UseMouseEventExtractor } from "@vueuse/core"
+import { useMouse, useParentElement } from "@vueuse/core"
 
 const parentEl = useParentElement()
 
-const extractor: UseMouseEventExtractor = event => (
-  event instanceof MouseEvent
-    ? [event.offsetX, event.offsetY]
-    : null
-)
+const extractor: UseMouseEventExtractor = (event) =>
+  event instanceof MouseEvent ? [event.offsetX, event.offsetY] : null
 
 const { x, y, sourceType } = useMouse({ target: parentEl, type: extractor })
 ```
@@ -46,10 +43,7 @@ const { x, y, sourceType } = useMouse({ target: parentEl, type: extractor })
 
 ```vue
 <template>
-  <UseMouse v-slot="{ x, y }">
-    x: {{ x }}
-    y: {{ y }}
-  </UseMouse>
+  <UseMouse v-slot="{ x, y }"> x: {{ x }} y: {{ y }} </UseMouse>
 </template>
 ```
 
@@ -59,10 +53,9 @@ const { x, y, sourceType } = useMouse({ target: parentEl, type: extractor })
 export type UseMouseCoordType = "page" | "client" | "screen" | "movement"
 export type UseMouseSourceType = "mouse" | "touch" | null
 export type UseMouseEventExtractor = (
-  event: MouseEvent | Touch,
+  event: MouseEvent | Touch
 ) => [x: number, y: number] | null | undefined
-export interface UseMouseOptions
-  extends ConfigurableWindow, ConfigurableEventFilter {
+export interface UseMouseOptions extends ConfigurableWindow, ConfigurableEventFilter {
   /**
    * Mouse position based by page, client, screen, or relative to previous position
    *

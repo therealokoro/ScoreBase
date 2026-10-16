@@ -13,18 +13,12 @@ Inject reactive `style` element in head.
 Provide a CSS string, then `useStyleTag` will automatically generate an id and inject it in `<head>`.
 
 ```ts
-import { useStyleTag } from '@vueuse/core'
+import { useStyleTag } from "@vueuse/core"
 
-const {
-  id,
-  css,
-  load,
-  unload,
-  isLoaded,
-} = useStyleTag('.foo { margin-top: 32px; }')
+const { id, css, load, unload, isLoaded } = useStyleTag(".foo { margin-top: 32px; }")
 
 // Later you can modify styles
-css.value = '.foo { margin-top: 64px; }'
+css.value = ".foo { margin-top: 64px; }"
 ```
 
 This code will be injected to `<head>`:
@@ -42,9 +36,9 @@ This code will be injected to `<head>`:
 If you need to define your own id, you can pass `id` as first argument.
 
 ```ts
-import { useStyleTag } from '@vueuse/core'
+import { useStyleTag } from "@vueuse/core"
 // ---cut---
-useStyleTag('.foo { margin-top: 32px; }', { id: 'custom-id' })
+useStyleTag(".foo { margin-top: 32px; }", { id: "custom-id" })
 ```
 
 ```html
@@ -61,9 +55,9 @@ useStyleTag('.foo { margin-top: 32px; }', { id: 'custom-id' })
 You can pass media attributes as last argument within object.
 
 ```ts
-import { useStyleTag } from '@vueuse/core'
+import { useStyleTag } from "@vueuse/core"
 // ---cut---
-useStyleTag('.foo { margin-top: 32px; }', { media: 'print' })
+useStyleTag(".foo { margin-top: 32px; }", { media: "print" })
 ```
 
 ```html
@@ -126,6 +120,6 @@ export interface UseStyleTagReturn {
  */
 export declare function useStyleTag(
   css: MaybeRef<string>,
-  options?: UseStyleTagOptions,
+  options?: UseStyleTagOptions
 ): UseStyleTagReturn
 ```

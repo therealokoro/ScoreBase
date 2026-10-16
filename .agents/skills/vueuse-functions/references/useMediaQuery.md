@@ -9,10 +9,10 @@ Reactive [Media Query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Qu
 ## Usage
 
 ```ts
-import { useMediaQuery } from '@vueuse/core'
+import { useMediaQuery } from "@vueuse/core"
 
-const isLargeScreen = useMediaQuery('(min-width: 1024px)')
-const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
+const isLargeScreen = useMediaQuery("(min-width: 1024px)")
+const isPreferredDark = useMediaQuery("(prefers-color-scheme: dark)")
 ```
 
 #### Server Side Rendering and Nuxt
@@ -20,9 +20,9 @@ const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
 If you are using `useMediaQuery` with SSR enabled, then you need to specify which screen size you would like to render on the server and before hydration to avoid an hydration mismatch
 
 ```ts
-import { useMediaQuery } from '@vueuse/core'
+import { useMediaQuery } from "@vueuse/core"
 
-const isLarge = useMediaQuery('(min-width: 1024px)', {
+const isLarge = useMediaQuery("(min-width: 1024px)", {
   ssrWidth: 768 // Will enable SSR mode and render like if the screen was 768px wide
 })
 
@@ -48,6 +48,6 @@ export declare function useMediaQuery(
   query: MaybeRefOrGetter<string>,
   options?: ConfigurableWindow & {
     ssrWidth?: number
-  },
+  }
 ): ComputedRef<boolean>
 ```

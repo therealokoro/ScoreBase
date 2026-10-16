@@ -8,7 +8,7 @@ Shorthand for accessing
 ## Usage
 
 ```ts
-import { get } from '@vueuse/core'
+import { get } from "@vueuse/core"
 
 const a = ref(42)
 

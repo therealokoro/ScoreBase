@@ -9,11 +9,11 @@ Create a ref with manual reset functionality.
 ## Usage
 
 ```ts
-import { refManualReset } from '@vueuse/core'
+import { refManualReset } from "@vueuse/core"
 
-const message = refManualReset('default message')
+const message = refManualReset("default message")
 
-message.value = 'message has set'
+message.value = "message has set"
 
 message.reset()
 
@@ -39,6 +39,6 @@ export interface ManualResetRefReturn<T> extends Ref<T> {
  * @param defaultValue The value which will be set.
  */
 export declare function refManualReset<T>(
-  defaultValue: MaybeRefOrGetter<T>,
+  defaultValue: MaybeRefOrGetter<T>
 ): ManualResetRefReturn<T>
 ```

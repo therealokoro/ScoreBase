@@ -8,20 +8,20 @@ Apply to an object
 ## Usage
 
 ```ts
-import { reactifyObject } from '@vueuse/core'
+import { reactifyObject } from "@vueuse/core"
 
 const reactifiedConsole = reactifyObject(console)
 
-const a = ref('42')
+const a = ref("42")
 
 reactifiedConsole.log(a) // no longer need `.value`
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| includeOwnProperties | `boolean` | true | Includes names from Object.getOwnPropertyNames |
+| Option               | Type      | Default | Description                                    |
+| -------------------- | --------- | ------- | ---------------------------------------------- |
+| includeOwnProperties | `boolean` | true    | Includes names from Object.getOwnPropertyNames |
 
 ## Reference
 

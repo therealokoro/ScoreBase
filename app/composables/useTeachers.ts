@@ -45,7 +45,5 @@ export const useDeleteTeacher = () => {
 
 export const useGetSingleTeacher = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
-  return useQuery(
-    computed(() => $orpc.teacher.getOne.queryOptions({ input: { id: toValue(id) } }))
-  )
+  return useQuery(computed(() => $orpc.teacher.getOne.queryOptions({ input: { id: toValue(id) } })))
 }

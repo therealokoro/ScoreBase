@@ -54,13 +54,13 @@ vite build --ssr  # SSR build
 ### Common Config
 
 ```ts
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [],
-  resolve: { alias: { '@': '/src' } },
-  server: { port: 3000, proxy: { '/api': 'http://localhost:8080' } },
-  build: { target: 'esnext', outDir: 'dist' },
+  resolve: { alias: { "@": "/src" } },
+  server: { port: 3000, proxy: { "/api": "http://localhost:8080" } },
+  build: { target: "esnext", outDir: "dist" }
 })
 ```
 

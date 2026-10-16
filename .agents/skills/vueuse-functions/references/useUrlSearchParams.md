@@ -9,14 +9,14 @@ Reactive [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLS
 ## Usage
 
 ```ts
-import { useUrlSearchParams } from '@vueuse/core'
+import { useUrlSearchParams } from "@vueuse/core"
 
-const params = useUrlSearchParams('history')
+const params = useUrlSearchParams("history")
 
 console.log(params.foo) // 'bar'
 
-params.foo = 'bar'
-params.vueuse = 'awesome'
+params.foo = "bar"
+params.vueuse = "awesome"
 // url updated to `?foo=bar&vueuse=awesome`
 ```
 
@@ -25,12 +25,12 @@ params.vueuse = 'awesome'
 When using with hash mode route, specify the `mode` to `hash`
 
 ```ts
-import { useUrlSearchParams } from '@vueuse/core'
+import { useUrlSearchParams } from "@vueuse/core"
 
-const params = useUrlSearchParams('hash')
+const params = useUrlSearchParams("hash")
 
-params.foo = 'bar'
-params.vueuse = 'awesome'
+params.foo = "bar"
+params.vueuse = "awesome"
 // url updated to `#/your/route?foo=bar&vueuse=awesome`
 ```
 
@@ -39,12 +39,12 @@ params.vueuse = 'awesome'
 When using with history mode route, but want to use hash as params, specify the `mode` to `hash-params`
 
 ```ts
-import { useUrlSearchParams } from '@vueuse/core'
+import { useUrlSearchParams } from "@vueuse/core"
 
-const params = useUrlSearchParams('hash-params')
+const params = useUrlSearchParams("hash-params")
 
-params.foo = 'bar'
-params.vueuse = 'awesome'
+params.foo = "bar"
+params.vueuse = "awesome"
 // url updated to `/your/route#foo=bar&vueuse=awesome`
 ```
 
@@ -53,17 +53,17 @@ params.vueuse = 'awesome'
 You can provide a custom function to serialize URL parameters using the `stringify` option. This is useful when you need special formatting for your query string.
 
 ```js
-import { useUrlSearchParams } from '@vueuse/core'
+import { useUrlSearchParams } from "@vueuse/core"
 
 // Custom stringify function that removes equal signs for empty values
-const params = useUrlSearchParams('history', {
+const params = useUrlSearchParams("history", {
   stringify: (params) => {
-    return params.toString().replace(/=(&|$)/g, '$1')
+    return params.toString().replace(/=(&|$)/g, "$1")
   }
 })
 
-params.foo = ''
-params.bar = 'value'
+params.foo = ""
+params.bar = "value"
 // url updated to `?foo&bar=value` instead of `?foo=&bar=value`
 ```
 
@@ -112,10 +112,8 @@ export interface UseUrlSearchParamsOptions<T> extends ConfigurableWindow {
  * @param mode
  * @param options
  */
-export declare function useUrlSearchParams<
-  T extends Record<string, any> = UrlParams,
->(
+export declare function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
   mode?: "history" | "hash" | "hash-params",
-  options?: UseUrlSearchParamsOptions<T>,
+  options?: UseUrlSearchParamsOptions<T>
 ): T
 ```

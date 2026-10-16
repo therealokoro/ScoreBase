@@ -8,18 +8,12 @@ Easily implement fuzzy search using a composable with Fuse.js.
 ## Usage
 
 ```ts
-import { useFuse } from '@vueuse/integrations/useFuse'
-import { shallowRef } from 'vue'
+import { useFuse } from "@vueuse/integrations/useFuse"
+import { shallowRef } from "vue"
 
-const data = [
-  'John Smith',
-  'John Doe',
-  'Jane Doe',
-  'Phillip Green',
-  'Peter Brown',
-]
+const data = ["John Smith", "John Doe", "Jane Doe", "Phillip Green", "Peter Brown"]
 
-const input = shallowRef('Jhon D')
+const input = shallowRef("Jhon D")
 
 const { results } = useFuse(input, data)
 
@@ -35,10 +29,10 @@ const { results } = useFuse(input, data)
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| fuse | `shallowRef` |
-| results | `Ref` |
+| Name    | Type         |
+| ------- | ------------ |
+| fuse    | `shallowRef` |
+| results | `Ref`        |
 
 ## Reference
 

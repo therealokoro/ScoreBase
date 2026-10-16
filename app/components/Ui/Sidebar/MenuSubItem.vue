@@ -9,15 +9,15 @@
 </template>
 
 <script lang="ts" setup>
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  const styles = tv({
-    base: "group/menu-sub-item relative",
-  });
+const styles = tv({
+  base: "group/menu-sub-item relative"
+})
 
-  const props = defineProps<{
-    /** Additional classes to apply to the parent element. */
-    class?: HTMLAttributes["class"];
-  }>();
+const props = defineProps<{
+  /** Additional classes to apply to the parent element. */
+  class?: HTMLAttributes["class"]
+}>()
 </script>

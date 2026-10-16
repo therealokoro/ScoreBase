@@ -21,17 +21,18 @@ When using custom events, timers, WebSocket connections, or third-party librarie
 - [ ] Use `onBeforeUnmount` if cleanup must happen before DOM removal
 
 **Incorrect:**
+
 ```javascript
 // Composition API - WRONG: No cleanup
-import { onMounted } from 'vue'
+import { onMounted } from "vue"
 
 export default {
   setup() {
     onMounted(() => {
       // These keep running after component unmounts!
-      window.addEventListener('resize', handleResize)
+      window.addEventListener("resize", handleResize)
       setInterval(pollServer, 5000)
-      socket.on('message', handleMessage)
+      socket.on("message", handleMessage)
     })
   }
 }
@@ -41,7 +42,7 @@ export default {
 // Options API - WRONG: No cleanup
 export default {
   mounted() {
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener("scroll", this.handleScroll)
     this.timer = setInterval(this.refresh, 10000)
   }
   // Component unmounts, but listeners and timers persist!
@@ -49,9 +50,10 @@ export default {
 ```
 
 **Correct:**
+
 ```javascript
 // Composition API - CORRECT: Proper cleanup
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from "vue"
 
 export default {
   setup() {
@@ -66,20 +68,20 @@ export default {
     }
 
     onMounted(() => {
-      window.addEventListener('resize', handleResize)
+      window.addEventListener("resize", handleResize)
       intervalId.value = setInterval(pollServer, 5000)
-      socket.on('message', handleMessage)
+      socket.on("message", handleMessage)
     })
 
     onUnmounted(() => {
       // Clean up everything!
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener("resize", handleResize)
 
       if (intervalId.value) {
         clearInterval(intervalId.value)
       }
 
-      socket.off('message', handleMessage)
+      socket.off("message", handleMessage)
     })
   }
 }
@@ -94,18 +96,22 @@ export default {
     }
   },
   mounted() {
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener("scroll", this.handleScroll)
     this.timer = setInterval(this.refresh, 10000)
   },
   unmounted() {
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener("scroll", this.handleScroll)
     if (this.timer) {
       clearInterval(this.timer)
     }
   },
   methods: {
-    handleScroll() { /* ... */ },
-    refresh() { /* ... */ }
+    handleScroll() {
+      /* ... */
+    },
+    refresh() {
+      /* ... */
+    }
   }
 }
 ```
@@ -114,7 +120,7 @@ export default {
 
 ```javascript
 // Reusable composable with automatic cleanup
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from "vue"
 
 export function useEventListener(target, event, handler) {
   onMounted(() => {
@@ -139,11 +145,11 @@ export function useInterval(callback, delay) {
 }
 
 // Usage - cleanup is automatic
-import { useEventListener, useInterval } from './composables'
+import { useEventListener, useInterval } from "./composables"
 
 export default {
   setup() {
-    useEventListener(window, 'resize', handleResize)
+    useEventListener(window, "resize", handleResize)
     useInterval(pollServer, 5000)
     // No manual cleanup needed!
   }
@@ -154,12 +160,12 @@ export default {
 
 ```javascript
 // VueUse provides cleanup-aware composables
-import { useEventListener, useIntervalFn } from '@vueuse/core'
+import { useEventListener, useIntervalFn } from "@vueuse/core"
 
 export default {
   setup() {
     // Automatically cleaned up on unmount
-    useEventListener(window, 'resize', handleResize)
+    useEventListener(window, "resize", handleResize)
 
     const { pause, resume } = useIntervalFn(pollServer, 5000)
     // Also provides pause/resume controls
@@ -168,5 +174,6 @@ export default {
 ```
 
 ## Reference
+
 - [Vue.js Lifecycle Hooks](https://vuejs.org/guide/essentials/lifecycle.html)
 - [VueUse - useEventListener](https://vueuse.org/core/useEventListener/)

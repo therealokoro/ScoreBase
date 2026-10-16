@@ -1,5 +1,5 @@
 ---
-category: '@Integrations'
+category: "@Integrations"
 ---
 
 # useJwt
@@ -15,10 +15,12 @@ npm install jwt-decode@^4
 ## Usage
 
 ```ts
-import { useJwt } from '@vueuse/integrations/useJwt'
-import { defineComponent } from 'vue'
+import { useJwt } from "@vueuse/integrations/useJwt"
+import { defineComponent } from "vue"
 
-const encodedJwt = ref('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.L8i6g3PfcHlioHCCPURC9pmXT7gdJpx3kOoyAfNUwCc')
+const encodedJwt = ref(
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.L8i6g3PfcHlioHCCPURC9pmXT7gdJpx3kOoyAfNUwCc"
+)
 const { header, payload } = useJwt(encodedJwt)
 ```
 
@@ -49,9 +51,9 @@ export interface UseJwtReturn<Payload, Header, Fallback> {
 export declare function useJwt<
   Payload extends object = JwtPayload,
   Header extends object = JwtHeader,
-  Fallback = null,
+  Fallback = null
 >(
   encodedJwt: MaybeRefOrGetter<string>,
-  options?: UseJwtOptions<Fallback>,
+  options?: UseJwtOptions<Fallback>
 ): UseJwtReturn<Payload, Header, Fallback>
 ```

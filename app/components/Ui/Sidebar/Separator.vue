@@ -9,17 +9,17 @@
 </template>
 
 <script lang="ts">
-  import { normalizeClass } from "vue";
-  import type { HTMLAttributes } from "vue";
+import { normalizeClass } from "vue"
+import type { HTMLAttributes } from "vue"
 
-  export const sideBarSeparatorStyles = tv({
-    base: "bg-sidebar-border mx-2 w-auto",
-  });
+export const sideBarSeparatorStyles = tv({
+  base: "bg-sidebar-border mx-2 w-auto"
+})
 </script>
 
 <script setup lang="ts">
-  const props = defineProps<{
-    /** Additional classes to apply to the parent element. */
-    class?: HTMLAttributes["class"];
-  }>();
+const props = defineProps<{
+  /** Additional classes to apply to the parent element. */
+  class?: HTMLAttributes["class"]
+}>()
 </script>

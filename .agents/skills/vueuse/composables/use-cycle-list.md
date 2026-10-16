@@ -8,17 +8,17 @@ Cycle through a list of items.
 ## Usage
 
 ```ts
-import { useCycleList } from '@vueuse/core'
+import { useCycleList } from "@vueuse/core"
 
 const { state, next, prev, go } = useCycleList([
-  'Dog',
-  'Cat',
-  'Lizard',
-  'Shark',
-  'Whale',
-  'Dolphin',
-  'Octopus',
-  'Seal',
+  "Dog",
+  "Cat",
+  "Lizard",
+  "Shark",
+  "Whale",
+  "Dolphin",
+  "Octopus",
+  "Seal"
 ])
 
 console.log(state.value) // 'Dog'
@@ -34,21 +34,21 @@ console.log(state.value) // 'Shark'
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| initialValue | `MaybeRef&lt;T&gt;` | - | The initial value of the state. |
-| fallbackIndex | `number` | - | The default index when |
-| getIndexOf | `(value: T, list: T[]) =&gt; number` | - | Custom function to get the index of the current value. |
+| Option        | Type                                 | Default | Description                                            |
+| ------------- | ------------------------------------ | ------- | ------------------------------------------------------ |
+| initialValue  | `MaybeRef&lt;T&gt;`                  | -       | The initial value of the state.                        |
+| fallbackIndex | `number`                             | -       | The default index when                                 |
+| getIndexOf    | `(value: T, list: T[]) =&gt; number` | -       | Custom function to get the index of the current value. |
 
 ## Returns
 
-| Name | Type |
-| --- | --- |
-| state | `shallowRef` |
+| Name  | Type                     |
+| ----- | ------------------------ |
+| state | `shallowRef`             |
 | index | `computed&lt;number&gt;` |
-| next | `Ref` |
-| prev | `Ref` |
-| go | `Ref` |
+| next  | `Ref`                    |
+| prev  | `Ref`                    |
+| go    | `Ref`                    |
 
 ## Reference
 

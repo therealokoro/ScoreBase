@@ -8,7 +8,7 @@ Reactive prefers-color-scheme media query.
 ## Usage
 
 ```ts
-import { usePreferredColorScheme } from '@vueuse/core'
+import { usePreferredColorScheme } from "@vueuse/core"
 
 const preferredColor = usePreferredColorScheme()
 ```

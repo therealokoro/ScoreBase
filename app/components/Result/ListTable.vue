@@ -19,14 +19,15 @@ type Result = {
 
 const props = defineProps<{ classId?: string }>()
 
-const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } = useUrlTableState({
-  mode: "server",
-  searchKey: "search",
-  pageKey: "page",
-  sizeKey: "pageSize",
-  defaultPageSize: 10,
-  debounce: 300
-})
+const { search, debouncedSearch, pagination, onPaginationChange, onFilterChange } =
+  useUrlTableState({
+    mode: "server",
+    searchKey: "search",
+    pageKey: "page",
+    sizeKey: "pageSize",
+    defaultPageSize: 10,
+    debounce: 300
+  })
 
 const { data, isPending } = useListResults(
   computed(() => ({

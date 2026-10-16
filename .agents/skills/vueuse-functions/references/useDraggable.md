@@ -10,21 +10,19 @@ Make elements draggable.
 
 ```vue
 <script setup lang="ts">
-import { useDraggable } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
+import { useDraggable } from "@vueuse/core"
+import { useTemplateRef } from "vue"
 
-const el = useTemplateRef('el')
+const el = useTemplateRef("el")
 
 // `style` will be a helper computed for `left: ?px; top: ?px;`
 const { x, y, style } = useDraggable(el, {
-  initialValue: { x: 40, y: 40 },
+  initialValue: { x: 40, y: 40 }
 })
 </script>
 
 <template>
-  <div ref="el" :style="style" style="position: fixed">
-    Drag me! I am at {{ x }}, {{ y }}
-  </div>
+  <div ref="el" :style="style" style="position: fixed">Drag me! I am at {{ x }}, {{ y }}</div>
 </template>
 ```
 
@@ -45,7 +43,7 @@ useDraggable(el, {
   // Initial position (default: { x: 0, y: 0 })
   initialValue: { x: 40, y: 40 },
   // Restrict dragging to specific axis: 'x', 'y', or 'both' (default)
-  axis: 'both',
+  axis: "both",
   // Only trigger when clicking directly on the element (default: false)
   exact: false,
   // Prevent default browser behavior (default: false)
@@ -59,7 +57,7 @@ useDraggable(el, {
   // Mouse buttons that trigger drag (default: [0] - left button)
   buttons: [0],
   // Pointer types to listen to (default: ['mouse', 'touch', 'pen'])
-  pointerTypes: ['mouse', 'touch', 'pen'],
+  pointerTypes: ["mouse", "touch", "pen"],
   // Custom drag handle element (default: target element)
   handle: handleRef,
   // Container element for bounds (default: none)
@@ -71,7 +69,7 @@ useDraggable(el, {
     // Return false to prevent dragging
   },
   onMove: (position, event) => {},
-  onEnd: (position, event) => {},
+  onEnd: (position, event) => {}
 })
 ```
 
@@ -80,10 +78,10 @@ useDraggable(el, {
 Set `preventDefault: true` to override the default drag-and-drop behavior of certain elements in the browser (e.g., images).
 
 ```ts
-import { useDraggable } from '@vueuse/core'
+import { useDraggable } from "@vueuse/core"
 
 const { x, y, style } = useDraggable(el, {
-  preventDefault: true,
+  preventDefault: true
 })
 ```
 
@@ -92,10 +90,10 @@ const { x, y, style } = useDraggable(el, {
 Use `containerElement` to constrain dragging within a container.
 
 ```ts
-import { useDraggable } from '@vueuse/core'
+import { useDraggable } from "@vueuse/core"
 
 const { x, y } = useDraggable(el, {
-  containerElement: containerRef,
+  containerElement: containerRef
 })
 ```
 
@@ -106,8 +104,8 @@ const { x, y, style } = useDraggable(el, {
   autoScroll: {
     speed: 2, // Control the speed of auto-scroll.
     margin: 30, // Set the margin from the edge that triggers auto-scroll.
-    direction: 'both' // Determine the direction of auto-scroll.
-  },
+    direction: "both" // Determine the direction of auto-scroll.
+  }
 })
 ```
 
@@ -172,9 +170,7 @@ export interface UseDraggableOptions {
    *
    * @default undefined
    */
-  containerElement?: MaybeRefOrGetter<
-    HTMLElement | SVGElement | null | undefined
-  >
+  containerElement?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
   /**
    * Handle that triggers the drag event
    *
@@ -284,6 +280,6 @@ export interface UseDraggableReturn {
  */
 export declare function useDraggable(
   target: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>,
-  options?: UseDraggableOptions,
+  options?: UseDraggableOptions
 ): UseDraggableReturn
 ```

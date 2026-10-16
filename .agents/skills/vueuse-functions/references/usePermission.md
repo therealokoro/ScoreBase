@@ -9,9 +9,9 @@ Reactive [Permissions API](https://developer.mozilla.org/en-US/docs/Web/API/Perm
 ## Usage
 
 ```ts
-import { usePermission } from '@vueuse/core'
+import { usePermission } from "@vueuse/core"
 
-const microphoneAccess = usePermission('microphone')
+const microphoneAccess = usePermission("microphone")
 ```
 
 ## Type Declarations
@@ -39,9 +39,7 @@ export type GeneralPermissionDescriptor =
   | {
       name: DescriptorNamePolyfill
     }
-export interface UsePermissionOptions<
-  Controls extends boolean,
-> extends ConfigurableNavigator {
+export interface UsePermissionOptions<Controls extends boolean> extends ConfigurableNavigator {
   /**
    * Expose more controls
    *
@@ -49,9 +47,7 @@ export interface UsePermissionOptions<
    */
   controls?: Controls
 }
-export type UsePermissionReturn = Readonly<
-  ShallowRef<PermissionState | undefined>
->
+export type UsePermissionReturn = Readonly<ShallowRef<PermissionState | undefined>>
 export interface UsePermissionReturnWithControls extends Supportable {
   state: UsePermissionReturn
   query: () => Promise<PermissionStatus | undefined>
@@ -64,15 +60,11 @@ export interface UsePermissionReturnWithControls extends Supportable {
  * @__NO_SIDE_EFFECTS__
  */
 export declare function usePermission(
-  permissionDesc:
-    | GeneralPermissionDescriptor
-    | GeneralPermissionDescriptor["name"],
-  options?: UsePermissionOptions<false>,
+  permissionDesc: GeneralPermissionDescriptor | GeneralPermissionDescriptor["name"],
+  options?: UsePermissionOptions<false>
 ): UsePermissionReturn
 export declare function usePermission(
-  permissionDesc:
-    | GeneralPermissionDescriptor
-    | GeneralPermissionDescriptor["name"],
-  options: UsePermissionOptions<true>,
+  permissionDesc: GeneralPermissionDescriptor | GeneralPermissionDescriptor["name"],
+  options: UsePermissionOptions<true>
 ): UsePermissionReturnWithControls
 ```

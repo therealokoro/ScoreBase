@@ -20,9 +20,10 @@ For async operations, either access all dependencies before the await, or use `w
 - [ ] Be aware that dependencies after await are invisible to Vue
 
 **Incorrect:**
+
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const userId = ref(1)
 const includeDetails = ref(true)
@@ -46,17 +47,18 @@ watchEffect(async () => {
   await someAsyncSetup()
 
   // None of these are tracked!
-  console.log(optionA.value)  // Not tracked
-  console.log(optionB.value)  // Not tracked
-  doSomething(optionC.value)  // Not tracked
+  console.log(optionA.value) // Not tracked
+  console.log(optionB.value) // Not tracked
+  doSomething(optionC.value) // Not tracked
 })
 </script>
 ```
 
 **Correct:**
+
 ```vue
 <script setup>
-import { ref, watchEffect, watch } from 'vue'
+import { ref, watchEffect, watch } from "vue"
 
 const userId = ref(1)
 const includeDetails = ref(true)
@@ -101,9 +103,9 @@ watch(
 
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
-const filters = ref({ status: 'active', sortBy: 'name' })
+const filters = ref({ status: "active", sortBy: "name" })
 const page = ref(1)
 const results = ref([])
 
@@ -114,9 +116,7 @@ watchEffect(async () => {
   const currentPage = page.value
 
   // Now safe to do async work
-  const response = await fetch(
-    `/api/items?status=${status}&sort=${sortBy}&page=${currentPage}`
-  )
+  const response = await fetch(`/api/items?status=${status}&sort=${sortBy}&page=${currentPage}`)
   results.value = await response.json()
 })
 </script>
@@ -126,10 +126,10 @@ watchEffect(async () => {
 
 ```vue
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue"
 
-const source = ref('initial')
-const option = ref('default')
+const source = ref("initial")
+const option = ref("default")
 const result = ref(null)
 
 // BEST for complex async: Use watch with explicit sources
@@ -149,17 +149,17 @@ watch(
 
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect } from "vue"
 
 const a = ref(1)
 const b = ref(2)
 
 watchEffect(async () => {
-  console.log('Tracked dependency a:', a.value)  // Tracked
+  console.log("Tracked dependency a:", a.value) // Tracked
 
   await someAsyncOperation()
 
-  console.log('Untracked dependency b:', b.value)  // NOT tracked!
+  console.log("Untracked dependency b:", b.value) // NOT tracked!
   // Changing b.value won't re-run this watchEffect
 })
 
@@ -169,5 +169,6 @@ watchEffect(async () => {
 ```
 
 ## Reference
+
 - [Vue.js Watchers - watchEffect](https://vuejs.org/guide/essentials/watchers.html#watcheffect)
 - [Vue.js API - watchEffect](https://vuejs.org/api/reactivity-core.html#watcheffect)

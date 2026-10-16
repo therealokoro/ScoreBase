@@ -4,5 +4,5 @@
   "sortImports": true,
   "trailingComma": "none",
   "jsdoc": true,
-  "ignorePatterns": []
+  "ignorePatterns": [".agents/**", ".opencode/**", ".docs/**"]
 }
