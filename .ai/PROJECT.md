@@ -211,7 +211,7 @@ Calculated on the fly and cached until dependencies change:
 | Overall Score  | Total score obtained / Total score obtainable                          |
 | Average Score  | Used to determine class position                                       |
 | Class Position | Configurable display (e.g. show all, or top 3 only)                    |
-| Remarks        | Teacher's and/or Principal's comments                                  |
+| Remarks        | Class teacher's comment and the head signature (principal or director)   |
 
 ### 5.2 Configurable Options
 
@@ -223,17 +223,19 @@ Calculated on the fly and cached until dependencies change:
 ### 5.3 Output
 
 - **Print-optimized CSS view** for browser printing
-- **Exportable to PDF**
+- **Exportable to PDF** (via the browser's print-to-PDF) and to **Excel** (a styled `.xlsx`)
 
 ### 5.4 Report Card Template Builder
 
-> **Status: in progress.** NuxtHub Blob is enabled (`hub.blob: true`; `@nuxthub/core`
-> generates the `@nuxthub/blob` package, so there is no separate dependency). As of
-> 2026-09-30 the template is a slot + block shape (Phases 6+ of
-> `.ai/REPORT-CARD-BUILDER-CONTD.md`): the fixed four-section config is being replaced by
-> five slots holding ordered lists of typed blocks, while the old builder sections and
-> renderer survive temporarily through a documented `legacy` cast until Phases 7–10 replace
-> them.
+> **Status: complete.** The builder is the slot + block editor from Phases 6–10 of
+> `.ai/REPORT-CARD-BUILDER-CONTD.md`; the old fixed four-section config and its `legacy`
+> cast are gone, and block renderers come from the registry. NuxtHub Blob is enabled
+> (`hub.blob: true`; `@nuxthub/core` generates the `@nuxthub/blob` package, so there is no
+> separate dependency). The default template is **the J.K. People's Comprehensive Academy
+> card** (`createDefaultReportCardTemplate`), so a fresh install, a reset and the builder's
+> placeholder all start from the school's real layout. The builder is deliberately **locked**
+> on this branch — blocks can be hidden, reordered and configured, but not added, duplicated
+> or deleted — so the template keeps matching its reference PDF.
 
 The report card template is a first-class feature: admins can fully customise how printed
 report cards look, and the config is persisted in NuxtHub KV under the key
@@ -248,9 +250,11 @@ call), `hidden` (hide without delete), an optional `fontFamily` override, and a 
 `config`. Block types: `school-info` (school name + free-form paragraphs), `student-info`,
 `scores` (a single `caDisplay` control drives the CA columns, with the CA count read from
 result settings), `custom-table`, `grading-key` (live from result settings), `psychomotor`
-(sidebar-only), `summary`, `remarks`. The template also carries a global `fontFamily` and an
-optional watermark (`source: "logo" | "custom"`, opacity, size, single/tiled). The two-column
-sidebar layout switches itself on whenever the `sidebar` slot has blocks
+(sidebar-only), `summary`, `remarks`. The template also carries a global `fontFamily`, a
+`footerLayout` (`"stacked"` or a two-column `"columns"` with a per-block `column`), a
+`borderRadius`, table/grid rule settings (`tableBorders`: colour, inner width, outline width)
+and an optional watermark (`source: "logo" | "custom"`, opacity, px size, single/tiled). The
+two-column sidebar layout switches itself on whenever the `sidebar` slot has blocks
 (`sidebarPosition: "left" | "right"`). Spec: `.ai/REPORT-CARD-BUILDER-CONTD.md` plus the
 review notes in `AGENTS.md`.
 
@@ -276,12 +280,13 @@ review notes in `AGENTS.md`.
   sheet is available from the full report card view so admins can edit while seeing a real
   card. All controls are compact (small inputs, selects, and icon buttons), and text styling
   (size, bold, colour, alignment) lives in a popover behind an icon button.
-- The editor (Phase 10) works per slot — Header, Student Info, Main, Sidebar, Footer (the
-  Sidebar tab is disabled unless the layout is "With sidebar"). Each slot lists its blocks
-  with hide, duplicate, reorder, and delete controls plus an "Add block" palette filtered by
-  each block's `allowedSlots`. Selecting a block opens its config panel; editing a block
-  writes straight into the template. Template-level controls cover the name, layout,
-  sidebar side, and watermark.
+- The editor (Phase 10) works per slot — Header, Student Info, Main, Sidebar, Footer. Each
+  slot lists its blocks with hide and reorder controls **only** (the builder is locked: no add,
+  duplicate or delete), and selecting a block opens its config panel; editing a block writes
+  straight into the template. Template-level controls (General tab) cover the font family,
+  footer layout, corner radius, table border colour/widths and the watermark. The scores
+  panel owns the table's text size/weight/colour, its display mode, column order and headings,
+  and the switch for the bracketed maximums.
 - Auto-save with a debounced mutation — admins never need to click "save" after a change.
 - Reset-to-default action with a confirmation dialog.
 
@@ -298,8 +303,12 @@ review notes in `AGENTS.md`.
   `.../[scoresheetId]/full` — the full view uses the `fullscreen` layout (no sidebar), renders
   the template against real data, and carries the Print / Edit scores / Customize template
   actions in a `print:hidden` top bar.
-- Print styles use `@page { size: A4 }` with all dashboard chrome hidden via `print:hidden`,
-  and the report card wrapper tagged with `report-card-print-root`.
+- Print styles use `@page { size: A4; margin: 0 }` (the card is exactly 210mm wide and carries
+  its own padding) with all dashboard chrome hidden via `print:hidden`, and the report card
+  wrapper tagged with `report-card-print-root`. The full view sets a document title from the
+  student's data and exports: **Excel** writes a real styled `.xlsx` with `hucre`
+  (`app/utils/report-card-export.ts`, dynamically imported), and **PDF** goes through the
+  browser's print dialog, whose "Save as PDF" yields vector text.
 - Manual-entry content (custom-table manual rows, remark comments via `manualValues`) lands
   with Phase 12; remark comments currently fall back to the scoresheet's stored
   `teacherRemark` / `principalRemark`.
