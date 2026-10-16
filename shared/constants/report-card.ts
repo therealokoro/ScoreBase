@@ -156,9 +156,25 @@ export interface Watermark {
   source: WatermarkSource
   imageUrl: string | null // NuxtHub Blob pathname — only used when source is "custom"
   opacity: number // 0–1
-  size: "small" | "medium" | "large"
+  /** Rendered size in px — the single image's width/height, or each tile's size in tiled mode. */
+  size: number
   mode: "single" | "tiled"
 }
+
+/** Bounds for the watermark size slider, in px. */
+export const WATERMARK_SIZE_MIN = 80
+export const WATERMARK_SIZE_MAX = 700
+export const WATERMARK_SIZE_DEFAULT = 350
+
+/**
+ * The sizes the old fixed small/medium/large control wrote. Kept so templates saved with it still
+ * read back at the same rendered size (`WatermarkSchema` maps them to px).
+ */
+export const WATERMARK_SIZE_PRESETS = {
+  small: 200,
+  medium: 350,
+  large: 500
+} as const
 
 export type SidebarPosition = "left" | "right"
 

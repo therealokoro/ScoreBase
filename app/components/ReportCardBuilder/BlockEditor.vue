@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import type { ReportCardTemplate, Slot, WatermarkSource } from "~~/shared/constants/report-card"
-import { FONT_FAMILIES } from "~~/shared/constants/report-card"
+import {
+  FONT_FAMILIES,
+  WATERMARK_SIZE_DEFAULT,
+  WATERMARK_SIZE_MAX,
+  WATERMARK_SIZE_MIN
+} from "~~/shared/constants/report-card"
 
 import type { ReportCardEditorTab } from "~/composables/useReportCardTemplateEditor"
 
@@ -50,7 +55,7 @@ const watermarkMode = computed<WatermarkMode>({
       source: value,
       imageUrl: current?.imageUrl ?? null,
       opacity: current?.opacity ?? 0.08,
-      size: current?.size ?? "medium",
+      size: current?.size ?? WATERMARK_SIZE_DEFAULT,
       mode: current?.mode ?? "single"
     }
   }
@@ -216,17 +221,20 @@ const watermarkMode = computed<WatermarkMode>({
             </span>
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-2">
             <span class="text-muted-foreground w-14 text-[10px]">Size</span>
-            <UiButton
-              v-for="size in ['small', 'medium', 'large'] as const"
-              :key="size"
-              type="button"
-              size="sm"
-              :variant="template.watermark.size === size ? 'secondary' : 'ghost'"
-              :text="size.charAt(0).toUpperCase() + size.slice(1)"
-              @click="template.watermark.size = size"
+            <UiSlider
+              :model-value="[template.watermark.size]"
+              :min="WATERMARK_SIZE_MIN"
+              :max="WATERMARK_SIZE_MAX"
+              :step="10"
+              @update:model-value="
+                (value) => (template.watermark!.size = value?.[0] ?? WATERMARK_SIZE_DEFAULT)
+              "
             />
+            <span class="w-12 text-right text-[10px] tabular-nums">
+              {{ template.watermark.size }}px
+            </span>
           </div>
 
           <div class="flex items-center gap-1">

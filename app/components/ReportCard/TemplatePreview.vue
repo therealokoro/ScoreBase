@@ -5,7 +5,7 @@ import type {
   ReportCardBlock,
   ReportCardTemplate
 } from "~~/shared/constants/report-card"
-import { REPORT_CARD_SLOTS } from "~~/shared/constants/report-card"
+import { REPORT_CARD_SLOTS, WATERMARK_SIZE_DEFAULT } from "~~/shared/constants/report-card"
 
 import { getBlockDefinition } from "./blocks/registry"
 import RemarksBlock from "./blocks/RemarksBlock.vue"
@@ -52,10 +52,7 @@ function findBlock(type: ReportCardBlock["type"]): ReportCardBlock | null {
 
 // ----------------------------------- Watermark -----------------------------------
 
-const WATERMARK_SIZE_PX = { small: 200, medium: 350, large: 500 } as const
-
 const watermark = computed(() => props.template.watermark)
-
 /** Resolves the watermark image: either the school-info logo or the uploaded custom image. */
 const watermarkImageUrl = computed(() => {
   const mark = watermark.value
@@ -68,9 +65,7 @@ const watermarkImageUrl = computed(() => {
   return assetUrl(mark.imageUrl)
 })
 
-const watermarkSize = computed(() =>
-  watermark.value ? WATERMARK_SIZE_PX[watermark.value.size] : WATERMARK_SIZE_PX.medium
-)
+const watermarkSize = computed(() => watermark.value?.size ?? WATERMARK_SIZE_DEFAULT)
 
 // ----------------------------------- Layout -----------------------------------
 

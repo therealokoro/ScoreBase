@@ -92,7 +92,7 @@ describe("ReportCardTemplateSchema", () => {
         source: "custom",
         imageUrl: "report-card/watermark",
         opacity: 1.5,
-        size: "medium",
+        size: 350,
         mode: "single"
       }
     })
@@ -106,7 +106,7 @@ describe("ReportCardTemplateSchema", () => {
         source: "custom",
         imageUrl: null,
         opacity: 0.1,
-        size: "medium",
+        size: 350,
         mode: "single"
       }
     })
@@ -120,12 +120,34 @@ describe("ReportCardTemplateSchema", () => {
         source: "logo",
         imageUrl: null,
         opacity: 0.08,
-        size: "medium",
+        size: 350,
         mode: "single"
       }
     })
 
     expect(ReportCardTemplateSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it("reads the old small/medium/large watermark sizes back as px", () => {
+    const legacy = (size: string) =>
+      templateWith({
+        watermark: { source: "logo", imageUrl: null, opacity: 0.08, size, mode: "single" }
+      })
+
+    const sizes = ["small", "medium", "large"].map((size) => {
+      const parsed = ReportCardTemplateSchema.safeParse(legacy(size))
+      return parsed.success ? parsed.data.watermark?.size : null
+    })
+
+    expect(sizes).toEqual([200, 350, 500])
+  })
+
+  it("rejects a watermark size outside the slider's range", () => {
+    const tooBig = templateWith({
+      watermark: { source: "logo", imageUrl: null, opacity: 0.08, size: 900, mode: "single" }
+    })
+
+    expect(ReportCardTemplateSchema.safeParse(tooBig).success).toBe(false)
   })
 
   it("accepts sidebar blocks (the sidebar layout is derived from them)", () => {

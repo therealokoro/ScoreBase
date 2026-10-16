@@ -1,6 +1,11 @@
 import { z } from "zod"
 
-import { DEFAULT_TABLE_BORDERS } from "#shared/constants/report-card"
+import {
+  DEFAULT_TABLE_BORDERS,
+  WATERMARK_SIZE_MAX,
+  WATERMARK_SIZE_MIN,
+  WATERMARK_SIZE_PRESETS
+} from "#shared/constants/report-card"
 
 // ---------------------------------------------------------------------------
 // Report Card Template — Zod schemas for the slot + block shape.
@@ -65,7 +70,13 @@ export const WatermarkSchema = z
     source: z.enum(["logo", "custom"]),
     imageUrl: z.string().nullable(),
     opacity: z.number().min(0).max(1),
-    size: z.enum(["small", "medium", "large"]),
+    // A free px size; the legacy small/medium/large labels still read, at their old sizes.
+    size: z
+      .union([
+        z.number().min(WATERMARK_SIZE_MIN).max(WATERMARK_SIZE_MAX),
+        z.enum(["small", "medium", "large"])
+      ])
+      .transform((size) => (typeof size === "number" ? size : WATERMARK_SIZE_PRESETS[size])),
     mode: z.enum(["single", "tiled"])
   })
   .refine((watermark) => watermark.source !== "custom" || watermark.imageUrl !== null, {

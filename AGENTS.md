@@ -524,6 +524,9 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-16 — The watermark size is a free slider (`Watermark.size` is now px, 80–700, step 10) instead
+  of small/medium/large buttons; `WatermarkSchema` maps the old labels to their previous px values
+  (200/350/500) so templates saved with them render unchanged.
 - 2026-10-15 — The full report card view is titled from the student's data and its "Export As" menu
   works. **Excel** writes a real `.xlsx` with **hucre** (`app/utils/report-card-export.ts`, dynamically
   imported on first use; new dependency). **PDF** goes through the browser's print dialog, whose
