@@ -82,80 +82,12 @@ async function exportSpreadsheet() {
 }
 
 /**
- * PDF export: captures the rendered A4 card and writes it to a real PDF file, so it downloads
- * instead of opening the print dialog. Long cards are sliced across pages rather than scaled down.
+ * PDF export. The browser's own "Save as PDF" produces a real vector PDF — selectable, searchable
+ * text at A4 with the card's print stylesheet — so this opens the print dialog rather than
+ * rasterising the card. The document title (set above) is the filename it suggests.
  */
-async function exportPdf() {
-  const root = document.querySelector<HTMLElement>(".report-card-print-root")
-  if (!root || isExporting.value) return
-
-  isExporting.value = true
-  // The on-screen zoom is a preview concern; capture at natural A4 size.
-  const previousZoom = root.style.zoom
-  root.style.zoom = "1"
-
-  try {
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-      import("html2canvas-pro"),
-      import("jspdf")
-    ])
-
-    const canvas = await html2canvas(root, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      logging: false
-    })
-
-    const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" })
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const imageHeight = (canvas.height / canvas.width) * pageWidth
-
-    if (imageHeight <= pageHeight + 1) {
-      pdf.addImage(
-        canvas.toDataURL("image/png"),
-        "PNG",
-        0,
-        0,
-        pageWidth,
-        imageHeight,
-        undefined,
-        "FAST"
-      )
-    } else {
-      // Slice the capture into A4-tall pages so nothing shrinks or gets cut off.
-      const sliceHeight = Math.floor((canvas.width * pageHeight) / pageWidth)
-      for (let offset = 0; offset < canvas.height; offset += sliceHeight) {
-        const height = Math.min(sliceHeight, canvas.height - offset)
-        const slice = document.createElement("canvas")
-        slice.width = canvas.width
-        slice.height = height
-        slice
-          .getContext("2d")
-          ?.drawImage(canvas, 0, offset, canvas.width, height, 0, 0, canvas.width, height)
-
-        if (offset > 0) pdf.addPage()
-        pdf.addImage(
-          slice.toDataURL("image/png"),
-          "PNG",
-          0,
-          0,
-          pageWidth,
-          (height / canvas.width) * pageWidth,
-          undefined,
-          "FAST"
-        )
-      }
-    }
-
-    pdf.save(`${safeFileName(cardTitle.value)}.pdf`)
-  } catch (error) {
-    useSonner.error("Could not build the PDF", { description: String(error) })
-  } finally {
-    root.style.zoom = previousZoom
-    isExporting.value = false
-  }
+function exportPdf() {
+  window.print()
 }
 </script>
 
@@ -201,8 +133,8 @@ async function exportPdf() {
             />
             <UiDropdownMenuItem
               :icon="ICONS.document"
-              title="PDF document (.pdf)"
-              :disabled="!view || isExporting"
+              title="PDF (Save as PDF)"
+              :disabled="!view"
               @select="exportPdf()"
             />
           </UiDropdownMenuContent>

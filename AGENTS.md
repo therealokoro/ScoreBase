@@ -71,7 +71,7 @@ Versions come from `package.json`.
 | Icons           | `@nuxt/icon` with the `ICONS` map in `shared/constants/icons.ts`                                        |
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
 | Package manager | pnpm `11.5.2`                                                                                          |
-| Export          | `hucre` (xlsx), `html2canvas-pro` + `jspdf` (PDF) — both dynamically imported                         |
+| Export          | `hucre` (xlsx), dynamically imported on first use                                                      |
 | Lint / format   | Oxlint, Oxfmt                                                                                           |
 | Testing         | Vitest `^5` + `@vue/test-utils` / `happy-dom`; typecheck with `vue-tsc`                                 |
 
@@ -274,16 +274,15 @@ Awaiting `useAsyncData` blocks navigation. Use `useLazyAsyncData` or a TanStack 
   is hidden with Tailwind `print:hidden`.
 - The full view sets its own document title from the student's data
   ("Aminu Obiora's 2026/2027 Session 1st Term Result"), which is what a printed/saved PDF is
-  named after. Its "Export As" menu downloads files — nothing opens a dialog:
+  named after (the browser uses it as the PDF's filename). Its "Export As" menu:
   - **Excel** (`.xlsx`) is built by `app/utils/report-card-export.ts` with **hucre** (zero-dependency
-    ESM writer): a titled, styled sheet with merged detail cells, a dark score header, real numbers
-    (percent formats, so Excel can total them), frozen panes and A4-landscape page setup. Colours
-    from the template's school name tint the title.
-  - **PDF** captures `.report-card-print-root` with **html2canvas-pro** (it understands the oklch
-    colours Tailwind emits) and writes it into a real A4 PDF with **jspdf**, slicing into pages
-    rather than shrinking. It is a raster of the card, so its text is not selectable.
-  Both libraries are **dynamically imported** inside the click handler, so they stay out of the
-  main bundle.
+    ESM writer, dynamically imported on first use): a titled, styled sheet with merged detail cells,
+    a dark score header, real numbers (percent formats, so Excel can total them), frozen panes and
+    A4-landscape page setup. Colours from the template's school name tint the title.
+  - **PDF** opens the print dialog and relies on the browser's own "Save as PDF": that produces a
+    real vector PDF (selectable, searchable text) at A4 with the card's print stylesheet. Do not
+    rasterise the card into a PDF — a canvas capture makes the text unselectable and the file an
+    order of magnitude bigger.
 - The report card wrapper is tagged `report-card-print-root`, and
   `app/assets/css/tailwind.css` sets `@page { size: A4 }`.
 - The renderer is `app/components/ReportCard/TemplatePreview.vue`. It scales the A4 canvas to
@@ -526,14 +525,12 @@ _Convention changes logged here:_
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
 - 2026-10-15 — The full report card view is titled from the student's data and its "Export As" menu
-  downloads real files: `.xlsx` built with **hucre** (`app/utils/report-card-export.ts`) and `.pdf`
-  built with **html2canvas-pro** + **jspdf** (a raster of the A4 card, sliced into pages). Both
-  libraries are dynamically imported so they stay out of the app entry — they arrive in their own
-  chunks (~390 KB raw for jspdf + html2canvas, ~141 KB for hucre). New dependencies: `hucre`,
-  `html2canvas-pro`, `jspdf`; `pnpm-workspace.yaml` maps `core-js` (a `jspdf → canvg` transitive
-  dependency) to `allowBuilds: false` because its only install script is a funding banner. Class
-  average and subject position also moved into `shared/utils/report-card.ts`
-  (`subjectClassAverage`, `subjectClassRank`) so the card and the export share one formula.
+  works. **Excel** writes a real `.xlsx` with **hucre** (`app/utils/report-card-export.ts`, dynamically
+  imported on first use; new dependency). **PDF** goes through the browser's print dialog, whose
+  "Save as PDF" gives a vector PDF with selectable text — a canvas → PDF route was tried and
+  rejected: it produces a raster with unselectable text and a much larger file. Class average and
+  subject position also moved into `shared/utils/report-card.ts` (`subjectClassAverage`,
+  `subjectClassRank`) so the card and the export share one formula.
 - 2026-10-14 — The J.K. card became the app's **default** template: `createDefaultReportCardTemplate()`
   now builds it (moved out of the seed task), so a fresh KV, "Reset to default" and the builder's
   placeholder all open on the school's real layout. `seed:seed-jk-template` is now a thin re-writer

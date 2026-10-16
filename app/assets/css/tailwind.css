@@ -217,6 +217,12 @@
 /* Report card printing — see .ai/PROJECT.md §5.4 */
 @page {
   size: A4;
+  /*
+   * No page margin: the card is exactly 210mm wide and carries its own padding, so any page margin
+   * would push it past the printable area and make the browser scale or clip it. With a zero
+   * margin the card maps 1:1 onto the sheet, which is what "Save as PDF" then produces.
+   */
+  margin: 0;
 }
 
 @media print {
