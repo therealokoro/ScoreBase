@@ -54,20 +54,20 @@ Versions come from `package.json`.
 
 | Layer           | Technology                                                                                              |
 | --------------- | ------------------------------------------------------------------------------------------------------- |
-| Framework       | Nuxt `^4.5.2`, Vue `^3.5.43`, TypeScript `^6.0.3` (SPA, `ssr: false`)                                   |
+| Framework       | Nuxt `^4.6.1`, Vue `^3.5.44`, TypeScript `^6.0.3` (SPA, `ssr: false`)                                   |
 | Styling         | Tailwind CSS `^4.3.3`, CSS-first, via `@tailwindcss/vite`. No `tailwind.config.js`                      |
-| UI              | shadcn-vue `^2.8.2` / Reka UI `^2.10.5`, generated with UI Thing into `app/components/Ui` (`Ui` prefix) |
+| UI              | shadcn-vue `^2.8.2` / Reka UI `^2.11.0`, generated with UI Thing into `app/components/Ui` (`Ui` prefix) |
 | Forms           | FormKit `^2.1.2` only                                                                                   |
-| Data fetching   | TanStack Vue Query `^5.103.2`, set up manually                                                          |
-| Tables          | TanStack Vue Table `^9.2.4` (v9 API)                                                                    |
-| API             | oRPC `^1.15.3` (intentionally v1, not v2)                                                               |
+| Data fetching   | TanStack Vue Query `^5.104.3`, set up manually                                                          |
+| Tables          | TanStack Vue Table `^9.3.1` (v9 API)                                                                    |
+| API             | oRPC `^1.15.7` (intentionally v1, not v2)                                                               |
 | Backend         | Nitro via the Nuxt `server/` directory                                                                  |
 | ORM             | Drizzle ORM `^0.45.3`, drizzle-kit `^0.31.11`, drizzle-zod `^0.8.3`                                     |
 | Database        | SQLite via NuxtHub `@nuxthub/core` `^0.10.8` (`hub.db`, libSQL/Turso)                                   |
 | KV              | NuxtHub KV: `import { kv } from "@nuxthub/kv"`, deep-merged with `defu`                                 |
-| Auth            | Better Auth `^1.7.5` (email/password + admin plugin)                                                    |
+| Auth            | Better Auth `^1.7.10` (email/password + admin plugin)                                                   |
 | IDs             | `typeid-js` `^1.2.0`                                                                                    |
-| Validation      | Zod `^4.6.5`                                                                                            |
+| Validation      | Zod `^4.6.7`                                                                                            |
 | Icons           | `@nuxt/icon` with the `ICONS` map in `shared/constants/icons.ts`                                        |
 | Toasts          | `vue-sonner`, aliased to `useSonner`                                                                    |
 | Package manager | pnpm `11.5.2`                                                                                           |
@@ -90,7 +90,7 @@ Non-obvious choices:
   `blob.serve(event, pathname)` (for example `server/routes/images/[...pathname].get.ts`),
   then reference it as `/images/<pathname>`.
 - **NuxtHub imports are package imports**, not v0.9 composables. Use `import { kv } from
-"@nuxthub/kv"` and `import { db } from "@nuxthub/db"`, never `hubKv()` / `hubBlob()`.
+  "@nuxthub/kv"` and `import { db } from "@nuxthub/db"`, never `hubKv()` / `hubBlob()`.
 
 ## Commands
 
@@ -236,7 +236,7 @@ Settings are typed config objects stored in NuxtHub KV.
   duplicate `gradeBoundaries` / `caMaxScores`. Pass a key to read one field:
   `getSchoolSettings("termPreset")`.
 - Write pattern deep-merges the partial over the current value (`mergeSettings(settings,
-current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
+  current)`) and calls `kv.set`. Reads validate the merged value with its Zod schema and fall
   back to defaults if the stored value is corrupt.
 - `getResultScoreConfig()` snapshots only `{ caCount, caMaxScores, examMax }` onto a Result
   at creation time. Grading and position settings are read fresh at render time.
@@ -524,6 +524,17 @@ _Convention changes logged here:_
   from the scores column checklist so it never contradicts what renders. The `uploadAsset`
   contract enum and `ReportCardAssetKey` share five keys (logo-primary, logo-secondary,
   sig-teacher, sig-principal, watermark).
+- 2026-10-16 — Dependency upgrade round: Nuxt `^4.6.1`, Vue `^3.5.44`, VueUse `^15.0.0`,
+  `@nuxt/fonts` `^1.0.1`, `happy-dom` `^21`, plus patch/minor bumps (oRPC `^1.15.7`,
+  Better Auth `^1.7.10`, Zod `^4.6.7`, TanStack, Reka UI `^2.11.0`, vue-tsc `^3.3.13`).
+  TypeScript stays on 6.x (TS 7 is the Go port; vue-tsc needs the programmatic API) and
+  `@libsql/client` is left for NuxtHub to resolve. **Gotcha:** pnpm keeps stale nested
+  resolutions on range bumps — nuxt kept a nested `vue@3.5.43` while root moved to 3.5.44,
+  and the two `vue` identities silently broke every `declare module 'vue'` augmentation
+  (12 template errors: `formatDate`, `clearError`, `$colorMode`, …). Ambient `declare
+  global` still resolved, which masked the cause. After any Vue minor bump run `pnpm dedupe`
+  (or check `Get-Item node_modules\.pnpm\nuxt@*\node_modules\vue` links) before debugging
+  templates.
 - 2026-10-16 — The watermark size is a free slider (`Watermark.size` is now px, 80–700, step 10) instead
   of small/medium/large buttons; `WatermarkSchema` maps the old labels to their previous px values
   (200/350/500) so templates saved with them render unchanged.
