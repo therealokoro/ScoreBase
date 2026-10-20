@@ -43,6 +43,12 @@ export const useDeleteTeacher = () => {
   )
 }
 
+/** Admin-only: resets a teacher's password to the default `pass-<surname>-123`. */
+export const useResetTeacherPassword = () => {
+  const { $orpc } = useNuxtApp()
+  return useMutation($orpc.teacher.resetPassword.mutationOptions())
+}
+
 export const useGetSingleTeacher = (id: MaybeRefOrGetter<string>) => {
   const { $orpc } = useNuxtApp()
   return useQuery(computed(() => $orpc.teacher.getOne.queryOptions({ input: { id: toValue(id) } })))

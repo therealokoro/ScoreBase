@@ -47,11 +47,51 @@ const classOptions = computed(() => {
   return classes.value?.map((curr: IClass) => ({ label: curr.name, value: curr.id })) || []
 })
 
+/**
+ * A result can only be created against the session/term the admin has made active — the form is
+ * pre-filled from these settings and teachers cannot pick another term.
+ */
+const missingActiveSessionTerm = computed(
+  () => !schoolSettings.value?.activeSession || !schoolSettings.value?.activeTerm
+)
+
+const selectedClass = computed(
+  () =>
+    classes.value?.find((curr: IClassWithSubjectList) => curr.id === formData.value.classId) ?? null
+)
+
+const classHasNoSubjectPreset = computed(
+  () => !!selectedClass.value && !selectedClass.value.subjectList
+)
+
+// Warn once per class selection: without a preset the new scoresheets start with no subjects and
+// every one of them has to be filled in by hand.
+const warnedClasses = new Set<string>()
+watch(
+  [selectedClass, isSheetOpen],
+  ([cls, open]) => {
+    if (!open || !cls || cls.subjectList || warnedClasses.has(cls.id)) return
+    warnedClasses.add(cls.id)
+    useSonner.warning(
+      "This class has no subject list preset. Students' scoresheets will start empty, so you will have to add subjects manually for each student.",
+      { duration: 7000 }
+    )
+  },
+  { immediate: true }
+)
+
 const createResult = useCreateResult()
 async function handleCreateResult(payload: CreateResultForm) {
   const { termId, classId } = payload
   // Form validation guarantees these, but keep the types honest.
   if (!termId || !classId) return
+
+  // Defensive: the create button is disabled without an active session/term, but never let a
+  // result be created against a stale selection.
+  if (missingActiveSessionTerm.value) {
+    useSonner.error("Set an active session and term before creating a result.")
+    return
+  }
 
   const input: CreateResultInput = { termId, classId }
 
@@ -69,7 +109,9 @@ async function handleCreateResult(payload: CreateResultForm) {
 <template>
   <Page title="Results" description="Manage results across sessions and terms">
     <div class="w-full flex gap-3">
-      <ui-button @click="isSheetOpen = true" :icon="ICONS.add">Create New Result</ui-button>
+      <ui-button @click="isSheetOpen = true" :icon="ICONS.add" :disabled="missingActiveSessionTerm">
+        Create New Result
+      </ui-button>
       <ui-button
         v-if="isAdmin"
         to="/dashboard/results/settings"
@@ -78,6 +120,27 @@ async function handleCreateResult(payload: CreateResultForm) {
       >
         Result Settings
       </ui-button>
+    </div>
+
+    <div v-if="missingActiveSessionTerm" class="w-full space-y-2">
+      <UiAlert
+        variant="info"
+        icon="lucide:info"
+        :description="
+          isAdmin
+            ? 'No active session or term is set. Pick the active session and term on the Sessions page before creating a result.'
+            : 'No active session or term has been set yet. Ask an admin to set the active session and term before you can create a result.'
+        "
+      />
+      <UiButton
+        v-if="isAdmin"
+        to="/dashboard/sessions"
+        variant="outline"
+        size="sm"
+        :icon="ICONS.settings"
+      >
+        Go to Sessions
+      </UiButton>
     </div>
 
     <ResultListTable />
@@ -106,6 +169,14 @@ async function handleCreateResult(payload: CreateResultForm) {
                 description="The form is pre-filled with the currently active session, term and your class. If selections are incorrect, please contact an admin. Click on
                 the submit button to create the result."
                 class="text-info mb-4 text-xs"
+              />
+
+              <UiAlert
+                v-if="classHasNoSubjectPreset"
+                variant="warning"
+                icon="lucide:info"
+                description="This class has no subject list preset. The new scoresheets will start with no subjects, so you will have to add every subject manually for each student."
+                class="mb-4 text-xs"
               />
 
               <FormKit

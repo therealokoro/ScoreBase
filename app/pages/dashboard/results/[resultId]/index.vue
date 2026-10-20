@@ -98,7 +98,7 @@ const openScoreConfigSheet = ref(false)
 <template>
   <Page :title="result ? `${result.name} Result` : 'Loading...'" :error="error ?? undefined">
     <template #actions>
-      <UiDropdownMenu v-if="canReject || primaryAction || (isAdmin && result?.status === 'draft')">
+      <UiDropdownMenu v-if="canReject || primaryAction || result?.status === 'draft'">
         <UiDropdownMenuTrigger as-child>
           <UiButton variant="ghost" size="icon" :icon="ICONS.more" label="More actions" />
         </UiDropdownMenuTrigger>
@@ -126,7 +126,7 @@ const openScoreConfigSheet = ref(false)
             @select="handleStatusChange('draft')"
           />
           <UiDropdownMenuItem
-            v-if="isAdmin && result?.status === 'draft'"
+            v-if="result?.status === 'draft'"
             title="Delete Result"
             :icon="ICONS.delete"
             class="text-sm text-destructive"

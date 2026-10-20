@@ -9,7 +9,7 @@ import { academicSessionContract } from "../contracts/session.contract"
 import { academicSessions, terms } from "../db/schema"
 import { getSchoolSettings } from "../kv/school-settings"
 import { fetchSingleAcademicSession, listAllAcademicSessions } from "../queries/session.query"
-import { requireAdmin } from "../utils/auth-guard"
+import { requireAdmin, requireSession } from "../utils/auth-guard"
 
 export function generateNextSessionName(sessions: { name: string }[], suffix = ""): string {
   if (sessions.length === 0) {
@@ -33,7 +33,10 @@ export function generateNextSessionName(sessions: { name: string }[], suffix = "
 
 const os = implement(academicSessionContract).$context<APiContext>()
 
-const listAcademicSessions = os.list.handler(async () => await listAllAcademicSessions())
+const listAcademicSessions = os.list.handler(async ({ context }) => {
+  requireSession(context)
+  return await listAllAcademicSessions()
+})
 
 const getSingleAcademicSession = os.getOne.handler(async ({ input, errors, context }) => {
   requireAdmin(context)

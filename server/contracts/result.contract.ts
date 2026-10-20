@@ -94,7 +94,7 @@ export const updateResultStatus = oc
     PRECONDITION_FAILED: { message: "Invalid status transition" }
   })
 
-/** Only draft results can be deleted */
+/** Draft results only; admins or the teacher who owns the class. */
 export const deleteResult = oc
   .input(ResultSchema.pick({ id: true }))
   .output(z.object({ success: z.boolean() }))

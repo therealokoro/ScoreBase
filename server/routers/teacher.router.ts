@@ -13,6 +13,7 @@ import {
 } from "../queries/teacher.query"
 import { requireAdmin, requireSession } from "../utils/auth-guard"
 import { serverAuth } from "../utils/server-auth"
+import { defaultTeacherPassword } from "../utils/teacher-password"
 
 /**
  * Keeps `user.classId` and `classes.teacherId` in sync for a single teacher.
@@ -91,7 +92,7 @@ const createTeacher = os.create.handler(async ({ input, errors, context }) => {
     body: {
       name: input.name,
       email: input.email,
-      password: input.phoneNumber,
+      password: defaultTeacherPassword(input.name),
       role: "teacher" as "user" | "admin",
       data: { phoneNumber: input.phoneNumber, classId: input.classId }
     }
@@ -155,8 +156,44 @@ const removeTeacher = os.delete.handler(async ({ input, errors, context }) => {
   return { success: true }
 })
 
+/** Admin action: reset a teacher's password back to the default `pass-<surname>-123`. */
+const resetTeacherPassword = os.resetPassword.handler(async ({ input, errors, context }) => {
+  requireAdmin(context)
+
+  const existingTeacher = await fetchSingleTeacher(input.id)
+  if (!existingTeacher) throw errors.NOT_FOUND()
+
+  const password = defaultTeacherPassword(existingTeacher.name)
+
+  // `set-user-password` is an admin-plugin endpoint: better-auth validates the
+  // caller from the forwarded session cookie, so the current admin request
+  // headers must be passed through.
+  try {
+    await serverAuth.api.setUserPassword({
+      body: { userId: existingTeacher.id, newPassword: password },
+      headers: context.reqHeaders
+    })
+  } catch (error: any) {
+    console.error("setUserPassword failed", {
+      code: error?.body?.code ?? error?.code,
+      status: error?.status
+    })
+    throw new ORPCError("INTERNAL_SERVER_ERROR", {
+      message: "Could not reset the teacher's password"
+    })
+  }
+
+  // Returned so the admin can hand the generated password to the teacher.
+  return { success: true, password }
+})
+
 const getTeachersClass = os.getClass.handler(async ({ input, errors, context }) => {
-  requireSession(context)
+  const user = requireSession(context)
+
+  // Admins may inspect any teacher's class; a teacher may only read their own.
+  if (user.role !== "admin" && user.id !== input.teacherId) {
+    throw new ORPCError("FORBIDDEN", { message: "You can only view your own class" })
+  }
 
   const teachersClass = await fetchTeachersClass(input.teacherId)
   if (!teachersClass) throw errors.NOT_FOUND()
@@ -177,5 +214,6 @@ export const teacherRouter = {
   create: createTeacher,
   update: updateTeacher,
   delete: removeTeacher,
+  resetPassword: resetTeacherPassword,
   getClass: getTeachersClass
 }

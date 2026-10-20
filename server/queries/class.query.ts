@@ -17,9 +17,12 @@ export const fetchSingleClass = async (payload: string, column: "id" | "name" = 
   })
 }
 
-/** List all classes and include their teachers */
+/** List all classes with their teachers and (for the results form) their subject preset. */
 export const listAllClasses = async () => {
   return await db.query.classes.findMany({
-    with: { ...includeTeacher }
+    with: {
+      ...includeTeacher,
+      subjectList: { columns: { id: true, name: true } }
+    }
   })
 }

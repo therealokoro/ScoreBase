@@ -68,9 +68,9 @@ const getResultsByTerm = os.getByTerm.handler(async ({ input, errors, context })
 
 /**
  * CREATE — admin/teacher creates a result for a given term + class, and in the same transaction: 1.
- * Snapshots the current ResultSettings into scoreConfig 2. Creates the result row (status: draft)
- * 3. Bulk-creates a scoresheet for every student currently enrolled in the class 4. Pre-populates
- * each scoresheet's subject scores from the class's subject list preset, seeding caScores with null
+ * Snapshots the current ResultSettings into scoreConfig 2. Creates the result row (status: draft) 3.
+ * Bulk-creates a scoresheet for every student currently enrolled in the class 4. Pre-populates each
+ * scoresheet's subject scores from the class's subject list preset, seeding caScores with null
  * slots (length = caCount) and exam as null.
  *
  * This keeps "create a result" a single atomic action from the admin's point of view — a result is
@@ -290,12 +290,22 @@ const updateResultStatus = os.updateStatus.handler(async ({ input, errors, conte
   return updated!
 })
 
-/** DELETE — unchanged from before */
+/**
+ * DELETE — allowed for admins and for the class teacher, but only while the result is still a
+ * draft. Teachers are scoped to their own class; a foreign result reports NOT_FOUND so class
+ * scoping cannot be probed through result IDs.
+ */
 const deleteResult = os.delete.handler(async ({ input, errors, context }) => {
-  requireAdmin(context)
+  const user = requireSession(context)
 
   const result = await fetchSingleResult(input.id)
   if (!result) throw errors.NOT_FOUND()
+
+  if (user.role === "teacher") {
+    const classId = user.classId ?? (await fetchTeachersClass(user.id))?.id ?? null
+    if (result.classId !== classId) throw errors.NOT_FOUND()
+  }
+
   if (result.status !== "draft") throw errors.PRECONDITION_FAILED()
 
   await db.delete(results).where(eq(results.id, input.id))

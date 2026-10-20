@@ -6,7 +6,7 @@ import {
   UpsertClassSchema
 } from "~~/shared/validators/academic"
 
-export const list = oc.output(z.array(ClassSchema))
+export const list = oc.output(z.array(ClassWithSubjectListSchema))
 
 export const getOne = oc
   .input(ClassSchema.pick({ id: true }))

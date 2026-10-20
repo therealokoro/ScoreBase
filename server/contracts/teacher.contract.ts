@@ -48,6 +48,14 @@ const remove = oc
     NOT_FOUND: { message: "The teacher was not found" }
   })
 
+/** Admin-only: reset a teacher's password back to the default `pass-<surname>-123`. */
+const resetPassword = oc
+  .input(TeacherSchema.pick({ id: true }))
+  .output(z.object({ success: z.boolean(), password: z.string() }))
+  .errors({
+    NOT_FOUND: { message: "The teacher was not found" }
+  })
+
 const getClass = oc
   .input(z.object({ teacherId: z.string() }))
   .output(
@@ -58,7 +66,8 @@ const getClass = oc
     })
   )
   .errors({
-    NOT_FOUND: { message: "The class you're looking for was not found" }
+    NOT_FOUND: { message: "The class you're looking for was not found" },
+    FORBIDDEN: { message: "You can only view your own class" }
   })
 
 export const teacherContract = {
@@ -68,5 +77,6 @@ export const teacherContract = {
   create,
   update,
   getClass,
-  delete: remove
+  delete: remove,
+  resetPassword
 }

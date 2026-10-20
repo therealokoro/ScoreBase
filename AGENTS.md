@@ -589,3 +589,11 @@ _Convention changes logged here:_
   draws single rules on its edges. Seeded by `seed:seed-jk-template`. New component tests cover
   the header layout (with a regression guard for the absolute centring) and grouped header spans
   for 2/3/4 CA columns. Also fixed the stale `--rc-scale` claim in § Report card print.
+- 2026-10-20 — Security and result-flow pass: `session.list` now requires a logged-in user
+  (`requireSession`), and `teacher.getClass` only returns the caller's own class (admins may
+  inspect any) — both were previously unguarded. Class teachers may delete their own class's
+  result while it is still `draft`; `result.delete` is no longer admin-only (foreign results
+  report `NOT_FOUND`). `class.list` now carries the class's `subjectList` (`id`/`name`) so the
+  create-result form can warn when a class has no preset. A teacher's default password is
+  `pass-<surname>-123` (`server/utils/teacher-password.ts`), shared by teacher creation and the
+  new admin-only `teacher.resetPassword` action.
