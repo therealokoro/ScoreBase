@@ -31,9 +31,9 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@vueuse/nuxt",
     "@nuxthub/core",
+    "@nuxt/devtools",
     "@formkit/nuxt",
-    "vue-sonner/nuxt",
-    "@nuxtjs/color-mode"
+    "vue-sonner/nuxt"
   ],
 
   hub: {
@@ -83,10 +83,12 @@ export default defineNuxtConfig({
     configFile: "./app/formkit.config.ts"
   },
 
-  colorMode: {
-    classSuffix: "",
-    storageKey: "ScoreBase-color-mode"
-  },
+  // colorMode: {
+  //   classSuffix: "",
+  //   preference: "light",
+  //   fallback: "light",
+  //   storageKey: "ScoreBase-color-mode"
+  // },
 
   icon: {
     mode: "svg",

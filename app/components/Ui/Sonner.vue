@@ -5,7 +5,7 @@
     close-button
     position="top-center"
     :duration="7000"
-    :theme="$colorMode.value == 'dark' ? 'dark' : 'light'"
+    theme="light"
     :style="{
       '--normal-bg': 'var(--popover)',
       '--normal-text': 'var(--popover-foreground)',
